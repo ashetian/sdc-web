@@ -1,43 +1,100 @@
+'use client'
 import React from 'react';
+import { motion } from 'framer-motion';
+import { FaLinkedin, FaGithub, FaTwitter } from 'react-icons/fa';
 
 const teamMembers = [
   {
     name: 'Cihan Bayram',
     role: 'Role',
     image: '/sdclogo.jpg',
+    socials: {
+      linkedin: '#',
+      github: '#',
+      twitter: '#'
+    }
   },
   {
     name: 'Caner Gorez',
     role: 'Role',
     image: '/sdclogo.jpg',
+    socials: {
+      linkedin: '#',
+      github: '#',
+      twitter: '#'
+    }
   },
   {
     name: 'Tunahan Akargül',
     role: 'Role',
     image: '/sdclogo.jpg',
+    socials: {
+      linkedin: '#',
+      github: '#',
+      twitter: '#'
+    }
   },
   
 ];
 
 export default function Teams() {
   return (
-    <section className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-gray-800">
-      <div className="container mx-auto text-center py-20">
-        <h1 className="text-4xl font-bold mb-6">Our Team</h1>
-        <p className="text-lg mb-12">
-          Meet the talented individuals behind our success.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <section className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="container mx-auto px-4 py-16 max-w-7xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Team
+          </h1>
+          <p className="text-lg text-gray-600">
+          Meet our talented team behind our success
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center max-w-6xl mx-auto">
           {teamMembers.map((member, index) => (
-            <div key={index} className="bg-white p-6 rounded-lg shadow-lg">
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-32 h-32 rounded-full mx-auto mb-4"
-              />
-              <h2 className="text-xl font-bold mb-2">{member.name}</h2>
-              <p className="text-gray-600">{member.role}</p>
-            </div>
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="group"
+            >
+              <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
+                <div className="relative">
+                  <div className="aspect-w-1 aspect-h-1">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                </div>
+                
+                <div className="p-4">
+                  <h3 className="text-lg font-bold text-gray-800 mb-1">
+                    {member.name}
+                  </h3>
+                  <p className="text-sm text-blue-600 font-medium mb-3">{member.role}</p>
+                  
+                  <div className="flex justify-center space-x-3">
+                    <a href={member.socials?.linkedin} className="text-gray-600 hover:text-blue-600 transition-colors">
+                      <FaLinkedin className="w-5 h-5" />
+                    </a>
+                    <a href={member.socials?.github} className="text-gray-600 hover:text-gray-900 transition-colors">
+                      <FaGithub className="w-5 h-5" />
+                    </a>
+                    <a href={member.socials?.twitter} className="text-gray-600 hover:text-blue-400 transition-colors">
+                      <FaTwitter className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
