@@ -32,49 +32,52 @@ const formatDate = (dateStr: string) => {
 export default function Announcements() {
   return (
     <section className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="container mx-auto px-4 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-6xl mx-auto"
-        >
-          <div className="text-center mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-             Announcements
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600">
-             Stay informed about the latest news and events
-            </p>
-          </div>
+      <div className="container mx-auto px-4 py-20">
+      <motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  className="text-center mb-16"
+>
+  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+    Announcements
+  </h1>
+  <p className="text-xl text-gray-600">
+    Stay informed about the latest news and events
+  </p>
+</motion.div>
 
-          <div className="grid gap-6">
-            {announcements.map((announcement, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-4 sm:p-6"
-              >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
-                  <div className="mb-4 sm:mb-0">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
-                      {announcement.title}
-                    </h2>
-                    <p className="text-gray-600 text-sm sm:text-base">
-                      {announcement.description}
-                    </p>
-                  </div>
-                  <div className="flex items-center text-gray-500 text-sm sm:text-base">
-                    <CalendarIcon className="w-5 h-5 mr-2" />
-                    <span>{formatDate(announcement.date)}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {announcements.map((announcement, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow p-6 relative overflow-hidden group"
+            >
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-bl-full" />
+              
+              <div className="flex items-center text-gray-500 mb-4">
+                <CalendarIcon className="w-5 h-5 mr-2" />
+                <span>{formatDate(announcement.date)}</span>
+              </div>
+
+              <h3 className="text-2xl font-bold mb-3 text-gray-800">
+                {announcement.title}
+              </h3>
+
+              <p className="text-gray-600 mb-6">
+                {announcement.description}
+              </p>
+
+              <div className="flex items-center text-blue-600 group-hover:text-blue-700 transition-colors">
+                <span className="font-medium">View details</span>
+                <ChevronRightIcon className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -1,36 +1,27 @@
 'use client'
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaLinkedin, FaGithub, FaTwitter } from 'react-icons/fa';
+import { FaLinkedin, FaGithub } from 'react-icons/fa';
+import { FaXTwitter, FaInstagram } from "react-icons/fa6";
 
 const teamMembers = [
   {
     name: 'Cihan Bayram',
-    role: 'Role',
+    role: 'Developer',
     image: '/sdclogo.jpg',
     socials: {
       linkedin: '#',
-      github: '#',
+      github: 'https://github.com/C1H4N',
       twitter: '#'
     }
   },
   {
     name: 'Caner Gorez',
-    role: 'Role',
+    role: 'Developer',
     image: '/sdclogo.jpg',
     socials: {
       linkedin: '#',
-      github: '#',
-      twitter: '#'
-    }
-  },
-  {
-    name: 'Tunahan Akargül',
-    role: 'Role',
-    image: '/sdclogo.jpg',
-    socials: {
-      linkedin: '#',
-      github: '#',
+      github: 'https://github.com/ashetian',
       twitter: '#'
     }
   },
@@ -91,7 +82,7 @@ export default function Teams() {
                         <FaGithub className="w-5 h-5" />
                       </a>
                       <a href={member.socials.twitter} className="text-gray-600 hover:text-blue-400 transition-colors">
-                        <FaTwitter className="w-5 h-5" />
+                        <FaXTwitter className="w-5 h-5" />
                       </a>
                     </div>
                   </div>
