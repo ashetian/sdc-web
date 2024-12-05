@@ -25,6 +25,16 @@ const teamMembers = [
       twitter: '#'
     }
   },
+  {
+    name: 'Name',
+    role: 'Role',
+    image: '/sdclogo.jpg',
+    socials: {
+      linkedin: '#',
+      github: 'https://github.com/',
+      twitter: '#'
+    }
+  },
 ];
 
 export default function Teams() {

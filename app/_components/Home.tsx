@@ -1,6 +1,7 @@
 'use client'
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link as ScrollLink } from 'react-scroll';
 
 export default function Home() {
   return (
@@ -8,7 +9,7 @@ export default function Home() {
       className="min-h-screen relative bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: 'url("/background.jpg")' }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 via-gray-800/70 to-gray-900/70"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-gray-800/50 to-gray-900/50"></div>
       
       <div className="container mx-auto px-4 h-screen flex items-center justify-center relative z-10">
         <motion.div
@@ -43,18 +44,24 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="space-y-4 sm:space-y-0 sm:space-x-6"
           >
-            <a 
-              href="#about" 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-full hover:opacity-90 transition duration-300 inline-block"
+            <ScrollLink
+              to="about"
+              smooth={true}
+              duration={500}
+              offset={-100}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-full hover:opacity-90 transition duration-300 inline-block cursor-pointer"
             >
               About
-            </a>
-            <a 
-              href="#contact" 
-              className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-full hover:bg-white hover:text-gray-900 transition duration-300 inline-block mt-4 sm:mt-0"
+            </ScrollLink>
+            <ScrollLink
+              to="contact"
+              smooth={true}
+              duration={500}
+              offset={-100}
+              className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-full hover:bg-white hover:text-gray-900 transition duration-300 inline-block mt-4 sm:mt-0 cursor-pointer"
             >
               Contact
-            </a>
+            </ScrollLink>
           </motion.div>
         </motion.div>
       </div>

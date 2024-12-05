@@ -8,8 +8,8 @@ export default function Navbar() {
     const links: Link[] = [
         { name: 'Home', href: 'home' },
         { name: 'About', href: 'about' },
-        { name: 'Team', href: 'team' },
         { name: 'Announcements', href: 'announcements' },
+        { name: 'Team', href: 'team' },
         { name: 'Contact', href: 'contact' },
     ];
 
@@ -30,12 +30,13 @@ export default function Navbar() {
                                 to={href}
                                 smooth={true}
                                 duration={500}
-                                className="text-gray-300 hover:text-white cursor-pointer transition-colors duration-300 font-medium"
+                                className="relative text-gray-300 hover:text-white cursor-pointer transition-colors duration-300 font-medium group"
                                 activeClass="text-blue-400"
                                 spy={true}
                                 offset={-100}
                             >
                                 {name}
+                                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out" />
                             </ScrollLink>
                         ))}
                     </div>
