@@ -13,7 +13,7 @@ export default function About() {
           className="max-w-6xl mx-auto"
         >
           <h1 className="text-6xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            About Us
+            About
           </h1>
 
           <div className="grid md:grid-cols-2 gap-12 mb-16">

@@ -14,7 +14,7 @@ export default function Navbar() {
     ];
 
     return (
-        <div className="fixed w-full top-0 z-50">
+        <div className="hidden md:block fixed w-full top-0 z-50">
             <nav className="bg-gradient-to-r from-gray-900/90 via-gray-800/90 to-gray-900/90 backdrop-blur-sm p-6 shadow-lg">
                 <div className="container mx-auto flex items-center justify-between">
                     <div className="flex items-center">
