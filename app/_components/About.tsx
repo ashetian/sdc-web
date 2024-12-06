@@ -45,7 +45,7 @@ export default function About() {
           <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
             <h2 className="text-2xl font-bold mb-4 text-gray-800">Join Our Community</h2>
             <p className="text-lg text-gray-700">
-              Whether you're a beginner taking your first steps in coding or an experienced developer looking to share your knowledge, our doors are open. Participate in workshops, hackathons, and networking events to grow your skills and expand your professional network.
+              Whether you&aposre a beginner taking your first steps in coding or an experienced developer looking to share your knowledge, our doors are open. Participate in workshops, hackathons, and networking events to grow your skills and expand your professional network.
             </p>
           </div>
         </motion.div>

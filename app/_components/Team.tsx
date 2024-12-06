@@ -12,7 +12,8 @@ const teamMembers = [
     socials: {
       linkedin: '#',
       github: 'https://github.com/C1H4N',
-      twitter: '#'
+      twitter: '#',
+      instagram: '#'
     }
   },
   {
@@ -22,7 +23,8 @@ const teamMembers = [
     socials: {
       linkedin: '#',
       github: 'https://github.com/ashetian',
-      twitter: '#'
+      twitter: '#',
+      instagram: '#'
     }
   },
   {
@@ -32,7 +34,8 @@ const teamMembers = [
     socials: {
       linkedin: '#',
       github: 'https://github.com/',
-      twitter: '#'
+      twitter: '#',
+      instagram: '#'
     }
   },
 ];
@@ -85,7 +88,10 @@ export default function Teams() {
                     </p>
                     
                     <div className="flex justify-center space-x-3">
-                      <a href={member.socials.linkedin} className="text-gray-600 hover:text-blue-600 transition-colors">
+                      <a href={member.socials.instagram} className="text-gray-600 hover:text-blue-600 transition-colors">
+                        <FaInstagram className="w-5 h-5" />
+                      </a>
+                      <a href={member.socials.instagram} className="text-gray-600 hover:text-blue-600 transition-colors">
                         <FaLinkedin className="w-5 h-5" />
                       </a>
                       <a href={member.socials.github} className="text-gray-600 hover:text-gray-900 transition-colors">

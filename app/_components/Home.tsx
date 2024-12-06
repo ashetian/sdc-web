@@ -49,7 +49,7 @@ export default function Home() {
               smooth={true}
               duration={500}
               offset={-100}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-full hover:opacity-90 transition duration-300 inline-block cursor-pointer"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 m-2 px-6 sm:py-4 sm:px-8 rounded-full hover:opacity-90 transition duration-300 inline-block cursor-pointer"
             >
               About
             </ScrollLink>
@@ -58,7 +58,7 @@ export default function Home() {
               smooth={true}
               duration={500}
               offset={-100}
-              className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-full hover:bg-white hover:text-gray-900 transition duration-300 inline-block mt-4 sm:mt-0 cursor-pointer"
+              className="bg-transparent border-2 border-white text-white font-bold py-3 m-2 px-6 sm:py-4 sm:px-8 rounded-full hover:bg-white hover:text-gray-900 transition duration-300 inline-block mt-4 sm:mt-0 cursor-pointer"
             >
               Contact
             </ScrollLink>
