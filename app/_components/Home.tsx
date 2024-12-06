@@ -7,7 +7,6 @@ import VideoBackground from './VideoBackground';
 export default function Home() {
   return (
     <VideoBackground
-    vidsource="/videos/output.m3u8"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-gray-800/50 to-gray-900/50"></div>
 
