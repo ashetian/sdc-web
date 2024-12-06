@@ -2,15 +2,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link as ScrollLink } from 'react-scroll';
+import VideoBackground from './VideoBackground';
 
 export default function Home() {
   return (
-    <section 
-      className="min-h-screen relative bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: 'url("/background.jpg")' }}
+    <VideoBackground
+    vidsource="/videos/output.m3u8"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-gray-800/50 to-gray-900/50"></div>
-      
+
       <div className="container mx-auto px-4 h-screen flex items-center justify-center relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -65,6 +65,6 @@ export default function Home() {
           </motion.div>
         </motion.div>
       </div>
-    </section>
+    </VideoBackground>
   );
 }
