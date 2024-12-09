@@ -24,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} font-sans`}>
+    <html lang="en" className="overflow-x-hidden">
+      <body className={`${inter.variable} font-sans overflow-x-hidden`}>
         <Navbar/>
         {children}
         <Footer/>

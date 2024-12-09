@@ -1,47 +1,121 @@
-'use client'
-import React from 'react';
-import { Link as ScrollLink } from 'react-scroll';
+'use client';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 export default function Navbar() {
-    type Link = { name: string, href: string };
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-    const links: Link[] = [
-        { name: 'Home', href: 'home' },
-        { name: 'About', href: 'about' },
-        { name: 'Announcements', href: 'announcements' },
-        { name: 'Team', href: 'team' },
-        { name: 'Contact', href: 'contact' },
-    ];
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    return (
-        <div className="hidden md:block fixed w-full top-0 z-50">
-            <nav className="bg-gradient-to-r from-gray-900/90 via-gray-800/90 to-gray-900/90 backdrop-blur-sm p-6 shadow-lg">
-                <div className="container mx-auto flex items-center justify-between">
-                    <div className="flex items-center">
-                        <img src="/sdclogobg.png" alt="Logo" className="h-12 w-12 mr-4" />
-                        <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent font-bold text-xl">
-                            KTU Software Development Club
-                        </span>
-                    </div>
-                    <div className="flex items-center justify-center flex-row space-x-6">
-                        {links.map(({ name, href }, index) => (
-                            <ScrollLink
-                                key={index}
-                                to={href}
-                                smooth={true}
-                                duration={500}
-                                className="relative text-gray-300 hover:text-white cursor-pointer transition-colors duration-300 font-medium group"
-                                activeClass="text-blue-400"
-                                spy={true}
-                                offset={-100}
-                            >
-                                {name}
-                                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out" />
-                            </ScrollLink>
-                        ))}
-                    </div>
-                </div>
-            </nav>
+  const scrollToSection = (sectionId: string) => {
+    setIsMenuOpen(false);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
+  return (
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      isScrolled ? 'bg-white/90 backdrop-blur-md shadow-lg' : 'bg-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          <button
+            onClick={() => scrollToSection('home')}
+            className="flex items-center space-x-3"
+          >
+            <div className="relative w-10 h-10">
+              <Image
+                src="/sdclogobg.png"
+                alt="KTU SDC Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <span className={`font-bold text-xl ${isScrolled ? 'text-primary-600' : 'text-white'}`}>
+              KTU SDC
+            </span>
+          </button>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-8">
+            <NavLink onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
+            <NavLink onClick={() => scrollToSection('about')} text="Hakkımızda" isScrolled={isScrolled} />
+            <NavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
+            <NavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
+            <NavLink onClick={() => scrollToSection('contact')} text="İletişim" isScrolled={isScrolled} />
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-2 rounded-md focus:outline-none"
+          >
+            <div className={`w-6 h-0.5 mb-1.5 transition-all ${isScrolled ? 'bg-primary-600' : 'bg-white'} ${
+              isMenuOpen ? 'transform rotate-45 translate-y-2' : ''
+            }`} />
+            <div className={`w-6 h-0.5 mb-1.5 transition-all ${isScrolled ? 'bg-primary-600' : 'bg-white'} ${
+              isMenuOpen ? 'opacity-0' : ''
+            }`} />
+            <div className={`w-6 h-0.5 transition-all ${isScrolled ? 'bg-primary-600' : 'bg-white'} ${
+              isMenuOpen ? 'transform -rotate-45 -translate-y-2' : ''
+            }`} />
+          </button>
         </div>
-    );
+
+        {/* Mobile Menu */}
+        <div className={`md:hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
+        } overflow-hidden`}>
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            <MobileNavLink onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
+            <MobileNavLink onClick={() => scrollToSection('about')} text="Hakkımızda" isScrolled={isScrolled} />
+            <MobileNavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
+            <MobileNavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
+            <MobileNavLink onClick={() => scrollToSection('contact')} text="İletişim" isScrolled={isScrolled} />
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function NavLink({ onClick, text, isScrolled }: { onClick: () => void; text: string; isScrolled: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`transition-colors duration-300 hover:text-primary-500 ${
+        isScrolled ? 'text-secondary-600' : 'text-white'
+      }`}
+    >
+      {text}
+    </button>
+  );
+}
+
+function MobileNavLink({ onClick, text, isScrolled }: { onClick: () => void; text: string; isScrolled: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-300 ${
+        isScrolled
+          ? 'text-secondary-600 hover:bg-secondary-100'
+          : 'text-white hover:bg-white/10'
+      }`}
+    >
+      {text}
+    </button>
+  );
 }

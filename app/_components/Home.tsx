@@ -1,69 +1,76 @@
-'use client'
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Link as ScrollLink } from 'react-scroll';
+'use client';
+import { useEffect, useState } from 'react';
 import VideoBackground from './VideoBackground';
 
 export default function Home() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   return (
-    <VideoBackground
-    >
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-gray-800/50 to-gray-900/50"></div>
-
-      <div className="container mx-auto px-4 h-screen flex items-center justify-center relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center max-w-4xl"
-        >
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-8"
-          >
-            <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-              KTU Software Development Club
-            </span>
-          </motion.h1>
-
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base sm:text-lg md:text-xl lg:text-2xl mb-12 text-gray-300"
-          >
-            Pioneers of technology and innovation, future software developers are trained here.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="space-y-4 sm:space-y-0 sm:space-x-6"
-          >
-            <ScrollLink
-              to="about"
-              smooth={true}
-              duration={500}
-              offset={-100}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 m-2 px-6 sm:py-4 sm:px-8 rounded-full hover:opacity-90 transition duration-300 inline-block cursor-pointer"
-            >
-              About
-            </ScrollLink>
-            <ScrollLink
-              to="contact"
-              smooth={true}
-              duration={500}
-              offset={-100}
-              className="bg-transparent border-2 border-white text-white font-bold py-3 m-2 px-6 sm:py-4 sm:px-8 rounded-full hover:bg-white hover:text-gray-900 transition duration-300 inline-block mt-4 sm:mt-0 cursor-pointer"
-            >
-              Contact
-            </ScrollLink>
-          </motion.div>
-        </motion.div>
+    <section id="home" className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-0">
+        <VideoBackground />
       </div>
-    </VideoBackground>
+      
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+      
+      <div className={`relative z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+      }`}>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+          <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+            KTÜ Software Development Club
+          </span>
+        </h1>
+        
+        <p className="text-xl sm:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
+          Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için
+          inovasyon ve öğrenme merkezi
+        </p>
+        
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button
+            onClick={() => {
+              document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="w-64 sm:w-auto px-8 py-3 bg-primary-500 text-white rounded-full font-medium 
+                     hover:bg-primary-600 transform hover:scale-105 transition-all duration-300
+                     shadow-lg hover:shadow-primary-500/50"
+          >
+            Bizi Tanıyın
+          </button>
+          
+          <button
+            onClick={() => {
+              document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="w-64 sm:w-auto px-8 py-3 bg-white/10 text-white rounded-full font-medium 
+                     backdrop-blur-sm hover:bg-white/20 transform hover:scale-105 
+                     transition-all duration-300 border border-white/30"
+          >
+            İletişime Geçin
+          </button>
+        </div>
+        
+        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
+          <Stat number="500+" text="Üye" />
+          <Stat number="50+" text="Proje" />
+          <Stat number="20+" text="Etkinlik" />
+          <Stat number="10+" text="Workshop" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Stat({ number, text }: { number: string; text: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-3xl font-bold text-white mb-2">{number}</div>
+      <div className="text-gray-300">{text}</div>
+    </div>
   );
 }
