@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import TeamCard from './TeamCard';
 
 interface TeamMember {
@@ -12,6 +11,7 @@ interface TeamMember {
   linkedin?: string;
   github?: string;
   twitter?: string;
+  x?: string;
   instagram?: string;
 }
 
@@ -46,20 +46,20 @@ export default function Team() {
       linkedin: "#",
       description: '31 cihan 31',
       github: "https://github.com/C1H4N",
-      twitter: "#",
-      instagram: "#"
+      x: "31",
+      instagram: "https://www.instagram.com/c1h4n/"
 
     },
     {
-      name: "Caner Gorez",
+      name: "Caner Görez",
       role: "Developer",
       description: 'merhaba ben caner karadeniz teknik üniversitesinde okuyorum ve web geliştirmeyle ilgileniyorum.',
       email: "caner19741@outlook.com",
       image: "/sdclogo.jpg",
       linkedin: "#",
       github: "https://github.com/ashetian",
-      twitter: "#",
-      instagram: "#"
+      instagram: "#",
+      x: "31",
     },
     // Diğer takım üyelerini buraya ekleyin
   ];
@@ -99,7 +99,9 @@ export default function Team() {
                 role={member.role}
                 description={member.description}
                 image={member.image}
-                x = 'z'
+                x = {member.x}
+                instagram={member.instagram}
+                github={member.github}
                 email={member.email}
                 linkedin={member.linkedin}
               ></TeamCard>
