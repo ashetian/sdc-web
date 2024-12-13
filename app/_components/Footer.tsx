@@ -4,7 +4,7 @@ import { FaXTwitter, FaInstagram } from "react-icons/fa6";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-white py-6">
+    <footer className="bg-gray-900 text-white py-6">
       <div className="container mx-auto flex justify-between items-center">
         <p className="text-left opacity-60 font-bold">&copy; {new Date().getFullYear()} KTUSDC. All rights reserved.</p>
         <div className="flex space-x-6">

@@ -51,7 +51,7 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <NavLink  onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
+            <NavLink onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('about')} text="Hakkımızda" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
@@ -96,8 +96,8 @@ function NavLink({ onClick, text, isScrolled }: { onClick: () => void; text: str
   return (
     <button
       onClick={onClick}
-      className={`transition-colors duration-300 hover:text-primary-500 ${
-        isScrolled ? 'text-secondary-600' : 'text-white'
+      className={`transition-colors font-semibold duration-300 hover:line-through hover:text-primary-500 ${
+        isScrolled ? 'text-secondary-800' : 'text-white'
       }`}
     >
       {text}
