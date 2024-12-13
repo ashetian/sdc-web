@@ -44,14 +44,14 @@ export default function Navbar() {
                 priority
               />
             </div>
-            <span className={`font-bold text-xl ${isScrolled ? 'text-primary-600' : 'text-white'}`}>
+            <span className={`font-bold text-xl ${isScrolled ? 'text-purple-600' : 'text-white'}`}>
               KTU SDC
             </span>
           </button>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <NavLink onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
+            <NavLink  onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('about')} text="Hakkımızda" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
