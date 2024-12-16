@@ -41,10 +41,10 @@ export default function Team() {
     {
       name: "Cihan Bayram",
       role: "Developer",
-      email: "cihanbayram@gmail.com",
+      email: "contact@c1h4n.com",
       image: "/sdclogo.jpg",
       linkedin: "#",
-      description: '31 cihan 31',
+      description: 'Merhaba ben Cihan. Günlük hayatımda tutkulu bir programcıyım. Kendi kendine öğrenme tutumuna sahip, hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi seviyorum.',
       github: "https://github.com/C1H4N",
       x: "31",
       instagram: "https://www.instagram.com/c1h4n/"
@@ -90,7 +90,7 @@ export default function Team() {
             Yazılım tutkusuyla bir araya gelmiş, yenilikçi ve dinamik ekibimizle tanışın.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex flex-wrap justify-center gap-8">
             {teamMembers.map((member, index) => (
               <TeamCard
                 id={index}

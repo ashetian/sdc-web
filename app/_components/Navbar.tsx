@@ -53,8 +53,8 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <NavLink onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('about')} text="Hakkımızda" isScrolled={isScrolled} />
-            <NavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
+            <NavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('contact')} text="İletişim" isScrolled={isScrolled} />
           </div>
 
@@ -96,11 +96,14 @@ function NavLink({ onClick, text, isScrolled }: { onClick: () => void; text: str
   return (
     <button
       onClick={onClick}
-      className={`transition-colors font-semibold duration-300 hover:line-through hover:text-primary-500 ${
-        isScrolled ? 'text-secondary-800' : 'text-white'
-      }`}
+      className="relative group font-semibold"
     >
-      {text}
+      <span className={`transition-colors duration-300 ${
+        isScrolled ? 'text-secondary-800' : 'text-white'
+      }`}>
+        {text}
+      </span>
+      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-500 group-hover:w-full transition-all duration-300" />
     </button>
   );
 }
