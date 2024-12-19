@@ -1,12 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-
-interface Announcement {
-  title: string;
-  date: string;
-  description: string;
-  type: 'event' | 'news' | 'workshop';
-}
+import { getAllAnnouncements } from '@/app/_data/announcements';
+import type { Announcement } from '@/app/_data/announcements';
 
 export default function Announcements() {
   const [isVisible, setIsVisible] = useState(false);
@@ -30,26 +25,7 @@ export default function Announcements() {
     return () => observer.disconnect();
   }, []);
 
-  const announcements: Announcement[] = [
-    {
-      title: "Web Geliştirme Workshop'u",
-      date: "15 Mart 2024",
-      description: "Modern web teknolojileri ve best practice'ler hakkında kapsamlı bir workshop düzenliyoruz.",
-      type: "workshop"
-    },
-    {
-      title: "Yeni Dönem Kayıtları",
-      date: "1 Mart 2024",
-      description: "2024 Bahar dönemi için yeni üye kayıtlarımız başlamıştır. Son başvuru tarihi 20 Mart 2024.",
-      type: "news"
-    },
-    {
-      title: "Yapay Zeka Semineri",
-      date: "25 Mart 2024",
-      description: "Yapay zeka ve makine öğrenimi alanında uzman konuşmacılarla bir seminer düzenliyoruz.",
-      type: "event"
-    }
-  ];
+  const announcements = getAllAnnouncements();
 
   const getTypeStyles = (type: Announcement['type']) => {
     switch (type) {
@@ -101,7 +77,10 @@ export default function Announcements() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {announcements.map((announcement, index) => (
-              <div
+              <a
+                href={`/announcements/${announcement.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 key={index}
                 className={`group bg-secondary-800/50 backdrop-blur-sm rounded-xl p-6
                           transform transition-all duration-500 hover:scale-105 hover:bg-secondary-700/50
@@ -139,7 +118,7 @@ export default function Announcements() {
                     />
                   </svg>
                 </button>
-              </div>
+              </a>
             ))}
           </div>
         </div>

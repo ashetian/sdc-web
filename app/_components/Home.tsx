@@ -22,7 +22,7 @@ export default function Home() {
       }`}>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
           <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
-            KTÜ Software Development Club
+            KTÜ Yazılım Geliştirme Kulübü
           </span>
         </h1>
         
@@ -56,10 +56,10 @@ export default function Home() {
         </div>
         
         <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
-          <Stat number="500+" text="Üye" />
-          <Stat number="50+" text="Proje" />
-          <Stat number="20+" text="Etkinlik" />
-          <Stat number="10+" text="Workshop" />
+          <Stat number="25+" text="Üye" />
+          <Stat number="5+" text="Proje" />
+          <Stat number="5+" text="Etkinlik" />
+          <Stat number="5+" text="Workshop" />
         </div>
       </div>
     </section>

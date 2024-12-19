@@ -10,9 +10,9 @@ interface TeamMember {
   image: string;
   linkedin?: string;
   github?: string;
-  twitter?: string;
   x?: string;
   instagram?: string;
+  website?: string;
 }
 
 export default function Team() {
@@ -42,24 +42,25 @@ export default function Team() {
       name: "Cihan Bayram",
       role: "Developer",
       email: "contact@c1h4n.com",
-      image: "/sdclogo.jpg",
+      image: "/cihan.png",
       linkedin: "#",
       description: 'Merhaba ben Cihan. Günlük hayatımda tutkulu bir programcıyım. Kendi kendine öğrenme tutumuna sahip, hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi seviyorum.',
       github: "https://github.com/C1H4N",
-      x: "31",
-      instagram: "https://www.instagram.com/c1h4n/"
-
+      x: "https://x.com/cjh4n",
+      instagram: "https://www.instagram.com/c1h4n",
+      website: "https://c1h4n.com",
     },
     {
       name: "Caner Görez",
       role: "Developer",
       description: 'merhaba ben caner karadeniz teknik üniversitesinde okuyorum ve web geliştirmeyle ilgileniyorum.',
       email: "caner19741@outlook.com",
-      image: "/sdclogo.jpg",
+      image: "/canergorez.jpg",
       linkedin: "#",
       github: "https://github.com/ashetian",
-      instagram: "#",
+      instagram: "https://www.instagram.com/ashetian_",
       x: "31",
+      website: "https://ashetian.buzz/",
     },
     // Diğer takım üyelerini buraya ekleyin
   ];
@@ -104,6 +105,7 @@ export default function Team() {
                 github={member.github}
                 email={member.email}
                 linkedin={member.linkedin}
+                website={member.website}
               ></TeamCard>
             ))}
           </div>
