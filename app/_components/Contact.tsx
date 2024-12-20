@@ -44,8 +44,8 @@ export default function Contact() {
     setFormStatus('sending');
     try {
       await emailjs.sendForm(
-        'SERVİCE_ID',
-       'TEMPLATE_ID',
+        'service_ktusdc_contactus',
+       'template_ktusdc',
         formRef.current,
         process.env.NEXT_PUBLIC_EMAILJS_API_KEY
       );

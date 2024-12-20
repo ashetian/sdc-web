@@ -11,7 +11,7 @@ export default function VideoBackgroundWeb() {
     if (!video) return;
 
     const hls = new Hls();
-    hls.loadSource('/videos/video.m3u8');
+    hls.loadSource('/videos/output.m3u8');
     hls.attachMedia(video);
 
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
