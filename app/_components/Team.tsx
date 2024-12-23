@@ -53,13 +53,13 @@ export default function Team() {
     {
       name: "Caner Görez",
       role: "Developer",
-      description: 'merhaba ben caner karadeniz teknik üniversitesinde okuyorum ve web geliştirmeyle ilgileniyorum.',
+      description: 'Merhaba ben Caner. Karadeniz Teknik Üniversitesinde okuyorum ve web geliştirmeyle ilgileniyorum.',
       email: "caner19741@outlook.com",
       image: "/canergorez.jpg",
-      linkedin: "#",
+      linkedin: "https://www.linkedin.com/in/caner-görez/",
       github: "https://github.com/ashetian",
       instagram: "https://www.instagram.com/ashetian_",
-      x: "31",
+      x: "https://x.com/ashetian_",
       website: "https://ashetian.buzz/",
     },
     // Diğer takım üyelerini buraya ekleyin
