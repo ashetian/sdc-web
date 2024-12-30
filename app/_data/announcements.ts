@@ -41,91 +41,56 @@ Birlikte öğrenelim, birlikte geliştirelim!☺️☺️
     `
   },
   {
-    slug: "yapay-zeka-workshop",
-    title: "Yapay Zeka Workshop'u",
-    date: "25 Aralık 2024",
-    description: "ChatGPT ve yapay zeka araçlarının etkin kullanımı hakkında uygulamalı workshop.",
+    slug: "ornek-workshop",
+    title: "Örnek Workshop",
+    date: "1 Ocak 2024",
+    description: "Bu bir örnek workshop duyurusudur.",
     type: "workshop",
     content: `
-      # Yapay Zeka Araçları Workshop'u
-
-      Yapay zeka dünyasına adım atmaya hazır mısınız? 🤖
+      # Örnek Workshop
 
       ## Workshop İçeriği
-      - ChatGPT'nin etkili kullanımı
-      - Prompt mühendisliği temelleri
-      - Midjourney ile görsel tasarım
-      - GitHub Copilot ile kod geliştirme
-      - Claude ve diğer AI asistanlar
+      - Konu 1
+      - Konu 2
+      - Konu 3
+      - Uygulama
 
       ## Program Akışı
-      - 13:00 - Açılış ve Tanışma
-      - 13:30 - Teorik Eğitim
-      - 14:30 - Uygulama ve Pratik
-      - 15:30 - Ara
-      - 16:00 - İleri Seviye Uygulamalar
-      - 17:00 - Soru & Cevap
-
-      ## Neler Kazanacaksınız?
-      ✨ Yapay zeka araçlarını profesyonel şekilde kullanabilme
-      ✨ Prompt yazma ve optimizasyon yetenekleri
-      ✨ AI destekli iş akışı oluşturma becerisi
-      ✨ Sertifika ve katılım belgesi
+      - 13:00 - Açılış
+      - 13:30 - Eğitim
+      - 14:30 - Uygulama
+      - 15:30 - Kapanış
 
       ## Detaylar
-      📅 Tarih: 25 Aralık 2024, Pazartesi
-      🕐 Saat: 13:00 - 17:00
-      📍 Yer: KTÜ Bilgisayar Mühendisliği Lab-3
+      📅 Tarih: 1 Ocak 2024
+      🕐 Saat: 13:00 - 15:30
+      📍 Yer: KTÜ
       
-      ⚡ Kontenjan sınırlıdır!
-      🎯 Son başvuru: 23 Aralık 2024
+      ⚡ Kontenjan: 30 kişi
+      🎯 Son başvuru: 30 Aralık 2023
     `
   },
   {
-    slug: "yilbasi-hackathon",
-    title: "Yılbaşı Hackathon'u",
-    date: "30-31 Aralık 2024",
-    description: "48 saatlik yılbaşı özel hackathon etkinliği. Yaratıcı projeler, ödüller ve eğlence!",
+    slug: "ornek-haber",
+    title: "Örnek Haber",
+    date: "2 Ocak 2024",
+    description: "Bu bir örnek haber duyurusudur.",
     type: "news",
     content: `
-      # KTÜ SDC Yılbaşı Hackathon'u 2024 🎄
+      # Örnek Haber Başlığı
 
-      Yılı en eğlenceli şekilde bitirmeye hazır mısın? 48 saat boyunca kod, pizza ve eğlence! 🚀
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-      ## Hackathon Teması
-      "Sosyal İyilik için Teknoloji"
+      ## Alt Başlık
+      - Madde 1
+      - Madde 2
+      - Madde 3
 
-      ## Ödüller 🏆
-      - 🥇 Birinci Takım: Gaming Laptop
-      - 🥈 İkinci Takım: Mekanik Klavye Seti
-      - 🥉 Üçüncü Takım: Kablosuz Kulaklık
-      - 🎁 Sürpriz Ödüller ve Hediyeler
+      ### Detaylar
+      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
 
-      ## Program
-      ### 30 Aralık
-      - 10:00 - Açılış ve Kayıt
-      - 11:00 - Takım Oluşturma
-      - 12:00 - Hackathon Başlangıcı
-      
-      ### 31 Aralık
-      - 12:00 - Proje Teslimi
-      - 14:00 - Sunumlar
-      - 16:00 - Ödül Töreni
-      - 17:00 - Yılbaşı Partisi 🎉
-
-      ## Önemli Bilgiler
-      - 2-4 kişilik takımlar
-      - 24 saat boyunca mentorluk desteği
-      - Ücretsiz yemek ve içecek
-      - Networking fırsatları
-      
-      ## Sponsorlarımız
-      - TechCorp
-      - DevCompany
-      - StartupHub
-
-      🎯 Son başvuru: 25 Aralık 2024
-      📍 Yer: KTÜ Teknoloji Transfer Ofisi
+      📅 Tarih: 2 Ocak 2024
+      📍 Yer: KTÜ
     `
   },
   

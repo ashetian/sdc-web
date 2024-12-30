@@ -39,6 +39,15 @@ export default function Team() {
 
   const teamMembers: TeamMember[] = [
     {
+      name: "Murat C. Akyol",
+      role: "Kulüp Başkanı",
+      description: 'Merhaba, ben Murat. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
+      email: "@example.com",
+      image: "/team/muratcan.jpg",
+      linkedin: "https://www.linkedin.com/in/murat-c-akyol-5847b4332/",
+      instagram: "https://www.instagram.com/muratcan_akyol/",
+    },
+    {
       name: "Cihan Bayram",
       role: "Developer",
       email: "contact@c1h4n.com",
@@ -62,7 +71,50 @@ export default function Team() {
       x: "https://x.com/ashetian_",
       website: "https://ashetian.buzz/",
     },
-    // Diğer takım üyelerini buraya ekleyin
+    {
+      name: "Ali Eren Şahin",
+      role: "Denetleme Kurulu Başkanı",
+      description: 'Merhaba, ben Ali. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
+      email: "@example.com",
+      image: "/team/ali.jpg",
+      instagram: "https://www.instagram.com/alieren.sahin60/",
+    },
+    {
+      name: "Tunahan Akargül",
+      role: "Yönetim Kurulu Üyesi",
+      description: 'Merhaba, ben Tunahan. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
+      email: "@example.com",
+      image: "/team/tunahan.jpg",
+      instagram: "https://www.instagram.com/tunahan.akargul/",
+      linkedin: "https://www.linkedin.com/in/tunahan-akarg%C3%BCl-b7a7a9208/",
+      github: "https://github.com/tunahan-akargul",
+      x: "https://x.com/TunahanAka7260",
+      website: "https://tunahanakargul.online/",
+    },
+    {
+      name: "Tarık Kılıç",
+      role: "Sayman",
+      description: 'Merhaba, ben Tarık. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
+      email: "@example.com",
+      image: "/team/tarik.jpg",
+      instagram: "https://www.instagram.com/tedt_emmett_brown/",
+    },
+    {
+      name: "Nilay Sezin Yalçın",
+      role: "Sekreter",
+      description: 'Merhaba, ben Nilay. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
+      email: "@example.com",
+      image: "/sdclogo.jpg",
+    },
+    {
+      name: "Çağrı Aydemir",
+      role: "Denetleme Kurulu Üyesi",
+      description: 'Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
+      email: "@example.com",
+      image: "/team/cagri.png",
+      instagram: "https://www.instagram.com/_cagriaydemir_/",
+      x: "https://x.com/MoonIron_67",
+    },
   ];
 
   return (
