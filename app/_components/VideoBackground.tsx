@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import VideoBackgroundWeb from './VideoBackgroundWeb';
 import VideoBackgroundİos from './VideoBackgroundİos';
 
-const VIDEO_SOURCE = '/videos/KTÜ-I-Kampüs-Turu-I-4K.m3u8';
+const VIDEO_SOURCE = '/videos/tur.m3u8';
 
 export default function VideoBackground() {
   const [isIOS, setIsIOS] = useState(false);
