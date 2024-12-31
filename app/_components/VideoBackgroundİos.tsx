@@ -1,4 +1,3 @@
-// components/VideoBackgroundİos.tsx
 import React from 'react';
 
 interface VideoBackgroundProps {

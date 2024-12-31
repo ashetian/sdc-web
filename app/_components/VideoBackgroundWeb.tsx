@@ -1,4 +1,3 @@
-// components/VideoBackgroundWeb.tsx
 'use client';
 import { useEffect, useRef } from 'react';
 import Hls from 'hls.js';
@@ -11,7 +10,7 @@ export default function VideoBackgroundWeb() {
     if (!video) return;
 
     const hls = new Hls();
-    hls.loadSource('/videos/future.m3u8');
+    hls.loadSource('/videos/sun.m3u8');
     hls.attachMedia(video);
 
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
