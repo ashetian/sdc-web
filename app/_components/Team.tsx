@@ -100,13 +100,6 @@ export default function Team() {
       instagram: "https://www.instagram.com/tedt_emmett_brown/",
     },
     {
-      name: "Nilay Sezin Yalçın",
-      role: "Sekreter",
-      description: 'Merhaba, ben Nilay. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
-      email: "@example.com",
-      image: "/sdclogo.jpg",
-    },
-    {
       name: "Çağrı Aydemir",
       role: "Denetleme Kurulu Üyesi",
       description: 'Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
