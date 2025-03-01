@@ -3,6 +3,7 @@ import About from './_components/About';
 import Announcements from './_components/Announcements';
 import Team from './_components/Team';
 import Contact from './_components/Contact';
+import SocialConnect from './_components/SocialConnect';
 
 export default function HomePage() {
   return (
@@ -22,6 +23,7 @@ export default function HomePage() {
       <section id="contact">
         <Contact />
       </section>
+      <SocialConnect />
     </div>
   );
 }
