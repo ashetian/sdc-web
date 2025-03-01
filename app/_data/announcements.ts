@@ -41,56 +41,41 @@ Birlikte öğrenelim, birlikte geliştirelim!☺️☺️
     `
   },
   {
-    slug: "ornek-workshop",
-    title: "Örnek Workshop",
-    date: "1 Ocak 2024",
-    description: "Bu bir örnek workshop duyurusudur.",
-    type: "workshop",
+    slug: "terminal",
+    title: "Unix Terminal ve IDE Kullanımı",
+    date: "7 Mart 2025",
+    description: "Terminal Kullanımı ve VSCode Konfigürasyonu Atölyesi ile Geliştirici araçlarını daha verimli kullanmak isteyenler için harika bir fırsat!",
+    type: "event",
     content: `
-      # Örnek Workshop
+      🚀 SUDO Etkinliğine Hazır mısınız? 🚀
 
-      ## Workshop İçeriği
-      - Konu 1
-      - Konu 2
-      - Konu 3
-      - Uygulama
+Terminal Kullanımı ve VSCode Konfigürasyonu Atölyesi ile
+Geliştirici araçlarını daha verimli kullanmak isteyenler için harika bir fırsat! 🎉
 
-      ## Program Akışı
-      - 13:00 - Açılış
-      - 13:30 - Eğitim
-      - 14:30 - Uygulama
-      - 15:30 - Kapanış
+📌 Etkinlik İçeriği:
 
-      ## Detaylar
-      📅 Tarih: 1 Ocak 2024
-      🕐 Saat: 13:00 - 15:30
-      📍 Yer: KTÜ
-      
-      ⚡ Kontenjan: 30 kişi
-      🎯 Son başvuru: 30 Aralık 2023
-    `
-  },
-  {
-    slug: "ornek-haber",
-    title: "Örnek Haber",
-    date: "2 Ocak 2024",
-    description: "Bu bir örnek haber duyurusudur.",
-    type: "news",
-    content: `
-      # Örnek Haber Başlığı
+Terminal komutları ile sistem yönetimi
 
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+VSCode ipuçları
 
-      ## Alt Başlık
-      - Madde 1
-      - Madde 2
-      - Madde 3
+Geliştirme sürecini hızlandıracak püf noktaları
 
-      ### Detaylar
-      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Gerçek zamanlı uygulamalar ve interaktif öğrenme
 
-      📅 Tarih: 2 Ocak 2024
-      📍 Yer: KTÜ
+
+🗓 Tarih: 7 Mart Cuma
+🕒 Saat: 15:00
+📍 Yer: Yazılım Geliştirme Bölümü DZ-01
+
+👨‍💻 Mentor: Deneyimli yazılım geliştiricilerimiz sizlerle olacak, terminal konusunda sorularınızı yanıtlayacak!
+
+🎯 Kimler Katılabilir?
+Terminal kullanmayı öğrenmek ve etkili kullanmak isteyen herkesi bekliyoruz. Bilgisayarınızı kapın ve aramıza katılın!
+
+🎟 Katılım Ücretsizdir!
+
+KTÜ Software Development Club 💻
+Birlikte öğrenelim, birlikte geliştirelim!
     `
   },
   
