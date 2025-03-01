@@ -40,7 +40,7 @@ export default function Team() {
   const teamMembers: TeamMember[] = [
     {
       name: "Murat C. Akyol",
-      role: "Kulüp Başkanı",
+      role: "",
       description: 'Merhaba, ben Murat. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
       email: "@example.com",
       image: "/team/muratcan.jpg",
@@ -49,7 +49,7 @@ export default function Team() {
     },
     {
       name: "Cihan Bayram",
-      role: "Developer",
+      role: "",
       email: "contact@c1h4n.com",
       image: "/team/cihan.png",
       linkedin: "https://www.linkedin.com/in/c1h4n/",
@@ -61,7 +61,7 @@ export default function Team() {
     },
     {
       name: "Caner Görez",
-      role: "Developer",
+      role: "",
       description: 'Merhaba ben Caner. Karadeniz Teknik Üniversitesinde okuyorum ve web geliştirmeyle ilgileniyorum.',
       email: "caner19741@outlook.com",
       image: "/team/canergorez.jpg",
@@ -73,7 +73,7 @@ export default function Team() {
     },
     {
       name: "Ali Eren Şahin",
-      role: "Denetleme Kurulu Başkanı",
+      role: "",
       description: 'Merhaba, ben Ali. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
       email: "@example.com",
       image: "/team/ali.jpg",
@@ -81,7 +81,7 @@ export default function Team() {
     },
     {
       name: "Tunahan Akargül",
-      role: "Yönetim Kurulu Üyesi",
+      role: "",
       description: 'Merhaba ben Tunahan. Ben unity üzerine bir oyun programcısı olmanın yanında aynı zamanda önyüz site geliştiricisiyim.',
       email: "tuna.akargul@gmail.com",
       image: "/team/tunahan.jpg",
@@ -93,7 +93,7 @@ export default function Team() {
     },
     {
       name: "Tarık Kılıç",
-      role: "Sayman",
+      role: "",
       description: 'Merhaba, ben Tarık. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
       email: "@example.com",
       image: "/team/tarik.jpg",
@@ -101,7 +101,7 @@ export default function Team() {
     },
     {
       name: "Çağrı Aydemir",
-      role: "Denetleme Kurulu Üyesi",
+      role: "",
       description: 'Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
       email: "cagriaydemir67@gmail.com",
       image: "/team/cagri.png",
