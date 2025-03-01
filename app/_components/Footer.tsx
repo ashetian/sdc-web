@@ -1,10 +1,11 @@
 import React from 'react';
 import { FaWhatsapp } from 'react-icons/fa';
+import { BsLinkedin } from "react-icons/bs";
 import { FaXTwitter, FaInstagram } from "react-icons/fa6";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-6">
+    <footer className="bg-gray-900 text-white py-6 relative z-50">
       <div className="container mx-auto flex justify-between items-center">
         <p className="text-left opacity-60 font-bold">&copy; {new Date().getFullYear()} KTUSDC. All rights reserved.</p>
         <div className="flex space-x-6">
@@ -16,6 +17,9 @@ export default function Footer() {
           </a>
           <a href="https://chat.whatsapp.com/FH8knELNs0E5ZMd7XxH5YB" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
             <FaWhatsapp size={24} />
+          </a>
+          <a href="https://www.linkedin.com/company/ktu-yzgb" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
+            <BsLinkedin size={24} />
           </a>
         </div>
       </div>
