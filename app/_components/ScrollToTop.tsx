@@ -23,7 +23,6 @@ export default function ScrollToTop() {
 
       const footerTop = footer.getBoundingClientRect().top;
       const windowHeight = window.innerHeight;
-      const buttonHeight = 56; // 24px icon + 32px padding
       const buffer = 32; // 2rem ekstra boşluk
 
       if (footerTop < windowHeight) {
