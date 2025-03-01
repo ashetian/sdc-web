@@ -26,7 +26,7 @@ export default function SocialConnect() {
     {
       name: 'LinkedIn',
       icon: <BsLinkedin size={32} />,
-      url: 'https://www.linkedin.com/company/ktu-yzgb',
+      url: 'https://www.linkedin.com/company/ktusdc/about/',
       color: 'hover:bg-blue-600'
     }
   ];

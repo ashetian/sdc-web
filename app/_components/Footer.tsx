@@ -18,7 +18,7 @@ export default function Footer() {
           <a href="https://chat.whatsapp.com/FH8knELNs0E5ZMd7XxH5YB" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
             <FaWhatsapp size={24} />
           </a>
-          <a href="https://www.linkedin.com/company/ktu-yzgb" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
+          <a href="https://www.linkedin.com/company/ktusdc/about/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
             <BsLinkedin size={24} />
           </a>
         </div>
