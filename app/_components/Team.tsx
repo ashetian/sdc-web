@@ -13,6 +13,7 @@ interface TeamMember {
   x?: string;
   instagram?: string;
   website?: string;
+  freelance?: string;
 }
 
 export default function Team() {
@@ -58,6 +59,7 @@ export default function Team() {
       x: "https://x.com/cjh4n",
       instagram: "https://www.instagram.com/c1h4n",
       website: "https://c1h4n.com",
+      freelance: "https://c1h4n.com/hizmet_al",
     },
     {
       name: "Caner Görez",
@@ -146,12 +148,13 @@ export default function Team() {
                 role={member.role}
                 description={member.description}
                 image={member.image}
-                x = {member.x}
+                x={member.x}
                 instagram={member.instagram}
                 github={member.github}
                 email={member.email}
                 linkedin={member.linkedin}
                 website={member.website}
+                freelance={member.freelance}
               ></TeamCard>
             ))}
           </div>
