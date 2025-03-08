@@ -78,6 +78,44 @@ KTÜ Software Development Club 💻
 Birlikte öğrenelim, birlikte geliştirelim!
     `
   },
+  {
+    slug: "github",
+    title: "Git ve GitHub ile Sürüm Kontrol Sistemlerine İlk Adım",
+    date: "10 Mart 2025",
+    description: "Projelerini daha düzenli ve verimli yönetmek için Git ve GitHub kullanmayı öğreniyoruz! Bu etkinlikte, sürüm kontrol sistemlerinin temellerini kavrayarak organize proje yönetimi süreçlerini inceleyeceğiz.",
+    type: "event",
+    content: `
+    KODLA GIT
+
+📌 Git ve GitHub ile Sürüm Kontrol Sistemlerine İlk Adım
+
+Projelerini daha düzenli ve verimli yönetmek için Git ve GitHub kullanmayı öğreniyoruz! Bu etkinlikte, sürüm kontrol sistemlerinin temellerini kavrayarak organize proje yönetimi süreçlerini inceleyeceğiz.
+
+📍 Yer: Yazılım Geliştirme Bölümü DZ-01
+⏰ Zaman: 10 Mart Pazartesi, 13:00
+
+Kodlarını güvenle sakla, iş akışlarını hızlandır! 🚀
+      
+
+    `
+  },
+  {
+    slug: "cpp_pair_programming",
+    title: "Eşli Kodlama ile C++ Pratiği ve Problem Çözme Etkinliği",
+    date: "10 Mart 2025",
+    description: "Kod yazarken yalnız değilsin! Bu etkinlikte Pair Coding (Eşli Kodlama) yöntemi ile C++ pratiği yapacak, problem çözme becerilerini geliştireceksin.",
+    type: "event",
+    content: `
+    🚀 Eşli Kodlama ile C++ Pratiği ve Problem Çözme Etkinliği
+
+Kod yazarken yalnız değilsin! Bu etkinlikte Pair Coding (Eşli Kodlama) yöntemi ile C++ pratiği yapacak, problem çözme becerilerini geliştireceksin.
+
+📍 Yer: Yazılım Geliştirme Bölümü DZ-01
+⏰ Zaman: 10 Mart Pazartesi, 15:00
+
+Birlikte öğrenelim, birlikte geliştirelim! 💻✨
+    `
+  },
   
 ];
 
