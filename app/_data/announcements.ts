@@ -27,7 +27,7 @@ Web geliştirmeye ilk adımını atmak isteyenler için harika bir fırsat! 🎉
 
 🗓 Tarih: 20 Aralık Cuma
 🕒 Saat: 15:00
-📍 Yer: Matematik Bölümü DZ-01
+📍 Yer: Yazılım Geliştirme Bölümü DZ-01
 
 👨‍💻 Mentor: Deneyimli arkadaşlarımız kod yazmanıza yardımcı olacak, sorularınızı cevaplayacak!
 
@@ -95,8 +95,6 @@ Projelerini daha düzenli ve verimli yönetmek için Git ve GitHub kullanmayı �
 ⏰ Zaman: 10 Mart Pazartesi, 13:00
 
 Kodlarını güvenle sakla, iş akışlarını hızlandır! 🚀
-      
-
     `
   },
   {
@@ -116,6 +114,38 @@ Kod yazarken yalnız değilsin! Bu etkinlikte Pair Coding (Eşli Kodlama) yönte
 Birlikte öğrenelim, birlikte geliştirelim! 💻✨
     `
   },
+  {
+    slug: "hello-web-2",
+    title: "'Hello, web!' Etkinliği",
+    date: "17 Mart 2025",
+    description: "Web geliştirmeye ilk adımını atmak isteyenler için harika bir fırsat!",
+    type: "event",
+    content: `
+      HTML & CSS ile İnteraktif Web Sitesi Geliştirme Etkinliği
+Web geliştirmeye ilk adımını atmak isteyenler için harika bir fırsat! 🎉
+
+📌 Etkinlik İçeriği:
+
+✅Web geliştirme temelleri (HTML & CSS)
+✅Gerçek zamanlı kod yazma ve öğrenme
+✅Mentor eşliğinde interaktif uygulama
+
+🗓 Tarih: 17 Mart Pazartesi
+🕒 Saat: 13:00
+📍 Yer: Yazılım Geliştirme Bölümü DZ-01
+
+👨‍💻 Mentor: Deneyimli arkadaşlarımız kod yazmanıza yardımcı olacak, sorularınızı cevaplayacak!
+
+🎯 Kimler Katılabilir?
+Web geliştirmeyi öğrenmek isteyen herkesi bekliyoruz. Bilgisayarınızı kapın ve aramıza katılın!
+
+🎟 Katılım Ücretsizdir!
+
+KTÜ Software Development Club 💻
+Birlikte öğrenelim, birlikte geliştirelim!☺️☺️
+    `
+  },
+  
   
 ];
 
