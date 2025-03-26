@@ -15,11 +15,16 @@ if (!MONGODB_URI) {
   throw new Error('MongoDB URI bulunamadı.');
 }
 
+type GlobalMongoose = {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+};
+
 if (!global.mongoose) {
   global.mongoose = { conn: null, promise: null };
 }
 
-const cached = global.mongoose;
+const cached = global.mongoose as GlobalMongoose;
 
 async function connectDB() {
   if (cached.conn) {
@@ -31,7 +36,7 @@ async function connectDB() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then(() => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       cached.conn = mongoose;
       return mongoose;
     });
