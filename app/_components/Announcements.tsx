@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
 interface Announcement {
   slug: string;
@@ -114,9 +115,11 @@ export default function Announcements() {
               >
                 {announcement.image && (
                   <div className="mb-4 overflow-hidden rounded-lg">
-                    <img
+                    <Image
                       src={announcement.image}
                       alt={announcement.title}
+                      width={400}
+                      height={300}
                       className="w-full h-48 object-cover transform transition-transform group-hover:scale-110"
                     />
                   </div>

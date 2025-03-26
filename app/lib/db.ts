@@ -1,11 +1,11 @@
+import mongoose from 'mongoose';
+
 declare global {
   var mongoose: {
-    conn: typeof import("mongoose") | null;
-    promise: Promise<typeof import("mongoose")> | null;
-  };
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  } | undefined;
 }
-
-import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sdc-web';
 
@@ -13,11 +13,11 @@ if (!MONGODB_URI) {
   throw new Error('MongoDB URI bulunamadı.');
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+if (!global.mongoose) {
+  global.mongoose = { conn: null, promise: null };
 }
+
+let cached = global.mongoose;
 
 async function connectDB() {
   if (cached.conn) {
@@ -29,7 +29,7 @@ async function connectDB() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then(() => {
       cached.conn = mongoose;
       return mongoose;
     });

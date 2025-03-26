@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "SDC Admin Paneli",
@@ -17,16 +18,16 @@ export default function AdminLayout({
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
-                <a href="/" className="flex flex-shrink-0 items-center">
+                <Link href="/" className="flex flex-shrink-0 items-center">
                   <span className="text-xl font-bold text-gray-900">SDC Admin</span>
-                </a>
+                </Link>
                 <div className="ml-6 flex items-center space-x-8">
-                  <a
+                  <Link
                     href="/admin"
                     className="inline-flex items-center border-b-2 border-blue-500 px-1 pt-1 text-sm font-medium text-gray-900"
                   >
                     Duyurular
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
