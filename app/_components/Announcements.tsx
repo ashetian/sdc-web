@@ -1,10 +1,20 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { getAllAnnouncements } from '@/app/_data/announcements';
-import type { Announcement } from '@/app/_data/announcements';
+
+interface Announcement {
+  slug: string;
+  title: string;
+  date: string;
+  description: string;
+  type: 'event' | 'news' | 'workshop';
+  content: string;
+  image?: string;
+  isDraft: boolean;
+}
 
 export default function Announcements() {
   const [isVisible, setIsVisible] = useState(false);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -25,7 +35,22 @@ export default function Announcements() {
     return () => observer.disconnect();
   }, []);
 
-  const announcements = getAllAnnouncements();
+  useEffect(() => {
+    async function loadAnnouncements() {
+      try {
+        const res = await fetch('/api/announcements');
+        if (!res.ok) throw new Error('Duyurular alınamadı');
+        const data = await res.json();
+        // Taslak olmayan duyuruları filtrele
+        const publishedAnnouncements = data.filter((a: Announcement) => !a.isDraft);
+        setAnnouncements(publishedAnnouncements);
+      } catch (error) {
+        console.error('Duyurular yüklenirken hata:', error);
+      }
+    }
+
+    loadAnnouncements();
+  }, []);
 
   const getTypeStyles = (type: Announcement['type']) => {
     switch (type) {
@@ -87,6 +112,15 @@ export default function Announcements() {
                           ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
+                {announcement.image && (
+                  <div className="mb-4 overflow-hidden rounded-lg">
+                    <img
+                      src={announcement.image}
+                      alt={announcement.title}
+                      className="w-full h-48 object-cover transform transition-transform group-hover:scale-110"
+                    />
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${getTypeStyles(announcement.type)}`}>
                     {getTypeText(announcement.type)}
