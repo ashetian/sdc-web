@@ -52,7 +52,7 @@ export default function Team() {
       name: "Cihan Bayram",
       role: "",
       email: "contact@c1h4n.com",
-      image: "/team/cihan.jpg",
+      image: "/team/cihan_b.jpg",
       linkedin: "https://www.linkedin.com/in/c1h4n/",
       description: 'Merhaba ben Cihan. Günlük hayatımda tutkulu bir programcıyım. Kendi kendine öğrenme tutumuna sahip, hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi seviyorum.',
       github: "https://github.com/C1H4N",
