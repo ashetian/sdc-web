@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 
+/* eslint-disable no-var */
 declare global {
   var mongoose: {
     conn: typeof mongoose | null;
     promise: Promise<typeof mongoose> | null;
   } | undefined;
 }
+/* eslint-enable no-var */
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sdc-web';
 
