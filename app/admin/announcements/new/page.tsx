@@ -54,9 +54,21 @@ export default function NewAnnouncementPage() {
 
     try {
       // slug'ı otomatik oluştur
+      const turkishToEnglish: { [key: string]: string } = {
+        'ğ': 'g', 'Ğ': 'G',
+        'ü': 'u', 'Ü': 'U',
+        'ş': 's', 'Ş': 'S',
+        'ı': 'i', 'İ': 'I',
+        'ö': 'o', 'Ö': 'O',
+        'ç': 'c', 'Ç': 'C'
+      };
+
       const slug = formData.title
         .toLowerCase()
-        .replace(/[^a-z0-9ğüşıöç]/g, '-')
+        .split('')
+        .map(char => turkishToEnglish[char] || char)
+        .join('')
+        .replace(/[^a-z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
 

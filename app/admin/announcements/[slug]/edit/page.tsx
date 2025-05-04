@@ -92,12 +92,35 @@ export default function EditAnnouncementPage({
     setIsSubmitting(true);
 
     try {
+      // Türkçe karakterleri İngilizce karakterlere dönüştür
+      const turkishToEnglish: { [key: string]: string } = {
+        'ğ': 'g', 'Ğ': 'G',
+        'ü': 'u', 'Ü': 'U',
+        'ş': 's', 'Ş': 'S',
+        'ı': 'i', 'İ': 'I',
+        'ö': 'o', 'Ö': 'O',
+        'ç': 'c', 'Ç': 'C'
+      };
+
+      // Başlıktan yeni slug oluştur
+      const newSlug = formData.title
+        .toLowerCase()
+        .split('')
+        .map(char => turkishToEnglish[char] || char)
+        .join('')
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      // Yeni slug'ı formData'ya ekle
+      const updatedData = { ...formData, slug: newSlug };
+
       const res = await fetch(`/api/announcements/${params.slug}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(updatedData),
       });
 
       if (!res.ok) {
