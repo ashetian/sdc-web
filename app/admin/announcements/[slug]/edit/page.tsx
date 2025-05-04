@@ -92,25 +92,28 @@ export default function EditAnnouncementPage({
     setIsSubmitting(true);
 
     try {
-      // Türkçe karakterleri İngilizce karakterlere dönüştür
-      const turkishToEnglish: { [key: string]: string } = {
-        'ğ': 'g', 'Ğ': 'G',
-        'ü': 'u', 'Ü': 'U',
-        'ş': 's', 'Ş': 'S',
-        'ı': 'i', 'İ': 'I',
-        'ö': 'o', 'Ö': 'O',
-        'ç': 'c', 'Ç': 'C'
-      };
+      // Eğer slug manuel girilmemişse otomatik oluştur
+      let newSlug = formData.slug;
+      
+      if (!newSlug) {
+        const turkishToEnglish: { [key: string]: string } = {
+          'ğ': 'g', 'Ğ': 'G',
+          'ü': 'u', 'Ü': 'U',
+          'ş': 's', 'Ş': 'S',
+          'ı': 'i', 'İ': 'I',
+          'ö': 'o', 'Ö': 'O',
+          'ç': 'c', 'Ç': 'C'
+        };
 
-      // Başlıktan yeni slug oluştur
-      const newSlug = formData.title
-        .toLowerCase()
-        .split('')
-        .map(char => turkishToEnglish[char] || char)
-        .join('')
-        .replace(/[^a-z0-9]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
+        newSlug = formData.title
+          .toLowerCase()
+          .split('')
+          .map(char => turkishToEnglish[char] || char)
+          .join('')
+          .replace(/[^a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+      }
 
       // Yeni slug'ı formData'ya ekle
       const updatedData = { ...formData, slug: newSlug };
@@ -184,6 +187,29 @@ export default function EditAnnouncementPage({
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
             />
+          </div>
+
+          <div>
+            <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
+              URL Adresi (Slug)
+            </label>
+            <div className="mt-1 flex rounded-md shadow-sm">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                /announcements/
+              </span>
+              <input
+                type="text"
+                name="slug"
+                id="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                placeholder="ozel-etkinlik-basligi"
+                className="flex-1 block w-full rounded-none rounded-r-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
+              />
+            </div>
+            <p className="mt-1 text-sm text-gray-500">
+              Boş bırakırsanız başlıktan otomatik oluşturulacaktır.
+            </p>
           </div>
 
           <div>
