@@ -19,8 +19,8 @@ async function getGalleryAnnouncements(): Promise<Announcement[]> {
   const baseUrl = `${protocol}://${host}`;
   const res = await fetch(`${baseUrl}/api/announcements`, { cache: "no-store" });
   if (!res.ok) return [];
-  const data = await res.json();
-  return data.filter((a: any) => a.isInGallery);
+  const data: Announcement[] = await res.json();
+  return data.filter((a) => a.isInGallery);
 }
 
 export default async function GalleryPage() {
@@ -34,7 +34,7 @@ export default async function GalleryPage() {
           {announcements.length === 0 && (
             <div className="col-span-full text-center text-gray-400">Henüz galeriye eklenmiş etkinlik yok.</div>
           )}
-          {announcements.map((a, idx) => (
+          {announcements.map((a) => (
             <Link key={a.slug} href={`/gallery/${a.slug}`} className="bg-secondary-800/50 rounded-xl shadow p-6 flex flex-col hover:ring-2 hover:ring-primary-400 transition-all">
               {a.galleryCover && (
                 <div className="mb-4 overflow-hidden rounded-lg">

@@ -71,7 +71,7 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
       if (!res.ok) throw new Error("Galeri güncellenemedi");
       router.push("/admin");
       router.refresh();
-    } catch (error) {
+    } catch {
       alert("Galeri güncellenirken hata oluştu");
     } finally {
       setIsSubmitting(false);
