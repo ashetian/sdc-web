@@ -4,6 +4,7 @@ import Announcements from './_components/Announcements';
 import Team from './_components/Team';
 import Contact from './_components/Contact';
 import SocialConnect from './_components/SocialConnect';
+import GalleryPreview from './_components/GalleryPreview';
 
 export default function HomePage() {
   return (
@@ -16,6 +17,9 @@ export default function HomePage() {
       </section>
       <section id="announcements">
         <Announcements />
+      </section>
+      <section id="gallery-preview">
+        <GalleryPreview />
       </section>
       <section id="team">
         <Team />

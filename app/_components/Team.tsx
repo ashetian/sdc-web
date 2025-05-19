@@ -54,7 +54,7 @@ export default function Team() {
       email: "contact@c1h4n.com",
       image: "/team/cihan_b.jpg",
       linkedin: "https://www.linkedin.com/in/c1h4n/",
-      description: 'Merhaba ben Cihan. Günlük hayatımda tutkulu bir programcıyım. Kendi kendine öğrenme tutumuna sahip, hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi seviyorum.',
+      description: 'Merhaba ben Cihan. Günlük hayatımda tutkulu bir geliştiriciyim. Kendi kendine öğrenme tutumuna sahip, hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi seviyorum. Bu siteyi ve yaptığım diğer projeleri görmek için github sayfamı ziyaret edebilirsiniz.',
       github: "https://github.com/C1H4N",
       x: "https://x.com/cjh4n",
       instagram: "https://www.instagram.com/c1h4n",

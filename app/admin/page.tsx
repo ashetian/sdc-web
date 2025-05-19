@@ -102,6 +102,12 @@ export default function AdminPage() {
                   >
                     Düzenle
                   </Link>
+                  <Link
+                    href={`/admin/announcements/${announcement.slug}/gallery`}
+                    className="text-green-600 hover:text-green-800"
+                  >
+                    Galeriye Ekle/Düzenle
+                  </Link>
                   <button
                     className="text-red-600 hover:text-red-800"
                     onClick={() => handleDelete(announcement.slug)}

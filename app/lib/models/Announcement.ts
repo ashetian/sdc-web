@@ -11,6 +11,9 @@ export interface IAnnouncement {
   isDraft: boolean;
   createdAt: Date;
   updatedAt: Date;
+  galleryLinks?: string[];
+  galleryCover?: string;
+  isInGallery?: boolean;
 }
 
 const announcementSchema = new mongoose.Schema<IAnnouncement>(
@@ -46,6 +49,18 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
       required: false,
     },
     isDraft: {
+      type: Boolean,
+      default: false,
+    },
+    galleryLinks: {
+      type: [String],
+      default: [],
+    },
+    galleryCover: {
+      type: String,
+      required: false,
+    },
+    isInGallery: {
       type: Boolean,
       default: false,
     },
