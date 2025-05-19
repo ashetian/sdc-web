@@ -10,6 +10,7 @@ interface Announcement {
   type: "event" | "news" | "workshop";
   galleryLinks?: string[];
   galleryCover?: string;
+  isInGallery?: boolean;
 }
 
 async function getGalleryAnnouncements(): Promise<Announcement[]> {
