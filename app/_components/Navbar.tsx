@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -61,6 +62,7 @@ export default function Navbar() {
             <NavLink onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('about')} text="Hakkımızda" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
+            <NavLink onClick={() => scrollToSection('gallery-preview')} text="Galeri" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
             <NavLink onClick={() => scrollToSection('contact')} text="İletişim" isScrolled={isScrolled} />
           </div>
@@ -89,6 +91,7 @@ export default function Navbar() {
           <div className="px-2 pt-2 pb-3 space-y-1">
             <MobileNavLink onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
             <MobileNavLink onClick={() => scrollToSection('about')} text="Hakkımızda" isScrolled={isScrolled} />
+            <MobileNavLink onClick={() => scrollToSection('gallery-preview')} text="Galeri" isScrolled={isScrolled} />
             <MobileNavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
             <MobileNavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
             <MobileNavLink onClick={() => scrollToSection('contact')} text="İletişim" isScrolled={isScrolled} />

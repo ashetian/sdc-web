@@ -32,8 +32,8 @@ export default async function GalleryPreview() {
   return (
     <section className="py-12 bg-secondary-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-white">Galeri</h2>
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">Galeri</h2>
           <Link href="/gallery" className="text-blue-400 hover:underline text-sm font-medium">Tümünü Gör</Link>
         </div>
         <div className="flex gap-6 overflow-x-auto pb-2">
