@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
