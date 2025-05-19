@@ -63,7 +63,7 @@ freelance,
 
             {name === 'Cihan Bayram' && (
               <div className="flex justify-center mb-2">
-                <span className="px-3 py-1 rounded-full bg-primary-500 text-white text-xs font-bold shadow-lg">Siteyi Yapan</span>
+                <span className="px-3 py-1 rounded-full bg-primary-500 text-white text-xs font-bold shadow-lg">Site Geliştiricisi</span>
               </div>
             )}
 
