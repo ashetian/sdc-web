@@ -74,14 +74,6 @@ export default function Team() {
       website: "https://ashetian.buzz/",
     },
     {
-      name: "Ali Eren Şahin",
-      role: "",
-      description: 'Merhaba, ben Ali. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
-      email: "",
-      image: "/team/ali.jpg",
-      instagram: "https://www.instagram.com/alieren.sahin60/",
-    },
-    {
       name: "Tunahan Akargül",
       role: "",
       description: 'Merhaba ben Tunahan. Ben unity üzerine bir oyun programcısı olmanın yanında aynı zamanda önyüz site geliştiricisiyim.',

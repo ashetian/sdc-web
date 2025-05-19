@@ -21,7 +21,7 @@ async function getGalleryAnnouncements(): Promise<Announcement[]> {
   const res = await fetch(`${baseUrl}/api/announcements`, { cache: "no-store" });
   if (!res.ok) return [];
   const data: Announcement[] = await res.json();
-  return data.filter((a) => a.isInGallery).slice(0, 6); // Son 6 galeri etkinliği
+  return data.filter((a) => a.isInGallery).slice(0, 8); // Son 8 galeri etkinliği
 }
 
 export default async function GalleryPreview() {

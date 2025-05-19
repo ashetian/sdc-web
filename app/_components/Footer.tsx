@@ -7,7 +7,10 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-6 relative z-50">
       <div className="container mx-auto flex justify-between items-center">
-        <p className="text-left opacity-60 font-bold">&copy; {new Date().getFullYear()} KTUSDC. All rights reserved.</p>
+        <div className="flex flex-col">
+          <p className="text-left opacity-60 font-bold">&copy; {new Date().getFullYear()} KTUSDC. All rights reserved.</p>
+          <span className="text-xs opacity-40 mt-1">Developed by Cihan</span>
+        </div>
         <div className="flex space-x-6">
           <a href="https://x.com/ktusdc" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
             <FaXTwitter size={24} />
