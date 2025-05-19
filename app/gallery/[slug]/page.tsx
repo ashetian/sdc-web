@@ -63,8 +63,7 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
             </span>
             <time className="text-sm text-gray-400">{announcement.date}</time>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">{announcement.title}</h1>
-          <p className="text-gray-300 mb-6">{announcement.description}</p>
+          <h1 className="text-3xl font-bold text-white mb-6">{announcement.title}</h1>
           <div className="prose prose-invert max-w-none mb-8">
             {announcement.content?.split('\n').map((paragraph: string, index: number) => (
               <p key={index} className="text-gray-300 mb-4">{paragraph}</p>
