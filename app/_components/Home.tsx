@@ -56,9 +56,9 @@ export default function Home() {
         </div>
         
         <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
-          <Stat number="50+" text="Üye" />
+          <Stat number="60+" text="Üye" />
           <Stat number="2" text="Proje" />
-          <Stat number="2" text="Etkinlik" />
+          <Stat number="3" text="Etkinlik" />
           <Stat number="0" text="Workshop" />
         </div>
       </div>

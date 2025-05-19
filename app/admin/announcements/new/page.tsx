@@ -11,6 +11,7 @@ export default function NewAnnouncementPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
+    slug: '',
     date: '',
     description: '',
     type: 'event',
@@ -48,29 +49,35 @@ export default function NewAnnouncementPage() {
     setFormData(prev => ({ ...prev, image: '' }));
   };
 
+  const generateSlug = (text: string) => {
+    const turkishToEnglish: { [key: string]: string } = {
+      'ğ': 'g', 'Ğ': 'G',
+      'ü': 'u', 'Ü': 'U',
+      'ş': 's', 'Ş': 'S',
+      'ı': 'i', 'İ': 'I',
+      'ö': 'o', 'Ö': 'O',
+      'ç': 'c', 'Ç': 'C'
+    };
+    return text
+      .toLowerCase()
+      .split('')
+      .map(char => turkishToEnglish[char] || char)
+      .join('')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // slug'ı otomatik oluştur
-      const turkishToEnglish: { [key: string]: string } = {
-        'ğ': 'g', 'Ğ': 'G',
-        'ü': 'u', 'Ü': 'U',
-        'ş': 's', 'Ş': 'S',
-        'ı': 'i', 'İ': 'I',
-        'ö': 'o', 'Ö': 'O',
-        'ç': 'c', 'Ç': 'C'
-      };
-
-      const slug = formData.title
-        .toLowerCase()
-        .split('')
-        .map(char => turkishToEnglish[char] || char)
-        .join('')
-        .replace(/[^a-z0-9]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
+      // slug'ı otomatik oluştur veya kullanıcıdan al
+      const slug = formData.slug
+        ? generateSlug(formData.slug)
+        : generateSlug(formData.title);
 
       const res = await fetch('/api/announcements', {
         method: 'POST',
@@ -132,6 +139,20 @@ export default function NewAnnouncementPage() {
               value={formData.title}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
+            />
+          </div>
+          <div>
+            <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
+              Slug (isteğe bağlı)
+            </label>
+            <input
+              type="text"
+              name="slug"
+              id="slug"
+              value={formData.slug}
+              onChange={handleChange}
+              placeholder="Otomatik oluşur veya elle yazabilirsiniz"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
             />
           </div>
 
