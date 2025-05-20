@@ -101,14 +101,14 @@ export default function Announcements() {
             En güncel etkinlik ve duyurularımızdan haberdar olun.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex gap-6 overflow-x-auto pb-2">
             {announcements.map((announcement, index) => (
               <a
                 href={`/announcements/${announcement.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 key={index}
-                className={`group bg-secondary-800/50 backdrop-blur-sm rounded-xl p-6
+                className={`min-w-[320px] max-w-xs group bg-secondary-800/50 backdrop-blur-sm rounded-xl p-6
                           transform transition-all duration-500 hover:scale-105 hover:bg-secondary-700/50
                           ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
                 style={{ transitionDelay: `${index * 100}ms` }}
@@ -125,7 +125,7 @@ export default function Announcements() {
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-4">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${getTypeStyles(announcement.type)}`}>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${getTypeStyles(announcement.type)}`}> 
                     {getTypeText(announcement.type)}
                   </span>
                   <time className="text-sm text-gray-400">{announcement.date}</time>

@@ -20,12 +20,12 @@ export default function Navbar() {
   const scrollToSection = (sectionId: string) => {
     setIsMenuOpen(false);
     if (pathname === '/') {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
       }
     } else {
       router.push(`/?scroll=${sectionId}`);
