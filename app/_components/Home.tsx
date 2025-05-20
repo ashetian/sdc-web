@@ -113,7 +113,7 @@ function InteractiveBackground() {
       }
     }
 
-    let mouse = { x: -1000, y: -1000 };
+    const mouse = { x: -1000, y: -1000 };
     function handleMouseMove(e: MouseEvent) {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
@@ -139,7 +139,7 @@ function InteractiveBackground() {
       context.fillRect(0, 0, c.width, c.height);
 
       // Particles
-      for (let p of particles) {
+      for (const p of particles) {
         // Mouse yakınsa büyüt
         const dist = Math.hypot(p.x - mouse.x, p.y - mouse.y);
         let size = p.size;
@@ -174,7 +174,7 @@ function InteractiveBackground() {
       }
 
       // Hareket
-      for (let p of particles) {
+      for (const p of particles) {
         p.x += p.vx;
         p.y += p.vy;
         if (p.x < 0 || p.x > c!.width) p.vx *= -1;
