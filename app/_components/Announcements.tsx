@@ -101,7 +101,7 @@ export default function Announcements() {
             En güncel etkinlik ve duyurularımızdan haberdar olun.
           </p>
 
-          <div className="flex gap-6 overflow-x-auto pb-2">
+          <div className="flex gap-8 overflow-x-auto pb-2">
             {announcements.map((announcement, index) => (
               <a
                 href={`/announcements/${announcement.slug}`}
@@ -125,7 +125,7 @@ export default function Announcements() {
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-4">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${getTypeStyles(announcement.type)}`}> 
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${getTypeStyles(announcement.type)}`}>
                     {getTypeText(announcement.type)}
                   </span>
                   <time className="text-sm text-gray-400">{announcement.date}</time>
