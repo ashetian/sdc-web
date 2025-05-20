@@ -101,14 +101,14 @@ export default function Announcements() {
             En güncel etkinlik ve duyurularımızdan haberdar olun.
           </p>
 
-          <div className="flex gap-8 overflow-x-auto pb-2">
+          <div className="flex gap-8 overflow-x-auto pb-2 custom-scrollbar">
             {announcements.map((announcement, index) => (
               <a
                 href={`/announcements/${announcement.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 key={index}
-                className={`min-w-[320px] max-w-xs group bg-secondary-800/50 backdrop-blur-sm rounded-xl p-6
+                className={`min-w-[320px] max-w-xs group bg-secondary-800/50 backdrop-blur-sm rounded-xl p-6 flex flex-col
                           transform transition-all duration-500 hover:scale-105 hover:bg-secondary-700/50
                           ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
                 style={{ transitionDelay: `${index * 100}ms` }}
@@ -139,7 +139,7 @@ export default function Announcements() {
                   {announcement.description}
                 </p>
 
-                <button className="mt-4 text-primary-400 hover:text-primary-300 transition-colors text-sm font-medium inline-flex items-center group">
+                <button className="mt-auto text-primary-400 hover:text-primary-300 transition-colors text-sm font-medium inline-flex items-center group">
                   Detayları Gör
                   <svg 
                     className="w-4 h-4 ml-1 transform transition-transform group-hover:translate-x-1" 

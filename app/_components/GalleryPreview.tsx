@@ -36,7 +36,7 @@ export default async function GalleryPreview() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">Galeri</h2>
           <Link href="/gallery" className="text-blue-400 hover:underline text-sm font-medium">Tümünü Gör</Link>
         </div>
-        <div className="flex gap-6 overflow-x-auto pb-2">
+        <div className="flex gap-6 overflow-x-auto pb-2 custom-scrollbar">
           {announcements.map((a) => (
             <Link key={a.slug} href={`/gallery/${a.slug}`} className="min-w-[320px] max-w-xs bg-secondary-800/50 rounded-xl shadow p-4 flex flex-col hover:ring-2 hover:ring-primary-400 transition-all">
               {a.galleryCover && (
