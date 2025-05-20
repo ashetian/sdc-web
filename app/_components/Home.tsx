@@ -16,25 +16,22 @@ export default function Home() {
       <div className={`relative z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
       }`}>
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-          <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-6 drop-shadow-xl">
+          <span className="bg-gradient-to-r from-primary-400 via-fuchsia-400 to-primary-600 bg-clip-text text-transparent animate-gradient-x">
             KTÜ Yazılım Geliştirme Kulübü
           </span>
         </h1>
         
-        <p className="text-xl sm:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
-          Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için
-          inovasyon ve öğrenme merkezi
+        <p className="text-2xl sm:text-3xl text-gray-200/90 mb-10 max-w-3xl mx-auto font-medium tracking-wide drop-shadow">
+          Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için inovasyon ve öğrenme merkezi
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
           <button
             onClick={() => {
               document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="w-64 sm:w-auto px-8 py-3 bg-primary-500 text-white rounded-full font-medium 
-                     hover:bg-primary-600 transform hover:scale-105 transition-all duration-300
-                     shadow-lg hover:shadow-primary-500/50"
+            className="w-64 sm:w-auto px-8 py-3 bg-primary-500/90 text-white rounded-full font-semibold shadow-lg hover:bg-primary-600/90 hover:scale-105 transition-all duration-300 text-lg tracking-wide backdrop-blur-md border border-primary-400/30"
           >
             Bizi Tanıyın
           </button>
@@ -43,15 +40,13 @@ export default function Home() {
             onClick={() => {
               document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="w-64 sm:w-auto px-8 py-3 bg-white/10 text-white rounded-full font-medium 
-                     backdrop-blur-sm hover:bg-white/20 transform hover:scale-105 
-                     transition-all duration-300 border border-white/30"
+            className="w-64 sm:w-auto px-8 py-3 bg-white/10 text-white rounded-full font-semibold shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 text-lg tracking-wide border border-white/20 backdrop-blur-md"
           >
             İletişime Geçin
           </button>
         </div>
         
-        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
+        <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
           <Stat number="60+" text="Üye" />
           <Stat number="2" text="Proje" />
           <Stat number="5" text="Etkinlik" />
@@ -64,9 +59,13 @@ export default function Home() {
 
 function Stat({ number, text }: { number: string; text: string }) {
   return (
-    <div className="text-center">
-      <div className="text-3xl font-bold text-white mb-2">{number}</div>
-      <div className="text-gray-300">{text}</div>
+    <div className="flex flex-col items-center justify-center bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-lg p-6 transition-all duration-300 hover:scale-105 hover:shadow-primary-500/20">
+      <div className="text-4xl font-extrabold text-white mb-1 drop-shadow-sm tracking-tight">
+        {number}
+      </div>
+      <div className="text-sm text-gray-300 font-medium tracking-wide opacity-80">
+        {text}
+      </div>
     </div>
   );
 }
