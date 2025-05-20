@@ -55,6 +55,7 @@ export default function Home() {
           <Stat number="60+" text="Üye" />
           <Stat number="2" text="Proje" />
           <Stat number="5" text="Etkinlik" />
+          <Stat number="1" text="Workshop" />
         </div>
       </div>
     </section>
@@ -95,7 +96,7 @@ function InteractiveBackground() {
     let animationFrameId: number;
     let particles: { x: number; y: number; vx: number; vy: number; size: number; color: string }[] = [];
     const colors = ['#a855f7', '#f472b6', '#38bdf8', '#facc15'];
-    const PARTICLE_COUNT = Math.max(40, Math.floor(window.innerWidth / 30));
+    const PARTICLE_COUNT = Math.max(80, Math.floor(window.innerWidth / 12));
 
     function initParticles() {
       particles = [];
