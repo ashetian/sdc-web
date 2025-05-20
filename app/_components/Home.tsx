@@ -9,20 +9,20 @@ export default function Home() {
   }, []);
 
   return (
-    <section id="home" className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden">
+    <section id="home" className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden pt-28 sm:pt-0 scroll-mt-20">
       <InteractiveBackground />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
       
       <div className={`relative z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
       }`}>
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-6 drop-shadow-xl">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6 drop-shadow-xl leading-tight break-words">
           <span className="bg-gradient-to-r from-primary-400 via-fuchsia-400 to-primary-600 bg-clip-text text-transparent animate-gradient-x">
-            KTÜ Yazılım Geliştirme Kulübü
+            KTÜ Yazılım Geliştirme<br className='block sm:hidden' /> Kulübü
           </span>
         </h1>
         
-        <p className="text-2xl sm:text-3xl text-gray-200/90 mb-10 max-w-3xl mx-auto font-medium tracking-wide drop-shadow">
+        <p className="text-lg sm:text-2xl text-gray-200/90 mb-8 max-w-3xl mx-auto font-medium tracking-wide drop-shadow leading-snug">
           Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için inovasyon ve öğrenme merkezi
         </p>
         
@@ -46,7 +46,7 @@ export default function Home() {
           </button>
         </div>
         
-        <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
+        <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
           <Stat number="60+" text="Üye" />
           <Stat number="2" text="Proje" />
           <Stat number="5" text="Etkinlik" />
@@ -59,13 +59,9 @@ export default function Home() {
 
 function Stat({ number, text }: { number: string; text: string }) {
   return (
-    <div className="flex flex-col items-center justify-center bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-lg p-6 transition-all duration-300 hover:scale-105 hover:shadow-primary-500/20">
-      <div className="text-4xl font-extrabold text-white mb-1 drop-shadow-sm tracking-tight">
-        {number}
-      </div>
-      <div className="text-sm text-gray-300 font-medium tracking-wide opacity-80">
-        {text}
-      </div>
+    <div className="text-center">
+      <div className="text-3xl font-bold text-white mb-2">{number}</div>
+      <div className="text-gray-300">{text}</div>
     </div>
   );
 }
