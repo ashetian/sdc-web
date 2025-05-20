@@ -55,7 +55,6 @@ export default function Home() {
           <Stat number="60+" text="Üye" />
           <Stat number="2" text="Proje" />
           <Stat number="5" text="Etkinlik" />
-          <Stat number="0" text="Workshop" />
         </div>
       </div>
     </section>
