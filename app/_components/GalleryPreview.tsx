@@ -21,7 +21,7 @@ async function getGalleryAnnouncements(): Promise<Announcement[]> {
   const res = await fetch(`${baseUrl}/api/announcements`, { cache: "no-store" });
   if (!res.ok) return [];
   const data: Announcement[] = await res.json();
-  return data.filter((a) => a.isInGallery).slice(0, 8); // Son 8 galeri etkinliği
+  return data.filter((a) => a.isInGallery).slice(0, 15); // Son 15 galeri etkinliği
 }
 
 export default async function GalleryPreview() {
@@ -30,7 +30,7 @@ export default async function GalleryPreview() {
   if (announcements.length === 0) return null;
 
   return (
-    <section className="py-12 bg-secondary-900">
+    <section className="py-20 bg-secondary-900 scroll-mt-20" id="gallery-preview">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">Galeri</h2>

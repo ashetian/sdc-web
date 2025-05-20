@@ -90,9 +90,9 @@ export default function Navbar() {
           <div className="px-2 pt-2 pb-3 space-y-1">
             <MobileNavLink onClick={() => scrollToSection('home')} text="Ana Sayfa" isScrolled={isScrolled} />
             <MobileNavLink onClick={() => scrollToSection('about')} text="Hakkımızda" isScrolled={isScrolled} />
+            <MobileNavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
             <MobileNavLink onClick={() => scrollToSection('gallery-preview')} text="Galeri" isScrolled={isScrolled} />
             <MobileNavLink onClick={() => scrollToSection('team')} text="Ekibimiz" isScrolled={isScrolled} />
-            <MobileNavLink onClick={() => scrollToSection('announcements')} text="Duyurular" isScrolled={isScrolled} />
             <MobileNavLink onClick={() => scrollToSection('contact')} text="İletişim" isScrolled={isScrolled} />
           </div>
         </div>
