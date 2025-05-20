@@ -9,29 +9,32 @@ export default function Home() {
   }, []);
 
   return (
-    <section id="home" className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden pt-28 sm:pt-0 scroll-mt-20">
+    <section id="home" className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden">
       <InteractiveBackground />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
       
       <div className={`relative z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
       }`}>
-        <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6 drop-shadow-xl leading-tight break-words">
-          <span className="bg-gradient-to-r from-primary-400 via-fuchsia-400 to-primary-600 bg-clip-text text-transparent animate-gradient-x">
-            KTÜ Yazılım Geliştirme<br className='block sm:hidden' /> Kulübü
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+          <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+            KTÜ Yazılım Geliştirme Kulübü
           </span>
         </h1>
         
-        <p className="text-lg sm:text-2xl text-gray-200/90 mb-8 max-w-3xl mx-auto font-medium tracking-wide drop-shadow leading-snug">
-          Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için inovasyon ve öğrenme merkezi
+        <p className="text-xl sm:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
+          Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için
+          inovasyon ve öğrenme merkezi
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
             onClick={() => {
               document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="w-64 sm:w-auto px-8 py-3 bg-primary-500/90 text-white rounded-full font-semibold shadow-lg hover:bg-primary-600/90 hover:scale-105 transition-all duration-300 text-lg tracking-wide backdrop-blur-md border border-primary-400/30"
+            className="w-64 sm:w-auto px-8 py-3 bg-primary-500 text-white rounded-full font-medium 
+                     hover:bg-primary-600 transform hover:scale-105 transition-all duration-300
+                     shadow-lg hover:shadow-primary-500/50"
           >
             Bizi Tanıyın
           </button>
@@ -40,13 +43,15 @@ export default function Home() {
             onClick={() => {
               document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="w-64 sm:w-auto px-8 py-3 bg-white/10 text-white rounded-full font-semibold shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 text-lg tracking-wide border border-white/20 backdrop-blur-md"
+            className="w-64 sm:w-auto px-8 py-3 bg-white/10 text-white rounded-full font-medium 
+                     backdrop-blur-sm hover:bg-white/20 transform hover:scale-105 
+                     transition-all duration-300 border border-white/30"
           >
             İletişime Geçin
           </button>
         </div>
         
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
+        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
           <Stat number="60+" text="Üye" />
           <Stat number="2" text="Proje" />
           <Stat number="5" text="Etkinlik" />
