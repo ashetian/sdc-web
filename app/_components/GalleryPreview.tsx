@@ -46,7 +46,13 @@ export default async function GalleryPreview() {
                 </div>
               )}
               <div className="flex items-center justify-between mb-1">
-                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary-500/10 text-primary-400 ring-1 ring-inset ring-primary-500/30">
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset 
+                    ${a.type === "event" ? "bg-purple-600/20 text-purple-400 ring-purple-500/30" : 
+                      a.type === "news" ? "bg-blue-600/20 text-blue-400 ring-blue-500/30" : 
+                      "bg-green-600/20 text-green-400 ring-green-500/30"}
+                  `}
+                >
                   {a.type === "event" ? "Etkinlik" : a.type === "news" ? "Duyuru" : "Workshop"}
                 </span>
                 <time className="text-xs text-gray-400">{a.date}</time>
