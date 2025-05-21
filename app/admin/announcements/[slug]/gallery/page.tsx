@@ -21,7 +21,7 @@ interface Announcement {
 export default function GalleryEditPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
-  const [galleryLinks, setGalleryLinks] = useState<string[]>([""]);
+  const [galleryLinks, setGalleryLinks] = useState<{ url: string; description: string }[]>([{ url: '', description: '' }]);
   const [galleryCover, setGalleryCover] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,23 +31,29 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
       if (res.ok) {
         const data = await res.json();
         setAnnouncement(data);
-        setGalleryLinks(data.galleryLinks && data.galleryLinks.length > 0 ? data.galleryLinks : [""]);
+        setGalleryLinks(
+          data.galleryLinks && data.galleryLinks.length > 0
+            ? data.galleryLinks.map((l: any) =>
+                typeof l === 'string' ? { url: l, description: '' } : l
+              )
+            : [{ url: '', description: '' }]
+        );
         setGalleryCover(data.galleryCover || data.image || "");
       }
     }
     fetchAnnouncement();
   }, [params.slug]);
 
-  const handleGalleryLinkChange = (index: number, value: string) => {
+  const handleGalleryLinkChange = (index: number, field: 'url' | 'description', value: string) => {
     setGalleryLinks((prev) => {
       const updated = [...prev];
-      updated[index] = value;
+      updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
   };
 
   const addGalleryLink = () => {
-    setGalleryLinks((prev) => [...prev, ""]);
+    setGalleryLinks((prev) => [...prev, { url: '', description: '' }]);
   };
 
   const removeGalleryLink = (index: number) => {
@@ -63,7 +69,7 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...announcement,
-          galleryLinks: galleryLinks.filter((l) => l.trim() !== ""),
+          galleryLinks: galleryLinks.filter((l) => l.url.trim() !== ""),
           galleryCover,
           isInGallery: true,
         }),
@@ -108,16 +114,23 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
           <div>
             <label className="block text-sm font-medium text-gray-700">Cloudinary Görsel/Video Linkleri</label>
             {galleryLinks.map((link, idx) => (
-              <div key={idx} className="flex items-center space-x-2 mt-1">
+              <div key={idx} className="flex flex-col gap-1 mt-1 border border-gray-200 rounded p-2 bg-gray-50">
                 <input
                   type="text"
-                  value={link}
-                  onChange={(e) => handleGalleryLinkChange(idx, e.target.value)}
+                  value={link.url}
+                  onChange={(e) => handleGalleryLinkChange(idx, 'url', e.target.value)}
                   placeholder="Cloudinary görsel veya video linki"
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
                 />
+                <textarea
+                  value={link.description}
+                  onChange={(e) => handleGalleryLinkChange(idx, 'description', e.target.value)}
+                  placeholder="Etkinlik sonrası açıklaması (isteğe bağlı)"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white text-sm"
+                  rows={2}
+                />
                 {galleryLinks.length > 1 && (
-                  <button type="button" onClick={() => removeGalleryLink(idx)} className="text-red-500">Sil</button>
+                  <button type="button" onClick={() => removeGalleryLink(idx)} className="text-red-500 text-xs self-end">Sil</button>
                 )}
               </div>
             ))}

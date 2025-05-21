@@ -53,7 +53,12 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
       default: false,
     },
     galleryLinks: {
-      type: [String],
+      type: [
+        {
+          url: { type: String, required: true },
+          description: { type: String, required: false, default: '' },
+        }
+      ],
       default: [],
     },
     galleryCover: {

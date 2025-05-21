@@ -66,24 +66,29 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
           <h1 className="text-3xl font-bold text-white mb-6">{announcement.title}</h1>
           {announcement.galleryLinks && announcement.galleryLinks.length > 0 && (
             <div className="space-y-8">
-              {announcement.galleryLinks.map((link, i) => (
+              {announcement.galleryLinks.map((item: any, i: number) => (
                 <div key={i} className="w-full">
-                  {isImage(link) ? (
+                  {item.description && (
+                    <div className="mb-2 p-3 rounded bg-secondary-900/80 text-gray-200 text-sm border-l-4 border-primary-500">
+                      {item.description}
+                    </div>
+                  )}
+                  {isImage(item.url) ? (
                     <Image
-                      src={link}
+                      src={item.url}
                       alt={`Galeri görseli ${i + 1}`}
                       width={800}
                       height={500}
                       className="w-full rounded-lg object-contain bg-black"
                     />
-                  ) : isVideo(link) ? (
+                  ) : isVideo(item.url) ? (
                     <video
-                      src={link}
+                      src={item.url}
                       controls
                       className="w-full rounded-lg bg-black"
                     />
                   ) : (
-                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">Dosyayı Görüntüle</a>
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">Dosyayı Görüntüle</a>
                   )}
                 </div>
               ))}
