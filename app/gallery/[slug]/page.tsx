@@ -59,7 +59,13 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
             </div>
           )}
           <div className="flex items-center justify-between mb-4">
-            <span className="px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset bg-primary-500/10 text-primary-400 ring-primary-500/30">
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset 
+                ${announcement.type === "event" ? "bg-purple-600/20 text-purple-400 ring-purple-500/30" : 
+                  announcement.type === "news" ? "bg-blue-600/20 text-blue-400 ring-blue-500/30" : 
+                  "bg-green-600/20 text-green-400 ring-green-500/30"}
+              `}
+            >
               {announcement.type === "event" ? "Etkinlik" : announcement.type === "news" ? "Duyuru" : "Workshop"}
             </span>
             <time className="text-sm text-gray-400">{announcement.date}</time>
