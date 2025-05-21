@@ -16,13 +16,15 @@ interface Announcement {
   galleryLinks?: string[];
   galleryCover?: string;
   isInGallery?: boolean;
+  galleryDescription?: string;
 }
 
 export default function GalleryEditPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
-  const [galleryLinks, setGalleryLinks] = useState<{ url: string; description: string }[]>([{ url: '', description: '' }]);
+  const [galleryLinks, setGalleryLinks] = useState<string[]>([""]);
   const [galleryCover, setGalleryCover] = useState<string>("");
+  const [galleryDescription, setGalleryDescription] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -31,29 +33,24 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
       if (res.ok) {
         const data = await res.json();
         setAnnouncement(data);
-        setGalleryLinks(
-          data.galleryLinks && data.galleryLinks.length > 0
-            ? data.galleryLinks.map((l: { url: string; description: string }) =>
-                typeof l === 'string' ? { url: l, description: '' } : l
-              )
-            : [{ url: '', description: '' }]
-        );
+        setGalleryLinks(data.galleryLinks && data.galleryLinks.length > 0 ? data.galleryLinks : [""]);
         setGalleryCover(data.galleryCover || data.image || "");
+        setGalleryDescription(data.galleryDescription || "");
       }
     }
     fetchAnnouncement();
   }, [params.slug]);
 
-  const handleGalleryLinkChange = (index: number, field: 'url' | 'description', value: string) => {
+  const handleGalleryLinkChange = (index: number, value: string) => {
     setGalleryLinks((prev) => {
       const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
+      updated[index] = value;
       return updated;
     });
   };
 
   const addGalleryLink = () => {
-    setGalleryLinks((prev) => [...prev, { url: '', description: '' }]);
+    setGalleryLinks((prev) => [...prev, ""]);
   };
 
   const removeGalleryLink = (index: number) => {
@@ -69,9 +66,10 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...announcement,
-          galleryLinks: galleryLinks.filter((l) => l.url.trim() !== ""),
+          galleryLinks: galleryLinks.filter((l) => l.trim() !== ""),
           galleryCover,
           isInGallery: true,
+          galleryDescription,
         }),
       });
       if (!res.ok) throw new Error("Galeri güncellenemedi");
@@ -112,25 +110,28 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
             )}
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700">Galeriye Özel Açıklama</label>
+            <textarea
+              value={galleryDescription}
+              onChange={e => setGalleryDescription(e.target.value)}
+              placeholder="Bu açıklama sadece galeri sayfasında görünür."
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
+              rows={3}
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">Cloudinary Görsel/Video Linkleri</label>
             {galleryLinks.map((link, idx) => (
-              <div key={idx} className="flex flex-col gap-1 mt-1 border border-gray-200 rounded p-2 bg-gray-50">
+              <div key={idx} className="flex items-center space-x-2 mt-1">
                 <input
                   type="text"
-                  value={link.url}
-                  onChange={(e) => handleGalleryLinkChange(idx, 'url', e.target.value)}
+                  value={link}
+                  onChange={(e) => handleGalleryLinkChange(idx, e.target.value)}
                   placeholder="Cloudinary görsel veya video linki"
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
                 />
-                <textarea
-                  value={link.description}
-                  onChange={(e) => handleGalleryLinkChange(idx, 'description', e.target.value)}
-                  placeholder="Etkinlik sonrası açıklaması (isteğe bağlı)"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white text-sm"
-                  rows={2}
-                />
                 {galleryLinks.length > 1 && (
-                  <button type="button" onClick={() => removeGalleryLink(idx)} className="text-red-500 text-xs self-end">Sil</button>
+                  <button type="button" onClick={() => removeGalleryLink(idx)} className="text-red-500">Sil</button>
                 )}
               </div>
             ))}

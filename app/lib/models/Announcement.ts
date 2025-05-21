@@ -14,6 +14,7 @@ export interface IAnnouncement {
   galleryLinks?: string[];
   galleryCover?: string;
   isInGallery?: boolean;
+  galleryDescription?: string;
 }
 
 const announcementSchema = new mongoose.Schema<IAnnouncement>(
@@ -53,12 +54,7 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
       default: false,
     },
     galleryLinks: {
-      type: [
-        {
-          url: { type: String, required: true },
-          description: { type: String, required: false, default: '' },
-        }
-      ],
+      type: [String],
       default: [],
     },
     galleryCover: {
@@ -68,6 +64,11 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
     isInGallery: {
       type: Boolean,
       default: false,
+    },
+    galleryDescription: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   {

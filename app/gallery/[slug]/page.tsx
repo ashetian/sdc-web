@@ -2,11 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 
-interface GalleryLink {
-  url: string;
-  description: string;
-}
-
 interface Announcement {
   slug: string;
   title: string;
@@ -14,8 +9,9 @@ interface Announcement {
   description: string;
   type: "event" | "news" | "workshop";
   content: string;
-  galleryLinks?: GalleryLink[];
+  galleryLinks?: string[];
   galleryCover?: string;
+  galleryDescription?: string;
 }
 
 async function getAnnouncement(slug: string): Promise<Announcement | null> {
@@ -46,20 +42,6 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
     );
   }
 
-  // galleryLinks'i güvenli şekilde dönüştür
-  let galleryLinks: GalleryLink[] = [];
-  if (announcement.galleryLinks && Array.isArray(announcement.galleryLinks)) {
-    galleryLinks = announcement.galleryLinks.map((item: string | GalleryLink) => {
-      if (typeof item === 'string') {
-        return { url: item, description: '' };
-      } else if (item && typeof item.url === 'string') {
-        return { url: item.url, description: item.description || '' };
-      } else {
-        return { url: '', description: '' };
-      }
-    });
-  }
-
   return (
     <div className="min-h-screen bg-secondary-900 py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,31 +65,29 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
             <time className="text-sm text-gray-400">{announcement.date}</time>
           </div>
           <h1 className="text-3xl font-bold text-white mb-6">{announcement.title}</h1>
-          {galleryLinks.length > 0 && (
+          {announcement.galleryDescription && (
+            <p className="text-primary-200 text-lg mb-6 whitespace-pre-line">{announcement.galleryDescription}</p>
+          )}
+          {announcement.galleryLinks && announcement.galleryLinks.length > 0 && (
             <div className="space-y-8">
-              {galleryLinks.map((item, i) => (
+              {announcement.galleryLinks.map((link, i) => (
                 <div key={i} className="w-full">
-                  {item.description && (
-                    <div className="mb-2 p-3 rounded bg-secondary-900/80 text-gray-200 text-sm border-l-4 border-primary-500">
-                      {item.description}
-                    </div>
-                  )}
-                  {isImage(item.url) ? (
+                  {isImage(link) ? (
                     <Image
-                      src={item.url}
+                      src={link}
                       alt={`Galeri görseli ${i + 1}`}
                       width={800}
                       height={500}
                       className="w-full rounded-lg object-contain bg-black"
                     />
-                  ) : isVideo(item.url) ? (
+                  ) : isVideo(link) ? (
                     <video
-                      src={item.url}
+                      src={link}
                       controls
                       className="w-full rounded-lg bg-black"
                     />
                   ) : (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">Dosyayı Görüntüle</a>
+                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">Dosyayı Görüntüle</a>
                   )}
                 </div>
               ))}

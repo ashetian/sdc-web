@@ -11,6 +11,7 @@ interface Announcement {
   galleryLinks?: string[];
   galleryCover?: string;
   isInGallery?: boolean;
+  galleryDescription?: string;
 }
 
 async function getGalleryAnnouncements(): Promise<Announcement[]> {
@@ -51,7 +52,7 @@ export default async function GalleryPreview() {
                 <time className="text-xs text-gray-400">{a.date}</time>
               </div>
               <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">{a.title}</h3>
-              <p className="text-gray-300 text-sm mb-2 line-clamp-2">{a.description}</p>
+              <p className="text-gray-300 text-sm mb-2 line-clamp-2">{a.galleryDescription || a.description}</p>
             </Link>
           ))}
         </div>
