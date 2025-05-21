@@ -2,6 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 
+interface GalleryLink {
+  url: string;
+  description: string;
+}
+
 interface Announcement {
   slug: string;
   title: string;
@@ -9,7 +14,7 @@ interface Announcement {
   description: string;
   type: "event" | "news" | "workshop";
   content: string;
-  galleryLinks?: string[];
+  galleryLinks?: GalleryLink[];
   galleryCover?: string;
 }
 
@@ -66,7 +71,7 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
           <h1 className="text-3xl font-bold text-white mb-6">{announcement.title}</h1>
           {announcement.galleryLinks && announcement.galleryLinks.length > 0 && (
             <div className="space-y-8">
-              {announcement.galleryLinks.map((item: any, i: number) => (
+              {announcement.galleryLinks.map((item, i) => (
                 <div key={i} className="w-full">
                   {item.description && (
                     <div className="mb-2 p-3 rounded bg-secondary-900/80 text-gray-200 text-sm border-l-4 border-primary-500">

@@ -33,7 +33,7 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
         setAnnouncement(data);
         setGalleryLinks(
           data.galleryLinks && data.galleryLinks.length > 0
-            ? data.galleryLinks.map((l: any) =>
+            ? data.galleryLinks.map((l: { url: string; description: string }) =>
                 typeof l === 'string' ? { url: l, description: '' } : l
               )
             : [{ url: '', description: '' }]
