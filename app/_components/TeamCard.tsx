@@ -61,12 +61,6 @@ freelance,
             </div>
             </div>
 
-            {name === 'Cihan Bayram' && (
-              <div className="flex justify-center mb-2">
-                <span className="px-3 py-1 rounded-full bg-primary-500 text-white text-xs font-bold shadow-lg">Site Geliştiricisi</span>
-              </div>
-            )}
-
             <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-primary-400 transition-colors">
             {name}
             </h3>
