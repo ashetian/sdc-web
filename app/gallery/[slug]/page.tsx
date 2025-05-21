@@ -49,7 +49,7 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
   // galleryLinks'i güvenli şekilde dönüştür
   let galleryLinks: GalleryLink[] = [];
   if (announcement.galleryLinks && Array.isArray(announcement.galleryLinks)) {
-    galleryLinks = announcement.galleryLinks.map((item: any) => {
+    galleryLinks = announcement.galleryLinks.map((item: string | GalleryLink) => {
       if (typeof item === 'string') {
         return { url: item, description: '' };
       } else if (item && typeof item.url === 'string') {
