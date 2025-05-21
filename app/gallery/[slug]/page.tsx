@@ -46,6 +46,20 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
     );
   }
 
+  // galleryLinks'i güvenli şekilde dönüştür
+  let galleryLinks: GalleryLink[] = [];
+  if (announcement.galleryLinks && Array.isArray(announcement.galleryLinks)) {
+    galleryLinks = announcement.galleryLinks.map((item: any) => {
+      if (typeof item === 'string') {
+        return { url: item, description: '' };
+      } else if (item && typeof item.url === 'string') {
+        return { url: item.url, description: item.description || '' };
+      } else {
+        return { url: '', description: '' };
+      }
+    });
+  }
+
   return (
     <div className="min-h-screen bg-secondary-900 py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -69,9 +83,9 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
             <time className="text-sm text-gray-400">{announcement.date}</time>
           </div>
           <h1 className="text-3xl font-bold text-white mb-6">{announcement.title}</h1>
-          {announcement.galleryLinks && announcement.galleryLinks.length > 0 && (
+          {galleryLinks.length > 0 && (
             <div className="space-y-8">
-              {announcement.galleryLinks.map((item, i) => (
+              {galleryLinks.map((item, i) => (
                 <div key={i} className="w-full">
                   {item.description && (
                     <div className="mb-2 p-3 rounded bg-secondary-900/80 text-gray-200 text-sm border-l-4 border-primary-500">
