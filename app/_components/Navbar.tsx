@@ -44,7 +44,7 @@ export default function Navbar() {
           >
             <div className="relative w-10 h-10">
               <Image
-                src="/sdclogobg.png"
+                src="/logocircle.png"
                 alt="KTU SDC Logo"
                 fill
                 className="object-contain"
