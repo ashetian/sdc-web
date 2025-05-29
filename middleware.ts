@@ -1,35 +1,47 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+
+function isProtected(request: NextRequest): boolean {
+  const { pathname } = request.nextUrl;
+  const method = request.method.toUpperCase();
+
+  if (pathname.startsWith("/admin")) return true;
+  if (pathname === "/api/uploads" && method === "POST") return true;
+  if (pathname === "/api/announcements" && method === "POST") return true;
+  if (
+    pathname.startsWith("/api/announcements/") &&
+    (method === "PUT" || method === "DELETE")
+  )
+    return true;
+
+  return false;
+}
+
+function unauthorized() {
+  return new NextResponse(null, {
+    status: 401,
+    headers: {
+      "WWW-Authenticate": 'Basic realm="Admin Paneli"',
+    },
+  });
+}
 
 export function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    const authHeader = request.headers.get('authorization');
+  if (!isProtected(request)) return NextResponse.next();
 
-    if (!authHeader) {
-      return new NextResponse(null, {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Admin Paneli"',
-        },
-      });
-    }
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Basic ")) return unauthorized();
 
-    const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    const username = auth[0];
-    const password = auth[1];
+  const [username, password] = Buffer.from(authHeader.split(" ")[1], "base64")
+    .toString()
+    .split(":");
 
-    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-      return new NextResponse(null, {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Admin Paneli"',
-        },
-      });
-    }
-  }
+  if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD)
+    return unauthorized();
 
   return NextResponse.next();
-} 
+}
+
