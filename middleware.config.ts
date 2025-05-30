@@ -1,3 +1,3 @@
 export const config = {
-  matcher: '/admin/:path*'
+  matcher: ['/admin/:path*', '/api/:path*']
 } 
