@@ -1,10 +1,29 @@
+import dynamic from 'next/dynamic';
+
+// Ana bileşeni statik olarak import edelim
 import Home from './_components/Home';
 import About from './_components/About';
-import Announcements from './_components/Announcements';
-import Team from './_components/Team';
-import Contact from './_components/Contact';
-import SocialConnect from './_components/SocialConnect';
-import GalleryPreview from './_components/GalleryPreview';
+
+// Diğer bileşenleri dinamik olarak yükleyelim
+const Announcements = dynamic(() => import('./_components/Announcements'), {
+  loading: () => <div className="min-h-[400px]" />,
+});
+
+const Team = dynamic(() => import('./_components/Team'), {
+  loading: () => <div className="min-h-[400px]" />,
+});
+
+const Contact = dynamic(() => import('./_components/Contact'), {
+  loading: () => <div className="min-h-[400px]" />,
+});
+
+const SocialConnect = dynamic(() => import('./_components/SocialConnect'), {
+  loading: () => <div className="min-h-[100px]" />,
+});
+
+const GalleryPreview = dynamic(() => import('./_components/GalleryPreview'), {
+  loading: () => <div className="min-h-[400px]" />,
+});
 
 export default function HomePage() {
   return (

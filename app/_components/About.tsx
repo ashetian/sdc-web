@@ -1,6 +1,36 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
+// Features array'ini bileşen dışına taşıyalım
+const features = [
+  {
+    title: 'Eğitim ve Gelişim',
+    description: 'Modern yazılım teknolojileri ve metodolojileri üzerine düzenli eğitimler',
+    icon: '🎓'
+  },
+  {
+    title: 'Proje Deneyimi',
+    description: 'Gerçek dünya projelerinde pratik deneyim kazanma fırsatı',
+    icon: '💻'
+  },
+  {
+    title: 'Networking',
+    description: 'Sektör profesyonelleri ve diğer öğrencilerle networking imkanı',
+    icon: '🤝'
+  },
+  {
+    title: 'Kariyer Fırsatları',
+    description: 'Staj ve iş fırsatları için sektör bağlantıları',
+    icon: '🚀'
+  }
+];
+
+// Arka plan stilini bileşen dışına taşıyalım
+const backgroundStyle = {
+  backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`,
+  backgroundSize: '40px 40px'
+};
+
 export default function About() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -23,37 +53,12 @@ export default function About() {
     return () => observer.disconnect();
   }, []);
 
-  const features = [
-    {
-      title: 'Eğitim ve Gelişim',
-      description: 'Modern yazılım teknolojileri ve metodolojileri üzerine düzenli eğitimler',
-      icon: '🎓'
-    },
-    {
-      title: 'Proje Deneyimi',
-      description: 'Gerçek dünya projelerinde pratik deneyim kazanma fırsatı',
-      icon: '💻'
-    },
-    {
-      title: 'Networking',
-      description: 'Sektör profesyonelleri ve diğer öğrencilerle networking imkanı',
-      icon: '🤝'
-    },
-    {
-      title: 'Kariyer Fırsatları',
-      description: 'Staj ve iş fırsatları için sektör bağlantıları',
-      icon: '🚀'
-    }
-  ];
-
   const handleContactClick = () => {
     const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      contactSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
+    contactSection?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
   };
 
   return (
@@ -65,16 +70,15 @@ export default function About() {
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-secondary-900 opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-transparent to-secondary-900/50" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
+        <div className="absolute inset-0" style={backgroundStyle} />
       </div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`text-center transform transition-all duration-1000 ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-        }`}>
+        <div 
+          className={`text-center transform ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+          } transition-all duration-700`}
+        >
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Hakkımızda
           </h2>
@@ -88,9 +92,9 @@ export default function About() {
               <div
                 key={index}
                 className={`group bg-secondary-800/50 backdrop-blur-sm p-6 rounded-xl 
-                          transform transition-all duration-500 hover:scale-105 hover:bg-secondary-700/50
+                          transform transition-all duration-300 hover:scale-105 hover:bg-secondary-700/50
                           ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
-                style={{ transitionDelay: `${index * 100}ms` }}
+                style={{ transitionDelay: `${index * 50}ms` }}
               >
                 <div className="text-4xl mb-4 transform transition-transform group-hover:scale-110 group-hover:rotate-3">
                   {feature.icon}
@@ -105,9 +109,9 @@ export default function About() {
             ))}
           </div>
 
-          <div className={`mt-16 transform transition-all duration-1000 delay-500 ${
+          <div className={`mt-16 transform ${
             isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}>
+          } transition-all duration-700 delay-300`}>
             <button
               onClick={handleContactClick}
               className="inline-flex items-center px-8 py-3 border border-transparent 
