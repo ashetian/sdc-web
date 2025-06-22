@@ -45,12 +45,12 @@ freelance,
     return (
         <div
             className={`group rounded-xl p-6 shadow-lg transform transition-all duration-500 hover:scale-105 cursor-pointer w-[300px] 
-            ${name === 'Cihan Bayram' ? 'bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600 border-4 border-primary-400 shadow-primary-400/40' : 'bg-secondary-800/80 hover:bg-secondary-700/80'}`}
-            style={name === 'Cihan Bayram' ? { boxShadow: '0 0 32px 4px #a855f7, 0 0 8px 2px #f472b6' } : {}}
+            ${name === 'Cihan Bayram' ? 'bg-secondary-800/80 hover:bg-secondary-700/80 border-4 border-primary-400 shadow-primary-400/40' : 'bg-secondary-800/80 hover:bg-secondary-700/80'}`}
+            style={name === 'Cihan Bayram' ? { boxShadow: '0 0 24px 2px #a855f7, 0 0 6px 1px #f472b6' } : {}}
             onClick={onOpen}
         >
             <div className="relative w-32 h-32 mx-auto mb-6">
-            <div className={`absolute inset-0 rounded-full ${name === 'Cihan Bayram' ? 'bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600' : 'bg-gradient-to-r from-primary-500 to-primary-600'}`} />
+            <div className={`absolute inset-0 rounded-full ${name === 'Cihan Bayram' ? 'bg-gradient-to-r from-purple-600 to-primary-400 shadow-lg shadow-primary-400/40' : 'bg-gradient-to-r from-primary-500 to-primary-600'}`} />
             <div className="absolute inset-1 rounded-full overflow-hidden">
                 <Image
                 src={image}
