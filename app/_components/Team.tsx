@@ -76,7 +76,7 @@ export default function Team() {
     {
       name: "Yunus Emre Demirci",
       role: "",
-      description: 'Merhaba ben Yunus Emre. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.',
+      description: 'Yapay zeka ve teknolojiyle ilgilenen bir yazılım öğrencisiyim. Yeni şeyler öğrenmeyi, farklı alanlardaki gelişmeleri takip etmeyi ve bu bilgileri projelere dönüştürmeyi seviyorum. Özellikle yapay zekanın hayatın her alanını nasıl dönüştürdüğünü görmek beni hem heyecanlandırıyor hem de bu alanda bir şeyler üretmeye teşvik ediyor. Kulüpte, hem ekip çalışmasına katkı sağlamak hem de kendimi geliştirmek için aktif olarak yer alıyorum. Hedefim, sadece teknoloji tüketen değil, aynı zamanda üreten ve fayda sağlayan biri olmak.',
       github: "https://github.com/yedemirci",
       email: "ye.demirci@outlook.com",
       image: "/team/yunusemre.png",
