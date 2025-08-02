@@ -52,14 +52,14 @@ export default function Team() {
       name: "Cihan Bayram",
       role: "",
       email: "contact@c1h4n.com",
-      image: "/team/mcihanb.png",
+      image: "/team/ccc.png",
       linkedin: "https://www.linkedin.com/in/c1h4n/",
       description: 'Merhaba ben Cihan. Günlük hayatımda tutkulu bir geliştiriciyim. Kendi kendine öğrenme tutumuna sahip hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi, yapay zekayı kullanmayı seviyorum. Bu siteyi ve yaptığım diğer projeleri görmek için github sayfamı ve websitemi ziyaret edebilirsiniz.',
       github: "https://github.com/C1H4N",
       x: "https://x.com/cjh4n",
       instagram: "https://www.instagram.com/c1h4n",
-      website: "https://c1h4n.com",
-      freelance: "https://c1h4n.com/hizmet_al",
+      website: "https://c1h4n.com"
+      // freelance: "https://c1h4n.com/hizmet_al", 
     },
     {
       name: "Caner Görez",
