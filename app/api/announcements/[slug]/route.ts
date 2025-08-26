@@ -4,7 +4,7 @@ import { Announcement } from '@/app/lib/models/Announcement';
 import z from 'zod';
 
 //validasyon şeması
-export const schema = z.object({
+const schema = z.object({
   title: z.string().min(1).max(100),
   date: z.string().min(1).max(100),
   description: z.string().min(1).max(100),
