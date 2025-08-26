@@ -61,8 +61,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Yunus Emre Demirci",
-    //subtitle: "AI / Yazılım",
-    subtitle: "Başkumandan",
+    subtitle: "AI / Yazılım",
     description:
       "Yapay zeka ve teknolojiyle ilgilenen bir yazılım öğrencisiyim. ...",
     github: "https://github.com/yedemirci",
