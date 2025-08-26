@@ -1,34 +1,36 @@
-'use client';
-import { useEffect, useRef, useState } from 'react';
+"use client";
+import { useEffect, useRef, useState } from "react";
 
 // Features array'ini bileşen dışına taşıyalım
 const features = [
   {
-    title: 'Eğitim ve Gelişim',
-    description: 'Modern yazılım teknolojileri ve metodolojileri üzerine düzenli eğitimler',
-    icon: '🎓'
+    title: "Eğitim ve Gelişim",
+    description:
+      "Modern yazılım teknolojileri ve metodolojileri üzerine düzenli eğitimler",
+    icon: "🎓",
   },
   {
-    title: 'Proje Deneyimi',
-    description: 'Gerçek dünya projelerinde pratik deneyim kazanma fırsatı',
-    icon: '💻'
+    title: "Proje Deneyimi",
+    description: "Gerçek dünya projelerinde pratik deneyim kazanma fırsatı",
+    icon: "💻",
   },
   {
-    title: 'Networking',
-    description: 'Sektör profesyonelleri ve diğer öğrencilerle networking imkanı',
-    icon: '🤝'
+    title: "Networking",
+    description:
+      "Sektör profesyonelleri ve diğer öğrencilerle networking imkanı",
+    icon: "🤝",
   },
   {
-    title: 'Kariyer Fırsatları',
-    description: 'Staj ve iş fırsatları için sektör bağlantıları',
-    icon: '🚀'
-  }
+    title: "Kariyer Fırsatları",
+    description: "Staj ve iş fırsatları için sektör bağlantıları",
+    icon: "🚀",
+  },
 ];
 
 // Arka plan stilini bileşen dışına taşıyalım
 const backgroundStyle = {
   backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`,
-  backgroundSize: '40px 40px'
+  backgroundSize: "40px 40px",
 };
 
 export default function About() {
@@ -54,10 +56,10 @@ export default function About() {
   }, []);
 
   const handleContactClick = () => {
-    const contactSection = document.getElementById('contact');
-    contactSection?.scrollIntoView({ 
-      behavior: 'smooth',
-      block: 'start'
+    const contactSection = document.getElementById("contact");
+    contactSection?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
     });
   };
 
@@ -72,19 +74,20 @@ export default function About() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-transparent to-secondary-900/50" />
         <div className="absolute inset-0" style={backgroundStyle} />
       </div>
-      
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div 
+        <div
           className={`text-center transform ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
           } transition-all duration-700`}
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Hakkımızda
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-16">
-            KTÜ Software Development Club, yazılım dünyasında kendini geliştirmek isteyen
-            öğrenciler için bir öğrenme ve gelişim platformudur.
+            KTÜ Software Development Club, yazılım dünyasında kendini
+            geliştirmek isteyen öğrenciler için bir öğrenme ve gelişim
+            platformudur.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -93,7 +96,11 @@ export default function About() {
                 key={index}
                 className={`group bg-secondary-800/50 backdrop-blur-sm p-6 rounded-xl 
                           transform transition-all duration-300 hover:scale-105 hover:bg-secondary-700/50
-                          ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                          ${
+                            isVisible
+                              ? "translate-y-0 opacity-100"
+                              : "translate-y-10 opacity-0"
+                          }`}
                 style={{ transitionDelay: `${index * 50}ms` }}
               >
                 <div className="text-4xl mb-4 transform transition-transform group-hover:scale-110 group-hover:rotate-3">
@@ -109,9 +116,13 @@ export default function About() {
             ))}
           </div>
 
-          <div className={`mt-16 transform ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          } transition-all duration-700 delay-300`}>
+          <div
+            className={`mt-16 transform ${
+              isVisible
+                ? "translate-y-0 opacity-100"
+                : "translate-y-10 opacity-0"
+            } transition-all duration-700 delay-300`}
+          >
             <button
               onClick={handleContactClick}
               className="inline-flex items-center px-8 py-3 border border-transparent 

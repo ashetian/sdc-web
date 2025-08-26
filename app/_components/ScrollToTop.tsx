@@ -1,74 +1,40 @@
-'use client'
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaArrowUp } from 'react-icons/fa';
+"use client";
+//*aga eski scroll to top bi değişik çalışıyordu basic bir remake
+import { useEffect, useState } from "react";
+import { ArrowUp } from "lucide-react";
 
 export default function ScrollToTop() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState(32); // 8rem (bottom-8) varsayılan değer
+  const [visible, setVisible] = useState(false);
 
-  // Scroll event listener
   useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+    const onScroll = () => {
+      setVisible(window.scrollY > 200); // show after 200px
     };
-
-    const adjustButtonPosition = () => {
-      const footer = document.querySelector('footer');
-      if (!footer) return;
-
-      const footerTop = footer.getBoundingClientRect().top;
-      const windowHeight = window.innerHeight;
-      const buffer = 32; // 2rem ekstra boşluk
-
-      if (footerTop < windowHeight) {
-        const newPosition = windowHeight - footerTop + buffer;
-        setButtonPosition(newPosition);
-      } else {
-        setButtonPosition(32); // Varsayılan 8rem (bottom-8)
-      }
-    };
-
-    window.addEventListener('scroll', () => {
-      toggleVisibility();
-      adjustButtonPosition();
-    });
-    window.addEventListener('resize', adjustButtonPosition);
-
-    return () => {
-      window.removeEventListener('scroll', toggleVisibility);
-      window.removeEventListener('scroll', adjustButtonPosition);
-      window.removeEventListener('resize', adjustButtonPosition);
-    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+  const scrollTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  if (!visible) return null;
+
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          onClick={scrollToTop}
-          style={{ bottom: `${buttonPosition}px` }}
-          className="fixed right-8 p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <FaArrowUp className="w-6 h-6" />
-        </motion.button>
-      )}
-    </AnimatePresence>
+    <button
+      onClick={scrollTop}
+      className="
+        fixed bottom-6 right-6 z-50
+        p-3 rounded-full shadow-lg
+        bg-indigo-600 text-white
+        hover:bg-indigo-700
+        animate-fade-in
+        animate-fade-out
+        transition-all
+      "
+      aria-label="Scroll to top"
+    >
+      <ArrowUp size={20} />
+    </button>
   );
 }

@@ -1,11 +1,13 @@
-'use client';
-import { useEffect, useRef, useState } from 'react';
-import emailjs from '@emailjs/browser';
+"use client";
+import { useEffect, useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
 
 export default function Contact() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [formStatus, setFormStatus] = useState<
+    "idle" | "sending" | "success" | "error"
+  >("idle");
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -30,30 +32,32 @@ export default function Contact() {
     if (process.env.NEXT_PUBLIC_EMAILJS_API_KEY) {
       emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_API_KEY);
     } else {
-      console.error('Missing NEXT_PUBLIC_EMAILJS_API_KEY in environment variables.');
+      console.error(
+        "Missing NEXT_PUBLIC_EMAILJS_API_KEY in environment variables."
+      );
     }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formRef.current) {
-      console.error('Form reference is null');
+      console.error("Form reference is null");
       return;
     }
 
-    setFormStatus('sending');
+    setFormStatus("sending");
     try {
       await emailjs.sendForm(
-        'service_ktusdc_contactus',
-       'template_ktusdc',
+        "service_ktusdc_contactus",
+        "template_ktusdc",
         formRef.current,
         process.env.NEXT_PUBLIC_EMAILJS_API_KEY
       );
-      setFormStatus('success');
+      setFormStatus("success");
       formRef.current.reset();
     } catch (error) {
-      console.error('Error sending email:', error);
-      setFormStatus('error');
+      console.error("Error sending email:", error);
+      setFormStatus("error");
     }
   };
 
@@ -70,7 +74,7 @@ export default function Contact() {
           className="absolute inset-0"
           style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`,
-            backgroundSize: '40px 40px',
+            backgroundSize: "40px 40px",
           }}
         />
       </div>
@@ -78,10 +82,12 @@ export default function Contact() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`text-center transform transition-all duration-1000 ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
           }`}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">İletişime Geçin</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            İletişime Geçin
+          </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-16">
             Sorularınız ve işbirliği önerileriniz için bize ulaşın.
           </p>
@@ -149,29 +155,30 @@ export default function Contact() {
               <div>
                 <button
                   type="submit"
-                  disabled={formStatus === 'sending'}
+                  disabled={formStatus === "sending"}
                   className={`w-full sm:w-auto px-8 py-3 bg-primary-600 text-white rounded-full font-medium 
                            hover:bg-primary-700 transform hover:scale-105 transition-all duration-300
                            disabled:opacity-50 disabled:cursor-not-allowed
-                           ${formStatus === 'sending' ? 'animate-pulse' : ''}`}
+                           ${formStatus === "sending" ? "animate-pulse" : ""}`}
                 >
-                  {formStatus === 'sending'
-                    ? 'Gönderiliyor...'
-                    : formStatus === 'success'
-                    ? 'Gönderildi!'
-                    : formStatus === 'error'
-                    ? 'Hata Oluştu'
-                    : 'Gönder'}
+                  {formStatus === "sending"
+                    ? "Gönderiliyor..."
+                    : formStatus === "success"
+                    ? "Gönderildi!"
+                    : formStatus === "error"
+                    ? "Hata Oluştu"
+                    : "Gönder"}
                 </button>
               </div>
 
-              {formStatus === 'success' && (
+              {formStatus === "success" && (
                 <div className="text-green-400 mt-4">
-                  Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.
+                  Mesajınız başarıyla gönderildi. En kısa sürede size dönüş
+                  yapacağız.
                 </div>
               )}
 
-              {formStatus === 'error' && (
+              {formStatus === "error" && (
                 <div className="text-red-400 mt-4">
                   Bir hata oluştu. Lütfen daha sonra tekrar deneyin.
                 </div>

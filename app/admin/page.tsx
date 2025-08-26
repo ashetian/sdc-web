@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface Announcement {
   _id: string;
@@ -10,7 +10,7 @@ interface Announcement {
   title: string;
   date: string;
   description: string;
-  type: 'event' | 'news' | 'workshop';
+  type: "event" | "news" | "workshop";
   image?: string;
   isDraft: boolean;
 }
@@ -21,12 +21,12 @@ export default function AdminPage() {
   useEffect(() => {
     async function loadAnnouncements() {
       try {
-        const res = await fetch('/api/announcements');
-        if (!res.ok) throw new Error('Duyurular alınamadı');
+        const res = await fetch("/api/announcements");
+        if (!res.ok) throw new Error("Duyurular alınamadı");
         const data = await res.json();
         setAnnouncements(data);
       } catch (error) {
-        console.error('Duyurular yüklenirken hata:', error);
+        console.error("Duyurular yüklenirken hata:", error);
       }
     }
 
@@ -34,19 +34,19 @@ export default function AdminPage() {
   }, []);
 
   const handleDelete = async (slug: string) => {
-    if (window.confirm('Bu duyuruyu silmek istediğinizden emin misiniz?')) {
+    if (window.confirm("Bu duyuruyu silmek istediğinizden emin misiniz?")) {
       try {
         const res = await fetch(`/api/announcements/${slug}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
-        
-        if (!res.ok) throw new Error('Duyuru silinemedi');
-        
+
+        if (!res.ok) throw new Error("Duyuru silinemedi");
+
         // Başarılı silme işleminden sonra listeyi güncelle
-        setAnnouncements(announcements.filter(a => a.slug !== slug));
+        setAnnouncements(announcements.filter((a) => a.slug !== slug));
       } catch (error) {
-        console.error('Duyuru silinirken hata:', error);
-        alert('Duyuru silinirken bir hata oluştu');
+        console.error("Duyuru silinirken hata:", error);
+        alert("Duyuru silinirken bir hata oluştu");
       }
     }
   };
@@ -62,7 +62,7 @@ export default function AdminPage() {
           Yeni Duyuru
         </Link>
       </div>
-      
+
       <div className="border-t border-gray-200">
         <ul className="divide-y divide-gray-200">
           {announcements.map((announcement) => (
@@ -81,14 +81,18 @@ export default function AdminPage() {
                 )}
                 <div className="flex-grow">
                   <div className="flex items-center space-x-2">
-                    <h2 className="text-lg font-medium text-gray-900">{announcement.title}</h2>
+                    <h2 className="text-lg font-medium text-gray-900">
+                      {announcement.title}
+                    </h2>
                     {announcement.isDraft && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                         Taslak
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 text-sm text-gray-500">{announcement.description}</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {announcement.description}
+                  </p>
                   <div className="mt-2 flex space-x-4 text-sm text-gray-500">
                     <span>{announcement.date}</span>
                     <span>•</span>
@@ -122,4 +126,4 @@ export default function AdminPage() {
       </div>
     </div>
   );
-} 
+}

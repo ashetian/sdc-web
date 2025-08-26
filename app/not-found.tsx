@@ -1,5 +1,5 @@
-'use client';
-import Link from 'next/link';
+"use client";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -8,10 +8,13 @@ export default function NotFound() {
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-secondary-900 opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/10 via-transparent to-secondary-900/50" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`,
+            backgroundSize: "40px 40px",
+          }}
+        />
       </div>
 
       {/* İçerik */}
@@ -43,8 +46,10 @@ export default function NotFound() {
       </div>
 
       {/* Dekoratif elementler */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] 
-                    bg-primary-500/20 rounded-full blur-3xl opacity-20 animate-pulse" />
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] 
+                    bg-primary-500/20 rounded-full blur-3xl opacity-20 animate-pulse"
+      />
     </div>
   );
 }

@@ -19,7 +19,9 @@ export default function AdminLayout({
             <div className="flex h-16 justify-between">
               <div className="flex">
                 <Link href="/" className="flex flex-shrink-0 items-center">
-                  <span className="text-xl font-bold text-gray-900">SDC Admin</span>
+                  <span className="text-xl font-bold text-gray-900">
+                    SDC Admin
+                  </span>
                 </Link>
                 <div className="ml-6 flex items-center space-x-8">
                   <Link
@@ -40,4 +42,4 @@ export default function AdminLayout({
       </main>
     </div>
   );
-} 
+}

@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function NewAnnouncementPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    date: '',
-    description: '',
-    type: 'event',
-    content: '',
-    image: '',
-    isDraft: false
+    title: "",
+    slug: "",
+    date: "",
+    description: "",
+    type: "event",
+    content: "",
+    image: "",
+    isDraft: false,
   });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,48 +25,54 @@ export default function NewAnnouncementPage() {
 
     const file = e.target.files[0];
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
+      const res = await fetch("/api/upload", {
+        method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error('Resim yüklenemedi');
+      if (!res.ok) throw new Error("Resim yüklenemedi");
 
       const data = await res.json();
       setSelectedImage(data.path);
-      setFormData(prev => ({ ...prev, image: data.path }));
+      setFormData((prev) => ({ ...prev, image: data.path }));
     } catch (error) {
-      console.error('Resim yüklenirken hata:', error);
-      alert('Resim yüklenirken bir hata oluştu');
+      console.error("Resim yüklenirken hata:", error);
+      alert("Resim yüklenirken bir hata oluştu");
     }
   };
 
   const handleRemoveImage = () => {
     setSelectedImage(null);
-    setFormData(prev => ({ ...prev, image: '' }));
+    setFormData((prev) => ({ ...prev, image: "" }));
   };
 
   const generateSlug = (text: string) => {
     const turkishToEnglish: { [key: string]: string } = {
-      'ğ': 'g', 'Ğ': 'G',
-      'ü': 'u', 'Ü': 'U',
-      'ş': 's', 'Ş': 'S',
-      'ı': 'i', 'İ': 'I',
-      'ö': 'o', 'Ö': 'O',
-      'ç': 'c', 'Ç': 'C'
+      ğ: "g",
+      Ğ: "G",
+      ü: "u",
+      Ü: "U",
+      ş: "s",
+      Ş: "S",
+      ı: "i",
+      İ: "I",
+      ö: "o",
+      Ö: "O",
+      ç: "c",
+      Ç: "C",
     };
     return text
       .toLowerCase()
-      .split('')
-      .map(char => turkishToEnglish[char] || char)
-      .join('')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .split("")
+      .map((char) => turkishToEnglish[char] || char)
+      .join("")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,37 +85,39 @@ export default function NewAnnouncementPage() {
         ? generateSlug(formData.slug)
         : generateSlug(formData.title);
 
-      const res = await fetch('/api/announcements', {
-        method: 'POST',
+      const res = await fetch("/api/announcements", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ ...formData, slug }),
       });
 
       if (!res.ok) {
-        throw new Error('Duyuru eklenirken bir hata oluştu');
+        throw new Error("Duyuru eklenirken bir hata oluştu");
       }
 
-      router.push('/admin');
+      router.push("/admin");
       router.refresh();
     } catch (error) {
-      console.error('Duyuru eklenirken hata:', error);
-      alert('Duyuru eklenirken bir hata oluştu');
+      console.error("Duyuru eklenirken hata:", error);
+      alert("Duyuru eklenirken bir hata oluştu");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -117,10 +125,7 @@ export default function NewAnnouncementPage() {
     <div className="bg-white shadow rounded-lg">
       <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
         <h1 className="text-xl font-semibold text-gray-900">Yeni Duyuru</h1>
-        <Link
-          href="/admin"
-          className="text-gray-600 hover:text-gray-800"
-        >
+        <Link href="/admin" className="text-gray-600 hover:text-gray-800">
           Geri Dön
         </Link>
       </div>
@@ -128,7 +133,10 @@ export default function NewAnnouncementPage() {
       <div className="border-t border-gray-200">
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700"
+            >
               Başlık
             </label>
             <input
@@ -142,7 +150,10 @@ export default function NewAnnouncementPage() {
             />
           </div>
           <div>
-            <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="slug"
+              className="block text-sm font-medium text-gray-700"
+            >
               Slug (isteğe bağlı)
             </label>
             <input
@@ -157,7 +168,10 @@ export default function NewAnnouncementPage() {
           </div>
 
           <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="date"
+              className="block text-sm font-medium text-gray-700"
+            >
               Tarih
             </label>
             <input
@@ -173,7 +187,10 @@ export default function NewAnnouncementPage() {
           </div>
 
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="type"
+              className="block text-sm font-medium text-gray-700"
+            >
               Tür
             </label>
             <select
@@ -191,7 +208,10 @@ export default function NewAnnouncementPage() {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
               Kısa Açıklama
             </label>
             <input
@@ -206,7 +226,10 @@ export default function NewAnnouncementPage() {
           </div>
 
           <div>
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="image"
+              className="block text-sm font-medium text-gray-700"
+            >
               Görsel
             </label>
             <input
@@ -238,7 +261,10 @@ export default function NewAnnouncementPage() {
           </div>
 
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="content"
+              className="block text-sm font-medium text-gray-700"
+            >
               İçerik
             </label>
             <textarea
@@ -261,7 +287,10 @@ export default function NewAnnouncementPage() {
               onChange={handleChange}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label htmlFor="isDraft" className="ml-2 block text-sm text-gray-900">
+            <label
+              htmlFor="isDraft"
+              className="ml-2 block text-sm text-gray-900"
+            >
               Taslak olarak kaydet
             </label>
           </div>
@@ -278,11 +307,11 @@ export default function NewAnnouncementPage() {
               disabled={isSubmitting}
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {isSubmitting ? 'Kaydediliyor...' : 'Kaydet'}
+              {isSubmitting ? "Kaydediliyor..." : "Kaydet"}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-} 
+}

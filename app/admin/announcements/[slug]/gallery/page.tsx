@@ -19,7 +19,11 @@ interface Announcement {
   galleryDescription?: string;
 }
 
-export default function GalleryEditPage({ params }: { params: { slug: string } }) {
+export default function GalleryEditPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const router = useRouter();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [galleryLinks, setGalleryLinks] = useState<string[]>([""]);
@@ -33,7 +37,11 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
       if (res.ok) {
         const data = await res.json();
         setAnnouncement(data);
-        setGalleryLinks(data.galleryLinks && data.galleryLinks.length > 0 ? data.galleryLinks : [""]);
+        setGalleryLinks(
+          data.galleryLinks && data.galleryLinks.length > 0
+            ? data.galleryLinks
+            : [""]
+        );
         setGalleryCover(data.galleryCover || data.image || "");
         setGalleryDescription(data.galleryDescription || "");
       }
@@ -89,13 +97,19 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
   return (
     <div className="bg-white shadow rounded-lg max-w-2xl mx-auto mt-8">
       <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-gray-900">Galeriye Ekle/Düzenle</h1>
-        <Link href="/admin" className="text-gray-600 hover:text-gray-800">Geri Dön</Link>
+        <h1 className="text-xl font-semibold text-gray-900">
+          Galeriye Ekle/Düzenle
+        </h1>
+        <Link href="/admin" className="text-gray-600 hover:text-gray-800">
+          Geri Dön
+        </Link>
       </div>
       <div className="border-t border-gray-200">
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Kapak Görseli (URL)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Kapak Görseli (URL)
+            </label>
             <input
               type="text"
               value={galleryCover}
@@ -105,22 +119,32 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
             />
             {galleryCover && (
               <div className="mt-2">
-                <Image src={galleryCover} alt="Kapak Görseli" width={300} height={200} className="rounded-lg" />
+                <Image
+                  src={galleryCover}
+                  alt="Kapak Görseli"
+                  width={300}
+                  height={200}
+                  className="rounded-lg"
+                />
               </div>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Galeriye Özel Açıklama</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Galeriye Özel Açıklama
+            </label>
             <textarea
               value={galleryDescription}
-              onChange={e => setGalleryDescription(e.target.value)}
+              onChange={(e) => setGalleryDescription(e.target.value)}
               placeholder="Bu açıklama sadece galeri sayfasında görünür."
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
               rows={3}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Cloudinary Görsel/Video Linkleri</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Cloudinary Görsel/Video Linkleri
+            </label>
             {galleryLinks.map((link, idx) => (
               <div key={idx} className="flex items-center space-x-2 mt-1">
                 <input
@@ -131,14 +155,31 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
                 />
                 {galleryLinks.length > 1 && (
-                  <button type="button" onClick={() => removeGalleryLink(idx)} className="text-red-500">Sil</button>
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryLink(idx)}
+                    className="text-red-500"
+                  >
+                    Sil
+                  </button>
                 )}
               </div>
             ))}
-            <button type="button" onClick={addGalleryLink} className="mt-2 text-blue-600 hover:underline">+ Link Ekle</button>
+            <button
+              type="button"
+              onClick={addGalleryLink}
+              className="mt-2 text-blue-600 hover:underline"
+            >
+              + Link Ekle
+            </button>
           </div>
           <div className="flex justify-end space-x-3">
-            <Link href="/admin" className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">İptal</Link>
+            <Link
+              href="/admin"
+              className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              İptal
+            </Link>
             <button
               type="submit"
               disabled={isSubmitting}
@@ -151,4 +192,4 @@ export default function GalleryEditPage({ params }: { params: { slug: string } }
       </div>
     </div>
   );
-} 
+}

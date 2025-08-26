@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Announcement } from '@/app/lib/models/Announcement';
+import z from 'zod';
+
+//validasyon şeması
+export const schema = z.object({
+  title: z.string().min(1).max(100),
+  date: z.string().min(1).max(100),
+  description: z.string().min(1).max(100),
+  type: z.string().min(1).max(100),
+  content: z.string().min(1).max(100),
+});
 
 export async function GET(
   request: Request,
@@ -35,19 +45,17 @@ export async function PUT(
     await connectDB();
     const data = await request.json();
     
-    // Gerekli alanların kontrolü
-    const requiredFields = ['title', 'date', 'description', 'type', 'content'];
-    for (const field of requiredFields) {
-      if (!data[field]) {
-        return NextResponse.json(
-          { error: `${field} alanı gereklidir` },
-          { status: 400 }
-        );
-      }
+    // Gerekli alanların kontrolü ama zodla
+    const parsed = schema.safeParse(data);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues.map((i) => i.message).join(', ') },
+        { status: 400 }
+      );
     }
 
     // Tür kontrolü
-    if (!['event', 'news', 'workshop'].includes(data.type)) {
+    if (!['event', 'news', 'workshop'].includes(parsed.data.type)) {
       return NextResponse.json(
         { error: 'Geçersiz duyuru türü' },
         { status: 400 }
@@ -56,7 +64,7 @@ export async function PUT(
 
     const announcement = await Announcement.findOneAndUpdate(
       { slug: params.slug },
-      { ...data },
+      { ...parsed.data },
       { new: true, runValidators: true }
     );
     

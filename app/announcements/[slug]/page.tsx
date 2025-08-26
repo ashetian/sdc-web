@@ -1,7 +1,7 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import connectDB from '@/app/lib/db';
-import { Announcement } from '@/app/lib/models/Announcement';
+import Image from "next/image";
+import Link from "next/link";
+import connectDB from "@/app/lib/db";
+import { Announcement } from "@/app/lib/models/Announcement";
 
 async function getAnnouncementFromDB(slug: string) {
   try {
@@ -10,7 +10,7 @@ async function getAnnouncementFromDB(slug: string) {
     if (!announcement) return null;
     return announcement;
   } catch (error) {
-    console.error('Duyuru alınırken hata:', error);
+    console.error("Duyuru alınırken hata:", error);
     return null;
   }
 }
@@ -60,13 +60,20 @@ export default async function AnnouncementPage({
           )}
 
           <div className="flex items-center justify-between mb-6">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${
-              announcement.type === 'event' ? 'bg-purple-500/10 text-purple-400 ring-purple-500/30' :
-              announcement.type === 'news' ? 'bg-blue-500/10 text-blue-400 ring-blue-500/30' :
-              'bg-green-500/10 text-green-400 ring-green-500/30'
-            }`}>
-              {announcement.type === 'event' ? 'Etkinlik' :
-               announcement.type === 'news' ? 'Duyuru' : 'Workshop'}
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${
+                announcement.type === "event"
+                  ? "bg-purple-500/10 text-purple-400 ring-purple-500/30"
+                  : announcement.type === "news"
+                  ? "bg-blue-500/10 text-blue-400 ring-blue-500/30"
+                  : "bg-green-500/10 text-green-400 ring-green-500/30"
+              }`}
+            >
+              {announcement.type === "event"
+                ? "Etkinlik"
+                : announcement.type === "news"
+                ? "Duyuru"
+                : "Workshop"}
             </span>
             <time className="text-sm text-gray-400">{announcement.date}</time>
           </div>
@@ -76,11 +83,13 @@ export default async function AnnouncementPage({
           </h1>
 
           <div className="prose prose-invert max-w-none">
-            {announcement.content.split('\n').map((paragraph: string, index: number) => (
-              <p key={index} className="text-gray-300 mb-4">
-                {paragraph}
-              </p>
-            ))}
+            {announcement.content
+              .split("\n")
+              .map((paragraph: string, index: number) => (
+                <p key={index} className="text-gray-300 mb-4">
+                  {paragraph}
+                </p>
+              ))}
           </div>
 
           <div className="mt-8 border-t border-gray-700 pt-8">
@@ -108,4 +117,4 @@ export default async function AnnouncementPage({
       </div>
     </div>
   );
-} 
+}
