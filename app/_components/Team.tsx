@@ -103,7 +103,7 @@ const teamMembers: TeamMember[] = [
     description:
       "Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
     email: "cagriaydemir67@gmail.com",
-    image: "/team/cagri.png",
+    image: "/team/cagri.jpg",
     location: "Zonguldak",
     linkedin:
       "https://www.linkedin.com/in/%C3%A7a%C4%9Fr%C4%B1-aydemir-106822353/",
@@ -119,6 +119,7 @@ const palette = [
   { border: "#EF4444", gradient: "linear-gradient(195deg,#EF4444,#000)" },
   { border: "#8B5CF6", gradient: "linear-gradient(225deg,#8B5CF6,#000)" },
   { border: "#e6007a", gradient: "linear-gradient(135deg,#e6007a,#000)" },
+  { border: "#663399", gradient: "linear-gradient(135deg,#663399,#000)" },
 ] as const;
 
 export default function Team() {
