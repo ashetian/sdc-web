@@ -53,7 +53,7 @@ const teamMembers: TeamMember[] = [
     email: "caner19741@outlook.com",
     image: "/team/canergorez.jpg",
     location: "İstanbul",
-    linkedin: "https://www.linkedin.com/in/caner-görez/",
+    linkedin: "https://www.linkedin.com/in/caner-gorez/",
     github: "https://github.com/ashetian",
     instagram: "https://www.instagram.com/ashetian_",
     x: "https://x.com/ashetian_",
