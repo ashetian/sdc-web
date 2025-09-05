@@ -1,5 +1,5 @@
 import React from "react";
-import { FaWhatsapp, FaInstagram } from "react-icons/fa";
+import { FaWhatsapp, FaInstagram, FaSlack } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { BsLinkedin } from "react-icons/bs";
 
@@ -29,6 +29,12 @@ export default function SocialConnect() {
       url: "https://www.linkedin.com/company/ktusdc/about/",
       color: "hover:bg-blue-600",
     },
+    {
+      name: "Slack",
+      icon: <FaSlack size={32} />,
+      url: "https://ktu-sdc.slack.com",
+      color: "hover:bg-blue-600",
+    },
   ];
 
   return (
@@ -49,7 +55,7 @@ export default function SocialConnect() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 max-w-4xl mx-auto">
           {socialLinks.map((link) => (
             <a
               key={link.name}
