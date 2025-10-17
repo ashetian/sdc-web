@@ -21,17 +21,17 @@ export default function Home() {
           isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
         }`}
       >
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-4">
+          <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+            KTU Software Development Club
+          </span>
+        </h1>
+        
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6">
           <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
             KTÜ Yazılım Geliştirme Kulübü
           </span>
         </h1>
-
-        <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-          <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
-            KTU Software Developers Club
-          </span>
-        </h2>
 
         <p className="text-xl sm:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
           Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için
@@ -66,10 +66,10 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
+        <div className="mt-16 grid grid-cols-2 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
           <Stat number="220+" text="Üye" />
           <Stat number="2" text="Proje" />
-          <Stat number="5" text="Etkinlik" />
+          <Stat number="12" text="Etkinlik" />
         </div>
       </div>
     </section>

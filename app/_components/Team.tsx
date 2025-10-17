@@ -25,7 +25,7 @@ const teamMembers: TeamMember[] = [
     name: "Murat C. Akyol",
     subtitle: "Kulüp Başkanı",
     description:
-      "Murat Can Akyol is a student in the Software Development Department at Karadeniz Technical University, where he also serves as the founding head of the Software Development Club. Alongside his academic studies, he is interested in playing the violin.",
+      "Murat Can Akyol, Karadeniz Teknik Üniversitesi Yazılım Geliştirme Bölümü öğrencisidir ve aynı zamanda Yazılım Geliştirme Kulübü’nün kurucu başkanıdır. Akademik çalışmalarının yanı sıra keman çalmada da yeteneklidir. Murat Can, yazılım geliştirme konusundaki tutkusunu ve liderlik becerilerini birleştirerek kulübün büyümesine ve gelişmesine öncülük etmektedir.",
     image: "/team/muratcan.jpg",
     location: "İstanbul",
     github: "https://github.com/Iuppitter",
@@ -36,7 +36,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Cihan Bayram",
-    subtitle: "Full-stack",
+    subtitle: "Teknik Departman, WebDev",
     email: "contact@c1h4n.com",
     image: "/team/cc.jpeg",
     linkedin: "https://www.linkedin.com/in/c1h4n/",
@@ -49,7 +49,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Caner Görez",
-    subtitle: "WebDev, Designer",
+    subtitle: "Kulüp Başkan Yardımcısı, WebDev",
     description: "I am a web developer and designer.",
     email: "caner19741@outlook.com",
     image: "/team/canergorez.jpg",
@@ -62,7 +62,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Yunus Emre Demirci",
-    subtitle: "AI / Yazılım",
+    subtitle: "HSD Ambassador",
     description:
       "Yapay zeka ve teknolojiyle ilgilenen bir yazılım öğrencisiyim. ...",
     github: "https://github.com/yedemirci",
@@ -74,7 +74,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Tunahan Akargül",
-    subtitle: "Unity / Front-end",
+    subtitle: "Front-end Developer",
     description: "Merhaba ben Tunahan. ...",
     email: "tuna.akargul@gmail.com",
     image: "/team/tunahan.jpg",
@@ -87,27 +87,23 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Tarık Kılıç",
-    subtitle: "Kulüp Saymanı",
-    description:
-      "Makine Öğrenmesi ve otomasyon teknolojileri alanında kendini geliştiren bir yazılımcı adayıyım.",
+    subtitle: "Python Developer",
+    description: "Makine Öğrenmesi ve otomasyon teknolojileri alanında kendini geliştiren bir yazılımcı adayıyım.",
     email: "tedtkilic@gmail.com",
     github: "https://github.com/TedT002",
-    linkedin:
-      "https://www.linkedin.com/in/tar%C4%B1k-k%C4%B1l%C4%B1%C3%A7-73544733b/",
+    linkedin: "https://www.linkedin.com/in/tar%C4%B1k-k%C4%B1l%C4%B1%C3%A7-73544733b/",
     location: "İstanbul",
     image: "/team/tarik.jpg",
     instagram: "https://www.instagram.com/tedt_emmett_brown/",
   },
   {
     name: "Çağrı Aydemir",
-    subtitle: "Oyun Geliştirici",
-    description:
-      "Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
+    subtitle: "Unreal Engineer",
+    description: "Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
     email: "cagriaydemir67@gmail.com",
     image: "/team/cagri.jpg",
     location: "Zonguldak",
-    linkedin:
-      "https://www.linkedin.com/in/%C3%A7a%C4%9Fr%C4%B1-aydemir-106822353/",
+    linkedin: "https://www.linkedin.com/in/%C3%A7a%C4%9Fr%C4%B1-aydemir-106822353/",
     instagram: "https://www.instagram.com/_cagriaydemir_/",
     x: "https://x.com/MoonIron_67",
   },
@@ -144,7 +140,6 @@ export default function Team() {
   const chromaItems = useMemo(() => {
     return teamMembers.map((m, i) => {
       const p = palette[i % palette.length];
-
       return {
         image: m.image,
         name: m.name,
@@ -163,7 +158,7 @@ export default function Team() {
         freelance: m.freelance,
       };
     });
-  }, []);
+  }, [teamMembers]); // dependency array eklendi
 
   return (
     <section
@@ -195,13 +190,15 @@ export default function Team() {
             Ekibimiz
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-16">
-            Yazılım tutkusuyla bir araya gelmiş, yenilikçi ve dinamik ekibimizle
-            tanışın.
+            Yazılım tutkusuyla bir araya gelmiş, yenilikçi ve dinamik ekibimizle tanışın.
           </p>
 
-          {/* Halo tint fix: light/dark temaya göre --bf-bg ayarla */}
           <div className="[--bf-bg:rgba(0,0,0,0.0001)] dark:[--bf-bg:rgba(255,255,255,0.0001)]">
-            <ChromaGrid items={chromaItems} className="justify-center" />
+            <ChromaGrid
+              items={chromaItems}
+              className="justify-center filter grayscale-0"
+              style={{ filter: "grayscale(0%)" }} // tüm kartlar renkli oldu
+            />
           </div>
         </div>
       </div>
