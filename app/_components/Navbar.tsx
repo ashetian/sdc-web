@@ -49,7 +49,7 @@ export default function Navbar() {
             <div className="relative w-10 h-10">
               <Image
                 src="/logocircle.png"
-                alt="KTU SDC Logo"
+                alt="KTUSDC Logo"
                 fill
                 className="object-contain"
                 priority
@@ -60,7 +60,7 @@ export default function Navbar() {
                 isScrolled ? "text-purple-600" : "text-white"
               }`}
             >
-              KTU SDC
+              KTUSDC
             </span>
           </button>
 

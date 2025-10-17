@@ -27,6 +27,12 @@ export default function Home() {
           </span>
         </h1>
 
+        <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+          <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+            KTU Software Developers Club
+          </span>
+        </h2>
+
         <p className="text-xl sm:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
           Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için
           inovasyon ve öğrenme merkezi
@@ -61,10 +67,9 @@ export default function Home() {
         </div>
 
         <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-2xl mx-auto">
-          <Stat number="60+" text="Üye" />
+          <Stat number="220+" text="Üye" />
           <Stat number="2" text="Proje" />
           <Stat number="5" text="Etkinlik" />
-          <Stat number="1" text="Workshop" />
         </div>
       </div>
     </section>

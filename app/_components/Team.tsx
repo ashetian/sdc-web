@@ -29,9 +29,10 @@ const teamMembers: TeamMember[] = [
     image: "/team/muratcan.jpg",
     location: "İstanbul",
     github: "https://github.com/Iuppitter",
-    email: "muratcan.akyol739@icloud.com",
+    email: "contact@muratcanakyol.com",
     linkedin: "https://www.linkedin.com/in/murat-c-akyol-5847b4332/",
     instagram: "https://www.instagram.com/muratcan_akyol/",
+    website: "https://muratcanakyol.com",
   },
   {
     name: "Cihan Bayram",
