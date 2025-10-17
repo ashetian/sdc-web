@@ -5,17 +5,8 @@ import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const scrollToSection = (sectionId: string) => {
     setIsMenuOpen(false);
@@ -33,13 +24,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-white/70 backdrop-blur-md shadow-lg"
-          : "bg-transparent backdrop-blur-lg shadow-none"
-      }`}
-    >
+    <nav className="fixed w-full z-50 bg-transparent backdrop-blur-lg transition-all duration-300 shadow-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <button
@@ -55,47 +40,19 @@ export default function Navbar() {
                 priority
               />
             </div>
-            <span
-              className={`font-bold text-xl ${
-                isScrolled ? "text-purple-600" : "text-white"
-              }`}
-            >
+            <span className="font-bold text-xl text-white">
               KTUSDC
             </span>
           </button>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <NavLink
-              onClick={() => scrollToSection("home")}
-              text="Ana Sayfa"
-              isScrolled={isScrolled}
-            />
-            <NavLink
-              onClick={() => scrollToSection("about")}
-              text="Hakkımızda"
-              isScrolled={isScrolled}
-            />
-            <NavLink
-              onClick={() => scrollToSection("announcements")}
-              text="Duyurular"
-              isScrolled={isScrolled}
-            />
-            <NavLink
-              onClick={() => scrollToSection("gallery-preview")}
-              text="Galeri"
-              isScrolled={isScrolled}
-            />
-            <NavLink
-              onClick={() => scrollToSection("team")}
-              text="Ekibimiz"
-              isScrolled={isScrolled}
-            />
-            <NavLink
-              onClick={() => scrollToSection("contact")}
-              text="İletişim"
-              isScrolled={isScrolled}
-            />
+            <NavLink onClick={() => scrollToSection("home")} text="Ana Sayfa" />
+            <NavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
+            <NavLink onClick={() => scrollToSection("announcements")} text="Duyurular" />
+            <NavLink onClick={() => scrollToSection("gallery-preview")} text="Galeri" />
+            <NavLink onClick={() => scrollToSection("team")} text="Ekibimiz" />
+            <NavLink onClick={() => scrollToSection("contact")} text="İletişim" />
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,21 +60,9 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 rounded-md focus:outline-none"
           >
-            <div
-              className={`w-6 h-0.5 mb-1.5 transition-all ${
-                isScrolled ? "bg-purple-900" : "bg-white"
-              } ${isMenuOpen ? "transform rotate-45 translate-y-2" : ""}`}
-            />
-            <div
-              className={`w-6 h-0.5 mb-1.5 transition-all ${
-                isScrolled ? "bg-purple-900" : "bg-white"
-              } ${isMenuOpen ? "opacity-0" : ""}`}
-            />
-            <div
-              className={`w-6 h-0.5 transition-all ${
-                isScrolled ? "bg-purple-900" : "bg-white"
-              } ${isMenuOpen ? "transform -rotate-45 -translate-y-2" : ""}`}
-            />
+            <div className={`w-6 h-0.5 mb-1.5 transition-all bg-white ${isMenuOpen ? "transform rotate-45 translate-y-2" : ""}`} />
+            <div className={`w-6 h-0.5 mb-1.5 transition-all bg-white ${isMenuOpen ? "opacity-0" : ""}`} />
+            <div className={`w-6 h-0.5 transition-all bg-white ${isMenuOpen ? "transform -rotate-45 -translate-y-2" : ""}`} />
           </button>
         </div>
 
@@ -128,36 +73,12 @@ export default function Navbar() {
           } overflow-hidden`}
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <MobileNavLink
-              onClick={() => scrollToSection("home")}
-              text="Ana Sayfa"
-              isScrolled={isScrolled}
-            />
-            <MobileNavLink
-              onClick={() => scrollToSection("about")}
-              text="Hakkımızda"
-              isScrolled={isScrolled}
-            />
-            <MobileNavLink
-              onClick={() => scrollToSection("announcements")}
-              text="Duyurular"
-              isScrolled={isScrolled}
-            />
-            <MobileNavLink
-              onClick={() => scrollToSection("gallery-preview")}
-              text="Galeri"
-              isScrolled={isScrolled}
-            />
-            <MobileNavLink
-              onClick={() => scrollToSection("team")}
-              text="Ekibimiz"
-              isScrolled={isScrolled}
-            />
-            <MobileNavLink
-              onClick={() => scrollToSection("contact")}
-              text="İletişim"
-              isScrolled={isScrolled}
-            />
+            <MobileNavLink onClick={() => scrollToSection("home")} text="Ana Sayfa" />
+            <MobileNavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
+            <MobileNavLink onClick={() => scrollToSection("announcements")} text="Duyurular" />
+            <MobileNavLink onClick={() => scrollToSection("gallery-preview")} text="Galeri" />
+            <MobileNavLink onClick={() => scrollToSection("team")} text="Ekibimiz" />
+            <MobileNavLink onClick={() => scrollToSection("contact")} text="İletişim" />
           </div>
         </div>
       </div>
@@ -165,44 +86,20 @@ export default function Navbar() {
   );
 }
 
-function NavLink({
-  onClick,
-  text,
-  isScrolled,
-}: {
-  onClick: () => void;
-  text: string;
-  isScrolled: boolean;
-}) {
+function NavLink({ onClick, text }: { onClick: () => void; text: string }) {
   return (
-    <button onClick={onClick} className="relative group font-semibold">
-      <span
-        className={`transition-colors duration-300 ${
-          isScrolled ? "text-secondary-800" : "text-white"
-        }`}
-      >
-        {text}
-      </span>
+    <button onClick={onClick} className="relative group font-semibold text-white">
+      {text}
       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-500 group-hover:w-full transition-all duration-300" />
     </button>
   );
 }
 
-function MobileNavLink({
-  onClick,
-  text,
-  isScrolled,
-}: {
-  onClick: () => void;
-  text: string;
-  isScrolled: boolean;
-}) {
+function MobileNavLink({ onClick, text }: { onClick: () => void; text: string }) {
   return (
     <button
       onClick={onClick}
-      className={`block w-full text-left px-3 p-2 text-base font-medium transition-colors duration-300 ${
-        isScrolled ? "text-purple-950" : "text-white"
-      }`}
+      className="block w-full text-left px-3 p-2 text-base font-medium text-white transition-colors duration-300"
     >
       {text}
     </button>
