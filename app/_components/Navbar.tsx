@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -40,19 +40,29 @@ export default function Navbar() {
                 priority
               />
             </div>
-            <span className="font-bold text-xl text-white">
-              KTUSDC
-            </span>
+            <span className="font-bold text-xl text-white">KTUSDC</span>
           </button>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             <NavLink onClick={() => scrollToSection("home")} text="Ana Sayfa" />
-            <NavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
-            <NavLink onClick={() => scrollToSection("announcements")} text="Duyurular" />
-            <NavLink onClick={() => scrollToSection("gallery-preview")} text="Galeri" />
+            <NavLink
+              onClick={() => scrollToSection("about")}
+              text="Hakkımızda"
+            />
+            <NavLink
+              onClick={() => scrollToSection("announcements")}
+              text="Duyurular"
+            />
+            <NavLink
+              onClick={() => scrollToSection("gallery-preview")}
+              text="Galeri"
+            />
             <NavLink onClick={() => scrollToSection("team")} text="Ekibimiz" />
-            <NavLink onClick={() => scrollToSection("contact")} text="İletişim" />
+            <NavLink
+              onClick={() => scrollToSection("contact")}
+              text="İletişim"
+            />
           </div>
 
           {/* Mobile Menu Button */}
@@ -60,9 +70,21 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 rounded-md focus:outline-none"
           >
-            <div className={`w-6 h-0.5 mb-1.5 transition-all bg-white ${isMenuOpen ? "transform rotate-45 translate-y-2" : ""}`} />
-            <div className={`w-6 h-0.5 mb-1.5 transition-all bg-white ${isMenuOpen ? "opacity-0" : ""}`} />
-            <div className={`w-6 h-0.5 transition-all bg-white ${isMenuOpen ? "transform -rotate-45 -translate-y-2" : ""}`} />
+            <div
+              className={`w-6 h-0.5 mb-1.5 transition-all bg-white ${
+                isMenuOpen ? "transform rotate-45 translate-y-2" : ""
+              }`}
+            />
+            <div
+              className={`w-6 h-0.5 mb-1.5 transition-all bg-white ${
+                isMenuOpen ? "opacity-0" : ""
+              }`}
+            />
+            <div
+              className={`w-6 h-0.5 transition-all bg-white ${
+                isMenuOpen ? "transform -rotate-45 -translate-y-2" : ""
+              }`}
+            />
           </button>
         </div>
 
@@ -73,12 +95,30 @@ export default function Navbar() {
           } overflow-hidden`}
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <MobileNavLink onClick={() => scrollToSection("home")} text="Ana Sayfa" />
-            <MobileNavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
-            <MobileNavLink onClick={() => scrollToSection("announcements")} text="Duyurular" />
-            <MobileNavLink onClick={() => scrollToSection("gallery-preview")} text="Galeri" />
-            <MobileNavLink onClick={() => scrollToSection("team")} text="Ekibimiz" />
-            <MobileNavLink onClick={() => scrollToSection("contact")} text="İletişim" />
+            <MobileNavLink
+              onClick={() => scrollToSection("home")}
+              text="Ana Sayfa"
+            />
+            <MobileNavLink
+              onClick={() => scrollToSection("about")}
+              text="Hakkımızda"
+            />
+            <MobileNavLink
+              onClick={() => scrollToSection("announcements")}
+              text="Duyurular"
+            />
+            <MobileNavLink
+              onClick={() => scrollToSection("gallery-preview")}
+              text="Galeri"
+            />
+            <MobileNavLink
+              onClick={() => scrollToSection("team")}
+              text="Ekibimiz"
+            />
+            <MobileNavLink
+              onClick={() => scrollToSection("contact")}
+              text="İletişim"
+            />
           </div>
         </div>
       </div>
@@ -88,14 +128,23 @@ export default function Navbar() {
 
 function NavLink({ onClick, text }: { onClick: () => void; text: string }) {
   return (
-    <button onClick={onClick} className="relative group font-semibold text-white">
+    <button
+      onClick={onClick}
+      className="relative group font-semibold text-white"
+    >
       {text}
       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-500 group-hover:w-full transition-all duration-300" />
     </button>
   );
 }
 
-function MobileNavLink({ onClick, text }: { onClick: () => void; text: string }) {
+function MobileNavLink({
+  onClick,
+  text,
+}: {
+  onClick: () => void;
+  text: string;
+}) {
   return (
     <button
       onClick={onClick}
