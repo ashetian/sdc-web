@@ -41,7 +41,8 @@ const teamMembers: TeamMember[] = [
     image: "/team/cc.jpeg",
     linkedin: "https://www.linkedin.com/in/c1h4n/",
     location: "Trabzon",
-    description: "Merhaba ben Cihan. Günlük hayatımda tutkulu bir geliştiriciyim. Kendi kendine öğrenme tutumuna sahip hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi, yapay zekayı kullanmayı seviyorum. Bu siteyi ve yaptığım diğer projeleri görmek için github sayfamı ve websitemi ziyaret edebilirsiniz.",
+    description:
+      "Merhaba ben Cihan. Günlük hayatımda tutkulu bir geliştiriciyim. Kendi kendine öğrenme tutumuna sahip hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi, yapay zekayı kullanmayı seviyorum. Bu siteyi ve yaptığım diğer projeleri görmek için github sayfamı ve websitemi ziyaret edebilirsiniz.",
     github: "https://github.com/C1H4N",
     x: "https://x.com/cjh4n",
     instagram: "https://www.instagram.com/c1h4n",
@@ -49,7 +50,7 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Caner Görez",
-    subtitle: "Kulüp Başkan Yardımcısı, WebDev",
+    subtitle: "Designer, WebDev",
     description: "I am a web developer and designer.",
     email: "caner19741@outlook.com",
     image: "/team/canergorez.jpg",
@@ -87,25 +88,40 @@ const teamMembers: TeamMember[] = [
   },
   {
     name: "Tarık Kılıç",
-    subtitle: "Python Developer",
-    description: "Makine Öğrenmesi ve otomasyon teknolojileri alanında kendini geliştiren bir yazılımcı adayıyım.",
+    subtitle: "ML Engineer",
+    description:
+      "Makine Öğrenmesi ve otomasyon teknolojileri alanında kendini geliştiren bir yazılımcı adayıyım.",
     email: "tedtkilic@gmail.com",
     github: "https://github.com/TedT002",
-    linkedin: "https://www.linkedin.com/in/tar%C4%B1k-k%C4%B1l%C4%B1%C3%A7-73544733b/",
+    linkedin:
+      "https://www.linkedin.com/in/tar%C4%B1k-k%C4%B1l%C4%B1%C3%A7-73544733b/",
     location: "İstanbul",
-    image: "/team/tarik.jpg",
+    image: "/team/tarik31.jpeg",
     instagram: "https://www.instagram.com/tedt_emmett_brown/",
   },
   {
     name: "Çağrı Aydemir",
-    subtitle: "Unreal Engineer",
-    description: "Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
+    subtitle: "Unreal Game Developer",
+    description:
+      "Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
     email: "cagriaydemir67@gmail.com",
     image: "/team/cagri.jpg",
     location: "Zonguldak",
-    linkedin: "https://www.linkedin.com/in/%C3%A7a%C4%9Fr%C4%B1-aydemir-106822353/",
+    linkedin:
+      "https://www.linkedin.com/in/%C3%A7a%C4%9Fr%C4%B1-aydemir-106822353/",
     instagram: "https://www.instagram.com/_cagriaydemir_/",
     x: "https://x.com/MoonIron_67",
+  },
+  {
+    name: "Hasan Böcek",
+    subtitle: "Backend Developer",
+    description: "Backend dev for 7 years, tennis player.",
+    location: "Antalya",
+    linkedin: "https://www.linkedin.com/in/hasanbocek/",
+    github: "https://github.com/HasanBocek",
+    email: "contact@hasanbocek.com",
+    website: "https://hasanbocek.com",
+    image: "/team/hasan.png",
   },
 ] as const;
 
@@ -117,6 +133,7 @@ const palette = [
   { border: "#8B5CF6", gradient: "linear-gradient(225deg,#8B5CF6,#000)" },
   { border: "#e6007a", gradient: "linear-gradient(135deg,#e6007a,#000)" },
   { border: "#663399", gradient: "linear-gradient(135deg,#663399,#000)" },
+  { border: "#b5143a", gradient: "linear-gradient(135deg,#b5143a,#000)" },
 ] as const;
 
 export default function Team() {
@@ -190,15 +207,12 @@ export default function Team() {
             Ekibimiz
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-16">
-            Yazılım tutkusuyla bir araya gelmiş, yenilikçi ve dinamik ekibimizle tanışın.
+            Yazılım tutkusuyla bir araya gelmiş, yenilikçi ve dinamik ekibimizle
+            tanışın.
           </p>
 
           <div className="[--bf-bg:rgba(0,0,0,0.0001)] dark:[--bf-bg:rgba(255,255,255,0.0001)]">
-            <ChromaGrid
-              items={chromaItems}
-              className="justify-center filter grayscale-0"
-              style={{ filter: "grayscale(0%)" }} // tüm kartlar renkli oldu
-            />
+            <ChromaGrid items={chromaItems} className="justify-center" />
           </div>
         </div>
       </div>

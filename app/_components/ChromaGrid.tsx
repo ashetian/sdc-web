@@ -110,9 +110,9 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({ items, className = "" }) => {
               }
             }}
             className={[
-              "group relative inset-0 flex flex-col rounded-2xl overflow-hidden",
+              "group md:grayscale relative inset-0 flex flex-col rounded-2xl overflow-hidden",
               "cursor-pointer focus:outline-none",
-              "transition-all duration-200 hover:-translate-y-1 hover:shadow-xl",
+              "transition-all duration-200 hover:-translate-y-1 hover:grayscale-0 hover:shadow-xl",
             ].join(" ")}
             style={{
               background: c.gradient || "linear-gradient(145deg,#06b6d4,#000)",
