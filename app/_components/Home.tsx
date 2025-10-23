@@ -11,29 +11,29 @@ export default function Home() {
   return (
     <section
       id="home"
-      className="h-screen w-full flex items-center justify-center overflow-hidden"
+      className="h-screen w-[100vw] flex items-center justify-center overflow-hidden"
     >
       <InteractiveBackground />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
 
       <div
-        className={`flex flex-col z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
+        className={`flex flex-col z-10 w-full text-center px-4 sm:px-6 lg:px-8 gap-3 transform transition-all duration-1000 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
         }`}
       >
-        <h1 className="text-5xl md:text-7xl font-bold text-white mb-4">
+        <h1 className="text-4xl md:text-6xl font-bold text-white ">
           <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
             KTU Software Development Club
           </span>
         </h1>
 
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6">
+        <h1 className="text-2xl md:text-4xl font-semibold text-white">
           <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
             KTÜ Yazılım Geliştirme Kulübü
           </span>
         </h1>
 
-        <p className="text-xl sm:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
+        <p className="text-md md:text-xl text-gray-200 max-w-3xl mx-auto">
           Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için
           inovasyon ve öğrenme merkezi
         </p>
