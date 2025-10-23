@@ -17,7 +17,7 @@ export default function Home() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
 
       <div
-        className={`flex flex-col mt-36 z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
+        className={`flex flex-col z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
         }`}
       >
