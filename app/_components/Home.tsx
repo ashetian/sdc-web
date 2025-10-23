@@ -11,22 +11,22 @@ export default function Home() {
   return (
     <section
       id="home"
-      className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden"
+      className="h-screen w-full flex items-center justify-center overflow-hidden"
     >
       <InteractiveBackground />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
 
       <div
-        className={`relative z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
+        className={`flex flex-col mt-36 z-10 w-full text-center px-4 sm:px-6 lg:px-8 transform transition-all duration-1000 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
         }`}
       >
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-4">
+        <h1 className="text-5xl md:text-7xl font-bold text-white mb-4">
           <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
             KTU Software Development Club
           </span>
         </h1>
-        
+
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-6">
           <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
             KTÜ Yazılım Geliştirme Kulübü
