@@ -10,6 +10,7 @@ const schema = z.object({
   description: z.string().min(1).max(100),
   type: z.string().min(1).max(100),
   content: z.string().min(1).max(100),
+  eventId: z.string().optional(),
 });
 
 export async function GET(
@@ -19,7 +20,7 @@ export async function GET(
   try {
     await connectDB();
     const announcement = await Announcement.findOne({ slug: params.slug });
-    
+
     if (!announcement) {
       return NextResponse.json(
         { error: 'Duyuru bulunamadı' },
@@ -44,7 +45,7 @@ export async function PUT(
   try {
     await connectDB();
     const data = await request.json();
-    
+
     // Gerekli alanların kontrolü ama zodla
     const parsed = schema.safeParse(data);
     if (!parsed.success) {
@@ -64,10 +65,10 @@ export async function PUT(
 
     const announcement = await Announcement.findOneAndUpdate(
       { slug: params.slug },
-      { ...parsed.data },
+      { ...data },
       { new: true, runValidators: true }
     );
-    
+
     if (!announcement) {
       return NextResponse.json(
         { error: 'Duyuru bulunamadı' },
@@ -92,7 +93,7 @@ export async function DELETE(
   try {
     await connectDB();
     const announcement = await Announcement.findOneAndDelete({ slug: params.slug });
-    
+
     if (!announcement) {
       return NextResponse.json(
         { error: 'Duyuru bulunamadı' },

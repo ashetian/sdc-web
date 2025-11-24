@@ -36,25 +36,25 @@ export default function EventsPage() {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-12">
-                    <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                    <h1 className="text-3xl font-extrabold text-white sm:text-4xl">
                         Aktif Etkinlikler
                     </h1>
-                    <p className="mt-4 text-xl text-gray-500">
+                    <p className="mt-4 text-xl text-gray-400">
                         Başvurusu açık olan etkinliklere buradan kayıt olabilirsiniz.
                     </p>
                 </div>
 
                 {events.length === 0 ? (
-                    <div className="text-center text-gray-500 mt-10">
+                    <div className="text-center text-gray-400 mt-10">
                         Şu anda açık bir etkinlik bulunmamaktadır.
                     </div>
                 ) : (
                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                         {events.map((event) => (
-                            <div key={event._id} className="bg-white overflow-hidden shadow rounded-lg flex flex-col">
+                            <div key={event._id} className="bg-gray-800 overflow-hidden shadow rounded-lg flex flex-col border border-gray-700">
                                 {event.posterUrl && (
                                     <div className="relative h-48 w-full">
                                         <img
@@ -65,10 +65,10 @@ export default function EventsPage() {
                                     </div>
                                 )}
                                 <div className="p-6 flex-1 flex flex-col">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                    <h3 className="text-xl font-semibold text-white mb-2">
                                         {event.title}
                                     </h3>
-                                    <p className="text-gray-600 mb-4 flex-1 line-clamp-3">
+                                    <p className="text-gray-300 mb-4 flex-1 line-clamp-3">
                                         {event.description}
                                     </p>
                                     <Link

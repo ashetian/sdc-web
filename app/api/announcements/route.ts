@@ -11,6 +11,7 @@ const schema = z.object({
   description: z.string().min(1).max(100),
   type: z.string().min(1).max(100),
   content: z.string().min(1).max(100),
+  eventId: z.string().optional(),
 });
 
 export async function GET() {
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const announcement = await Announcement.create(parsed.data);
+    const announcement = await Announcement.create(data);
     return NextResponse.json(announcement);
   } catch (error) {
     console.error('Duyuru eklenirken hata oluştu:', error);

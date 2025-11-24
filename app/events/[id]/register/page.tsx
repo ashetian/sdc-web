@@ -93,80 +93,80 @@ export default function RegisterPage() {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md mx-auto bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-700">
                 <div className="px-6 py-8">
                     <div className="text-center mb-8">
-                        <h2 className="text-2xl font-bold text-gray-900">{event.title}</h2>
-                        <p className="mt-2 text-gray-600">Kayıt Formu</p>
+                        <h2 className="text-2xl font-bold text-white">{event.title}</h2>
+                        <p className="mt-2 text-gray-400">Kayıt Formu</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label htmlFor="studentNumber" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="studentNumber" className="block text-sm font-medium text-gray-300">
                                 Öğrenci Numarası
                             </label>
                             <input
                                 type="text"
                                 id="studentNumber"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                                 value={formData.studentNumber}
                                 onChange={(e) => setFormData({ ...formData, studentNumber: e.target.value })}
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-300">
                                 Ad Soyad
                             </label>
                             <input
                                 type="text"
                                 id="name"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="department" className="block text-sm font-medium text-gray-300">
                                 Bölüm
                             </label>
                             <input
                                 type="text"
                                 id="department"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                                 value={formData.department}
                                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
                                 E-posta
                             </label>
                             <input
                                 type="email"
                                 id="email"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
                                 Telefon
                             </label>
                             <input
                                 type="tel"
                                 id="phone"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             />
