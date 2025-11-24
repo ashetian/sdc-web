@@ -14,6 +14,7 @@ interface Announcement {
   content: string;
   image?: string;
   isDraft: boolean;
+  eventId?: string;
 }
 
 export default function EditAnnouncementPage({
@@ -34,6 +35,7 @@ export default function EditAnnouncementPage({
     content: "",
     image: "",
     isDraft: false,
+    eventId: "",
   });
 
   useEffect(() => {
@@ -232,6 +234,24 @@ export default function EditAnnouncementPage({
               <option value="news">Haber</option>
               <option value="workshop">Atölye</option>
             </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="eventId"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Etkinlik ID (İsteğe Bağlı)
+            </label>
+            <input
+              type="text"
+              name="eventId"
+              id="eventId"
+              value={formData.eventId || ""}
+              onChange={handleChange}
+              placeholder="İlgili etkinliğin ID'sini giriniz"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
+            />
           </div>
 
           <div>

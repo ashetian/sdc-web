@@ -3,6 +3,8 @@ import Link from "next/link";
 import connectDB from "@/app/lib/db";
 import { Announcement } from "@/app/lib/models/Announcement";
 
+import { Event } from "@/app/lib/models/Event";
+
 async function getAnnouncementFromDB(slug: string) {
   try {
     await connectDB();
@@ -15,12 +17,28 @@ async function getAnnouncementFromDB(slug: string) {
   }
 }
 
+async function getEventFromDB(eventId: string) {
+  try {
+    await connectDB();
+    const event = await Event.findById(eventId);
+    return event;
+  } catch (error) {
+    console.error("Etkinlik alınırken hata:", error);
+    return null;
+  }
+}
+
 export default async function AnnouncementPage({
   params,
 }: {
   params: { slug: string };
 }) {
   const announcement = await getAnnouncementFromDB(params.slug);
+  let event = null;
+
+  if (announcement?.eventId) {
+    event = await getEventFromDB(announcement.eventId);
+  }
 
   if (!announcement) {
     return (
@@ -61,19 +79,18 @@ export default async function AnnouncementPage({
 
           <div className="flex items-center justify-between mb-6">
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${
-                announcement.type === "event"
+              className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${announcement.type === "event"
                   ? "bg-purple-500/10 text-purple-400 ring-purple-500/30"
                   : announcement.type === "news"
-                  ? "bg-blue-500/10 text-blue-400 ring-blue-500/30"
-                  : "bg-green-500/10 text-green-400 ring-green-500/30"
-              }`}
+                    ? "bg-blue-500/10 text-blue-400 ring-blue-500/30"
+                    : "bg-green-500/10 text-green-400 ring-green-500/30"
+                }`}
             >
               {announcement.type === "event"
                 ? "Etkinlik"
                 : announcement.type === "news"
-                ? "Duyuru"
-                : "Workshop"}
+                  ? "Duyuru"
+                  : "Workshop"}
             </span>
             <time className="text-sm text-gray-400">{announcement.date}</time>
           </div>
@@ -82,7 +99,7 @@ export default async function AnnouncementPage({
             {announcement.title}
           </h1>
 
-          <div className="prose prose-invert max-w-none">
+          <div className="prose prose-invert max-w-none mb-8">
             {announcement.content
               .split("\n")
               .map((paragraph: string, index: number) => (
@@ -91,6 +108,17 @@ export default async function AnnouncementPage({
                 </p>
               ))}
           </div>
+
+          {event && event.isOpen && (
+            <div className="mt-8 flex justify-center">
+              <Link
+                href={`/events/${event._id}/register`}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Etkinliğe Kayıt Ol
+              </Link>
+            </div>
+          )}
 
           <div className="mt-8 border-t border-gray-700 pt-8">
             <Link
