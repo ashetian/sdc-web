@@ -13,6 +13,10 @@ export default function CreateEventPage() {
         eventDate: '',
         eventEndDate: '',
         location: '',
+        isPaid: false,
+        fee: '',
+        paymentIBAN: '',
+        paymentDetails: '',
         isOpen: false,
     });
 
@@ -129,6 +133,73 @@ export default function CreateEventPage() {
                     />
                 </div>
 
+                <div className="border-t border-gray-600 pt-6 mt-6">
+                    <h3 className="text-lg font-medium text-white mb-4">Ödeme Ayarları</h3>
+
+                    <div className="flex items-center mb-4">
+                        <input
+                            id="isPaid"
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                            checked={formData.isPaid}
+                            onChange={(e) => setFormData({ ...formData, isPaid: e.target.checked })}
+                        />
+                        <label htmlFor="isPaid" className="ml-2 block text-sm text-gray-300">
+                            Ücretli Etkinlik
+                        </label>
+                    </div>
+
+                    {formData.isPaid && (
+                        <div className="space-y-6 pl-6 border-l-2 border-blue-600">
+                            <div>
+                                <label htmlFor="fee" className="block text-sm font-medium text-gray-300">
+                                    Etkinlik Ücreti (TL) *
+                                </label>
+                                <input
+                                    type="number"
+                                    id="fee"
+                                    min="0"
+                                    step="0.01"
+                                    required={formData.isPaid}
+                                    className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                                    value={formData.fee}
+                                    onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
+                                    placeholder="50.00"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="paymentIBAN" className="block text-sm font-medium text-gray-300">
+                                    Ödeme IBAN *
+                                </label>
+                                <input
+                                    type="text"
+                                    id="paymentIBAN"
+                                    required={formData.isPaid}
+                                    className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                                    value={formData.paymentIBAN}
+                                    onChange={(e) => setFormData({ ...formData, paymentIBAN: e.target.value })}
+                                    placeholder="TR00 0000 0000 0000 0000 0000 00"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="paymentDetails" className="block text-sm font-medium text-gray-300">
+                                    Ödeme Talimatları (İsteğe Bağlı)
+                                </label>
+                                <textarea
+                                    id="paymentDetails"
+                                    rows={3}
+                                    className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                                    value={formData.paymentDetails}
+                                    onChange={(e) => setFormData({ ...formData, paymentDetails: e.target.value })}
+                                    placeholder="Örnek: Açıklama kısmına tam adınızı ve öğrenci numaranızı yazınız."
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <div className="flex items-center">
                     <input
                         id="isOpen"
@@ -158,7 +229,7 @@ export default function CreateEventPage() {
                         {loading ? 'Oluşturuluyor...' : 'Oluştur'}
                     </button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }

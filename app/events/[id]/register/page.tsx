@@ -11,6 +11,10 @@ interface Event {
     eventDate?: string;
     eventEndDate?: string;
     location?: string;
+    isPaid: boolean;
+    fee?: number;
+    paymentIBAN?: string;
+    paymentDetails?: string;
     isOpen: boolean;
 }
 
@@ -28,6 +32,7 @@ export default function RegisterPage() {
         department: '',
         email: '',
     });
+    const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
 
     useEffect(() => {
         const fetchEvent = async (id: string) => {
@@ -61,23 +66,49 @@ export default function RegisterPage() {
         setSubmitting(true);
 
         try {
-            const res = await fetch('/api/registrations', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    eventId: params.id,
-                    ...formData,
-                }),
-            });
+            // For paid events with receipt upload, use FormData
+            if (event && event.isPaid && paymentReceipt) {
+                const formDataToSend = new FormData();
+                formDataToSend.append('eventId', params.id as string);
+                formDataToSend.append('studentNumber', formData.studentNumber);
+                formDataToSend.append('name', formData.name);
+                formDataToSend.append('phone', formData.phone);
+                formDataToSend.append('department', formData.department);
+                formDataToSend.append('email', formData.email);
+                formDataToSend.append('paymentReceipt', paymentReceipt);
 
-            const data = await res.json();
+                const res = await fetch('/api/registrations', {
+                    method: 'POST',
+                    body: formDataToSend,
+                });
 
-            if (res.ok) {
-                setRegistered(true);
+                const data = await res.json();
+
+                if (res.ok) {
+                    setRegistered(true);
+                } else {
+                    alert(data.error || 'Kayıt olurken bir hata oluştu.');
+                }
             } else {
-                alert(data.error || 'Kayıt olurken bir hata oluştu.');
+                // For free events or without receipt, use JSON
+                const res = await fetch('/api/registrations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        eventId: params.id,
+                        ...formData,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    setRegistered(true);
+                } else {
+                    alert(data.error || 'Kayıt olurken bir hata oluştu.');
+                }
             }
         } catch (error) {
             console.error('Hata:', error);
@@ -126,7 +157,23 @@ export default function RegisterPage() {
                             </svg>
                         </div>
                         <h2 className="text-2xl font-bold text-white">Kayıt Başarılı!</h2>
-                        <p className="mt-2 text-gray-400">Etkinliğe başarıyla kaydoldunuz.</p>
+                        {event.isPaid ? (
+                            <>
+                                <p className="mt-2 text-gray-400">Kaydınız alındı. Ödemeniz doğrulandıktan sonra kesinleşecektir.</p>
+                                <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-600 rounded-lg">
+                                    <p className="text-sm text-yellow-400">
+                                        ⏳ Ödeme Durumu: <span className="font-semibold">Beklemede</span>
+                                    </p>
+                                    {paymentReceipt && (
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            Dekont: {paymentReceipt.name}
+                                        </p>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <p className="mt-2 text-gray-400">Etkinliğe başarıyla kaydoldunuz.</p>
+                        )}
                     </div>
 
                     <div className="space-y-4">
@@ -150,7 +197,7 @@ export default function RegisterPage() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 
     return (
@@ -161,6 +208,33 @@ export default function RegisterPage() {
                         <h2 className="text-2xl font-bold text-white">{event.title}</h2>
                         <p className="mt-2 text-gray-400">Kayıt Formu</p>
                     </div>
+
+                    {event.isPaid && event.fee && (
+                        <div className="mb-6 p-4 bg-blue-900/30 border border-blue-600 rounded-lg">
+                            <h3 className="text-lg font-semibold text-blue-400 mb-3">Ödeme Bilgileri</h3>
+                            <div className="space-y-2 text-sm text-gray-300">
+                                <div className="flex justify-between items-center">
+                                    <span>Etkinlik Ücreti:</span>
+                                    <span className="text-xl font-bold text-white">{event.fee} TL</span>
+                                </div>
+                                <div className="border-t border-blue-600/30 pt-2 mt-2">
+                                    <p className="font-medium text-white mb-1">IBAN:</p>
+                                    <p className="font-mono text-xs bg-gray-900 p-2 rounded">{event.paymentIBAN}</p>
+                                </div>
+                                {event.paymentDetails && (
+                                    <div className="border-t border-blue-600/30 pt-2 mt-2">
+                                        <p className="font-medium text-white mb-1">Ödeme Talimatları:</p>
+                                        <p className="text-xs text-gray-400">{event.paymentDetails}</p>
+                                    </div>
+                                )}
+                                <div className="border-t border-blue-600/30 pt-2 mt-2">
+                                    <p className="text-yellow-400 text-xs">
+                                        ⚠️ Önce yukardaki IBAN&apos;a ödeme yapın, sonra dekont/makbuz yükleyin.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
@@ -232,6 +306,31 @@ export default function RegisterPage() {
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             />
                         </div>
+
+                        {event.isPaid && (
+                            <div>
+                                <label htmlFor="paymentReceipt" className="block text-sm font-medium text-gray-300">
+                                    Ödeme Dekontu/Makbuzu (PDF) *
+                                </label>
+                                <input
+                                    type="file"
+                                    id="paymentReceipt"
+                                    accept=".pdf,image/*"
+                                    required={event.isPaid}
+                                    className="mt-1 block w-full text-sm text-gray-300
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-md file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-blue-600 file:text-white
+                                        hover:file:bg-blue-700
+                                        cursor-pointer"
+                                    onChange={(e) => setPaymentReceipt(e.target.files?.[0] || null)}
+                                />
+                                <p className="mt-1 text-xs text-gray-400">
+                                    Banka tarafından verilen ödeme dekontunu veya makbuzunu yükleyin (PDF veya resim).
+                                </p>
+                            </div>
+                        )}
 
                         <div>
                             <button
