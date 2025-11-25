@@ -175,7 +175,7 @@ export default function Team() {
         freelance: m.freelance,
       };
     });
-  }, [teamMembers]); // dependency array eklendi
+  }, []); // teamMembers is a constant, no dependency needed
 
   return (
     <section
@@ -199,9 +199,8 @@ export default function Team() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
-          className={`text-center transform transition-all duration-1000 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-          }`}
+          className={`text-center transform transition-all duration-1000 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+            }`}
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Ekibimiz
