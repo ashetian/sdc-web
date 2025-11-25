@@ -49,7 +49,7 @@ export function generateICalendar(event: EventData): string {
 
     const now = formatICalDate(new Date());
 
-    let icsContent = [
+    const icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
         'PRODID:-//SDC Event Calendar//EN',
