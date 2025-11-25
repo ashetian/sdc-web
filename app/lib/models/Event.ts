@@ -4,6 +4,9 @@ export interface IEvent {
   title: string;
   description: string;
   posterUrl?: string;
+  eventDate: Date;
+  eventEndDate?: Date;
+  location?: string;
   isOpen: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -20,6 +23,18 @@ const eventSchema = new mongoose.Schema<IEvent>(
       required: true,
     },
     posterUrl: {
+      type: String,
+      required: false,
+    },
+    eventDate: {
+      type: Date,
+      required: true,
+    },
+    eventEndDate: {
+      type: Date,
+      required: false,
+    },
+    location: {
       type: String,
       required: false,
     },

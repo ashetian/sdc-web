@@ -10,6 +10,9 @@ export default function CreateEventPage() {
         title: '',
         description: '',
         posterUrl: '',
+        eventDate: '',
+        eventEndDate: '',
+        location: '',
         isOpen: false,
     });
 
@@ -41,7 +44,7 @@ export default function CreateEventPage() {
 
     return (
         <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold text-white mb-6">Yeni Etkinlik Oluştur</h1>
+            <h1 className="text-2xl font-bold text-black mb-6">Yeni Etkinlik Oluştur</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
                 <div>
@@ -52,8 +55,7 @@ export default function CreateEventPage() {
                         type="text"
                         id="title"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
-                        value={formData.title}
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 text-black placeholder-gray-400 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     />
                 </div>
@@ -83,6 +85,47 @@ export default function CreateEventPage() {
                         value={formData.posterUrl}
                         onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
                         placeholder="https://example.com/image.jpg"
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="eventDate" className="block text-sm font-medium text-gray-300">
+                        Etkinlik Tarihi ve Saati *
+                    </label>
+                    <input
+                        type="datetime-local"
+                        id="eventDate"
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                        value={formData.eventDate}
+                        onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="eventEndDate" className="block text-sm font-medium text-gray-300">
+                        Bitiş Tarihi ve Saati (İsteğe Bağlı)
+                    </label>
+                    <input
+                        type="datetime-local"
+                        id="eventEndDate"
+                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                        value={formData.eventEndDate}
+                        onChange={(e) => setFormData({ ...formData, eventEndDate: e.target.value })}
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="location" className="block text-sm font-medium text-gray-300">
+                        Konum (İsteğe Bağlı)
+                    </label>
+                    <input
+                        type="text"
+                        id="location"
+                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        placeholder="Örnek: Konferans Salonu A"
                     />
                 </div>
 

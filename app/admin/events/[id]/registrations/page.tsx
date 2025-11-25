@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import * as XLSX from 'xlsx';
 
 interface Registration {
     _id: string;
@@ -38,14 +39,54 @@ export default function EventRegistrationsPage() {
         }
     };
 
+    const exportToExcel = () => {
+        if (registrations.length === 0) {
+            alert('Dışa aktarılacak kayıt bulunmamaktadır.');
+            return;
+        }
+
+        // Prepare data for Excel
+        const excelData = registrations.map((reg) => ({
+            'Öğrenci No': reg.studentNumber,
+            'Ad Soyad': reg.name,
+            'Bölüm': reg.department,
+            'E-posta': reg.email,
+            'Telefon': reg.phone,
+            'Başvuru Tarihi': `${new Date(reg.createdAt).toLocaleDateString('tr-TR')} ${new Date(reg.createdAt).toLocaleTimeString('tr-TR')}`,
+        }));
+
+        // Create worksheet
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+        // Create workbook
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Başvurular');
+
+        // Generate filename with timestamp
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const filename = `etkinlik-basvurular-${params.id}-${timestamp}.xlsx`;
+
+        // Download file
+        XLSX.writeFile(workbook, filename);
+    };
+
     if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-900">Başvuru Listesi</h1>
-                <div className="text-sm text-gray-500">
-                    Toplam Başvuru: {registrations.length}
+                <div className="flex items-center gap-4">
+                    <div className="text-sm text-gray-500">
+                        Toplam Başvuru: {registrations.length}
+                    </div>
+                    <button
+                        onClick={exportToExcel}
+                        className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={registrations.length === 0}
+                    >
+                        Excel'e Aktar
+                    </button>
                 </div>
             </div>
 
