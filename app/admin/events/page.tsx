@@ -80,9 +80,7 @@ export default function AdminEventsPage() {
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                ID
-                            </th>
+
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Etkinlik Adı
                             </th>
@@ -100,9 +98,7 @@ export default function AdminEventsPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {events.map((event) => (
                             <tr key={event._id}>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-xs text-gray-500 font-mono select-all">{event._id}</div>
-                                </td>
+
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="text-sm font-medium text-gray-900">{event.title}</div>
                                 </td>

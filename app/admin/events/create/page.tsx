@@ -13,10 +13,6 @@ export default function CreateEventPage() {
         eventDate: '',
         eventEndDate: '',
         location: '',
-        isPaid: false,
-        fee: '',
-        paymentIBAN: '',
-        paymentDetails: '',
         isOpen: false,
     });
 
@@ -50,42 +46,42 @@ export default function CreateEventPage() {
         <div className="max-w-2xl mx-auto">
             <h1 className="text-2xl font-bold text-black mb-6">Yeni Etkinlik Oluştur</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow border border-gray-200">
                 <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-300">
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">
                         Etkinlik Başlığı
                     </label>
                     <input
                         type="text"
                         id="title"
                         required
-                        className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 text-black placeholder-gray-400 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" value={formData.title}
+                        className="mt-1 block w-full rounded-md border border-gray-300 bg-white text-gray-900 placeholder-gray-400 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-300">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                         Açıklama
                     </label>
                     <textarea
                         id="description"
                         required
                         rows={4}
-                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="posterUrl" className="block text-sm font-medium text-gray-300">
+                    <label htmlFor="posterUrl" className="block text-sm font-medium text-gray-700">
                         Afiş URL (İsteğe Bağlı)
                     </label>
                     <input
                         type="url"
                         id="posterUrl"
-                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                         value={formData.posterUrl}
                         onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
                         placeholder="https://example.com/image.jpg"
@@ -93,122 +89,55 @@ export default function CreateEventPage() {
                 </div>
 
                 <div>
-                    <label htmlFor="eventDate" className="block text-sm font-medium text-gray-300">
+                    <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700">
                         Etkinlik Tarihi ve Saati *
                     </label>
                     <input
                         type="datetime-local"
                         id="eventDate"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                         value={formData.eventDate}
                         onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="eventEndDate" className="block text-sm font-medium text-gray-300">
+                    <label htmlFor="eventEndDate" className="block text-sm font-medium text-gray-700">
                         Bitiş Tarihi ve Saati (İsteğe Bağlı)
                     </label>
                     <input
                         type="datetime-local"
                         id="eventEndDate"
-                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                         value={formData.eventEndDate}
                         onChange={(e) => setFormData({ ...formData, eventEndDate: e.target.value })}
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-300">
+                    <label htmlFor="location" className="block text-sm font-medium text-gray-700">
                         Konum (İsteğe Bağlı)
                     </label>
                     <input
                         type="text"
                         id="location"
-                        className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                         placeholder="Örnek: Konferans Salonu A"
                     />
                 </div>
 
-                <div className="border-t border-gray-600 pt-6 mt-6">
-                    <h3 className="text-lg font-medium text-white mb-4">Ödeme Ayarları</h3>
-
-                    <div className="flex items-center mb-4">
-                        <input
-                            id="isPaid"
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
-                            checked={formData.isPaid}
-                            onChange={(e) => setFormData({ ...formData, isPaid: e.target.checked })}
-                        />
-                        <label htmlFor="isPaid" className="ml-2 block text-sm text-gray-300">
-                            Ücretli Etkinlik
-                        </label>
-                    </div>
-
-                    {formData.isPaid && (
-                        <div className="space-y-6 pl-6 border-l-2 border-blue-600">
-                            <div>
-                                <label htmlFor="fee" className="block text-sm font-medium text-gray-300">
-                                    Etkinlik Ücreti (TL) *
-                                </label>
-                                <input
-                                    type="number"
-                                    id="fee"
-                                    min="0"
-                                    step="0.01"
-                                    required={formData.isPaid}
-                                    className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
-                                    value={formData.fee}
-                                    onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
-                                    placeholder="50.00"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="paymentIBAN" className="block text-sm font-medium text-gray-300">
-                                    Ödeme IBAN *
-                                </label>
-                                <input
-                                    type="text"
-                                    id="paymentIBAN"
-                                    required={formData.isPaid}
-                                    className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
-                                    value={formData.paymentIBAN}
-                                    onChange={(e) => setFormData({ ...formData, paymentIBAN: e.target.value })}
-                                    placeholder="TR00 0000 0000 0000 0000 0000 00"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="paymentDetails" className="block text-sm font-medium text-gray-300">
-                                    Ödeme Talimatları (İsteğe Bağlı)
-                                </label>
-                                <textarea
-                                    id="paymentDetails"
-                                    rows={3}
-                                    className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
-                                    value={formData.paymentDetails}
-                                    onChange={(e) => setFormData({ ...formData, paymentDetails: e.target.value })}
-                                    placeholder="Örnek: Açıklama kısmına tam adınızı ve öğrenci numaranızı yazınız."
-                                />
-                            </div>
-                        </div>
-                    )}
-                </div>
-
                 <div className="flex items-center">
                     <input
                         id="isOpen"
                         type="checkbox"
-                        className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         checked={formData.isOpen}
                         onChange={(e) => setFormData({ ...formData, isOpen: e.target.checked })}
                     />
-                    <label htmlFor="isOpen" className="ml-2 block text-sm text-gray-300">
+                    <label htmlFor="isOpen" className="ml-2 block text-sm text-gray-700">
                         Başvuruları hemen aç
                     </label>
                 </div>
@@ -217,7 +146,7 @@ export default function CreateEventPage() {
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                         İptal
                     </button>
@@ -229,7 +158,7 @@ export default function CreateEventPage() {
                         {loading ? 'Oluşturuluyor...' : 'Oluştur'}
                     </button>
                 </div>
-            </form >
-        </div >
+            </form>
+        </div>
     );
 }

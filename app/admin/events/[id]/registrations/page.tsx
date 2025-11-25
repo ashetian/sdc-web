@@ -11,10 +11,6 @@ interface Registration {
     phone: string;
     department: string;
     email: string;
-    paymentReceiptUrl?: string;
-    paymentStatus: 'pending' | 'verified' | 'rejected';
-    paymentVerifiedAt?: string;
-    paymentVerifiedBy?: string;
     createdAt: string;
 }
 
@@ -22,7 +18,6 @@ export default function EventRegistrationsPage() {
     const params = useParams();
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<'all' | 'pending' | 'verified' | 'rejected'>('all');
 
     useEffect(() => {
         if (params.id) {
@@ -75,33 +70,6 @@ export default function EventRegistrationsPage() {
         XLSX.writeFile(workbook, filename);
     };
 
-    const updatePaymentStatus = async (registrationId: string, status: 'verified' | 'rejected') => {
-        try {
-            const res = await fetch(`/api/registrations/${registrationId}/payment`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status }),
-            });
-
-            if (res.ok) {
-                // Refresh registrations
-                if (params.id) {
-                    fetchRegistrations(params.id as string);
-                }
-            } else {
-                alert('Ödeme durumu güncellenirken hata oluştu.');
-            }
-        } catch (error) {
-            console.error('Ödeme durumu güncellenirken hata:', error);
-            alert('Bir hata oluştu.');
-        }
-    };
-
-    const filteredRegistrations = registrations.filter(reg => {
-        if (filter === 'all') return true;
-        return reg.paymentStatus === filter;
-    });
-
     if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
 
     return (
@@ -109,18 +77,8 @@ export default function EventRegistrationsPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-900">Başvuru Listesi</h1>
                 <div className="flex items-center gap-4">
-                    <select
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value as any)}
-                        className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    >
-                        <option value="all">Tüm Başvurular ({registrations.length})</option>
-                        <option value="pending">Bekleyen ({registrations.filter(r => r.paymentStatus === 'pending').length})</option>
-                        <option value="verified">Onaylanmış ({registrations.filter(r => r.paymentStatus === 'verified').length})</option>
-                        <option value="rejected">Reddedilmiş ({registrations.filter(r => r.paymentStatus === 'rejected').length})</option>
-                    </select>
                     <div className="text-sm text-gray-500">
-                        Görüntülenen: {filteredRegistrations.length}
+                        Toplam Başvuru: {registrations.length}
                     </div>
                     <button
                         onClick={exportToExcel}
@@ -154,16 +112,10 @@ export default function EventRegistrationsPage() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Başvuru Tarihi
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Ödeme Durumu
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                İşlemler
-                            </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredRegistrations.map((reg) => (
+                        {registrations.map((reg) => (
                             <tr key={reg._id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {reg.studentNumber}
@@ -183,58 +135,12 @@ export default function EventRegistrationsPage() {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {new Date(reg.createdAt).toLocaleDateString('tr-TR')} {new Date(reg.createdAt).toLocaleTimeString('tr-TR')}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex flex-col gap-1">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${reg.paymentStatus === 'verified'
-                                                ? 'bg-green-100 text-green-800'
-                                                : reg.paymentStatus === 'rejected'
-                                                    ? 'bg-red-100 text-red-800'
-                                                    : 'bg-yellow-100 text-yellow-800'
-                                            }`}>
-                                            {reg.paymentStatus === 'verified' && '✓ Onaylandı'}
-                                            {reg.paymentStatus === 'rejected' && '✗ Reddedildi'}
-                                            {reg.paymentStatus === 'pending' && '⏳ Beklemede'}
-                                        </span>
-                                        {reg.paymentReceiptUrl && (
-                                            <a
-                                                href={reg.paymentReceiptUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-xs text-blue-600 hover:text-blue-800"
-                                            >
-                                                📎 Dekontu Gör
-                                            </a>
-                                        )}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    {reg.paymentStatus === 'pending' ? (
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => updatePaymentStatus(reg._id, 'verified')}
-                                                className="text-green-600 hover:text-green-900"
-                                            >
-                                                ✓ Onayla
-                                            </button>
-                                            <button
-                                                onClick={() => updatePaymentStatus(reg._id, 'rejected')}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                ✗ Reddet
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <span className="text-gray-400 text-xs">
-                                            {reg.paymentVerifiedAt && new Date(reg.paymentVerifiedAt).toLocaleDateString('tr-TR')}
-                                        </span>
-                                    )}
-                                </td>
                             </tr>
                         ))}
-                        {filteredRegistrations.length === 0 && (
+                        {registrations.length === 0 && (
                             <tr>
-                                <td colSpan={8} className="px-6 py-4 text-center text-sm text-gray-500">
-                                    {filter === 'all' ? 'Henüz başvuru bulunmamaktadır.' : 'Bu filtreyle eşleşen başvuru bulunamadı.'}
+                                <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                                    Henüz başvuru bulunmamaktadır.
                                 </td>
                             </tr>
                         )}

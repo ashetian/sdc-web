@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Event {
     _id: string;
@@ -57,10 +58,11 @@ export default function EventsPage() {
                             <div key={event._id} className="bg-gray-800 overflow-hidden shadow rounded-lg flex flex-col border border-gray-700">
                                 {event.posterUrl && (
                                     <div className="relative h-48 w-full">
-                                        <img
+                                        <Image
                                             src={event.posterUrl}
                                             alt={event.title}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            className="object-cover"
                                         />
                                     </div>
                                 )}
