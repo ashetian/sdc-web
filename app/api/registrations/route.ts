@@ -19,9 +19,12 @@ export async function POST(request: Request) {
         }
 
         // Mükerrer kayıt kontrolü (isteğe bağlı ama iyi bir pratik)
-        const existingRegistration = await Registration.findOne({ eventId, studentNumber });
+        const existingRegistration = await Registration.findOne({
+            eventId,
+            $or: [{ studentNumber }, { email: body.email }]
+        });
         if (existingRegistration) {
-            return NextResponse.json({ error: 'Bu öğrenci numarası ile zaten kayıt olunmuş.' }, { status: 400 });
+            return NextResponse.json({ error: 'Bu öğrenci numarası veya e-posta ile zaten kayıt olunmuş.' }, { status: 400 });
         }
 
         const registration = await Registration.create(body);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,6 +9,7 @@ export default function NewAnnouncementPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -20,6 +21,21 @@ export default function NewAnnouncementPage() {
     isDraft: false,
     eventId: "",
   });
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch('/api/events?mode=admin');
+        if (res.ok) {
+          const data = await res.json();
+          setEvents(data);
+        }
+      } catch (error) {
+        console.error('Etkinlikler yüklenirken hata:', error);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
@@ -213,17 +229,22 @@ export default function NewAnnouncementPage() {
               htmlFor="eventId"
               className="block text-sm font-medium text-gray-700"
             >
-              Etkinlik ID (İsteğe Bağlı)
+              Etkinlik Seçimi (İsteğe Bağlı)
             </label>
-            <input
-              type="text"
+            <select
               name="eventId"
               id="eventId"
               value={formData.eventId}
               onChange={handleChange}
-              placeholder="İlgili etkinliğin ID'sini giriniz"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
-            />
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
+            >
+              <option value="">İlgili etkinlik seçiniz</option>
+              {events.map((event) => (
+                <option key={event._id} value={event._id}>
+                  {event.title}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

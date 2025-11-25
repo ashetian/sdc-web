@@ -38,7 +38,8 @@ export function middleware(request: NextRequest) {
   // /api altındaki POST, PUT, DELETE istekleri için auth zorunlu
   if (
     pathname.startsWith('/api') &&
-    ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)
+    ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) &&
+    !pathname.startsWith('/api/registrations')
   ) {
     const authHeader = request.headers.get('authorization');
 
