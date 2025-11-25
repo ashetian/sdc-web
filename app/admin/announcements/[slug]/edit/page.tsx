@@ -17,6 +17,11 @@ interface Announcement {
   eventId?: string;
 }
 
+interface Event {
+  _id: string;
+  title: string;
+}
+
 export default function EditAnnouncementPage({
   params,
 }: {
@@ -26,7 +31,7 @@ export default function EditAnnouncementPage({
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [formData, setFormData] = useState<Announcement>({
     slug: "",
     title: "",
