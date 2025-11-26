@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useRef, useMemo } from "react";
 import ChromaGrid from "./ChromaGrid";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
