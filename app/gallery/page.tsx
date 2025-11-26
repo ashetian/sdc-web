@@ -45,7 +45,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <section className="py-20 bg-neo-purple min-h-screen border-b-4 border-black">
+    <section className="py-20 pt-40 bg-neo-purple min-h-screen border-b-4 border-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="inline-block text-4xl sm:text-6xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-8 py-4 transform -rotate-1">

@@ -41,7 +41,7 @@ export default function EventsPage() {
     );
 
     return (
-        <div className="min-h-screen bg-neo-yellow py-20 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-neo-yellow pt-24 py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
                     <h1 className="inline-block text-4xl sm:text-6xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-8 py-4 transform -rotate-2">

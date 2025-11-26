@@ -59,7 +59,7 @@ export default async function AnnouncementPage({
   }
 
   return (
-    <div className="min-h-screen bg-neo-blue py-20 border-b-4 border-black">
+    <article className="min-h-screen bg-neo-yellow py-20 pt-40 border-b-4 border-black">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform -rotate-1">
           {announcement.image && (
@@ -140,6 +140,6 @@ export default async function AnnouncementPage({
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

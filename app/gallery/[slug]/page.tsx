@@ -66,7 +66,7 @@ export default function GalleryDetailPage({ params }: { params: { slug: string }
   }
 
   return (
-    <div className="min-h-screen bg-neo-purple py-20 border-b-4 border-black">
+    <div className="min-h-screen bg-neo-purple py-20 pt-40 border-b-4 border-black">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform rotate-1">
           <Link href="/gallery" className="text-black font-black hover:underline mb-6 inline-block uppercase text-sm">

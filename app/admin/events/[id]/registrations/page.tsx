@@ -16,26 +16,43 @@ interface Registration {
     createdAt: string;
 }
 
+interface Event {
+    _id: string;
+    title: string;
+    isPaid: boolean;
+    price: number;
+}
+
 export default function EventRegistrationsPage() {
     const params = useParams();
     const [registrations, setRegistrations] = useState<Registration[]>([]);
+    const [event, setEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (params.id) {
-            fetchRegistrations(params.id as string);
+            fetchEventAndRegistrations(params.id as string);
         }
     }, [params.id]);
 
-    const fetchRegistrations = async (eventId: string) => {
+    const fetchEventAndRegistrations = async (eventId: string) => {
         try {
-            const res = await fetch(`/api/events/${eventId}/registrations`);
-            if (res.ok) {
-                const data = await res.json();
-                setRegistrations(data);
+            const [eventRes, registrationsRes] = await Promise.all([
+                fetch(`/api/events/${eventId}`),
+                fetch(`/api/events/${eventId}/registrations`)
+            ]);
+
+            if (eventRes.ok) {
+                const eventData = await eventRes.json();
+                setEvent(eventData);
+            }
+
+            if (registrationsRes.ok) {
+                const registrationsData = await registrationsRes.json();
+                setRegistrations(registrationsData);
             }
         } catch (error) {
-            console.error('Kayıtlar yüklenirken hata:', error);
+            console.error('Veriler yüklenirken hata:', error);
         } finally {
             setLoading(false);
         }
@@ -56,7 +73,7 @@ export default function EventRegistrationsPage() {
             if (res.ok) {
                 // Listeyi güncelle
                 if (params.id) {
-                    fetchRegistrations(params.id as string);
+                    fetchEventAndRegistrations(params.id as string);
                 }
             } else {
                 alert('Durum güncellenirken bir hata oluştu.');
@@ -74,16 +91,23 @@ export default function EventRegistrationsPage() {
         }
 
         // Prepare data for Excel
-        const excelData = registrations.map((reg) => ({
-            'Öğrenci No': reg.studentNumber,
-            'Ad Soyad': reg.name,
-            'Bölüm': reg.department,
-            'E-posta': reg.email,
-            'Telefon': reg.phone,
-            'Ödeme Durumu': reg.paymentStatus || '-',
-            'Dekont URL': reg.paymentProofUrl || '-',
-            'Başvuru Tarihi': `${new Date(reg.createdAt).toLocaleDateString('tr-TR')} ${new Date(reg.createdAt).toLocaleTimeString('tr-TR')}`,
-        }));
+        const excelData = registrations.map((reg) => {
+            const data: any = {
+                'Öğrenci No': reg.studentNumber,
+                'Ad Soyad': reg.name,
+                'Bölüm': reg.department,
+                'E-posta': reg.email,
+                'Telefon': reg.phone,
+                'Başvuru Tarihi': `${new Date(reg.createdAt).toLocaleDateString('tr-TR')} ${new Date(reg.createdAt).toLocaleTimeString('tr-TR')}`,
+            };
+
+            if (event?.isPaid) {
+                data['Ödeme Durumu'] = reg.paymentStatus || '-';
+                data['Dekont URL'] = reg.paymentProofUrl || '-';
+            }
+
+            return data;
+        });
 
         // Create worksheet
         const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -105,7 +129,9 @@ export default function EventRegistrationsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Başvuru Listesi</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                    {event ? `${event.title} - Başvuru Listesi` : 'Başvuru Listesi'}
+                </h1>
                 <div className="flex items-center gap-4">
                     <div className="text-sm text-gray-500">
                         Toplam Başvuru: {registrations.length}
@@ -139,15 +165,19 @@ export default function EventRegistrationsPage() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Telefon
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Ödeme Durumu
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Dekont
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                İşlemler
-                            </th>
+                            {event?.isPaid && (
+                                <>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ödeme Durumu
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Dekont
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        İşlemler
+                                    </th>
+                                </>
+                            )}
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Başvuru Tarihi
                             </th>
@@ -171,52 +201,56 @@ export default function EventRegistrationsPage() {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {reg.phone}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                    {reg.paymentStatus && (
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            ${reg.paymentStatus === 'verified' ? 'bg-green-100 text-green-800' :
-                                                reg.paymentStatus === 'rejected' ? 'bg-red-100 text-red-800' :
-                                                    reg.paymentStatus === 'refunded' ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-gray-100 text-gray-800'}`}>
-                                            {reg.paymentStatus === 'verified' ? 'Onaylandı' :
-                                                reg.paymentStatus === 'rejected' ? 'Reddedildi' :
-                                                    reg.paymentStatus === 'refunded' ? 'İade Edildi' : 'Bekliyor'}
-                                        </span>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:text-blue-900">
-                                    {reg.paymentProofUrl ? (
-                                        <a href={reg.paymentProofUrl} target="_blank" rel="noopener noreferrer">
-                                            Görüntüle
-                                        </a>
-                                    ) : '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    {reg.paymentStatus === 'pending' && (
-                                        <>
-                                            <button
-                                                onClick={() => updatePaymentStatus(reg._id, 'verified')}
-                                                className="text-green-600 hover:text-green-900"
-                                            >
-                                                Onayla
-                                            </button>
-                                            <button
-                                                onClick={() => updatePaymentStatus(reg._id, 'rejected')}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Reddet
-                                            </button>
-                                        </>
-                                    )}
-                                    {reg.paymentStatus === 'verified' && (
-                                        <button
-                                            onClick={() => updatePaymentStatus(reg._id, 'refunded')}
-                                            className="text-yellow-600 hover:text-yellow-900"
-                                        >
-                                            İade Et
-                                        </button>
-                                    )}
-                                </td>
+                                {event?.isPaid && (
+                                    <>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                            {reg.paymentStatus && (
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                    ${reg.paymentStatus === 'verified' ? 'bg-green-100 text-green-800' :
+                                                        reg.paymentStatus === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                            reg.paymentStatus === 'refunded' ? 'bg-yellow-100 text-yellow-800' :
+                                                                'bg-gray-100 text-gray-800'}`}>
+                                                    {reg.paymentStatus === 'verified' ? 'Onaylandı' :
+                                                        reg.paymentStatus === 'rejected' ? 'Reddedildi' :
+                                                            reg.paymentStatus === 'refunded' ? 'İade Edildi' : 'Bekliyor'}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:text-blue-900">
+                                            {reg.paymentProofUrl ? (
+                                                <a href={reg.paymentProofUrl} target="_blank" rel="noopener noreferrer">
+                                                    Görüntüle
+                                                </a>
+                                            ) : '-'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            {reg.paymentStatus === 'pending' && (
+                                                <>
+                                                    <button
+                                                        onClick={() => updatePaymentStatus(reg._id, 'verified')}
+                                                        className="text-green-600 hover:text-green-900"
+                                                    >
+                                                        Onayla
+                                                    </button>
+                                                    <button
+                                                        onClick={() => updatePaymentStatus(reg._id, 'rejected')}
+                                                        className="text-red-600 hover:text-red-900"
+                                                    >
+                                                        Reddet
+                                                    </button>
+                                                </>
+                                            )}
+                                            {reg.paymentStatus === 'verified' && (
+                                                <button
+                                                    onClick={() => updatePaymentStatus(reg._id, 'refunded')}
+                                                    className="text-yellow-600 hover:text-yellow-900"
+                                                >
+                                                    İade Et
+                                                </button>
+                                            )}
+                                        </td>
+                                    </>
+                                )}
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {new Date(reg.createdAt).toLocaleDateString('tr-TR')} {new Date(reg.createdAt).toLocaleTimeString('tr-TR')}
                                 </td>
@@ -224,7 +258,7 @@ export default function EventRegistrationsPage() {
                         ))}
                         {registrations.length === 0 && (
                             <tr>
-                                <td colSpan={9} className="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colSpan={event?.isPaid ? 9 : 6} className="px-6 py-4 text-center text-sm text-gray-500">
                                     Henüz başvuru bulunmamaktadır.
                                 </td>
                             </tr>
