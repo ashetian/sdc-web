@@ -107,7 +107,7 @@ export default function About() {
           ))}
         </div>
 
-        <div className="mt-16 text-center">
+        <div className="mt-32 text-center">
           <button
             onClick={handleContactClick}
             className="inline-flex items-center px-8 py-4 bg-black text-white border-4 border-transparent 

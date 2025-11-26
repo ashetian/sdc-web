@@ -30,7 +30,7 @@ async function getGalleryAnnouncements(): Promise<Announcement[]> {
 export default async function GalleryPreview() {
   const announcements = await getGalleryAnnouncements();
 
-  if (announcements.length === 0) return null;
+  // if (announcements.length === 0) return null;
 
   return (
     <section
@@ -52,50 +52,56 @@ export default async function GalleryPreview() {
           </div>
         </div>
         <div className="flex gap-8 overflow-x-auto pb-8 custom-scrollbar">
-          {announcements.map((a) => (
-            <Link
-              key={a.slug}
-              href={`/gallery/${a.slug}`}
-              className="min-w-[320px] max-w-xs bg-white border-4 border-black shadow-neo p-4 flex flex-col hover:-translate-y-2 hover:shadow-neo-lg transition-all"
-            >
-              {a.galleryCover && (
-                <div className="mb-3 overflow-hidden border-2 border-black shadow-neo-sm">
-                  <Image
-                    src={a.galleryCover}
-                    alt={a.title}
-                    width={320}
-                    height={180}
-                    className="w-full h-40 object-cover"
-                  />
-                </div>
-              )}
-              <div className="flex items-center justify-between mb-2">
-                <span
-                  className={`px-2 py-0.5 text-xs font-bold border-2 border-black shadow-neo-sm
+          {announcements.length === 0 ? (
+            <div className="w-full text-center py-12 bg-white border-4 border-black shadow-neo transform rotate-1">
+              <p className="text-xl font-black text-black uppercase">Henüz galeriye eklenmiş içerik yok.</p>
+              <p className="text-black font-medium mt-2">Etkinliklerimizden kareler çok yakında burada olacak!</p>
+            </div>
+          ) : (
+            announcements.map((a) => (
+              <Link
+                key={a.slug}
+                href={`/gallery/${a.slug}`}
+                className="min-w-[320px] max-w-xs bg-white border-4 border-black shadow-neo p-4 flex flex-col hover:-translate-y-2 hover:shadow-neo-lg transition-all"
+              >
+                {a.galleryCover && (
+                  <div className="mb-3 overflow-hidden border-2 border-black shadow-neo-sm">
+                    <Image
+                      src={a.galleryCover}
+                      alt={a.title}
+                      width={320}
+                      height={180}
+                      className="w-full h-40 object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center justify-between mb-2">
+                  <span
+                    className={`px-2 py-0.5 text-xs font-bold border-2 border-black shadow-neo-sm
                     ${a.type === "event"
-                      ? "bg-neo-purple text-white"
-                      : a.type === "news"
-                        ? "bg-neo-blue text-black"
-                        : "bg-neo-green text-black"
-                    }
+                        ? "bg-neo-purple text-white"
+                        : a.type === "news"
+                          ? "bg-neo-blue text-black"
+                          : "bg-neo-green text-black"
+                      }
                   `}
-                >
-                  {a.type === "event"
-                    ? "Etkinlik"
-                    : a.type === "news"
-                      ? "Duyuru"
-                      : "Workshop"}
-                </span>
-                <time className="text-xs font-bold text-black bg-gray-100 px-2 py-0.5 border-2 border-black shadow-neo-sm">{a.date}</time>
-              </div>
-              <h3 className="text-lg font-black text-black mb-1 line-clamp-1 uppercase">
-                {a.title}
-              </h3>
-              <p className="text-black font-medium text-sm mb-2 line-clamp-2 border-t-2 border-black pt-2">
-                {a.galleryDescription || a.description}
-              </p>
-            </Link>
-          ))}
+                  >
+                    {a.type === "event"
+                      ? "Etkinlik"
+                      : a.type === "news"
+                        ? "Duyuru"
+                        : "Workshop"}
+                  </span>
+                  <time className="text-xs font-bold text-black bg-gray-100 px-2 py-0.5 border-2 border-black shadow-neo-sm">{a.date}</time>
+                </div>
+                <h3 className="text-lg font-black text-black mb-1 line-clamp-1 uppercase">
+                  {a.title}
+                </h3>
+                <p className="text-black font-medium text-sm mb-2 line-clamp-2 border-t-2 border-black pt-2">
+                  {a.galleryDescription || a.description}
+                </p>
+              </Link>
+            )))}
         </div>
       </div>
     </section>

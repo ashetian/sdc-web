@@ -105,7 +105,7 @@ export default function Announcements() {
           </p>
         </div>
 
-        <div ref={cardsRef} className="flex gap-8 overflow-x-auto pb-8 custom-scrollbar">
+        <div ref={cardsRef} className="flex gap-8 overflow-x-auto overflow-y-hidden pb-8 custom-scrollbar">
           {announcements.map((announcement, index) => (
             <a
               href={`/announcements/${announcement.slug}`}
