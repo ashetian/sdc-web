@@ -12,6 +12,9 @@ interface Event {
     eventEndDate?: string;
     location?: string;
     isOpen: boolean;
+    isPaid: boolean;
+    price?: number;
+    iban?: string;
 }
 
 export default function RegisterPage() {
@@ -27,7 +30,9 @@ export default function RegisterPage() {
         phone: '',
         department: '',
         email: '',
+        paymentProofUrl: '',
     });
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         const fetchEvent = async (id: string) => {
@@ -58,6 +63,12 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (event?.isPaid && !formData.paymentProofUrl) {
+            alert('Lütfen ödeme dekontunu yükleyiniz.');
+            return;
+        }
+
         setSubmitting(true);
 
         try {
@@ -103,6 +114,32 @@ export default function RegisterPage() {
             },
             `${event.title.replace(/\s+/g, '-').toLowerCase()}.ics`
         );
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setUploading(true);
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error('Yükleme başarısız');
+
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, paymentProofUrl: data.path }));
+        } catch (error) {
+            console.error('Dosya yükleme hatası:', error);
+            alert('Dosya yüklenirken bir hata oluştu.');
+        } finally {
+            setUploading(false);
+        }
     };
 
     if (loading) return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
@@ -232,6 +269,35 @@ export default function RegisterPage() {
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             />
                         </div>
+
+                        {event.isPaid && (
+                            <div className="bg-gray-700 p-4 rounded-md border border-gray-600 space-y-4">
+                                <h3 className="text-lg font-medium text-white border-b border-gray-600 pb-2">Ödeme Bilgileri</h3>
+                                <div className="grid grid-cols-1 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-400 block">Ücret:</span>
+                                        <span className="text-white font-bold text-lg">{event.price} TL</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 block">IBAN:</span>
+                                        <span className="text-white font-mono select-all">{event.iban}</span>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            Ödeme Dekontu (PDF)
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept=".pdf,application/pdf"
+                                            onChange={handleFileUpload}
+                                            className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                                        />
+                                        {uploading && <span className="text-sm text-yellow-500 mt-1 block">Yükleniyor...</span>}
+                                        {formData.paymentProofUrl && <span className="text-sm text-green-500 mt-1 block">Dekont yüklendi.</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <button

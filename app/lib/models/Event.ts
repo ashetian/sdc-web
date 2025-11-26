@@ -8,6 +8,9 @@ export interface IEvent {
   eventEndDate?: Date;
   location?: string;
   isOpen: boolean;
+  isPaid: boolean;
+  price?: number;
+  iban?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +44,18 @@ const eventSchema = new mongoose.Schema<IEvent>(
     isOpen: {
       type: Boolean,
       default: false,
+    },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
+    price: {
+      type: Number,
+      required: false,
+    },
+    iban: {
+      type: String,
+      required: false,
     },
   },
   {

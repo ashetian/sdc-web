@@ -14,6 +14,9 @@ export default function CreateEventPage() {
         eventEndDate: '',
         location: '',
         isOpen: false,
+        isPaid: false,
+        price: '',
+        iban: '',
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -140,6 +143,56 @@ export default function CreateEventPage() {
                     <label htmlFor="isOpen" className="ml-2 block text-sm text-gray-700">
                         Başvuruları hemen aç
                     </label>
+                </div>
+
+                <div className="space-y-4 border-t border-gray-200 pt-4">
+                    <div className="flex items-center">
+                        <input
+                            id="isPaid"
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            checked={formData.isPaid}
+                            onChange={(e) => setFormData({ ...formData, isPaid: e.target.checked })}
+                        />
+                        <label htmlFor="isPaid" className="ml-2 block text-sm text-gray-700">
+                            Ücretli Etkinlik
+                        </label>
+                    </div>
+
+                    {formData.isPaid && (
+                        <>
+                            <div>
+                                <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                                    Ücret (TL)
+                                </label>
+                                <input
+                                    type="number"
+                                    id="price"
+                                    required={formData.isPaid}
+                                    min="0"
+                                    step="0.01"
+                                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white text-gray-900 placeholder-gray-400 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                    value={formData.price}
+                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="iban" className="block text-sm font-medium text-gray-700">
+                                    IBAN
+                                </label>
+                                <input
+                                    type="text"
+                                    id="iban"
+                                    required={formData.isPaid}
+                                    placeholder="TR..."
+                                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white text-gray-900 placeholder-gray-400 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                    value={formData.iban}
+                                    onChange={(e) => setFormData({ ...formData, iban: e.target.value })}
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <div className="flex justify-end space-x-3">

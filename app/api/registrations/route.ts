@@ -18,6 +18,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Bu etkinlik için başvurular kapalı.' }, { status: 400 });
         }
 
+        // Ücretli etkinlik kontrolü
+        if (event.isPaid && !body.paymentProofUrl) {
+            return NextResponse.json({ error: 'Ücretli etkinlikler için ödeme dekontu yüklenmelidir.' }, { status: 400 });
+        }
+
         // Mükerrer kayıt kontrolü (isteğe bağlı ama iyi bir pratik)
         const existingRegistration = await Registration.findOne({
             eventId,

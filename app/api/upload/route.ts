@@ -14,25 +14,34 @@ export async function POST(request: Request) {
       );
     }
 
+    // Dosya tipi kontrolü
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Sadece resim (JPEG, PNG, WEBP) ve PDF dosyaları yüklenebilir.' },
+        { status: 400 }
+      );
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
     // Dosya adını benzersiz yap
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const filename = `${uniqueSuffix}-${file.name}`;
-    
+
     // public/uploads klasörüne kaydet
     const path = join(process.cwd(), 'public/uploads', filename);
     await writeFile(path, buffer);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       path: `/uploads/${filename}`
     });
   } catch (error) {
-    console.error('Resim yüklenirken hata:', error);
+    console.error('Dosya yüklenirken hata:', error);
     return NextResponse.json(
-      { error: 'Resim yüklenirken bir hata oluştu' },
+      { error: 'Dosya yüklenirken bir hata oluştu' },
       { status: 500 }
     );
   }

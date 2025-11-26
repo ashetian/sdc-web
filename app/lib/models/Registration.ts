@@ -7,6 +7,8 @@ export interface IRegistration {
     phone: string;
     department: string;
     email: string;
+    paymentProofUrl?: string;
+    paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -37,6 +39,15 @@ const registrationSchema = new mongoose.Schema<IRegistration>(
         email: {
             type: String,
             required: true,
+        },
+        paymentProofUrl: {
+            type: String,
+            required: false,
+        },
+        paymentStatus: {
+            type: String,
+            enum: ['pending', 'verified', 'rejected', 'refunded'],
+            default: 'pending',
         },
     },
     {

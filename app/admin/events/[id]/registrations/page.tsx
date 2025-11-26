@@ -11,6 +11,8 @@ interface Registration {
     phone: string;
     department: string;
     email: string;
+    paymentProofUrl?: string;
+    paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
     createdAt: string;
 }
 
@@ -39,6 +41,32 @@ export default function EventRegistrationsPage() {
         }
     };
 
+    const updatePaymentStatus = async (registrationId: string, status: string) => {
+        if (!confirm(`Ödeme durumunu "${status}" olarak güncellemek istediğinize emin misiniz?`)) return;
+
+        try {
+            const res = await fetch(`/api/registrations/${registrationId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ paymentStatus: status }),
+            });
+
+            if (res.ok) {
+                // Listeyi güncelle
+                if (params.id) {
+                    fetchRegistrations(params.id as string);
+                }
+            } else {
+                alert('Durum güncellenirken bir hata oluştu.');
+            }
+        } catch (error) {
+            console.error('Hata:', error);
+            alert('Bir hata oluştu.');
+        }
+    };
+
     const exportToExcel = () => {
         if (registrations.length === 0) {
             alert('Dışa aktarılacak kayıt bulunmamaktadır.');
@@ -52,6 +80,8 @@ export default function EventRegistrationsPage() {
             'Bölüm': reg.department,
             'E-posta': reg.email,
             'Telefon': reg.phone,
+            'Ödeme Durumu': reg.paymentStatus || '-',
+            'Dekont URL': reg.paymentProofUrl || '-',
             'Başvuru Tarihi': `${new Date(reg.createdAt).toLocaleDateString('tr-TR')} ${new Date(reg.createdAt).toLocaleTimeString('tr-TR')}`,
         }));
 
@@ -110,6 +140,15 @@ export default function EventRegistrationsPage() {
                                 Telefon
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Ödeme Durumu
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Dekont
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                İşlemler
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Başvuru Tarihi
                             </th>
                         </tr>
@@ -132,6 +171,52 @@ export default function EventRegistrationsPage() {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {reg.phone}
                                 </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {reg.paymentStatus && (
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            ${reg.paymentStatus === 'verified' ? 'bg-green-100 text-green-800' :
+                                                reg.paymentStatus === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                    reg.paymentStatus === 'refunded' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-gray-100 text-gray-800'}`}>
+                                            {reg.paymentStatus === 'verified' ? 'Onaylandı' :
+                                                reg.paymentStatus === 'rejected' ? 'Reddedildi' :
+                                                    reg.paymentStatus === 'refunded' ? 'İade Edildi' : 'Bekliyor'}
+                                        </span>
+                                    )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:text-blue-900">
+                                    {reg.paymentProofUrl ? (
+                                        <a href={reg.paymentProofUrl} target="_blank" rel="noopener noreferrer">
+                                            Görüntüle
+                                        </a>
+                                    ) : '-'}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    {reg.paymentStatus === 'pending' && (
+                                        <>
+                                            <button
+                                                onClick={() => updatePaymentStatus(reg._id, 'verified')}
+                                                className="text-green-600 hover:text-green-900"
+                                            >
+                                                Onayla
+                                            </button>
+                                            <button
+                                                onClick={() => updatePaymentStatus(reg._id, 'rejected')}
+                                                className="text-red-600 hover:text-red-900"
+                                            >
+                                                Reddet
+                                            </button>
+                                        </>
+                                    )}
+                                    {reg.paymentStatus === 'verified' && (
+                                        <button
+                                            onClick={() => updatePaymentStatus(reg._id, 'refunded')}
+                                            className="text-yellow-600 hover:text-yellow-900"
+                                        >
+                                            İade Et
+                                        </button>
+                                    )}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {new Date(reg.createdAt).toLocaleDateString('tr-TR')} {new Date(reg.createdAt).toLocaleTimeString('tr-TR')}
                                 </td>
@@ -139,7 +224,7 @@ export default function EventRegistrationsPage() {
                         ))}
                         {registrations.length === 0 && (
                             <tr>
-                                <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colSpan={9} className="px-6 py-4 text-center text-sm text-gray-500">
                                     Henüz başvuru bulunmamaktadır.
                                 </td>
                             </tr>
