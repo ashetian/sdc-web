@@ -23,6 +23,17 @@ interface Event {
     price: number;
 }
 
+interface ExcelData {
+    'Öğrenci No': string;
+    'Ad Soyad': string;
+    'Bölüm': string;
+    'E-posta': string;
+    'Telefon': string;
+    'Başvuru Tarihi': string;
+    'Ödeme Durumu'?: string;
+    'Dekont URL'?: string;
+}
+
 export default function EventRegistrationsPage() {
     const params = useParams();
     const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -92,7 +103,7 @@ export default function EventRegistrationsPage() {
 
         // Prepare data for Excel
         const excelData = registrations.map((reg) => {
-            const data: any = {
+            const data: ExcelData = {
                 'Öğrenci No': reg.studentNumber,
                 'Ad Soyad': reg.name,
                 'Bölüm': reg.department,
