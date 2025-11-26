@@ -27,41 +27,17 @@ const demo: ChromaItem[] = [
     image: "https://i.pravatar.cc/300?img=8",
     name: "Alex Rivera",
     subtitle: "Full Stack Developer",
-    description:
-      "Merhaba ben Alex. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
+    description: "Merhaba ben Alex. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
     handle: "@alexrivera",
-    borderColor: "#4F46E5",
-    gradient: "linear-gradient(145deg,#4F46E5,#000)",
+    borderColor: "#000000",
+    gradient: "#FFDE00",
     url: "https://github.com/",
-  },
-  {
-    image: "https://i.pravatar.cc/300?img=11",
-    name: "Jordan Chen",
-    subtitle: "DevOps Engineer",
-    description:
-      "Merhaba ben Alex. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
-    handle: "@jordanchen",
-    borderColor: "#10B981",
-    gradient: "linear-gradient(210deg,#10B981,#000)",
-    url: "https://linkedin.com/in/",
-  },
-  {
-    image: "https://i.pravatar.cc/300?img=3",
-    name: "Morgan Blake",
-    subtitle: "UI/UX Designer",
-    handle: "@morganblake",
-    description:
-      "Merhaba ben Alex. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
-    borderColor: "#F59E0B",
-    gradient: "linear-gradient(165deg,#F59E0B,#000)",
-    url: "https://dribbble.com/",
   },
 ];
 
 const ChromaGrid: React.FC<ChromaGridProps> = ({ items, className = "" }) => {
   const data = items?.length ? items : demo;
 
-  // Modal state (layout aynı, sadece modal eklendi)
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
@@ -77,7 +53,6 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({ items, className = "" }) => {
     if (typeof document !== "undefined") document.body.style.overflow = "";
   };
 
-  // ESC ile kapat
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && closeModal();
     window.addEventListener("keydown", onEsc);
@@ -90,7 +65,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({ items, className = "" }) => {
     <>
       <div
         className={[
-          "grid gap-5 mx-6",
+          "grid gap-8 mx-6",
           "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
           className,
         ].join(" ")}
@@ -110,53 +85,38 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({ items, className = "" }) => {
               }
             }}
             className={[
-              "group md:grayscale relative inset-0 flex flex-col rounded-2xl overflow-hidden",
+              "group relative flex flex-col border-4 border-black shadow-neo bg-white",
               "cursor-pointer focus:outline-none",
-              "transition-all duration-200 hover:-translate-y-1 hover:grayscale-0 hover:shadow-xl",
+              "transition-all duration-200 hover:-translate-y-2 hover:shadow-neo-lg",
             ].join(" ")}
-            style={{
-              background: c.gradient || "linear-gradient(145deg,#06b6d4,#000)",
-              border: `2px solid ${c.borderColor || "transparent"}`,
-            }}
           >
-            <div className="relative">
+            <div className="relative border-b-4 border-black">
               <Image
                 src={c.image}
                 alt={c.name}
                 width={600}
                 height={600}
-                className="w-full aspect-square object-cover"
+                className="w-full aspect-square object-cover transition-all duration-300"
                 sizes="(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 30vw"
               />
             </div>
 
-            <footer className="p-4 flex flex-row items-center justify-between text-white ">
-              <h3 className="m-0 text-lg font-semibold leading-tight">
+            <div className="p-4 flex flex-col items-center justify-center text-center" style={{ backgroundColor: c.gradient }}>
+              <h3 className="m-0 text-xl font-black text-black leading-tight uppercase">
                 {c.name}
               </h3>
-              <p className="m-0 text-sm opacity-90">{c.subtitle}</p>
-            </footer>
-            <div className="flex flex-row items-center justify-between text-white ">
-              {c.location && (
-                <span className="text-sm p-4 opacity-75 text-right">
-                  {c.location}
-                </span>
-              )}
-              <span className="text-sm p-4 opacity-80 text-right">
-                {c.email ? c.email : c.handle}
-              </span>
+              <p className="m-0 text-sm font-bold text-black opacity-80 mt-1">{c.subtitle}</p>
             </div>
           </article>
         ))}
       </div>
 
-      {/* Modal entegrasyonu — renk bilgisini karttan alıyoruz */}
       {open && selected && (
         <TeamModal
           open={open}
           onClose={closeModal}
           member={selected}
-          color={selected.gradient || selected.borderColor || "#111827"}
+          color={selected.gradient || "#FFDE00"}
         />
       )}
     </>

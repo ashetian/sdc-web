@@ -34,30 +34,46 @@ export default function EventsPage() {
         }
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center bg-neo-yellow">
+            <div className="text-2xl font-black text-black animate-bounce">Yükleniyor...</div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-neo-yellow py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-12">
-                    <h1 className="text-3xl font-extrabold text-white sm:text-4xl">
+                <div className="text-center mb-16">
+                    <h1 className="inline-block text-4xl sm:text-6xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-8 py-4 transform -rotate-2">
                         Aktif Etkinlikler
                     </h1>
-                    <p className="mt-4 text-xl text-gray-400">
+                    <p className="mt-4 text-xl font-bold text-black max-w-2xl mx-auto bg-white border-2 border-black p-4 shadow-neo-sm transform rotate-1">
                         Başvurusu açık olan etkinliklere buradan kayıt olabilirsiniz.
                     </p>
                 </div>
 
                 {events.length === 0 ? (
-                    <div className="text-center text-gray-400 mt-10">
-                        Şu anda açık bir etkinlik bulunmamaktadır.
+                    <div className="text-center mt-10">
+                        <div className="inline-block bg-white border-4 border-black shadow-neo p-8 transform rotate-1">
+                            <p className="text-2xl font-black text-black">
+                                Şu anda açık bir etkinlik bulunmamaktadır.
+                            </p>
+                            <p className="mt-2 font-bold text-gray-600">
+                                Daha sonra tekrar kontrol edin!
+                            </p>
+                        </div>
                     </div>
                 ) : (
                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                        {events.map((event) => (
-                            <div key={event._id} className="bg-gray-800 overflow-hidden shadow rounded-lg flex flex-col border border-gray-700">
+                        {events.map((event, index) => (
+                            <div
+                                key={event._id}
+                                className={`bg-white border-4 border-black shadow-neo flex flex-col transform transition-all duration-200 hover:-translate-y-2 hover:shadow-neo-lg
+                                    ${index % 3 === 0 ? 'rotate-1' : index % 3 === 1 ? '-rotate-1' : 'rotate-0'}
+                                `}
+                            >
                                 {event.posterUrl && (
-                                    <div className="relative h-48 w-full">
+                                    <div className="relative h-56 w-full border-b-4 border-black">
                                         <Image
                                             src={event.posterUrl}
                                             alt={event.title}
@@ -67,15 +83,15 @@ export default function EventsPage() {
                                     </div>
                                 )}
                                 <div className="p-6 flex-1 flex flex-col">
-                                    <h3 className="text-xl font-semibold text-white mb-2">
+                                    <h3 className="text-2xl font-black text-black mb-3 uppercase leading-tight">
                                         {event.title}
                                     </h3>
-                                    <p className="text-gray-300 mb-4 flex-1 line-clamp-3">
+                                    <p className="text-black font-medium mb-6 flex-1 line-clamp-3 border-l-4 border-neo-purple pl-3">
                                         {event.description}
                                     </p>
                                     <Link
                                         href={`/events/${event._id}/register`}
-                                        className="mt-auto w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                        className="mt-auto w-full flex justify-center py-3 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider"
                                     >
                                         Kayıt Ol
                                     </Link>

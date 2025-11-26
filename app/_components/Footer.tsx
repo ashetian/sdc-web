@@ -1,38 +1,28 @@
 import React from "react";
-// import { FaWhatsapp } from 'react-icons/fa';
-// import { BsLinkedin } from "react-icons/bs";
-// import { FaXTwitter, FaInstagram } from "react-icons/fa6";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-6 relative z-50">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className=" m-2 flex flex-col">
-          <p className="text-left opacity-60 font-bold">
-            &copy; {new Date().getFullYear()} KTUSDC. All rights reserved.
+    <footer className="bg-neo-black text-white py-8 border-t-4 border-black relative z-50">
+      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center px-4">
+        <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
+          <p className="text-lg font-bold text-neo-yellow mb-2">
+            &copy; {new Date().getFullYear()} KTUSDC
           </p>
-          <span className="text-xs opacity-40 mt-1">Developed by Cihan</span>
-          <span className="text-xs opacity-40 mt-1">
-            I know its just a couple commits but where am i 🥺🥺? -ashetian_
+          <p className="text-sm opacity-80">All rights reserved.</p>
+        </div>
+
+        <div className="flex flex-row gap-2 items-center md:items-end">
+          <span className="text-sm font-bold bg-neo-pink text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] mb-2">
+            Developed by
+          </span>
+          <span className="text-sm font-bold bg-neo-blue text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] mb-2">
+            Caner
+          </span><span className="text-sm font-bold bg-neo-green text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] mb-2">
+            Cihan
+          </span><span className="text-sm font-bold bg-neo-purple text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] mb-2">
+            Murat
           </span>
         </div>
-        {
-          //*no need to add socials twice imo
-          /* <div className="flex space-x-6">
-          <a href="https://x.com/ktusdc" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
-            <FaXTwitter size={24} />
-          </a>
-          <a href="https://www.instagram.com/ktu.sdc" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
-            <FaInstagram size={24} />
-          </a>
-          <a href="https://chat.whatsapp.com/FH8knELNs0E5ZMd7XxH5YB" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
-            <FaWhatsapp size={24} />
-          </a>
-          <a href="https://www.linkedin.com/company/ktusdc/about/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-400">
-            <BsLinkedin size={24} />
-          </a>
-        </div> */
-        }
       </div>
     </footer>
   );

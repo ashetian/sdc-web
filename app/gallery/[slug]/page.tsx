@@ -38,17 +38,24 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
 
   if (!announcement) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">Galeri etkinliği bulunamadı.</div>
+      <div className="min-h-screen flex items-center justify-center bg-neo-yellow">
+        <div className="bg-white border-4 border-black shadow-neo p-8 text-2xl font-black text-black">
+          Galeri etkinliği bulunamadı.
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-secondary-900 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-secondary-800/50 backdrop-blur-sm rounded-xl p-8">
-          <Link href="/gallery" className="text-blue-400 hover:underline text-sm mb-4 inline-block">← Galeriye Dön</Link>
+    <div className="min-h-screen bg-neo-purple py-20 border-b-4 border-black">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform rotate-1">
+          <Link href="/gallery" className="text-black font-black hover:underline mb-6 inline-block uppercase text-sm">
+            ← Galeriye Dön
+          </Link>
+
           {announcement.galleryCover && (
-            <div className="mb-8 overflow-hidden rounded-lg">
+            <div className="mb-8 border-4 border-black shadow-neo">
               <Image
                 src={announcement.galleryCover}
                 alt={announcement.title}
@@ -58,42 +65,50 @@ export default async function GalleryDetailPage({ params }: { params: { slug: st
               />
             </div>
           )}
-          <div className="flex items-center justify-between mb-4">
+
+          <div className="flex items-center justify-between mb-6">
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset 
-                ${announcement.type === "event" ? "bg-purple-600/20 text-purple-400 ring-purple-500/30" : 
-                  announcement.type === "news" ? "bg-blue-600/20 text-blue-400 ring-blue-500/30" : 
-                  "bg-green-600/20 text-green-400 ring-green-500/30"}
+              className={`px-4 py-1 text-sm font-black uppercase border-2 border-black shadow-neo-sm
+                ${announcement.type === "event" ? "bg-neo-purple text-white" :
+                  announcement.type === "news" ? "bg-neo-blue text-black" :
+                    "bg-neo-green text-black"}
               `}
             >
               {announcement.type === "event" ? "Etkinlik" : announcement.type === "news" ? "Duyuru" : "Workshop"}
             </span>
-            <time className="text-sm text-gray-400">{announcement.date}</time>
+            <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{announcement.date}</time>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-6">{announcement.title}</h1>
+
+          <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight">{announcement.title}</h1>
+
           {announcement.galleryDescription && (
-            <p className="text-primary-200 text-lg mb-6 whitespace-pre-line">{announcement.galleryDescription}</p>
+            <p className="text-black font-medium text-lg mb-8 whitespace-pre-line border-l-4 border-black pl-4">
+              {announcement.galleryDescription}
+            </p>
           )}
+
           {announcement.galleryLinks && announcement.galleryLinks.length > 0 && (
             <div className="space-y-8">
               {announcement.galleryLinks.map((link, i) => (
-                <div key={i} className="w-full">
+                <div key={i} className="w-full border-4 border-black shadow-neo bg-black p-2">
                   {isImage(link) ? (
                     <Image
                       src={link}
                       alt={`Galeri görseli ${i + 1}`}
                       width={800}
                       height={500}
-                      className="w-full rounded-lg object-contain bg-black"
+                      className="w-full object-contain bg-black"
                     />
                   ) : isVideo(link) ? (
                     <video
                       src={link}
                       controls
-                      className="w-full rounded-lg bg-black"
+                      className="w-full bg-black"
                     />
                   ) : (
-                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">Dosyayı Görüntüle</a>
+                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-white font-bold underline p-4 block text-center hover:text-neo-yellow">
+                      Dosyayı Görüntüle
+                    </a>
                   )}
                 </div>
               ))}

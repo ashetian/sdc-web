@@ -23,12 +23,6 @@ interface TeamModalProps {
   color?: string;
 }
 
-const isGradient = (c?: string) =>
-  !!c &&
-  (c.includes("gradient(") ||
-    c.includes("linear-gradient") ||
-    c.includes("radial-gradient"));
-
 export default function TeamModal({
   open,
   onClose,
@@ -38,7 +32,6 @@ export default function TeamModal({
   const panelRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
 
-  // body scroll kilidi
   useEffect(() => {
     if (!open) return;
     const orig = document.body.style.overflow;
@@ -48,50 +41,20 @@ export default function TeamModal({
     };
   }, [open]);
 
-  // ESC ve basit focus trap
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "Tab") {
-        const panel = panelRef.current;
-        if (!panel) return;
-        const nodes = panel.querySelectorAll<HTMLElement>(
-          'a[href],button,textarea,input,select,[tabindex]:not([tabindex="-1"])'
-        );
-        if (!nodes.length) return;
-        const first = nodes[0];
-        const last = nodes[nodes.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  // açıldığında odağı kapat butonuna taşı
   useEffect(() => {
     if (open) closeBtnRef.current?.focus();
   }, [open]);
 
   if (!open) return null;
-
-  const headStyle: React.CSSProperties = color
-    ? isGradient(color)
-      ? { background: color }
-      : { background: color }
-    : { background: "linear-gradient(135deg,#111827,#000)" };
-
-  // text color from border color
-  const textstyle: React.CSSProperties = member.borderColor
-    ? { color: member.borderColor }
-    : { color: "white" };
 
   const content = (
     <div
@@ -102,24 +65,23 @@ export default function TeamModal({
     >
       {/* backdrop */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* panel */}
       <div
         ref={panelRef}
-        className="relative z-10 w-full max-w-2xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden text-white"
-        style={{ background: "rgba(24,24,27,0.92)" }} // zinc-900/90 benzeri
+        className="relative z-10 w-full max-w-2xl border-4 border-black shadow-neo-lg bg-white overflow-hidden text-black"
       >
         {/* üst renk şeridi */}
-        <div className="h-2 w-full" style={headStyle} />
+        <div className="h-4 w-full border-b-4 border-black" style={{ background: color }} />
 
         {/* kapat */}
         <button
           ref={closeBtnRef}
           onClick={onClose}
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-md bg-red-800/60 hover:bg-red-800/80 focus:outline-none focus:ring-0"
+          className="absolute right-4 top-6 inline-flex h-10 w-10 items-center justify-center bg-black text-white border-2 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all z-20 font-bold"
           aria-label="Kapat"
           title="Kapat"
         >
@@ -129,38 +91,38 @@ export default function TeamModal({
         {/* içerik */}
         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr]">
           {/* sol: görsel */}
-          <div className="relative bg-black">
+          <div className="relative bg-gray-100 border-r-0 sm:border-r-4 border-b-4 sm:border-b-0 border-black">
             {member.image ? (
               <Image
                 src={member.image}
                 alt={member.name}
                 width={800}
                 height={800}
-                className="w-full h-full aspect-square object-cover sm:aspect-auto"
+                className="w-full h-full aspect-square object-cover sm:aspect-auto grayscale hover:grayscale-0 transition-all"
               />
             ) : (
-              <div className="w-full h-full aspect-square sm:aspect-auto flex items-center justify-center text-zinc-400">
+              <div className="w-full h-full aspect-square sm:aspect-auto flex items-center justify-center text-black">
                 <User size={64} />
               </div>
             )}
           </div>
 
           {/* sağ: metinler */}
-          <div className="p-5 sm:p-6">
-            <h3 className="text-2xl font-bold leading-tight">{member.name}</h3>
+          <div className="p-6 sm:p-8 bg-white">
+            <h3 className="text-3xl font-black leading-tight uppercase mb-2">{member.name}</h3>
 
             {(member.role || member.subtitle) && (
-              <p className="font-medium mt-1" style={textstyle}>
+              <p className="font-bold text-lg mb-4 inline-block px-2 py-1 border-2 border-black shadow-neo-sm" style={{ backgroundColor: color }}>
                 {member.role || member.subtitle}
               </p>
             )}
 
             {(member.handle || member.email || member.location) && (
-              <div className="mt-1 text-sm text-zinc-400 flex flex-wrap gap-2">
+              <div className="mt-2 text-sm font-bold text-gray-600 flex flex-wrap gap-4">
                 {member.handle && <span>{member.handle}</span>}
                 {member.email && (
                   <a
-                    className="underline/30 hover:underline"
+                    className="hover:underline"
                     href={`mailto:${member.email}`}
                   >
                     {member.email}
@@ -173,21 +135,21 @@ export default function TeamModal({
             )}
 
             {member.description && (
-              <p className="text-zinc-200 mt-4 text-warp">
+              <p className="text-black mt-6 font-medium border-l-4 border-black pl-4">
                 {member.description}
               </p>
             )}
 
             {/* sosyal/aksiyonlar */}
-            <div className="flex flex-wrap items-center gap-2 mt-6">
+            <div className="flex flex-wrap items-center gap-3 mt-8">
               {member.website && (
                 <a
                   href={member.website}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-sm inline-flex items-center gap-2"
+                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
-                  <Globe size={16} />
+                  <Globe size={20} />
                 </a>
               )}
               {member.linkedin && (
@@ -195,9 +157,9 @@ export default function TeamModal({
                   href={member.linkedin}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-sm inline-flex items-center gap-2"
+                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
-                  <Linkedin size={16} />
+                  <Linkedin size={20} />
                 </a>
               )}
               {member.github && (
@@ -205,9 +167,9 @@ export default function TeamModal({
                   href={member.github}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-sm inline-flex items-center gap-2"
+                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
-                  <Github size={16} />
+                  <Github size={20} />
                 </a>
               )}
               {member.x && (
@@ -215,9 +177,9 @@ export default function TeamModal({
                   href={member.x}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-sm inline-flex items-center gap-2"
+                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
-                  <Twitter size={16} />
+                  <Twitter size={20} />
                 </a>
               )}
               {member.instagram && (
@@ -225,9 +187,9 @@ export default function TeamModal({
                   href={member.instagram}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-sm inline-flex items-center gap-2"
+                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
-                  <Instagram size={16} />
+                  <Instagram size={20} />
                 </a>
               )}
               {member.freelance && (
@@ -235,9 +197,9 @@ export default function TeamModal({
                   href={member.freelance}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-sm inline-flex items-center gap-2"
+                  className="px-4 py-2 bg-neo-green text-black font-bold border-2 border-black hover:shadow-neo transition-all inline-flex items-center gap-2"
                 >
-                  <Briefcase size={16} />
+                  <Briefcase size={18} />
                   <span>Hizmet Al</span>
                 </a>
               )}
@@ -246,20 +208,19 @@ export default function TeamModal({
         </div>
 
         {/* alt bar */}
-        <div className="flex justify-end gap-2 p-4 border-t border-white/10">
+        <div className="flex justify-end gap-4 p-4 border-t-4 border-black bg-gray-50">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white/15 hover:bg-white/25 inline-flex items-center gap-2"
+            className="px-6 py-2 bg-white text-black font-bold border-2 border-black hover:shadow-neo transition-all"
           >
             <span>Kapat</span>
           </button>
           {member.email && (
             <a
               href={`mailto:${member.email}`}
-              className="px-4 py-2 rounded-lg inline-flex items-center gap-2"
-              style={headStyle}
+              className="px-6 py-2 bg-black text-white font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all inline-flex items-center gap-2"
             >
-              <Mail size={16} />
+              <Mail size={18} />
               <span>İletişime Geç</span>
             </a>
           )}
@@ -268,7 +229,6 @@ export default function TeamModal({
     </div>
   );
 
-  // portal: tam ekran & layout'tan bağımsız
   return typeof document !== "undefined"
     ? createPortal(content, document.body)
     : content;

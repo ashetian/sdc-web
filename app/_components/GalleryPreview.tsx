@@ -34,30 +34,32 @@ export default async function GalleryPreview() {
 
   return (
     <section
-      className="py-20 bg-secondary-900 scroll-mt-20"
+      className="py-20 bg-neo-purple border-b-4 border-black scroll-mt-20"
       id="gallery-preview"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+        <div className="mb-12 text-center">
+          <h2 className="inline-block text-4xl sm:text-5xl font-black text-black mb-4 bg-white border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
             Galeri
           </h2>
-          <Link
-            href="/gallery"
-            className="text-blue-400 hover:underline text-sm font-medium"
-          >
-            Tümünü Gör
-          </Link>
+          <div className="mt-4">
+            <Link
+              href="/gallery"
+              className="inline-block px-6 py-2 bg-black text-white font-bold border-2 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all"
+            >
+              Tümünü Gör
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-6 overflow-x-auto pb-2 custom-scrollbar">
+        <div className="flex gap-8 overflow-x-auto pb-8 custom-scrollbar">
           {announcements.map((a) => (
             <Link
               key={a.slug}
               href={`/gallery/${a.slug}`}
-              className="min-w-[320px] max-w-xs bg-secondary-800/50 rounded-xl shadow p-4 flex flex-col hover:ring-2 hover:ring-primary-400 transition-all"
+              className="min-w-[320px] max-w-xs bg-white border-4 border-black shadow-neo p-4 flex flex-col hover:-translate-y-2 hover:shadow-neo-lg transition-all"
             >
               {a.galleryCover && (
-                <div className="mb-3 overflow-hidden rounded-lg">
+                <div className="mb-3 overflow-hidden border-2 border-black shadow-neo-sm">
                   <Image
                     src={a.galleryCover}
                     alt={a.title}
@@ -67,30 +69,29 @@ export default async function GalleryPreview() {
                   />
                 </div>
               )}
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-2">
                 <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset 
-                    ${
-                      a.type === "event"
-                        ? "bg-purple-600/20 text-purple-400 ring-purple-500/30"
-                        : a.type === "news"
-                        ? "bg-blue-600/20 text-blue-400 ring-blue-500/30"
-                        : "bg-green-600/20 text-green-400 ring-green-500/30"
+                  className={`px-2 py-0.5 text-xs font-bold border-2 border-black shadow-neo-sm
+                    ${a.type === "event"
+                      ? "bg-neo-purple text-white"
+                      : a.type === "news"
+                        ? "bg-neo-blue text-black"
+                        : "bg-neo-green text-black"
                     }
                   `}
                 >
                   {a.type === "event"
                     ? "Etkinlik"
                     : a.type === "news"
-                    ? "Duyuru"
-                    : "Workshop"}
+                      ? "Duyuru"
+                      : "Workshop"}
                 </span>
-                <time className="text-xs text-gray-400">{a.date}</time>
+                <time className="text-xs font-bold text-black bg-gray-100 px-2 py-0.5 border-2 border-black shadow-neo-sm">{a.date}</time>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
+              <h3 className="text-lg font-black text-black mb-1 line-clamp-1 uppercase">
                 {a.title}
               </h3>
-              <p className="text-gray-300 text-sm mb-2 line-clamp-2">
+              <p className="text-black font-medium text-sm mb-2 line-clamp-2 border-t-2 border-black pt-2">
                 {a.galleryDescription || a.description}
               </p>
             </Link>

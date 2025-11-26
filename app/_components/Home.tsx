@@ -1,227 +1,109 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function Home() {
-  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef(null);
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const buttonsRef = useRef(null);
+  const statsRef = useRef(null);
 
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+  useGSAP(() => {
+    const tl = gsap.timeline();
+
+    tl.from(titleRef.current, {
+      y: 100,
+      opacity: 0,
+      duration: 1,
+      ease: "power4.out",
+    })
+      .from(subtitleRef.current, {
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+      }, "-=0.5")
+      .from(buttonsRef.current, {
+        scale: 0.8,
+        opacity: 0,
+        duration: 0.5,
+        ease: "back.out(1.7)",
+      }, "-=0.3")
+      .from(statsRef.current, {
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power2.out",
+      }, "-=0.3");
+
+  }, { scope: containerRef });
 
   return (
     <section
       id="home"
-      className="h-screen w-[100vw] flex items-center justify-center overflow-hidden"
+      ref={containerRef}
+      className="min-h-screen w-full flex mt-24 items-center justify-center overflow-hidden bg-neo-white relative border-b-4 border-black"
     >
-      <InteractiveBackground />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#000 2px, transparent 2px)',
+          backgroundSize: '30px 30px'
+        }}
+      />
 
-      <div
-        className={`flex flex-col z-10 w-full text-center px-4 sm:px-6 lg:px-8 gap-3 transform transition-all duration-1000 ${
-          isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-        }`}
-      >
-        <h1 className="text-4xl md:text-6xl font-bold text-white ">
-          <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
-            KTU Software Development Club
-          </span>
-        </h1>
+      <div className="flex mt-2 flex-col z-10 w-full text-center px-4 sm:px-6 lg:px-8 gap-6">
+        <div ref={titleRef} className="bg-neo-yellow border-4 border-black shadow-neo-lg p-6 inline-block mx-auto transform -rotate-2">
+          <h1 className="text-4xl md:text-7xl font-black text-black uppercase tracking-tighter">
+            KTU Software
+            <br />
+            Development Club
+          </h1>
+        </div>
 
-        <h1 className="text-2xl md:text-4xl font-semibold text-white">
-          <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
-            KTÜ Yazılım Geliştirme Kulübü
-          </span>
-        </h1>
+        <div ref={subtitleRef} className="bg-neo-blue border-4 border-black shadow-neo p-4 mx-auto transform rotate-1 max-w-3xl">
+          <h2 className="text-xl md:text-3xl font-bold text-black">
+            Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için inovasyon merkezi
+          </h2>
+        </div>
 
-        <p className="text-md md:text-xl text-gray-200 max-w-3xl mx-auto">
-          Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için
-          inovasyon ve öğrenme merkezi
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-8">
           <button
             onClick={() => {
-              document
-                .getElementById("about")
-                ?.scrollIntoView({ behavior: "smooth" });
+              document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="w-64 sm:w-auto px-8 py-3 bg-primary-500 text-white rounded-full font-medium 
-                     hover:bg-primary-600 transform hover:scale-105 transition-all duration-300
-                     shadow-lg hover:shadow-primary-500/50"
+            className="w-64 sm:w-auto px-8 py-4 bg-neo-pink text-black border-4 border-black shadow-neo font-black text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
           >
             Bizi Tanıyın
           </button>
 
           <button
             onClick={() => {
-              document
-                .getElementById("contact")
-                ?.scrollIntoView({ behavior: "smooth" });
+              document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="w-64 sm:w-auto px-8 py-3 bg-white/10 text-white rounded-full font-medium 
-                     backdrop-blur-sm hover:bg-white/20 transform hover:scale-105 
-                     transition-all duration-300 border border-white/30"
+            className="w-64 sm:w-auto px-8 py-4 bg-white text-black border-4 border-black shadow-neo font-black text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
           >
             İletişime Geçin
           </button>
         </div>
 
-        <div className="mt-16 grid grid-cols-2 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
-          <Stat number="220+" text="Üye" />
-          <Stat number="2" text="Proje" />
-          <Stat number="12" text="Etkinlik" />
+        <div ref={statsRef} className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto w-full">
+          <Stat number="220+" text="Üye" color="bg-neo-green" />
+          <Stat number="2" text="Proje" color="bg-neo-purple" />
+          <Stat number="12" text="Etkinlik" color="bg-neo-orange" />
         </div>
       </div>
     </section>
   );
 }
 
-function Stat({ number, text }: { number: string; text: string }) {
+function Stat({ number, text, color }: { number: string; text: string; color: string }) {
   return (
-    <div className="text-center">
-      <div className="text-3xl font-bold text-white mb-2">{number}</div>
-      <div className="text-gray-300">{text}</div>
+    <div className={`${color} border-4 border-black shadow-neo p-6 transform hover:-translate-y-2 transition-transform`}>
+      <div className="text-5xl font-black text-black mb-2">{number}</div>
+      <div className="text-xl font-bold text-black uppercase">{text}</div>
     </div>
-  );
-}
-
-function InteractiveBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    function resize() {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-    resize();
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
-  }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || dimensions.width === 0 || dimensions.height === 0) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animationFrameId: number;
-    let particles: {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      size: number;
-      color: string;
-    }[] = [];
-    const colors = ["#a855f7", "#f472b6", "#38bdf8", "#facc15"];
-    const PARTICLE_COUNT = Math.max(80, Math.floor(window.innerWidth / 12));
-
-    function initParticles() {
-      particles = [];
-      const c = canvasRef.current!;
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        particles.push({
-          x: Math.random() * c.width,
-          y: Math.random() * c.height,
-          vx: (Math.random() - 0.5) * 0.7,
-          vy: (Math.random() - 0.5) * 0.7,
-          size: 2 + Math.random() * 3,
-          color: colors[Math.floor(Math.random() * colors.length)],
-        });
-      }
-    }
-
-    const mouse = { x: -1000, y: -1000 };
-    function handleMouseMove(e: MouseEvent) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    }
-    function handleTouchMove(e: TouchEvent) {
-      if (e.touches.length > 0) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
-      }
-    }
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("touchmove", handleTouchMove);
-
-    function draw() {
-      const c = canvasRef.current;
-      const context = c?.getContext("2d");
-      if (!c || !context) return;
-      context.clearRect(0, 0, c.width, c.height);
-      const grad = context.createLinearGradient(0, 0, c.width, c.height);
-      grad.addColorStop(0, "#1e293b");
-      grad.addColorStop(1, "#0f172a");
-      context.fillStyle = grad;
-      context.fillRect(0, 0, c.width, c.height);
-
-      // Particles
-      for (const p of particles) {
-        // Mouse yakınsa büyüt
-        const dist = Math.hypot(p.x - mouse.x, p.y - mouse.y);
-        let size = p.size;
-        if (dist < 80) size += (80 - dist) * 0.08;
-        context.beginPath();
-        context.arc(p.x, p.y, size, 0, Math.PI * 2);
-        context.fillStyle = p.color + "cc";
-        context.shadowColor = p.color;
-        context.shadowBlur = 12;
-        context.fill();
-        context.shadowBlur = 0;
-      }
-
-      // Bağlantı çizgileri
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i];
-          const b = particles[j];
-          const dist = Math.hypot(a.x - b.x, a.y - b.y);
-          if (dist < 120) {
-            context.save();
-            context.globalAlpha = 0.12 + (1 - dist / 120) * 0.18;
-            context.strokeStyle = a.color;
-            context.beginPath();
-            context.moveTo(a.x, a.y);
-            context.lineTo(b.x, b.y);
-            context.stroke();
-            context.globalAlpha = 1;
-            context.restore();
-          }
-        }
-      }
-
-      // Hareket
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > c!.width) p.vx *= -1;
-        if (p.y < 0 || p.y > c!.height) p.vy *= -1;
-      }
-
-      animationFrameId = requestAnimationFrame(draw);
-    }
-
-    initParticles();
-    draw();
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("touchmove", handleTouchMove);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [dimensions]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      width={dimensions.width}
-      height={dimensions.height}
-      className="absolute inset-0 w-full h-full block"
-      style={{ zIndex: 0 }}
-    />
   );
 }

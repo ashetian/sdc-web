@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "@gsap/react": "^2.1.2",
     "@heroicons/react": "^2.2.0",
     "@nextui-org/modal": "^2.2.5",
     "@nextui-org/react": "^2.6.8",

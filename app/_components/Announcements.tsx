@@ -1,6 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Announcement {
   slug: string;
@@ -14,27 +19,37 @@ interface Announcement {
 }
 
 export default function Announcements() {
-  const [isVisible, setIsVisible] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef(null);
+  const cardsRef = useRef(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.1 }
-    );
+  useGSAP(() => {
+    if (announcements.length > 0) {
+      gsap.from(titleRef.current, {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+        },
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power2.out",
+      });
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+      gsap.from(".announcement-card", {
+        scrollTrigger: {
+          trigger: cardsRef.current,
+          start: "top 80%",
+        },
+        y: 100,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.2,
+        ease: "back.out(1.7)",
+      });
     }
-
-    return () => observer.disconnect();
-  }, []);
+  }, { scope: sectionRef, dependencies: [announcements] });
 
   useEffect(() => {
     async function loadAnnouncements() {
@@ -42,7 +57,6 @@ export default function Announcements() {
         const res = await fetch("/api/announcements");
         if (!res.ok) throw new Error("Duyurular alınamadı");
         const data = await res.json();
-        // Taslak olmayan duyuruları filtrele
         const publishedAnnouncements = data.filter(
           (a: Announcement) => !a.isDraft
         );
@@ -58,11 +72,11 @@ export default function Announcements() {
   const getTypeStyles = (type: Announcement["type"]) => {
     switch (type) {
       case "event":
-        return "bg-purple-500/10 text-purple-400 ring-purple-500/30";
+        return "bg-neo-purple text-white border-2 border-black";
       case "news":
-        return "bg-blue-500/10 text-blue-400 ring-blue-500/30";
+        return "bg-neo-blue text-black border-2 border-black";
       case "workshop":
-        return "bg-green-500/10 text-green-400 ring-green-500/30";
+        return "bg-neo-green text-black border-2 border-black";
     }
   };
 
@@ -81,100 +95,65 @@ export default function Announcements() {
     <section
       ref={sectionRef}
       id="announcements"
-      className="relative py-20 bg-gradient-to-b from-secondary-900 to-secondary-800 overflow-hidden"
+      className="relative py-20 bg-neo-yellow border-b-4 border-black"
     >
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-secondary-900 opacity-90" />
-        <div className="absolute inset-0 bg-gradient-to-bl from-primary-500/10 via-transparent to-secondary-900/50" />
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)`,
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          className={`text-center transform transition-all duration-1000 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-          }`}
-        >
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+        <div className="text-center mb-16">
+          <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-6 py-2 transform rotate-1">
             Duyurular
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-16">
+          <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-4">
             En güncel etkinlik ve duyurularımızdan haberdar olun.
           </p>
+        </div>
 
-          <div className="flex gap-8 overflow-x-auto pb-2 custom-scrollbar">
-            {announcements.map((announcement, index) => (
-              <a
-                href={`/announcements/${announcement.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                key={index}
-                className={`min-w-[320px] max-w-xs group bg-secondary-800/50 backdrop-blur-sm rounded-xl p-6 flex flex-col
-                          transform transition-all duration-500 hover:scale-105 hover:bg-secondary-700/50
-                          ${
-                            isVisible
-                              ? "translate-y-0 opacity-100"
-                              : "translate-y-10 opacity-0"
-                          }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                {announcement.image && (
-                  <div className="mb-4 overflow-hidden rounded-lg">
-                    <Image
-                      src={announcement.image}
-                      alt={announcement.title}
-                      width={400}
-                      height={300}
-                      className="w-full h-48 object-cover transform transition-transform group-hover:scale-110"
-                    />
-                  </div>
-                )}
-                <div className="flex items-center justify-between mb-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${getTypeStyles(
-                      announcement.type
-                    )}`}
-                  >
-                    {getTypeText(announcement.type)}
-                  </span>
-                  <time className="text-sm text-gray-400">
-                    {announcement.date}
-                  </time>
+        <div ref={cardsRef} className="flex gap-8 overflow-x-auto pb-8 custom-scrollbar">
+          {announcements.map((announcement, index) => (
+            <a
+              href={`/announcements/${announcement.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              key={index}
+              className="announcement-card min-w-[320px] max-w-xs group bg-white border-4 border-black shadow-neo p-4 flex flex-col
+                        transform transition-all duration-200 hover:-translate-y-2 hover:shadow-neo-lg"
+            >
+              {announcement.image && (
+                <div className="mb-4 overflow-hidden border-2 border-black shadow-neo-sm">
+                  <Image
+                    src={announcement.image}
+                    alt={announcement.title}
+                    width={400}
+                    height={300}
+                    className="w-full h-48 object-cover transform transition-transform group-hover:scale-110"
+                  />
                 </div>
+              )}
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className={`px-3 py-1 text-sm font-bold shadow-neo-sm ${getTypeStyles(
+                    announcement.type
+                  )}`}
+                >
+                  {getTypeText(announcement.type)}
+                </span>
+                <time className="text-sm font-bold text-black bg-gray-200 px-2 py-1 border-2 border-black shadow-neo-sm">
+                  {announcement.date}
+                </time>
+              </div>
 
-                <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-primary-400 transition-colors">
-                  {announcement.title}
-                </h3>
+              <h3 className="text-xl font-black text-black mb-3 uppercase group-hover:text-neo-purple transition-colors">
+                {announcement.title}
+              </h3>
 
-                <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
-                  {announcement.description}
-                </p>
+              <p className="text-black font-medium mb-4 line-clamp-3 border-t-2 border-black pt-2">
+                {announcement.description}
+              </p>
 
-                <button className="mt-auto text-primary-400 hover:text-primary-300 transition-colors text-sm font-medium inline-flex items-center group">
-                  Detayları Gör
-                  <svg
-                    className="w-4 h-4 ml-1 transform transition-transform group-hover:translate-x-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              </a>
-            ))}
-          </div>
+              <button className="mt-auto w-full py-2 bg-black text-white font-bold border-2 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all">
+                Detayları Gör
+              </button>
+            </a>
+          ))}
         </div>
       </div>
     </section>

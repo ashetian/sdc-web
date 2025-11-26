@@ -4,14 +4,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #000000;
 }
 
 body {
@@ -20,15 +13,31 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@layer base {
+  button {
+    @apply border-2 border-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200;
+    box-shadow: 4px 4px 0px 0px #000000;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply border-2 border-black focus:outline-none focus:ring-0;
+    box-shadow: 2px 2px 0px 0px #000000;
+  }
+}
+
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #5492de transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar {
   height: 8px;
   border-radius: 8px;
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #5492de;
   border-radius: 8px;
