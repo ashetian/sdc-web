@@ -98,7 +98,7 @@ export default function TeamModal({
                 alt={member.name}
                 width={800}
                 height={800}
-                className="w-full h-full aspect-square object-cover sm:aspect-auto grayscale hover:grayscale-0 transition-all"
+                className="w-full h-full aspect-square object-cover sm:aspect-auto transition-all"
               />
             ) : (
               <div className="w-full h-full aspect-square sm:aspect-auto flex items-center justify-center text-black">

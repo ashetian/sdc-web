@@ -45,7 +45,6 @@ export default function About() {
         start: "top 80%",
       },
       y: 50,
-      opacity: 0,
       duration: 0.8,
       ease: "power2.out",
     });
@@ -56,7 +55,6 @@ export default function About() {
         start: "top 80%",
       },
       y: 100,
-      opacity: 0,
       duration: 0.6,
       stagger: 0.2,
       ease: "back.out(1.7)",
