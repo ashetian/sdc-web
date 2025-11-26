@@ -80,7 +80,7 @@ export default function About() {
           <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-neo-yellow border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
             Hakkımızda
           </h2>
-          <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-8 border-2 border-black p-4 bg-gray-100 shadow-neo-sm">
+          <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-4 border-2 border-black p-4 bg-gray-100 shadow-neo-sm">
             KTÜ Software Development Club, yazılım dünyasında kendini
             geliştirmek isteyen öğrenciler için bir öğrenme ve gelişim
             platformudur.

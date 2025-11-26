@@ -1,6 +1,7 @@
+"use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
 
 interface Announcement {
   slug: string;
@@ -14,23 +15,29 @@ interface Announcement {
   galleryDescription?: string;
 }
 
-async function getGalleryAnnouncements(): Promise<Announcement[]> {
-  const headersList = headers();
-  const host = headersList.get("host");
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  const baseUrl = `${protocol}://${host}`;
-  const res = await fetch(`${baseUrl}/api/announcements`, {
-    cache: "no-store",
-  });
-  if (!res.ok) return [];
-  const data: Announcement[] = await res.json();
-  return data.filter((a) => a.isInGallery).slice(0, 15); // Son 15 galeri etkinliği
-}
+export default function GalleryPreview() {
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function GalleryPreview() {
-  const announcements = await getGalleryAnnouncements();
+  useEffect(() => {
+    async function loadGallery() {
+      try {
+        const res = await fetch("/api/announcements");
+        if (!res.ok) throw new Error("Galeri yüklenemedi");
+        const data: Announcement[] = await res.json();
+        const galleryItems = data.filter((a) => a.isInGallery).slice(0, 15);
+        setAnnouncements(galleryItems);
+      } catch (error) {
+        console.error("Galeri yüklenirken hata:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  // if (announcements.length === 0) return null;
+    loadGallery();
+  }, []);
+
+  if (loading) return null;
 
   return (
     <section

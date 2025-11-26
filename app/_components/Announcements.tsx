@@ -100,7 +100,7 @@ export default function Announcements() {
           <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-6 py-2 transform rotate-1">
             Duyurular
           </h2>
-          <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-4">
+          <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-2">
             En güncel etkinlik ve duyurularımızdan haberdar olun.
           </p>
         </div>
