@@ -1,6 +1,7 @@
+"use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
 
 interface Announcement {
   slug: string;
@@ -12,17 +13,7 @@ interface Announcement {
   galleryLinks?: string[];
   galleryCover?: string;
   galleryDescription?: string;
-}
-
-async function getAnnouncement(slug: string): Promise<Announcement | null> {
-  const headersList = headers();
-  const host = headersList.get("host");
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  const baseUrl = `${protocol}://${host}`;
-  const res = await fetch(`${baseUrl}/api/announcements/${slug}`);
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.isInGallery ? data : null;
+  isInGallery?: boolean;
 }
 
 function isImage(url: string) {
@@ -33,8 +24,36 @@ function isVideo(url: string) {
   return url.match(/\.(mp4|webm|mov)$/i) || url.includes("video/upload");
 }
 
-export default async function GalleryDetailPage({ params }: { params: { slug: string } }) {
-  const announcement = await getAnnouncement(params.slug);
+export default function GalleryDetailPage({ params }: { params: { slug: string } }) {
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadAnnouncement() {
+      try {
+        const res = await fetch(`/api/announcements/${params.slug}`);
+        if (!res.ok) throw new Error("Duyuru yüklenemedi");
+        const data = await res.json();
+        if (data.isInGallery) {
+          setAnnouncement(data);
+        }
+      } catch (error) {
+        console.error("Duyuru yüklenirken hata:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAnnouncement();
+  }, [params.slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neo-purple">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+      </div>
+    );
+  }
 
   if (!announcement) {
     return (

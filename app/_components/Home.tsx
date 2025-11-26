@@ -44,7 +44,7 @@ export default function Home() {
     <section
       id="home"
       ref={containerRef}
-      className="min-h-screen w-full flex mt-24 items-center justify-center overflow-hidden bg-neo-white relative border-b-4 border-black"
+      className="min-h-screen w-full flex pt-40 pb-20 items-center justify-center overflow-hidden bg-neo-white relative border-b-4 border-black"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10 pointer-events-none"
@@ -54,7 +54,7 @@ export default function Home() {
         }}
       />
 
-      <div className="flex mt-2 flex-col z-10 w-full text-center px-4 sm:px-6 lg:px-8 gap-6">
+      <div className="flex flex-col z-10 w-full text-center px-4 sm:px-6 lg:px-8 gap-6">
         <div ref={titleRef} className="bg-neo-yellow border-4 border-black shadow-neo-lg p-6 inline-block mx-auto transform -rotate-2">
           <h1 className="text-4xl md:text-7xl font-black text-black uppercase tracking-tighter">
             KTU Software

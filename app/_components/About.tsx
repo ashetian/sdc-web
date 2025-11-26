@@ -54,7 +54,7 @@ export default function About() {
         trigger: cardsRef.current,
         start: "top 80%",
       },
-      y: 100,
+      y: 30,
       duration: 0.6,
       stagger: 0.2,
       ease: "back.out(1.7)",

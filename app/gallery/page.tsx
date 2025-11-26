@@ -1,6 +1,7 @@
+"use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
 
 interface Announcement {
   slug: string;
@@ -14,19 +15,34 @@ interface Announcement {
   galleryDescription?: string;
 }
 
-async function getGalleryAnnouncements(): Promise<Announcement[]> {
-  const headersList = headers();
-  const host = headersList.get("host");
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  const baseUrl = `${protocol}://${host}`;
-  const res = await fetch(`${baseUrl}/api/announcements`, { cache: "no-store" });
-  if (!res.ok) return [];
-  const data: Announcement[] = await res.json();
-  return data.filter((a) => a.isInGallery);
-}
+export default function GalleryPage() {
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function GalleryPage() {
-  const announcements = await getGalleryAnnouncements();
+  useEffect(() => {
+    async function loadGallery() {
+      try {
+        const res = await fetch("/api/announcements");
+        if (!res.ok) throw new Error("Galeri yüklenemedi");
+        const data: Announcement[] = await res.json();
+        setAnnouncements(data.filter((a) => a.isInGallery));
+      } catch (error) {
+        console.error("Galeri yüklenirken hata:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadGallery();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neo-purple">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+      </div>
+    );
+  }
 
   return (
     <section className="py-20 bg-neo-purple min-h-screen border-b-4 border-black">
