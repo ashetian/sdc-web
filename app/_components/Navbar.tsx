@@ -125,7 +125,7 @@ function MobileNavLink({ onClick, text }: { onClick: () => void; text: string })
   return (
     <button
       onClick={onClick}
-      className="block w-full text-left px-4 py-3 text-base font-bold text-black border-b-2 border-gray-100 hover:bg-neo-yellow hover:border-black transition-colors duration-200"
+      className="block w-full text-left px-4 py-3 text-base font-bold text-black border-b-2 border-gray-100 hover:bg-neo-blue hover:border-black transition-colors duration-200"
     >
       {text}
     </button>
