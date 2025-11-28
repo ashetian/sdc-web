@@ -8,27 +8,27 @@ gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
-    title: "Eğitim ve Gelişim",
-    description: "Modern yazılım teknolojileri ve metodolojileri üzerine düzenli eğitimler",
-    icon: "🎓",
+    title: "Proje Departmanı",
+    description: "Kulüp etkinlikleri ve yazılım projeleri için fikir üretip planlama, görev dağıtımı ve teknik gereksinimleri belirleme sürecini yürütür.",
+    icon: "🧩",
     color: "bg-neo-blue"
   },
   {
-    title: "Proje Deneyimi",
-    description: "Gerçek dünya projelerinde pratik deneyim kazanma fırsatı",
-    icon: "💻",
+    title: "Teknik Departman",
+    description: "Yazılım geliştirme, proje geliştirme, altyapı, web sitesi, otomasyon ve teknik sorun çözme gibi tüm teknik uygulamaları gerçekleştirir.",
+    icon: "🛠️",
     color: "bg-neo-green"
   },
   {
-    title: "Networking",
-    description: "Sektör profesyonelleri ve diğer öğrencilerle networking imkanı",
-    icon: "🤝",
+    title: "Medya Departmanı",
+    description: "Etkinlik duyuruları, sosyal medya yönetimi, tasarım, afiş-video içerikleri ve kulübün dış iletişim görünürlüğünü sağlar.",
+    icon: "📸",
     color: "bg-neo-purple"
   },
   {
-    title: "Kariyer Fırsatları",
-    description: "Staj ve iş fırsatları için sektör bağlantıları",
-    icon: "🚀",
+    title: "Sponsorluk Departmanı",
+    description: "Şirketlerle iletişim kurarak iş birlikleri, maddi-manevi destekler ve sponsorluk anlaşmalarını organize eder.",
+    icon: "🤝",
     color: "bg-neo-pink"
   },
 ];
