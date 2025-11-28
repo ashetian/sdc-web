@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 export default function CreateEventPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [posterPreview, setPosterPreview] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -18,6 +20,38 @@ export default function CreateEventPage() {
         price: '',
         iban: '',
     });
+
+    const handlePosterUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+
+        const file = e.target.files[0];
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+
+        setUploading(true);
+        try {
+            const res = await fetch('/api/upload/cloudinary', {
+                method: 'POST',
+                body: uploadFormData,
+            });
+
+            if (!res.ok) throw new Error('Afiş yüklenemedi');
+
+            const data = await res.json();
+            setPosterPreview(data.path);
+            setFormData({ ...formData, posterUrl: data.path });
+        } catch (error) {
+            console.error('Afiş yüklenirken hata:', error);
+            alert('Afiş yüklenirken bir hata oluştu.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleRemovePoster = () => {
+        setPosterPreview(null);
+        setFormData({ ...formData, posterUrl: '' });
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,17 +112,64 @@ export default function CreateEventPage() {
                 </div>
 
                 <div>
-                    <label htmlFor="posterUrl" className="block text-sm font-medium text-gray-700">
-                        Afiş URL (İsteğe Bağlı)
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Etkinlik Afişi (İsteğe Bağlı)
                     </label>
-                    <input
-                        type="url"
-                        id="posterUrl"
-                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
-                        value={formData.posterUrl}
-                        onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
-                        placeholder="https://example.com/image.jpg"
-                    />
+
+                    <div className="space-y-4">
+                        {/* File Upload */}
+                        <div>
+                            <label htmlFor="posterFile" className="block text-xs font-medium text-gray-600 mb-1">
+                                Dosya Yükle
+                            </label>
+                            <input
+                                type="file"
+                                id="posterFile"
+                                accept="image/*"
+                                onChange={handlePosterUpload}
+                                disabled={uploading}
+                                className="block w-full text-sm text-gray-900 bg-white border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+                            />
+                            {uploading && <p className="text-xs text-blue-600 mt-1">Yükleniyor...</p>}
+                        </div>
+
+                        {/* URL Input */}
+                        <div>
+                            <label htmlFor="posterUrl" className="block text-xs font-medium text-gray-600 mb-1">
+                                veya URL Girin
+                            </label>
+                            <input
+                                type="url"
+                                id="posterUrl"
+                                className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
+                                value={formData.posterUrl}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, posterUrl: e.target.value });
+                                    if (e.target.value) setPosterPreview(e.target.value);
+                                }}
+                                placeholder="https://example.com/image.jpg"
+                                disabled={uploading}
+                            />
+                        </div>
+
+                        {/* Preview */}
+                        {posterPreview && (
+                            <div className="relative">
+                                <img
+                                    src={posterPreview}
+                                    alt="Afiş önizlemesi"
+                                    className="w-full max-w-sm rounded-md border-2 border-gray-300"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleRemovePoster}
+                                    className="mt-2 inline-flex items-center px-3 py-1 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                >
+                                    Afişi Kaldır
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div>

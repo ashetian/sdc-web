@@ -65,7 +65,7 @@ export default function Home() {
 
         <div ref={subtitleRef} className="bg-neo-blue border-4 border-black shadow-neo p-4 mx-auto transform rotate-1 max-w-3xl mt-8">
           <h2 className="text-xl md:text-3xl font-bold text-black">
-            Yazılım geliştirme tutkusuyla bir araya gelen öğrenciler için inovasyon merkezi
+            Geleceği inşa ediyoruz!
           </h2>
         </div>
 

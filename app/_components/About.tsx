@@ -8,27 +8,27 @@ gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
-    title: "Eğitim ve Gelişim",
-    description: "Modern yazılım teknolojileri ve metodolojileri üzerine düzenli eğitimler",
-    icon: "🎓",
+    title: "Proje Departmanı",
+    description: "Kulüp etkinlikleri ve yazılım projeleri için fikir üretip planlama, görev dağıtımı ve teknik gereksinimleri belirleme sürecini yürütür.",
+    icon: "🧩",
     color: "bg-neo-blue"
   },
   {
-    title: "Proje Deneyimi",
-    description: "Gerçek dünya projelerinde pratik deneyim kazanma fırsatı",
-    icon: "💻",
+    title: "Teknik Departman",
+    description: "Yazılım geliştirme, proje geliştirme, altyapı, web sitesi, otomasyon ve teknik sorun çözme gibi tüm teknik uygulamaları gerçekleştirir.",
+    icon: "🛠️",
     color: "bg-neo-green"
   },
   {
-    title: "Networking",
-    description: "Sektör profesyonelleri ve diğer öğrencilerle networking imkanı",
-    icon: "🤝",
+    title: "Medya Departmanı",
+    description: "Etkinlik duyuruları, sosyal medya yönetimi, tasarım, afiş-video içerikleri ve kulübün dış iletişim görünürlüğünü sağlar.",
+    icon: "🛠️",
     color: "bg-neo-purple"
   },
   {
-    title: "Kariyer Fırsatları",
-    description: "Staj ve iş fırsatları için sektör bağlantıları",
-    icon: "🚀",
+    title: "Sponsorluk Departmanı",
+    description: "Şirketlerle iletişim kurarak iş birlikleri, maddi-manevi destekler ve sponsorluk anlaşmalarını organize eder.",
+    icon: "🤝",
     color: "bg-neo-pink"
   },
 ];
@@ -81,9 +81,11 @@ export default function About() {
             Hakkımızda
           </h2>
           <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-4 border-2 border-black p-4 bg-gray-100 shadow-neo-sm">
-            KTÜ Software Development Club, yazılım dünyasında kendini
-            geliştirmek isteyen öğrenciler için bir öğrenme ve gelişim
-            platformudur.
+            Karadeniz Teknik Üniversitesi Yazılım Geliştirme Kulübü,
+            yazılım dünyasında kendini geliştirmek isteyen öğrenciler
+            için yalnızca bir öğrenme alanı değil; gerçek hayat iş süreçlerini,
+            ekip çalışmasını ve proje geliştirme kültürünü deneyimleyebilecekleri
+            bir profesyonel simülasyon ortamıdır.
           </p>
         </div>
 

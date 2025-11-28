@@ -14,11 +14,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Dosya tipi kontrolü
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    // Dosya tipi kontrolü - sadece PDF (ödeme dekontları için)
+    const validTypes = ['application/pdf'];
     if (!validTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Sadece resim (JPEG, PNG, WEBP) ve PDF dosyaları yüklenebilir.' },
+        { error: 'Sadece PDF dosyaları yüklenebilir.' },
         { status: 400 }
       );
     }
