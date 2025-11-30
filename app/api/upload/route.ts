@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
 // Cloudinary config
 cloudinary.config({
@@ -60,13 +60,13 @@ export async function POST(request: Request) {
       // Buffer'ı base64 string'e çevirip yükleyebiliriz veya stream kullanabiliriz.
       // Burada promise wrapper ile upload_stream kullanalım.
       
-      const result = await new Promise<any>((resolve, reject) => {
+      const result = await new Promise<UploadApiResponse>((resolve, reject) => {
         cloudinary.uploader.upload_stream(
           {
             folder: 'sdc-web-uploads', // Opsiyonel klasör
           },
           (error, result) => {
-            if (error) reject(error);
+            if (error || !result) reject(error || new Error("Upload failed"));
             else resolve(result);
           }
         ).end(buffer);
