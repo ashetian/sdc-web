@@ -34,10 +34,15 @@ export default function TeamModal({
 
   useEffect(() => {
     if (!open) return;
-    const orig = document.body.style.overflow;
+    
+    // Lock scroll
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    
     return () => {
-      document.body.style.overflow = orig;
+      // Unlock scroll
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     };
   }, [open]);
 
@@ -65,7 +70,7 @@ export default function TeamModal({
     >
       {/* backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm touch-none"
         onClick={onClose}
       />
 
