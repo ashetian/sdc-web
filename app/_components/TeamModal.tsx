@@ -61,7 +61,7 @@ export default function TeamModal({
       role="dialog"
       aria-modal="true"
       aria-label={`${member.name} profili`}
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4" 
     >
       {/* backdrop */}
       <div
@@ -89,9 +89,9 @@ export default function TeamModal({
         </button>
 
         {/* içerik */}
-        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr]">
+        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] overflow-y-auto flex-1 min-h-0">
           {/* sol: görsel */}
-          <div className="relative bg-gray-100 border-r-0 sm:border-r-4 border-b-4 sm:border-b-0 border-black">
+          <div className="relative bg-gray-100 border-r-0 sm:border-r-4 border-b-4 sm:border-b-0 border-black max-h-[45vh] overflow-hidden group">
             {member.image ? (
               <Image
                 src={member.image}
@@ -105,20 +105,35 @@ export default function TeamModal({
                 <User size={64} />
               </div>
             )}
+            
+            {/* Overlay Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none sm:hidden" />
+
+            {/* Text Overlay */}
+            <div className="absolute bottom-0 left-0 p-4 w-full text-white z-10 sm:hidden">
+              <h3 className="text-2xl font-black leading-tight uppercase mb-2 drop-shadow-md">{member.name}</h3>
+              {(member.role || member.subtitle) && (
+                <p className="font-bold text-base inline-block px-2 py-1 border-2 border-white bg-black/30 backdrop-blur-sm shadow-sm">
+                  {member.role || member.subtitle}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* sağ: metinler */}
-          <div className="p-6 sm:p-8 bg-white">
-            <h3 className="text-3xl font-black leading-tight uppercase mb-2">{member.name}</h3>
+          <div className="p-4 sm:p-8 bg-white">
+            <div className="hidden sm:block">
+              <h3 className="text-3xl font-black leading-tight uppercase mb-2">{member.name}</h3>
 
-            {(member.role || member.subtitle) && (
-              <p className="font-bold text-lg mb-4 inline-block px-2 py-1 border-2 border-black shadow-neo-sm" style={{ backgroundColor: color }}>
-                {member.role || member.subtitle}
-              </p>
-            )}
+              {(member.role || member.subtitle) && (
+                <p className="font-bold text-lg mb-4 inline-block px-2 py-1 border-2 border-black shadow-neo-sm" style={{ backgroundColor: color }}>
+                  {member.role || member.subtitle}
+                </p>
+              )}
+            </div>
 
             {(member.handle || member.email || member.location) && (
-              <div className="mt-2 text-sm font-bold text-gray-600 flex flex-wrap gap-4">
+              <div className="mt-1 sm:mt-2 text-sm font-bold text-gray-600 flex flex-wrap gap-2 sm:gap-4">
                 {member.handle && <span>{member.handle}</span>}
                 {member.email && (
                   <a
@@ -135,19 +150,19 @@ export default function TeamModal({
             )}
 
             {member.description && (
-              <p className="text-black mt-6 font-medium border-l-4 border-black pl-4">
+              <p className="text-black mt-3 sm:mt-6 text-sm sm:text-base font-medium border-l-4 border-black pl-4">
                 {member.description}
               </p>
             )}
 
             {/* sosyal/aksiyonlar */}
-            <div className="flex flex-wrap items-center gap-3 mt-8">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 sm:mt-8">
               {member.website && (
                 <a
                   href={member.website}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
+                  className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
                   <Globe size={20} />
                 </a>
@@ -157,7 +172,7 @@ export default function TeamModal({
                   href={member.linkedin}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
+                  className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
                   <Linkedin size={20} />
                 </a>
@@ -167,7 +182,7 @@ export default function TeamModal({
                   href={member.github}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
+                  className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
                   <Github size={20} />
                 </a>
@@ -177,7 +192,7 @@ export default function TeamModal({
                   href={member.x}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
+                  className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
                   <Twitter size={20} />
                 </a>
@@ -187,7 +202,7 @@ export default function TeamModal({
                   href={member.instagram}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
+                  className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
                   <Instagram size={20} />
                 </a>
@@ -197,7 +212,7 @@ export default function TeamModal({
                   href={member.freelance}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-4 py-2 bg-neo-green text-black font-bold border-2 border-black hover:shadow-neo transition-all inline-flex items-center gap-2"
+                  className="px-4 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base bg-neo-green text-black font-bold border-2 border-black hover:shadow-neo transition-all inline-flex items-center gap-2"
                 >
                   <Briefcase size={18} />
                   <span>Hizmet Al</span>
@@ -208,17 +223,17 @@ export default function TeamModal({
         </div>
 
         {/* alt bar */}
-        <div className="flex justify-end gap-4 p-4 border-t-4 border-black bg-gray-50">
+        <div className="flex justify-end gap-2 sm:gap-4 p-4 border-t-4 border-black bg-gray-50">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-white text-black font-bold border-2 border-black hover:shadow-neo transition-all"
+            className="px-4 py-1.5 text-sm sm:px-6 sm:py-2 sm:text-base bg-white text-black font-bold border-2 border-black hover:shadow-neo transition-all"
           >
             <span>Kapat</span>
           </button>
           {member.email && (
             <a
               href={`mailto:${member.email}`}
-              className="px-6 py-2 bg-black text-white font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all inline-flex items-center gap-2"
+              className="px-4 py-1.5 text-sm sm:px-6 sm:py-2 sm:text-base bg-black text-white font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all inline-flex items-center gap-2"
             >
               <Mail size={18} />
               <span>İletişime Geç</span>
