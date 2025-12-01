@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 interface Event {
   _id: string;
@@ -13,7 +12,6 @@ interface Event {
 export default function NewAnnouncementPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [formData, setFormData] = useState({
     title: "",
@@ -41,35 +39,6 @@ export default function NewAnnouncementPage() {
     };
     fetchEvents();
   }, []);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.[0]) return;
-
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error("Resim yüklenemedi");
-
-      const data = await res.json();
-      setSelectedImage(data.path);
-      setFormData((prev) => ({ ...prev, image: data.path }));
-    } catch (error) {
-      console.error("Resim yüklenirken hata:", error);
-      alert("Resim yüklenirken bir hata oluştu");
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setSelectedImage(null);
-    setFormData((prev) => ({ ...prev, image: "" }));
-  };
 
   const generateSlug = (text: string) => {
     const turkishToEnglish: { [key: string]: string } = {
@@ -275,34 +244,17 @@ export default function NewAnnouncementPage() {
               htmlFor="image"
               className="block text-sm font-medium text-gray-700"
             >
-              Görsel
+              Görsel URL (İsteğe Bağlı)
             </label>
             <input
-              type="file"
+              type="url"
               name="image"
               id="image"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="mt-1 block w-full text-gray-900"
+              value={formData.image}
+              onChange={handleChange}
+              placeholder="https://example.com/image.jpg"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
             />
-            {selectedImage && (
-              <div className="mt-2">
-                <Image
-                  src={selectedImage}
-                  alt="Seçilen görsel"
-                  width={200}
-                  height={200}
-                  className="rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="mt-2 inline-flex items-center px-3 py-1 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  Resmi Kaldır
-                </button>
-              </div>
-            )}
           </div>
 
           <div>

@@ -1,16 +1,9 @@
 import React from "react";
 import { FaWhatsapp, FaInstagram, FaSlack } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
 import { BsLinkedin } from "react-icons/bs";
 
 export default function SocialConnect() {
   const socialLinks = [
-    {
-      name: "X (Twitter)",
-      icon: <FaXTwitter size={32} />,
-      url: "https://x.com/ktusdc",
-      color: "bg-black text-white hover:bg-white hover:text-black",
-    },
     {
       name: "Instagram",
       icon: <FaInstagram size={32} />,
@@ -50,7 +43,7 @@ export default function SocialConnect() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {socialLinks.map((link) => (
             <a
               key={link.name}
