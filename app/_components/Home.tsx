@@ -1,7 +1,15 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+
+interface StatData {
+  _id: string;
+  label: string;
+  value: string;
+  color: string;
+  order: number;
+}
 
 export default function Home() {
   const containerRef = useRef(null);
@@ -9,6 +17,23 @@ export default function Home() {
   const subtitleRef = useRef(null);
   const buttonsRef = useRef(null);
   const statsRef = useRef(null);
+  const [stats, setStats] = useState<StatData[]>([]);
+
+  useEffect(() => {
+    // Fetch stats from API
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(err => {
+        console.error('Stats yüklenirken hata:', err);
+        // Fallback to default stats if API fails
+        setStats([
+          { _id: '1', label: 'Üye', value: '220+', color: 'bg-neo-green', order: 0 },
+          { _id: '2', label: 'Proje', value: '2', color: 'bg-neo-purple', order: 1 },
+          { _id: '3', label: 'Etkinlik', value: '12', color: 'bg-neo-orange', order: 2 },
+        ]);
+      });
+  }, []);
 
   useGSAP(() => {
     const tl = gsap.timeline();
@@ -90,9 +115,9 @@ export default function Home() {
         </div>
 
         <div ref={statsRef} className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto w-full">
-          <Stat number="220+" text="Üye" color="bg-neo-green" />
-          <Stat number="2" text="Proje" color="bg-neo-purple" />
-          <Stat number="12" text="Etkinlik" color="bg-neo-orange" />
+          {stats.map((stat) => (
+            <Stat key={stat._id} number={stat.value} text={stat.label} color={stat.color} />
+          ))}
         </div>
       </div>
     </section>

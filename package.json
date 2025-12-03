@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate-announcements": "ts-node scripts/migrate-announcements.ts"
+    "migrate-announcements": "ts-node scripts/migrate-announcements.ts",
+    "seed-stats": "npx tsx scripts/seed-stats.ts"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

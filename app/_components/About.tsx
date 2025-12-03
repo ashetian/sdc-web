@@ -26,7 +26,7 @@ const features = [
     color: "bg-neo-purple"
   },
   {
-    title: "Sponsorluk Departmanı",
+    title: "Kurumsal İletişim Departmanı",
     description: "Şirketlerle iletişim kurarak iş birlikleri, maddi-manevi destekler ve sponsorluk anlaşmalarını organize eder.",
     icon: "🤝",
     color: "bg-neo-pink"
@@ -61,12 +61,8 @@ export default function About() {
     });
   }, { scope: sectionRef });
 
-  const handleContactClick = () => {
-    const contactSection = document.getElementById("contact");
-    contactSection?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+  const handleJoinClick = () => {
+    window.location.href = "/apply";
   };
 
   return (
@@ -81,9 +77,11 @@ export default function About() {
             Hakkımızda
           </h2>
           <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-4 border-2 border-black p-4 bg-gray-100 shadow-neo-sm">
-            KTÜ Software Development Club, yazılım dünyasında kendini
-            geliştirmek isteyen öğrenciler için bir öğrenme ve gelişim
-            platformudur.
+            Karadeniz Teknik Üniversitesi Yazılım Geliştirme Kulübü,
+            yazılım dünyasında kendini geliştirmek isteyen öğrenciler
+            için yalnızca bir öğrenme alanı değil; gerçek hayat iş süreçlerini,
+            ekip çalışmasını ve proje geliştirme kültürünü deneyimleyebilecekleri
+            bir profesyonel simülasyon ortamıdır.
           </p>
         </div>
 
@@ -109,12 +107,12 @@ export default function About() {
 
         <div className="mt-32 text-center">
           <button
-            onClick={handleContactClick}
+            onClick={handleJoinClick}
             className="inline-flex items-center px-8 py-4 bg-black text-white border-4 border-transparent 
                      text-lg font-bold hover:bg-white hover:text-black hover:border-black hover:shadow-neo 
                      transition-all duration-200"
           >
-            Bize Katılın
+            Ekibimize Katılın!
             <svg
               className="ml-2 -mr-1 w-5 h-5"
               fill="currentColor"
