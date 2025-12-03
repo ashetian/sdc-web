@@ -58,7 +58,7 @@ export default function GalleryPreview() {
             </Link>
           </div>
         </div>
-        <div className="flex gap-8 overflow-x-auto pb-8 custom-scrollbar">
+        <div className="flex gap-8 overflow-x-auto py-4 custom-scrollbar">
           {announcements.length === 0 ? (
             <div className="w-full text-center py-12 bg-white border-4 border-black shadow-neo transform rotate-1">
               <p className="text-xl font-black text-black uppercase">Henüz galeriye eklenmiş içerik yok.</p>
