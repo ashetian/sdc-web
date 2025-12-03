@@ -69,7 +69,7 @@ export default function AnnouncementReceiptUpload({ event }: Props) {
 
       <div className="bg-white border-2 border-black p-4 mb-4">
         <p className="text-sm text-black font-bold">
-          ℹ️ Yukarıdaki IBAN'a ödemenizi yaptıktan sonra dekontunuzu PDF olarak yükleyiniz.
+          ℹ️ Yukarıdaki IBAN&apos;a ödemenizi yaptıktan sonra dekontunuzu PDF olarak yükleyiniz.
           Ödemeniz admin tarafından onaylandıktan sonra etkinliğe katılabileceksiniz.
         </p>
       </div>
