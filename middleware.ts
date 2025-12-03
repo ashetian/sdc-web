@@ -39,7 +39,8 @@ export function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/api') &&
     ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) &&
-    !pathname.startsWith('/api/registrations')
+    !pathname.startsWith('/api/registrations') &&
+    !pathname.startsWith('/api/upload')
   ) {
     const authHeader = request.headers.get('authorization');
 
