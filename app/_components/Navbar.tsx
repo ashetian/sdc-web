@@ -110,9 +110,6 @@ export default function Navbar() {
               <NavLink onClick={() => scrollToSection("home")} text="Ana Sayfa" />
               <NavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
               <NavLink onClick={() => window.open("/events", "_blank")} text="Etkinlik Takvimi" />
-              <NavLink onClick={() => scrollToSection("announcements")} text="Duyurular" />
-              <NavLink onClick={() => scrollToSection("gallery-preview")} text="Galeri" />
-              <NavLink onClick={() => scrollToSection("team")} text="Ekibimiz" />
               <NavLink onClick={() => scrollToSection("contact")} text="İletişim" />
             </div>
 
@@ -150,15 +147,6 @@ export default function Navbar() {
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <MobileNavLink onClick={() => window.open("/events", "_blank")} text="Etkinlik Takvimi" />
-                </motion.div>
-                <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("announcements")} text="Duyurular" />
-                </motion.div>
-                <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("gallery-preview")} text="Galeri" />
-                </motion.div>
-                <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("team")} text="Ekibimiz" />
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <MobileNavLink onClick={() => scrollToSection("contact")} text="İletişim" />
