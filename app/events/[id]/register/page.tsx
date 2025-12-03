@@ -296,11 +296,11 @@ export default function RegisterPage() {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-black text-white uppercase mb-2">
-                                            Ödeme Dekontu (PDF)
+                                            Ödeme Dekontu Ekran Görüntüsü (Resim)
                                         </label>
                                         <input
                                             type="file"
-                                            accept=".pdf,application/pdf"
+                                            accept="image/jpeg,image/png,image/webp"
                                             onChange={handleFileUpload}
                                             className="block w-full text-sm text-black font-bold file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-black file:bg-white file:text-black hover:file:bg-black hover:file:text-white transition-all cursor-pointer bg-white border-2 border-black p-1"
                                         />

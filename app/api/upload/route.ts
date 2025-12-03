@@ -36,10 +36,10 @@ export async function POST(request: Request) {
     }
 
     // Dosya tipi kontrolü
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Sadece resim (JPEG, PNG, WEBP) ve PDF dosyaları yüklenebilir.' },
+        { error: 'Sadece resim dosyaları (JPEG, PNG, WEBP) yüklenebilir.' },
         { status: 400 }
       );
     }
@@ -55,15 +55,7 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // PDF ise magic bytes kontrolü yap
-    if (file.type === 'application/pdf') {
-      if (!validatePDFMagicBytes(buffer)) {
-        return NextResponse.json(
-          { error: 'Geçersiz PDF dosyası. Dosya yapısı bozuk olabilir.' },
-          { status: 400 }
-        );
-      }
-    }
+    // PDF magic bytes kontrolü kaldırıldı çünkü sadece resim kabul ediyoruz
 
     // Tüm dosyaları Cloudinary'ye yükle (PDF dahil)
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
