@@ -4,20 +4,10 @@ import { useEffect, useState } from "react";
 
 export default function CustomCursor() {
     const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [isPointer, setIsPointer] = useState(false);
 
     useEffect(() => {
         const updateCursor = (e: MouseEvent) => {
             setPosition({ x: e.clientX, y: e.clientY });
-
-            const target = e.target as HTMLElement;
-            setIsPointer(
-                window.getComputedStyle(target).cursor === "pointer" ||
-                target.tagName === "BUTTON" ||
-                target.tagName === "A" ||
-                target.closest("button") !== null ||
-                target.closest("a") !== null
-            );
         };
 
         window.addEventListener("mousemove", updateCursor);
@@ -30,7 +20,7 @@ export default function CustomCursor() {
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
-                transform: `translate(-50%, -50%) scale(${isPointer ? 1.5 : 1})`,
+                transform: `translate(-50%, -50%)`,
                 borderRadius: "50%",
             }}
         />

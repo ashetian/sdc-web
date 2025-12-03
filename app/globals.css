@@ -14,7 +14,12 @@ body {
   cursor: none;
 }
 
-a, button, input, textarea, select, [role="button"] {
+* {
+  cursor: none !important;
+}
+
+html,
+body {
   cursor: none !important;
 }
 
