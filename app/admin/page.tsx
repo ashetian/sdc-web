@@ -55,12 +55,20 @@ export default function AdminPage() {
     <div className="bg-white shadow rounded-lg">
       <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
         <h1 className="text-xl font-semibold text-gray-900">Duyurular</h1>
-        <Link
-          href="/admin/announcements/new"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Yeni Duyuru
-        </Link>
+        <div className="flex space-x-4">
+          <Link
+            href="/admin/settings"
+            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Genel Ayarlar
+          </Link>
+          <Link
+            href="/admin/announcements/new"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Yeni Duyuru
+          </Link>
+        </div>
       </div>
 
       <div className="border-t border-gray-200">

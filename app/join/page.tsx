@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -25,7 +27,25 @@ export default function JoinPage() {
         },
     ];
 
-    const whatsappGroupLink = 'https://chat.whatsapp.com/YOUR_GROUP_LINK'; // WhatsApp grup linkini buraya ekleyin
+    const [whatsappGroupLink, setWhatsappGroupLink] = useState('https://chat.whatsapp.com/YOUR_GROUP_LINK');
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('/api/settings');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.whatsappLink) {
+                        setWhatsappGroupLink(data.whatsappLink);
+                    }
+                }
+            } catch (error) {
+                console.error('Ayarlar yüklenirken hata:', error);
+            }
+        };
+
+        fetchSettings();
+    }, []);
 
     return (
         <div className="min-h-screen bg-neo-yellow py-20 pt-40">
