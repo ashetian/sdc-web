@@ -1,8 +1,29 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import { FaWhatsapp, FaInstagram, FaSlack } from "react-icons/fa";
 import { BsLinkedin } from "react-icons/bs";
 
 export default function SocialConnect() {
+  const [whatsappLink, setWhatsappLink] = useState("https://chat.whatsapp.com/FH8knELNs0E5ZMd7XxH5YB");
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.whatsappLink) {
+            setWhatsappLink(data.whatsappLink);
+          }
+        }
+      } catch (error) {
+        console.error('Ayarlar yüklenirken hata:', error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   const socialLinks = [
     {
       name: "Instagram",
@@ -13,7 +34,7 @@ export default function SocialConnect() {
     {
       name: "WhatsApp",
       icon: <FaWhatsapp size={32} />,
-      url: "https://chat.whatsapp.com/FH8knELNs0E5ZMd7XxH5YB",
+      url: whatsappLink,
       color: "bg-neo-green text-black hover:bg-white hover:text-black",
     },
     {
