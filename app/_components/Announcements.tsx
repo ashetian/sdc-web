@@ -125,14 +125,14 @@ export default function Announcements() {
 
         </div>
 
-        <div ref={cardsRef} className="flex gap-8 overflow-x-auto overflow-y-hidden pb-8 custom-scrollbar">
+        <div ref={cardsRef} className="flex gap-8 overflow-x-auto overflow-y-hidden py-6 custom-scrollbar">
           {announcements.map((announcement, index) => (
             <a
               href={`/announcements/${announcement.slug}`}
               target="_blank"
               rel="noopener noreferrer"
               key={index}
-              className="announcement-card min-w-[320px] max-w-xs group bg-white border-4 border-black shadow-neo p-4 flex flex-col
+              className="announcement-card min-w-[320px] max-w-xs group bg-white border-4 border-black shadow-neo  p-4 flex flex-col
                         transform transition-all duration-200 hover:-translate-y-2 hover:shadow-neo-lg"
             >
               <div className="flex items-center justify-between mb-4">
