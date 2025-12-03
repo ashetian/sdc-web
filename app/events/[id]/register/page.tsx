@@ -121,6 +121,9 @@ export default function RegisterPage() {
         const file = e.target.files[0];
         const formData = new FormData();
         formData.append('file', file);
+        if (params.id) {
+            formData.append('eventId', params.id as string);
+        }
 
         setUploading(true);
         try {

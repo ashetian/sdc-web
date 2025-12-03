@@ -38,19 +38,34 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 }
 
+import { deleteFromCloudinary, deleteFolder } from '@/app/lib/cloudinaryHelper';
+
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         await connectDB();
         const { id } = params;
 
-        const event = await Event.findByIdAndDelete(id);
+        // Find event first to get posterUrl
+        const event = await Event.findById(id);
 
         if (!event) {
             return NextResponse.json({ error: 'Etkinlik bulunamadı.' }, { status: 404 });
         }
 
+        // Delete poster if exists
+        if (event.posterUrl) {
+            await deleteFromCloudinary(event.posterUrl);
+        }
+
+        // Clean up receipts folder
+        await deleteFolder(`sdc-web-receipts/${id}`);
+
+        // Delete event from DB
+        await Event.findByIdAndDelete(id);
+
         return NextResponse.json({ message: 'Etkinlik silindi.' });
-    } catch {
+    } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'Etkinlik silinemedi.' }, { status: 500 });
     }
 }

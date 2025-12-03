@@ -44,11 +44,19 @@ export async function POST(request: Request) {
 
     // PDF magic bytes kontrolü kaldırıldı çünkü sadece resim kabul ediyoruz
 
+    const eventId = formData.get('eventId') as string;
+
+    // Folder selection logic
+    let folder = 'sdc-web-uploads';
+    if (eventId) {
+      folder = `sdc-web-receipts/${eventId}`;
+    }
+
     // Tüm dosyaları Cloudinary'ye yükle (PDF dahil)
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
-          folder: 'sdc-web-uploads',
+          folder: folder,
           resource_type: 'auto', // PDF ve resimler için otomatik algılama
         },
         (error, result) => {
