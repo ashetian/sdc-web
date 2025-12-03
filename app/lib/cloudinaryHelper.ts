@@ -81,3 +81,22 @@ export async function deleteFolder(folderPath: string) {
         console.error(`Failed to delete folder (${folderPath}):`, error);
     }
 }
+
+/**
+ * Sanitizes a string to be used as a Cloudinary folder name.
+ * Converts to lowercase, replaces spaces with dashes, removes special characters.
+ */
+export function sanitizeFolderName(name: string): string {
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric chars with dash
+        .replace(/-+/g, '-') // Replace multiple dashes with single dash
+        .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
+}

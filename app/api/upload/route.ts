@@ -45,10 +45,17 @@ export async function POST(request: Request) {
     // PDF magic bytes kontrolü kaldırıldı çünkü sadece resim kabul ediyoruz
 
     const eventId = formData.get('eventId') as string;
+    const eventTitle = formData.get('eventTitle') as string;
 
     // Folder selection logic
     let folder = 'sdc-web-uploads';
-    if (eventId) {
+
+    if (eventTitle) {
+      // Use sanitized event title if available
+      const { sanitizeFolderName } = await import('@/app/lib/cloudinaryHelper');
+      folder = `sdc-web-receipts/${sanitizeFolderName(eventTitle)}`;
+    } else if (eventId) {
+      // Fallback to ID
       folder = `sdc-web-receipts/${eventId}`;
     }
 

@@ -124,6 +124,9 @@ export default function RegisterPage() {
         if (params.id) {
             formData.append('eventId', params.id as string);
         }
+        if (event?.title) {
+            formData.append('eventTitle', event.title);
+        }
 
         setUploading(true);
         try {

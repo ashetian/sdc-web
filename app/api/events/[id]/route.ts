@@ -38,7 +38,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 }
 
-import { deleteFromCloudinary, deleteFolder } from '@/app/lib/cloudinaryHelper';
+import { deleteFromCloudinary, deleteFolder, sanitizeFolderName } from '@/app/lib/cloudinaryHelper';
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
@@ -58,7 +58,12 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         }
 
         // Clean up receipts folder
-        await deleteFolder(`sdc-web-receipts/${id}`);
+        // We prefer title-based folder, but fallback to ID if needed (though new uploads use title)
+        if (event.title) {
+            await deleteFolder(`sdc-web-receipts/${sanitizeFolderName(event.title)}`);
+        } else {
+            await deleteFolder(`sdc-web-receipts/${id}`);
+        }
 
         // Delete event from DB
         await Event.findByIdAndDelete(id);
