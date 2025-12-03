@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// Configure PDF.js worker using unpkg for better availability
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 interface PDFViewerModalProps {
     pdfUrl: string;
@@ -18,6 +18,16 @@ export default function PDFViewerModal({ pdfUrl, onClose }: PDFViewerModalProps)
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [scale, setScale] = useState<number>(1.0);
     const [error, setError] = useState<string | null>(null);
+    const [useGoogleDocs, setUseGoogleDocs] = useState(false);
+
+    // Reset state when url changes
+    useEffect(() => {
+        setNumPages(0);
+        setPageNumber(1);
+        setScale(1.0);
+        setError(null);
+        setUseGoogleDocs(false);
+    }, [pdfUrl]);
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
@@ -26,7 +36,9 @@ export default function PDFViewerModal({ pdfUrl, onClose }: PDFViewerModalProps)
 
     function onDocumentLoadError(error: Error) {
         console.error('PDF yükleme hatası:', error);
-        setError('PDF yüklenirken bir hata oluştu. Lütfen dosyayı yeni sekmede açmayı deneyin.');
+        setError('PDF görüntülenemedi.');
+        // Automatically switch to Google Docs viewer on error
+        setUseGoogleDocs(true);
     }
 
     const goToPrevPage = () => setPageNumber(prev => Math.max(prev - 1, 1));
@@ -40,7 +52,7 @@ export default function PDFViewerModal({ pdfUrl, onClose }: PDFViewerModalProps)
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] flex flex-col"
+                className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] flex flex-col h-[80vh]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -54,74 +66,70 @@ export default function PDFViewerModal({ pdfUrl, onClose }: PDFViewerModalProps)
                     </button>
                 </div>
 
-                {/* Controls */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={goToPrevPage}
-                            disabled={pageNumber <= 1}
-                            className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                {/* Controls (only show if not using Google Docs fallback) */}
+                {!useGoogleDocs && !error && (
+                    <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={goToPrevPage}
+                                disabled={pageNumber <= 1}
+                                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                            >
+                                ← Önceki
+                            </button>
+                            <span className="text-sm text-gray-700">
+                                Sayfa {pageNumber} / {numPages || '?'}
+                            </span>
+                            <button
+                                onClick={goToNextPage}
+                                disabled={pageNumber >= numPages}
+                                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                            >
+                                Sonraki →
+                            </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={zoomOut}
+                                disabled={scale <= 0.5}
+                                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                            >
+                                −
+                            </button>
+                            <span className="text-sm text-gray-700 w-12 text-center">
+                                {Math.round(scale * 100)}%
+                            </span>
+                            <button
+                                onClick={zoomIn}
+                                disabled={scale >= 2.0}
+                                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                            >
+                                +
+                            </button>
+                        </div>
+
+                        <a
+                            href={pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
                         >
-                            ← Önceki
-                        </button>
-                        <span className="text-sm text-gray-700">
-                            Sayfa {pageNumber} / {numPages || '?'}
-                        </span>
-                        <button
-                            onClick={goToNextPage}
-                            disabled={pageNumber >= numPages}
-                            className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                        >
-                            Sonraki →
-                        </button>
+                            Yeni Sekmede Aç
+                        </a>
                     </div>
+                )}
 
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={zoomOut}
-                            disabled={scale <= 0.5}
-                            className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                        >
-                            −
-                        </button>
-                        <span className="text-sm text-gray-700 w-12 text-center">
-                            {Math.round(scale * 100)}%
-                        </span>
-                        <button
-                            onClick={zoomIn}
-                            disabled={scale >= 2.0}
-                            className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                        >
-                            +
-                        </button>
-                    </div>
-
-                    <a
-                        href={pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
-                    >
-                        Yeni Sekmede Aç
-                    </a>
-                </div>
-
-                {/* PDF Viewer */}
-                <div className="flex-1 overflow-auto p-4 bg-gray-100">
-                    <div className="flex justify-center">
-                        {error ? (
-                            <div className="text-center">
-                                <p className="text-red-600 mb-4">{error}</p>
-                                <a
-                                    href={pdfUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
-                                >
-                                    Yeni Sekmede Aç
-                                </a>
-                            </div>
-                        ) : (
+                {/* Viewer Content */}
+                <div className="flex-1 overflow-hidden bg-gray-100 relative">
+                    {useGoogleDocs ? (
+                        <iframe
+                            src={`https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+                            className="w-full h-full border-0"
+                            title="PDF Viewer"
+                        />
+                    ) : (
+                        <div className="h-full overflow-auto flex justify-center p-4">
                             <Document
                                 file={pdfUrl}
                                 onLoadSuccess={onDocumentLoadSuccess}
@@ -130,6 +138,17 @@ export default function PDFViewerModal({ pdfUrl, onClose }: PDFViewerModalProps)
                                     <div className="text-center py-8">
                                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
                                         <p className="mt-4 text-gray-600">PDF yükleniyor...</p>
+                                    </div>
+                                }
+                                error={
+                                    <div className="text-center py-8">
+                                        <p className="text-red-600 mb-4">PDF yüklenemedi.</p>
+                                        <button
+                                            onClick={() => setUseGoogleDocs(true)}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                        >
+                                            Alternatif Görüntüleyiciyi Dene
+                                        </button>
                                     </div>
                                 }
                             >
@@ -141,15 +160,25 @@ export default function PDFViewerModal({ pdfUrl, onClose }: PDFViewerModalProps)
                                     loading={<div className="text-center py-4 text-gray-600">Sayfa yükleniyor...</div>}
                                 />
                             </Document>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-gray-200 bg-gray-50">
-                    <p className="text-xs text-gray-500 text-center">
-                        ⚠ Güvenlik nedeniyle PDF sandbox modunda görüntüleniyor. JavaScript içeriği devre dışıdır.
+                <div className="p-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <p className="text-xs text-gray-500">
+                        ⚠ Güvenlik nedeniyle PDF sandbox modunda görüntüleniyor.
                     </p>
+                    {useGoogleDocs && (
+                        <a
+                            href={pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline"
+                        >
+                            Orijinal Dosyayı İndir
+                        </a>
+                    )}
                 </div>
             </div>
         </div>
