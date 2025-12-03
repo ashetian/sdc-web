@@ -2,6 +2,9 @@
 import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface StatData {
   _id: string;
@@ -36,7 +39,13 @@ export default function Home() {
   }, []);
 
   useGSAP(() => {
-    const tl = gsap.timeline();
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 80%",
+        toggleActions: "play none none reverse"
+      }
+    });
 
     tl.from(titleRef.current, {
       y: 100,
