@@ -115,17 +115,6 @@ export default function Announcements() {
               className="announcement-card min-w-[320px] max-w-xs group bg-white border-4 border-black shadow-neo p-4 flex flex-col
                         transform transition-all duration-200 hover:-translate-y-2 hover:shadow-neo-lg"
             >
-              {announcement.image && (
-                <div className="mb-4 overflow-hidden border-2 border-black shadow-neo-sm">
-                  <Image
-                    src={announcement.image}
-                    alt={announcement.title}
-                    width={400}
-                    height={300}
-                    className="w-full h-48 object-cover transform transition-transform group-hover:scale-110"
-                  />
-                </div>
-              )}
               <div className="flex items-center justify-between mb-4">
                 <span
                   className={`px-3 py-1 text-sm font-bold shadow-neo-sm ${getTypeStyles(
