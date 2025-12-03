@@ -107,7 +107,10 @@ export default async function AnnouncementPage({
               ))}
           </div>
 
-          <AnnouncementReceiptUpload />
+          {/* Sadece ücretli etkinliklerde dekont yükleme göster */}
+          {event && event.isPaid && (
+            <AnnouncementReceiptUpload event={event} />
+          )}
 
           {event && event.isOpen && (
             <div className="mt-8 flex justify-center">
