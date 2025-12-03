@@ -48,7 +48,7 @@ export default function EventsPage() {
                         Aktif Etkinlikler
                     </h1>
                     <p className="mt-4 text-xl font-bold text-black max-w-2xl mx-auto bg-white border-2 border-black p-4 shadow-neo-sm transform rotate-1">
-                        Başvurusu açık olan etkinliklere buradan kayıt olabilirsiniz.
+                        Başvurusu açık olan etkinliklere buradan kaydolabilirsiniz.
                     </p>
                 </div>
 
@@ -93,7 +93,7 @@ export default function EventsPage() {
                                         href={`/events/${event._id}/register`}
                                         className="mt-auto w-full flex justify-center py-3 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider"
                                     >
-                                        Kayıt Ol
+                                        Kaydol
                                     </Link>
                                 </div>
                             </div>

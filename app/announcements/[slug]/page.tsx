@@ -118,7 +118,7 @@ export default async function AnnouncementPage({
                 href={`/events/${event._id}/register`}
                 className="inline-flex items-center px-8 py-4 border-4 border-black shadow-neo text-xl font-black text-white bg-neo-green hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-1"
               >
-                Etkinliğe Kayıt Ol
+                Etkinliğe Kaydol
               </Link>
             </div>
           )}

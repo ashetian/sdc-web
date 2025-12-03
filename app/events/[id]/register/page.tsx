@@ -87,7 +87,7 @@ export default function RegisterPage() {
             if (res.ok) {
                 setRegistered(true);
             } else {
-                alert(data.error || 'Kayıt olurken bir hata oluştu.');
+                alert(data.error || 'Kaydolurken bir hata oluştu.');
             }
         } catch (error) {
             console.error('Hata:', error);
@@ -201,7 +201,7 @@ export default function RegisterPage() {
     );
 
     return (
-        <div className="min-h-screen bg-neo-blue py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-neo-blue pt-32 pb-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-xl mx-auto bg-white border-4 border-black shadow-neo-lg overflow-hidden transform -rotate-1">
                 <div className="px-6 py-8">
                     <div className="text-center mb-8">
@@ -317,7 +317,7 @@ export default function RegisterPage() {
                                 disabled={submitting}
                                 className="w-full flex justify-center py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {submitting ? 'Kaydediliyor...' : 'Kayıt Ol'}
+                                {submitting ? 'Kaydediliyor...' : 'Kaydol'}
                             </button>
                         </div>
                     </form>

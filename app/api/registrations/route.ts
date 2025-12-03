@@ -29,7 +29,7 @@ export async function POST(request: Request) {
             $or: [{ studentNumber }, { email: body.email }]
         });
         if (existingRegistration) {
-            return NextResponse.json({ error: 'Bu öğrenci numarası veya e-posta ile zaten kayıt olunmuş.' }, { status: 400 });
+            return NextResponse.json({ error: 'Bu öğrenci numarası veya e-posta ile zaten kaydolunmuş.' }, { status: 400 });
         }
 
         const registration = await Registration.create(body);
