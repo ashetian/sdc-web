@@ -110,9 +110,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-6">
               <NavLink onClick={() => scrollToSection("home")} text="Ana Sayfa" />
               <NavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
-              <Link href="/events" className="inline-block px-4 py-2 font-bold bg-white/70 text-black border-2 border-transparent hover:border-black hover:bg-white hover:shadow-neo transition-all duration-200">
-                Etkinlik Takvimi
-              </Link>
+              <NavLink onClick={() => window.open("/events", "_blank")} text="Etkinlik Takvimi" />
               <NavLink onClick={() => scrollToSection("announcements")} text="Duyurular" />
               <NavLink onClick={() => scrollToSection("gallery-preview")} text="Galeri" />
               <NavLink onClick={() => scrollToSection("team")} text="Ekibimiz" />
@@ -152,9 +150,7 @@ export default function Navbar() {
                   <MobileNavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
                 </motion.div>
                 <motion.div variants={itemVariants}>
-                  <Link href="/events" onClick={() => setIsMenuOpen(false)} className="block text-4xl font-black text-black hover:text-white hover:bg-black px-6 py-3 transition-all uppercase tracking-tighter text-center">
-                    Etkinlik Takvimi
-                  </Link>
+                  <MobileNavLink onClick={() => window.open("/events", "_blank")} text="Etkinlik Takvimi" />
                 </motion.div>
                 <motion.div variants={itemVariants}>
                   <MobileNavLink onClick={() => scrollToSection("announcements")} text="Duyurular" />
