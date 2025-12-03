@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
 // Cloudinary config
@@ -34,49 +32,24 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // PDF ise yerel kaydet
-    if (file.type === 'application/pdf') {
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      const filename = `${uniqueSuffix}-${file.name}`;
-      const uploadDir = join(process.cwd(), 'public/uploads');
-      
-      try {
-        await mkdir(uploadDir, { recursive: true });
-      } catch {
-        // Ignore error if directory already exists
-      }
+    // Tüm dosyaları Cloudinary'ye yükle (PDF dahil)
+    const result = await new Promise<UploadApiResponse>((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          folder: 'sdc-web-uploads',
+          resource_type: 'auto', // PDF ve resimler için otomatik algılama
+        },
+        (error, result) => {
+          if (error || !result) reject(error || new Error("Upload failed"));
+          else resolve(result);
+        }
+      ).end(buffer);
+    });
 
-      const path = join(uploadDir, filename);
-      await writeFile(path, buffer);
-
-      return NextResponse.json({
-        success: true,
-        path: `/uploads/${filename}`
-      });
-    } 
-    
-    // Resim ise Cloudinary'ye yükle
-    else {
-      // Buffer'ı base64 string'e çevirip yükleyebiliriz veya stream kullanabiliriz.
-      // Burada promise wrapper ile upload_stream kullanalım.
-      
-      const result = await new Promise<UploadApiResponse>((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          {
-            folder: 'sdc-web-uploads', // Opsiyonel klasör
-          },
-          (error, result) => {
-            if (error || !result) reject(error || new Error("Upload failed"));
-            else resolve(result);
-          }
-        ).end(buffer);
-      });
-
-      return NextResponse.json({
-        success: true,
-        path: result.secure_url // Frontend 'path' bekliyor, URL dönüyoruz
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      path: result.secure_url
+    });
 
   } catch (error) {
     console.error('Dosya yüklenirken hata:', error);
