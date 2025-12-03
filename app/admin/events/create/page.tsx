@@ -18,6 +18,33 @@ export default function CreateEventPage() {
         price: '',
         iban: '',
     });
+    const [uploading, setUploading] = useState(false);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setUploading(true);
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error('Yükleme başarısız');
+
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, posterUrl: data.path }));
+        } catch (error) {
+            console.error('Görsel yükleme hatası:', error);
+            alert('Görsel yüklenirken bir hata oluştu.');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -79,16 +106,31 @@ export default function CreateEventPage() {
 
                 <div>
                     <label htmlFor="posterUrl" className="block text-sm font-medium text-gray-700">
-                        Afiş URL (İsteğe Bağlı)
+                        Afiş Yükle (İsteğe Bağlı)
                     </label>
-                    <input
-                        type="url"
-                        id="posterUrl"
-                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
-                        value={formData.posterUrl}
-                        onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
-                        placeholder="https://example.com/image.jpg"
-                    />
+                    <div className="mt-1 flex items-center space-x-4">
+                        <input
+                            type="file"
+                            id="posterUrl"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        />
+                        {uploading && <span className="text-sm text-blue-500">Yükleniyor...</span>}
+                    </div>
+                    {formData.posterUrl && (
+                        <div className="mt-2">
+                            <p className="text-sm text-green-600 mb-1">Afiş yüklendi:</p>
+                            <img src={formData.posterUrl} alt="Önizleme" className="h-32 w-auto object-cover rounded border border-gray-300" />
+                            <button 
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, posterUrl: '' }))}
+                                className="mt-1 text-xs text-red-600 hover:text-red-800"
+                            >
+                                Afişi Kaldır
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div>
