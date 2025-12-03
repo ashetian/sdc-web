@@ -24,6 +24,7 @@ export default function NewAnnouncementPage() {
     isDraft: false,
     eventId: "",
   });
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -110,6 +111,32 @@ export default function NewAnnouncementPage() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error('Yükleme başarısız');
+
+      const data = await res.json();
+      setFormData(prev => ({ ...prev, image: data.path }));
+    } catch (error) {
+      console.error('Görsel yükleme hatası:', error);
+      alert('Görsel yüklenirken bir hata oluştu.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -244,17 +271,31 @@ export default function NewAnnouncementPage() {
               htmlFor="image"
               className="block text-sm font-medium text-gray-700"
             >
-              Görsel URL (İsteğe Bağlı)
+              Görsel Yükle (İsteğe Bağlı)
             </label>
-            <input
-              type="url"
-              name="image"
-              id="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="https://example.com/image.jpg"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
-            />
+            <div className="mt-1 flex items-center space-x-4">
+              <input
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              {uploading && <span className="text-sm text-blue-500">Yükleniyor...</span>}
+            </div>
+            {formData.image && (
+              <div className="mt-2">
+                <p className="text-sm text-green-600 mb-1">Görsel yüklendi:</p>
+                <img src={formData.image} alt="Önizleme" className="h-32 w-auto object-cover rounded border border-gray-300" />
+                <button 
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                  className="mt-1 text-xs text-red-600 hover:text-red-800"
+                >
+                  Görseli Kaldır
+                </button>
+              </div>
+            )}
           </div>
 
           <div>

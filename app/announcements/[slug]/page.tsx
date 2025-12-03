@@ -3,6 +3,7 @@ import Link from "next/link";
 import connectDB from "@/app/lib/db";
 import { Announcement } from "@/app/lib/models/Announcement";
 import { Event } from "@/app/lib/models/Event";
+import AnnouncementReceiptUpload from "./AnnouncementReceiptUpload";
 
 async function getAnnouncementFromDB(slug: string) {
   try {
@@ -105,6 +106,8 @@ export default async function AnnouncementPage({
                 </p>
               ))}
           </div>
+
+          <AnnouncementReceiptUpload />
 
           {event && event.isOpen && (
             <div className="mt-8 flex justify-center">
