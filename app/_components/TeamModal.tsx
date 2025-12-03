@@ -70,7 +70,7 @@ export default function TeamModal({
     >
       {/* backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm touch-none"
+        className="absolute inset-0 bg-black/15 backdrop-blur-sm touch-none"
         onClick={onClose}
       />
 
