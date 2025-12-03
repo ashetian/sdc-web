@@ -145,31 +145,44 @@ export default function Team() {
     const gridRef = useRef(null);
 
     useGSAP(() => {
-        gsap.from(titleRef.current, {
-            scrollTrigger: {
-                trigger: sectionRef.current,
-                start: "top 60%",
-                toggleActions: "play none none reverse",
+        gsap.fromTo(titleRef.current,
+            {
+                x: -100,
+                rotation: -10,
+                opacity: 0,
             },
-            x: -100,
-            rotation: -10,
-            opacity: 0,
-            duration: 1,
-            ease: "elastic.out(1, 0.75)",
-        });
+            {
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top 60%",
+                    toggleActions: "play none none reverse",
+                },
+                x: 0,
+                rotation: -1, // Target rotation from className
+                opacity: 1,
+                duration: 1,
+                ease: "elastic.out(1, 0.75)",
+            }
+        );
 
         // Grid animation is handled inside ChromaGrid or we can animate the container
-        gsap.from(gridRef.current, {
-            scrollTrigger: {
-                trigger: gridRef.current,
-                start: "top 60%",
-                toggleActions: "play none none reverse",
+        gsap.fromTo(gridRef.current,
+            {
+                scale: 0.8,
+                opacity: 0,
             },
-            scale: 0.8,
-            opacity: 0,
-            duration: 1,
-            ease: "elastic.out(1, 0.75)",
-        });
+            {
+                scrollTrigger: {
+                    trigger: gridRef.current,
+                    start: "top 60%",
+                    toggleActions: "play none none reverse",
+                },
+                scale: 1,
+                opacity: 1,
+                duration: 1,
+                ease: "elastic.out(1, 0.75)",
+            }
+        );
     }, { scope: sectionRef });
 
     const chromaItems = useMemo(() => {

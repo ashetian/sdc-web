@@ -17,31 +17,45 @@ export default function Contact() {
     const formContainerRef = useRef(null);
 
     useGSAP(() => {
-        gsap.from(titleRef.current, {
-            scrollTrigger: {
-                trigger: sectionRef.current,
-                start: "top 60%",
-                toggleActions: "play none none reverse",
+        gsap.fromTo(titleRef.current,
+            {
+                scale: 0.5,
+                rotation: 360,
+                opacity: 0,
             },
-            scale: 0.5,
-            rotation: 360,
-            opacity: 0,
-            duration: 1,
-            ease: "back.out(1.7)",
-        });
+            {
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top 60%",
+                    toggleActions: "play none none reverse",
+                },
+                scale: 1,
+                rotation: 1, // Target rotation from className
+                opacity: 1,
+                duration: 1,
+                ease: "back.out(1.7)",
+            }
+        );
 
-        gsap.from(formContainerRef.current, {
-            scrollTrigger: {
-                trigger: formContainerRef.current,
-                start: "top 60%",
-                toggleActions: "play none none reverse",
+        gsap.fromTo(formContainerRef.current,
+            {
+                y: 200,
+                rotation: 5,
+                opacity: 0,
             },
-            y: 200,
-            rotation: 5,
-            opacity: 0,
-            duration: 1,
-            ease: "power4.out",
-        });
+            {
+                scrollTrigger: {
+                    trigger: formContainerRef.current,
+                    start: "top 60%",
+                    toggleActions: "play none none reverse",
+                },
+                y: 0,
+                rotation: -1, // Target rotation from className
+                opacity: 1,
+                duration: 1,
+                ease: "power4.out",
+            }
+        );
     }, { scope: sectionRef });
 
     const handleSubmit = async (e: React.FormEvent) => {

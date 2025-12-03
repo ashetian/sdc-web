@@ -25,31 +25,44 @@ export default function Announcements() {
 
   useGSAP(() => {
     if (announcements.length > 0) {
-      gsap.from(titleRef.current, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 60%",
-          toggleActions: "play none none reverse",
+      gsap.fromTo(titleRef.current,
+        {
+          y: -50,
+          scale: 1.2,
+          opacity: 0,
         },
-        y: -50,
-        scale: 1.2,
-        opacity: 0,
-        duration: 0.8,
-        ease: "back.out(1.7)",
-      });
+        {
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 60%",
+            toggleActions: "play none none reverse",
+          },
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          duration: 0.8,
+          ease: "back.out(1.7)",
+        }
+      );
 
-      gsap.from(".announcement-card", {
-        scrollTrigger: {
-          trigger: cardsRef.current,
-          start: "top 60%",
-          toggleActions: "play none none reverse",
+      gsap.fromTo(".announcement-card",
+        {
+          y: -100,
+          opacity: 0,
         },
-        y: -100,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "bounce.out",
-      });
+        {
+          scrollTrigger: {
+            trigger: cardsRef.current,
+            start: "top 60%",
+            toggleActions: "play none none reverse",
+          },
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "bounce.out",
+        }
+      );
     }
   }, { scope: sectionRef, dependencies: [announcements] });
 
