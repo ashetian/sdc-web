@@ -97,11 +97,11 @@ export default function Home() {
         <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-8">
           <button
             onClick={() => {
-              document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+              window.location.href = "/join";
             }}
             className="w-64 sm:w-auto px-8 py-4 bg-neo-pink text-black border-4 border-black shadow-neo font-black text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
           >
-            Bizi Tanıyın
+            Kulübe Üye Ol
           </button>
 
           <button
