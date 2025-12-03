@@ -8,6 +8,21 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// PDF magic bytes: %PDF-
+const PDF_MAGIC_BYTES = [0x25, 0x50, 0x44, 0x46, 0x2D];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+function validatePDFMagicBytes(buffer: Buffer): boolean {
+  if (buffer.length < PDF_MAGIC_BYTES.length) return false;
+
+  for (let i = 0; i < PDF_MAGIC_BYTES.length; i++) {
+    if (buffer[i] !== PDF_MAGIC_BYTES[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -29,8 +44,26 @@ export async function POST(request: Request) {
       );
     }
 
+    // Dosya boyutu kontrolü
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: `Dosya boyutu çok büyük. Maksimum ${MAX_FILE_SIZE / 1024 / 1024}MB olmalıdır.` },
+        { status: 400 }
+      );
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    // PDF ise magic bytes kontrolü yap
+    if (file.type === 'application/pdf') {
+      if (!validatePDFMagicBytes(buffer)) {
+        return NextResponse.json(
+          { error: 'Geçersiz PDF dosyası. Dosya yapısı bozuk olabilir.' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Tüm dosyaları Cloudinary'ye yükle (PDF dahil)
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {

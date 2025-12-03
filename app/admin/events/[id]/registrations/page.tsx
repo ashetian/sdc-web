@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
+import PDFViewerModal from './PDFViewerModal';
 
 interface Registration {
     _id: string;
@@ -39,6 +40,7 @@ export default function EventRegistrationsPage() {
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [event, setEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
 
     useEffect(() => {
         if (params.id) {
@@ -229,9 +231,12 @@ export default function EventRegistrationsPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:text-blue-900">
                                             {reg.paymentProofUrl ? (
-                                                <a href={reg.paymentProofUrl} target="_blank" rel="noopener noreferrer">
+                                                <button
+                                                    onClick={() => setSelectedPdfUrl(reg.paymentProofUrl!)}
+                                                    className="text-blue-600 hover:text-blue-900 font-medium underline"
+                                                >
                                                     Görüntüle
-                                                </a>
+                                                </button>
                                             ) : '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -277,6 +282,14 @@ export default function EventRegistrationsPage() {
                     </tbody>
                 </table>
             </div>
+
+            {/* PDF Viewer Modal */}
+            {selectedPdfUrl && (
+                <PDFViewerModal
+                    pdfUrl={selectedPdfUrl}
+                    onClose={() => setSelectedPdfUrl(null)}
+                />
+            )}
         </div>
     );
 }
