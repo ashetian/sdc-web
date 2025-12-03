@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Event, IEvent } from '@/app/lib/models/Event';
@@ -14,11 +15,11 @@ export async function GET(request: Request) {
             query = { isOpen: true };
         }
 
-        const events = (await Event.find(query).sort({ createdAt: -1 }).lean()) as unknown as (IEvent & { _id: any })[];
+        const events = (await Event.find(query).sort({ createdAt: -1 }).lean()) as unknown as (IEvent & { _id: Types.ObjectId })[];
 
         // Fetch related announcements
         const eventIds = events.map(event => event._id.toString());
-        const announcements = (await Announcement.find({ eventId: { $in: eventIds } }).select('slug eventId').lean()) as unknown as (IAnnouncement & { _id: any })[];
+        const announcements = (await Announcement.find({ eventId: { $in: eventIds } }).select('slug eventId').lean()) as unknown as (IAnnouncement & { _id: Types.ObjectId })[];
 
         // Create a map of eventId -> slug
         const announcementMap = new Map();
