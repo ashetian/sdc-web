@@ -54,50 +54,51 @@ export default function About() {
   const titleRef = useRef(null);
   const cardsRef = useRef(null);
 
-  useGSAP(() => {
-    gsap.fromTo(titleRef.current,
-      {
-        y: 50,
-        rotation: -3,
-        opacity: 0,
-      },
-      {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 60%",
-          toggleActions: "play none none reverse",
-        },
-        y: 0,
-        rotation: -1, // Target rotation from className
-        opacity: 1,
-        duration: 1,
-        ease: "elastic.out(1, 0.75)",
-      }
-    );
+  // Animations removed per user request
+  // useGSAP(() => {
+  //   gsap.fromTo(titleRef.current,
+  //     {
+  //       y: 50,
+  //       rotation: -3,
+  //       opacity: 0,
+  //     },
+  //     {
+  //       scrollTrigger: {
+  //         trigger: sectionRef.current,
+  //         start: "top 60%",
+  //         toggleActions: "play none none reverse",
+  //       },
+  //       y: 0,
+  //       rotation: -1, // Target rotation from className
+  //       opacity: 1,
+  //       duration: 1,
+  //       ease: "elastic.out(1, 0.75)",
+  //     }
+  //   );
 
-    gsap.fromTo(".feature-card",
-      {
-        y: 100,
-        rotation: () => Math.random() * 20 - 10,
-        scale: 0.5,
-        opacity: 0,
-      },
-      {
-        scrollTrigger: {
-          trigger: cardsRef.current,
-          start: "top 60%",
-          toggleActions: "play none none reverse",
-        },
-        y: 0,
-        rotation: 0,
-        scale: 1,
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "back.out(1.7)",
-      }
-    );
-  }, { scope: sectionRef });
+  //   gsap.fromTo(".feature-card",
+  //     {
+  //       y: 100,
+  //       rotation: () => Math.random() * 20 - 10,
+  //       scale: 0.5,
+  //       opacity: 0,
+  //     },
+  //     {
+  //       scrollTrigger: {
+  //         trigger: cardsRef.current,
+  //         start: "top 60%",
+  //         toggleActions: "play none none reverse",
+  //       },
+  //       y: 0,
+  //       rotation: 0,
+  //       scale: 1,
+  //       opacity: 1,
+  //       duration: 0.8,
+  //       stagger: 0.1,
+  //       ease: "back.out(1.7)",
+  //     }
+  //   );
+  // }, { scope: sectionRef });
 
   const handleJoinClick = () => {
     window.location.href = "/apply";
