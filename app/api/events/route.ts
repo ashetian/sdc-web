@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
-import { Event } from '@/app/lib/models/Event';
-
-import { Announcement } from '@/app/lib/models/Announcement';
+import { Event, IEvent } from '@/app/lib/models/Event';
+import { Announcement, IAnnouncement } from '@/app/lib/models/Announcement';
 
 export async function GET(request: Request) {
     try {
@@ -15,22 +14,22 @@ export async function GET(request: Request) {
             query = { isOpen: true };
         }
 
-        const events = await Event.find(query).sort({ createdAt: -1 }).lean();
+        const events = (await Event.find(query).sort({ createdAt: -1 }).lean()) as unknown as (IEvent & { _id: any })[];
 
         // Fetch related announcements
-        const eventIds = events.map((event: any) => event._id.toString());
-        const announcements = await Announcement.find({ eventId: { $in: eventIds } }).select('slug eventId').lean();
+        const eventIds = events.map(event => event._id.toString());
+        const announcements = (await Announcement.find({ eventId: { $in: eventIds } }).select('slug eventId').lean()) as unknown as (IAnnouncement & { _id: any })[];
 
         // Create a map of eventId -> slug
         const announcementMap = new Map();
-        announcements.forEach((announcement: any) => {
+        announcements.forEach(announcement => {
             if (announcement.eventId) {
                 announcementMap.set(announcement.eventId, announcement.slug);
             }
         });
 
         // Attach slug to events
-        const eventsWithSlugs = events.map((event: any) => ({
+        const eventsWithSlugs = events.map(event => ({
             ...event,
             announcementSlug: announcementMap.get(event._id.toString())
         }));
