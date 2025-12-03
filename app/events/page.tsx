@@ -11,6 +11,7 @@ interface Event {
     posterUrl?: string;
     eventDate: string; // ISO string from API
     createdAt: string;
+    announcementSlug?: string;
 }
 
 export default function EventsPage() {
@@ -107,7 +108,7 @@ export default function EventsPage() {
                         {dayEvents.map(event => (
                             <Link
                                 key={event._id}
-                                href={`/events/${event._id}/register`}
+                                href={event.announcementSlug ? `/announcements/${event.announcementSlug}` : `/events/${event._id}/register`}
                                 className="block bg-neo-purple text-white text-xs sm:text-sm font-bold p-1 sm:p-2 border-2 border-black shadow-neo-sm hover:scale-105 transition-transform truncate"
                                 title={event.title}
                             >
