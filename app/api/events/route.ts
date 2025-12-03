@@ -18,7 +18,7 @@ export async function GET(request: Request) {
         const events = await Event.find(query).sort({ createdAt: -1 }).lean();
 
         // Fetch related announcements
-        const eventIds = (events as any[]).map(event => event._id.toString());
+        const eventIds = events.map((event: any) => event._id.toString());
         const announcements = await Announcement.find({ eventId: { $in: eventIds } }).select('slug eventId').lean();
 
         // Create a map of eventId -> slug
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
         });
 
         // Attach slug to events
-        const eventsWithSlugs = (events as any[]).map(event => ({
+        const eventsWithSlugs = events.map((event: any) => ({
             ...event,
             announcementSlug: announcementMap.get(event._id.toString())
         }));

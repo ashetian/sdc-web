@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Announcement {
   slug: string;
@@ -311,8 +312,8 @@ export default function EditAnnouncementPage({
             {formData.image && (
               <div className="mt-2">
                 <p className="text-sm text-green-600 mb-1">Görsel yüklendi:</p>
-                <img src={formData.image} alt="Önizleme" className="h-32 w-auto object-cover rounded border border-gray-300" />
-                <button 
+                <Image src={formData.image} alt="Önizleme" width={300} height={200} className="h-32 w-auto object-cover rounded border border-gray-300" unoptimized />
+                <button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
                   className="mt-1 text-xs text-red-600 hover:text-red-800"
