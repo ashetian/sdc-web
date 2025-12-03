@@ -31,9 +31,11 @@ export default function Announcements() {
           start: "top 80%",
           toggleActions: "play none none reverse",
         },
-        y: 50,
+        y: -50,
+        scale: 1.2,
+        opacity: 0,
         duration: 0.8,
-        ease: "power2.out",
+        ease: "back.out(1.7)",
       });
 
       gsap.from(".announcement-card", {
@@ -42,10 +44,11 @@ export default function Announcements() {
           start: "top 80%",
           toggleActions: "play none none reverse",
         },
-        y: 30,
-        duration: 0.6,
-        stagger: 0.2,
-        ease: "back.out(1.7)",
+        y: -100,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "bounce.out",
       });
     }
   }, { scope: sectionRef, dependencies: [announcements] });

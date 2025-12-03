@@ -62,8 +62,10 @@ export default function About() {
         toggleActions: "play none none reverse",
       },
       y: 50,
-      duration: 0.8,
-      ease: "power2.out",
+      rotation: -3,
+      opacity: 0,
+      duration: 1,
+      ease: "elastic.out(1, 0.75)",
     });
 
     gsap.from(".feature-card", {
@@ -72,9 +74,12 @@ export default function About() {
         start: "top 80%",
         toggleActions: "play none none reverse",
       },
-      y: 30,
-      duration: 0.6,
-      stagger: 0.2,
+      y: 100,
+      rotation: () => Math.random() * 20 - 10,
+      scale: 0.5,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.1,
       ease: "back.out(1.7)",
     });
   }, { scope: sectionRef });

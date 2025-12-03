@@ -49,28 +49,34 @@ export default function Home() {
 
     tl.from(titleRef.current, {
       y: 100,
+      rotation: -5,
+      scale: 0.8,
       opacity: 0,
-      duration: 1,
-      ease: "power4.out",
+      duration: 1.2,
+      ease: "elastic.out(1, 0.5)",
     })
       .from(subtitleRef.current, {
-        y: 50,
+        x: -50,
+        skewX: 10,
         opacity: 0,
         duration: 0.8,
         ease: "power3.out",
-      }, "-=0.5")
+      }, "-=0.8")
       .from(buttonsRef.current, {
-        scale: 0.8,
+        scale: 0,
+        rotation: 5,
         opacity: 0,
-        duration: 0.5,
-        ease: "back.out(1.7)",
-      }, "-=0.3")
+        duration: 0.6,
+        ease: "elastic.out(1, 0.5)",
+      }, "-=0.4")
       .from(statsRef.current, {
         y: 50,
+        scale: 0.5,
         opacity: 0,
         duration: 0.8,
-        ease: "power2.out",
-      }, "-=0.3");
+        stagger: 0.2,
+        ease: "back.out(1.7)",
+      }, "-=0.4");
 
   }, { scope: containerRef });
 

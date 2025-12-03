@@ -151,9 +151,11 @@ export default function Team() {
                 start: "top 80%",
                 toggleActions: "play none none reverse",
             },
-            y: 50,
-            duration: 0.8,
-            ease: "power2.out",
+            x: -100,
+            rotation: -10,
+            opacity: 0,
+            duration: 1,
+            ease: "elastic.out(1, 0.75)",
         });
 
         // Grid animation is handled inside ChromaGrid or we can animate the container
@@ -163,9 +165,10 @@ export default function Team() {
                 start: "top 80%",
                 toggleActions: "play none none reverse",
             },
-            y: 100,
-            duration: 0.8,
-            ease: "power2.out",
+            scale: 0.8,
+            opacity: 0,
+            duration: 1,
+            ease: "elastic.out(1, 0.75)",
         });
     }, { scope: sectionRef });
 

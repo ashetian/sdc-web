@@ -23,10 +23,11 @@ export default function Contact() {
                 start: "top 80%",
                 toggleActions: "play none none reverse",
             },
-            y: 50,
+            scale: 0.5,
+            rotation: 360,
             opacity: 0,
-            duration: 0.8,
-            ease: "power2.out",
+            duration: 1,
+            ease: "back.out(1.7)",
         });
 
         gsap.from(formContainerRef.current, {
@@ -35,10 +36,11 @@ export default function Contact() {
                 start: "top 80%",
                 toggleActions: "play none none reverse",
             },
-            y: 100,
+            y: 200,
+            rotation: 5,
             opacity: 0,
-            duration: 0.8,
-            ease: "power2.out",
+            duration: 1,
+            ease: "power4.out",
         });
     }, { scope: sectionRef });
 
