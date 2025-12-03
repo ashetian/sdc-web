@@ -148,7 +148,7 @@ export default function Team() {
         gsap.from(titleRef.current, {
             scrollTrigger: {
                 trigger: sectionRef.current,
-                start: "top 80%",
+                start: "top 60%",
                 toggleActions: "play none none reverse",
             },
             x: -100,
@@ -162,7 +162,7 @@ export default function Team() {
         gsap.from(gridRef.current, {
             scrollTrigger: {
                 trigger: gridRef.current,
-                start: "top 80%",
+                start: "top 60%",
                 toggleActions: "play none none reverse",
             },
             scale: 0.8,

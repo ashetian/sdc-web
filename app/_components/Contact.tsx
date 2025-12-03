@@ -20,7 +20,7 @@ export default function Contact() {
         gsap.from(titleRef.current, {
             scrollTrigger: {
                 trigger: sectionRef.current,
-                start: "top 80%",
+                start: "top 60%",
                 toggleActions: "play none none reverse",
             },
             scale: 0.5,
@@ -33,7 +33,7 @@ export default function Contact() {
         gsap.from(formContainerRef.current, {
             scrollTrigger: {
                 trigger: formContainerRef.current,
-                start: "top 80%",
+                start: "top 60%",
                 toggleActions: "play none none reverse",
             },
             y: 200,

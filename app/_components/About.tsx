@@ -58,7 +58,7 @@ export default function About() {
     gsap.from(titleRef.current, {
       scrollTrigger: {
         trigger: sectionRef.current,
-        start: "top 80%",
+        start: "top 60%",
         toggleActions: "play none none reverse",
       },
       y: 50,
@@ -71,7 +71,7 @@ export default function About() {
     gsap.from(".feature-card", {
       scrollTrigger: {
         trigger: cardsRef.current,
-        start: "top 80%",
+        start: "top 60%",
         toggleActions: "play none none reverse",
       },
       y: 100,
