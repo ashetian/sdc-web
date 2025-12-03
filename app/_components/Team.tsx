@@ -149,6 +149,7 @@ export default function Team() {
             scrollTrigger: {
                 trigger: sectionRef.current,
                 start: "top 80%",
+                toggleActions: "play none none reverse",
             },
             y: 50,
             duration: 0.8,
@@ -160,6 +161,7 @@ export default function Team() {
             scrollTrigger: {
                 trigger: gridRef.current,
                 start: "top 80%",
+                toggleActions: "play none none reverse",
             },
             y: 100,
             duration: 0.8,

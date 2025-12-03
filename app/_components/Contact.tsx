@@ -21,6 +21,7 @@ export default function Contact() {
             scrollTrigger: {
                 trigger: sectionRef.current,
                 start: "top 80%",
+                toggleActions: "play none none reverse",
             },
             y: 50,
             opacity: 0,
@@ -32,6 +33,7 @@ export default function Contact() {
             scrollTrigger: {
                 trigger: formContainerRef.current,
                 start: "top 80%",
+                toggleActions: "play none none reverse",
             },
             y: 100,
             opacity: 0,

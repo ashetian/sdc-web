@@ -59,6 +59,7 @@ export default function About() {
       scrollTrigger: {
         trigger: sectionRef.current,
         start: "top 80%",
+        toggleActions: "play none none reverse",
       },
       y: 50,
       duration: 0.8,
@@ -69,6 +70,7 @@ export default function About() {
       scrollTrigger: {
         trigger: cardsRef.current,
         start: "top 80%",
+        toggleActions: "play none none reverse",
       },
       y: 30,
       duration: 0.6,
