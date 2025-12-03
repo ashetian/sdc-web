@@ -48,8 +48,8 @@ export default function Contact() {
 
         try {
             await emailjs.sendForm(
-                "service_ktusdc",
-                "template_ktusdc",
+                "service_sdc",
+                "template_0619veg",
                 formRef.current,
                 process.env.NEXT_PUBLIC_EMAILJS_API_KEY || ""
             );
