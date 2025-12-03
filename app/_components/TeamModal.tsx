@@ -66,7 +66,7 @@ export default function TeamModal({
       role="dialog"
       aria-modal="true"
       aria-label={`${member.name} profili`}
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4" 
+      className="fixed inset-0 z-[10] flex items-center justify-center p-4" 
     >
       {/* backdrop */}
       <div
