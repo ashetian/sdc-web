@@ -107,7 +107,7 @@ export default function JoinPage() {
                         Son Adım: WhatsApp Grubuna Katıl!
                     </h2>
                     <p className="text-xl font-bold text-black mb-8">
-                        Yukarıdaki adımları tamamladıktan sonra WhatsApp grubumuzza katılarak kulüp etkinliklerinden haberdar olun!
+                        Yukarıdaki adımları tamamladıktan sonra WhatsApp grubumuza katılarak kulüp etkinliklerinden haberdar olun!
                     </p>
                     <a
                         href={whatsappGroupLink}

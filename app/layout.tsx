@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
 import ScrollToTop from "./_components/ScrollToTop";
+import CustomCursor from "./_components/CustomCursor";
 import { Inter } from "next/font/google";
 
 const inter = Inter({
@@ -76,6 +77,7 @@ export default function RootLayout({
     <html lang="tr" className="overflow-x-hidden">
       <body className={`${inter.variable} font-sans overflow-x-hidden`}>
         <Navbar />
+        <CustomCursor />
         {children}
         <Footer />
         <ScrollToTop />
