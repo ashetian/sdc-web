@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function CreateEventPage() {
     const router = useRouter();
@@ -121,8 +122,8 @@ export default function CreateEventPage() {
                     {formData.posterUrl && (
                         <div className="mt-2">
                             <p className="text-sm text-green-600 mb-1">Afiş yüklendi:</p>
-                            <img src={formData.posterUrl} alt="Önizleme" className="h-32 w-auto object-cover rounded border border-gray-300" />
-                            <button 
+                            <Image src={formData.posterUrl} alt="Önizleme" width={300} height={200} className="h-32 w-auto object-cover rounded border border-gray-300" unoptimized />
+                            <button
                                 type="button"
                                 onClick={() => setFormData(prev => ({ ...prev, posterUrl: '' }))}
                                 className="mt-1 text-xs text-red-600 hover:text-red-800"
