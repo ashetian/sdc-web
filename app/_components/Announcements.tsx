@@ -103,28 +103,7 @@ export default function Announcements() {
             En güncel etkinlik ve duyurularımızdan haberdar olun.
           </p>
 
-          {/* Aktif Etkinlikler Butonu */}
-          <div className="mt-8">
-            <a
-              href="/events"
-              className="inline-flex items-center px-8 py-4 bg-neo-green text-black border-4 border-black shadow-neo text-lg font-black hover:bg-black hover:text-white hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-1"
-            >
-              <svg
-                className="w-6 h-6 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth="3"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              Etkinlik Takvimi
-            </a>
-          </div>
+
         </div>
 
         <div ref={cardsRef} className="flex gap-8 overflow-x-auto overflow-y-hidden pb-8 custom-scrollbar">
@@ -163,6 +142,28 @@ export default function Announcements() {
               </button>
             </a>
           ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <a
+            href="/events"
+            className="inline-flex items-center px-8 py-4 bg-neo-green text-black border-4 border-black shadow-neo text-lg font-black hover:bg-black hover:text-white hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-1"
+          >
+            <svg
+              className="w-6 h-6 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth="3"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            Etkinlik Takvimi
+          </a>
         </div>
       </div>
     </section>
