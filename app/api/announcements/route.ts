@@ -10,7 +10,7 @@ const schema = z.object({
   date: z.string().min(1).max(100),
   description: z.string().min(1).max(500),
   type: z.string().min(1).max(100),
-  content: z.string().min(100).max(10000),
+  content: z.string().min(1).max(10000),
   eventId: z.string().optional(),
 });
 
@@ -90,8 +90,10 @@ export async function POST(request: Request) {
     // Zod validasyonu
     const parsed = schema.safeParse(data);
     if (!parsed.success) {
+      const errorDetails = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ');
+      console.error('Validation failed:', errorDetails);
       return NextResponse.json(
-        { error: parsed.error.issues.map((i) => i.message).join(', ') },
+        { error: errorDetails },
         { status: 400 }
       );
     }
@@ -104,7 +106,38 @@ export async function POST(request: Request) {
       );
     }
 
-    const announcement = await Announcement.create(data);
+    // Auto-translate if DeepL API key is available
+    let announcementData = { ...data };
+
+    // Translate date (no API needed - simple month replacement)
+    const { translateDate } = await import('@/app/lib/translate');
+    const dateEn = translateDate(data.date);
+    announcementData.dateEn = dateEn;
+
+    if (process.env.DEEPL_API_KEY) {
+      try {
+        const { translateContent } = await import('@/app/lib/translate');
+
+        // Translate each field separately
+        const titleResult = await translateContent(data.title, 'tr');
+        const descResult = await translateContent(data.description, 'tr');
+        const contentResult = await translateContent(data.content, 'tr');
+
+        announcementData = {
+          ...announcementData,
+          titleEn: titleResult.en || '',
+          descriptionEn: descResult.en || '',
+          contentEn: contentResult.en || '',
+        };
+        console.log('Auto-translation successful');
+      } catch (translateError) {
+        console.error('Auto-translation failed (continuing without translation):', translateError);
+        // Continue without translation - announcement will still be created
+      }
+    }
+
+    const announcement = await Announcement.create(announcementData);
+    console.log('Announcement created:', announcement.slug);
     return NextResponse.json(announcement);
   } catch (error) {
     console.error('Duyuru eklenirken hata oluştu:', error);

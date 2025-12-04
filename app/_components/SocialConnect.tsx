@@ -2,9 +2,22 @@
 import React, { useState, useEffect } from "react";
 import { FaWhatsapp, FaInstagram, FaSlack } from "react-icons/fa";
 import { BsLinkedin } from "react-icons/bs";
+import { useLanguage } from "../_context/LanguageContext";
 
 export default function SocialConnect() {
   const [whatsappLink, setWhatsappLink] = useState("https://chat.whatsapp.com/FH8knELNs0E5ZMd7XxH5YB");
+  const { language } = useLanguage();
+
+  const t = {
+    tr: {
+      title: "Bizi Takip Edin",
+      description: "Sosyal medya hesaplarımızdan güncel etkinlik ve duyurularımızı takip edebilirsiniz"
+    },
+    en: {
+      title: "Follow Us",
+      description: "You can follow our current events and announcements from our social media accounts"
+    }
+  };
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -56,11 +69,10 @@ export default function SocialConnect() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="inline-block text-4xl sm:text-5xl font-black text-black mb-4 bg-neo-orange border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
-            Bizi Takip Edin
+            {t[language].title}
           </h2>
           <p className="text-xl font-bold text-black max-w-2xl mx-auto mt-4">
-            Sosyal medya hesaplarımızdan güncel etkinlik ve duyurularımızı takip
-            edebilirsiniz
+            {t[language].description}
           </p>
         </div>
 

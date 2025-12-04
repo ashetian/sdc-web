@@ -2,17 +2,22 @@
 import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "../../_context/LanguageContext";
 
 interface Announcement {
   slug: string;
   title: string;
+  titleEn?: string;
   date: string;
   description: string;
+  descriptionEn?: string;
   type: "event" | "news" | "workshop";
   content: string;
+  contentEn?: string;
   galleryLinks?: string[];
   galleryCover?: string;
   galleryDescription?: string;
+  galleryDescriptionEn?: string;
   isInGallery?: boolean;
 }
 
@@ -28,6 +33,30 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
   const { slug } = use(params);
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
+  const { language } = useLanguage();
+
+  const labels = {
+    tr: {
+      backToGallery: '← Galeriye Dön',
+      notFound: 'Galeri etkinliği bulunamadı.',
+      event: 'Etkinlik',
+      news: 'Duyuru',
+      workshop: 'Workshop',
+      viewFile: 'Dosyayı Görüntüle',
+      galleryImage: 'Galeri görseli'
+    },
+    en: {
+      backToGallery: '← Back to Gallery',
+      notFound: 'Gallery event not found.',
+      event: 'Event',
+      news: 'News',
+      workshop: 'Workshop',
+      viewFile: 'View File',
+      galleryImage: 'Gallery image'
+    }
+  };
+
+  const l = labels[language];
 
   useEffect(() => {
     async function loadAnnouncement() {
@@ -48,6 +77,23 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
     loadAnnouncement();
   }, [slug]);
 
+  const getTitle = (a: Announcement) => {
+    if (language === 'en' && a.titleEn) return a.titleEn;
+    return a.title;
+  };
+
+  const getDescription = (a: Announcement) => {
+    if (language === 'en') {
+      if (a.galleryDescriptionEn) return a.galleryDescriptionEn;
+      if (a.descriptionEn) return a.descriptionEn;
+    }
+    return a.galleryDescription || a.description;
+  };
+
+  const getTypeLabel = (type: "event" | "news" | "workshop") => {
+    return l[type];
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neo-purple">
@@ -60,7 +106,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
     return (
       <div className="min-h-screen flex items-center justify-center bg-neo-yellow">
         <div className="bg-white border-4 border-black shadow-neo p-8 text-2xl font-black text-black">
-          Galeri etkinliği bulunamadı.
+          {l.notFound}
         </div>
       </div>
     );
@@ -71,14 +117,14 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform rotate-1">
           <Link href="/gallery" className="text-black font-black hover:underline mb-6 inline-block uppercase text-sm">
-            ← Galeriye Dön
+            {l.backToGallery}
           </Link>
 
           {announcement.galleryCover && (
             <div className="mb-8 border-4 border-black shadow-neo">
               <Image
                 src={announcement.galleryCover}
-                alt={announcement.title}
+                alt={getTitle(announcement)}
                 width={800}
                 height={400}
                 className="w-full object-cover"
@@ -94,16 +140,16 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
                     "bg-neo-green text-black"}
               `}
             >
-              {announcement.type === "event" ? "Etkinlik" : announcement.type === "news" ? "Duyuru" : "Workshop"}
+              {getTypeLabel(announcement.type)}
             </span>
             <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{announcement.date}</time>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight">{announcement.title}</h1>
+          <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight">{getTitle(announcement)}</h1>
 
-          {announcement.galleryDescription && (
+          {(announcement.galleryDescription || announcement.galleryDescriptionEn) && (
             <p className="text-black font-medium text-lg mb-8 whitespace-pre-line border-l-4 border-black pl-4">
-              {announcement.galleryDescription}
+              {getDescription(announcement)}
             </p>
           )}
 
@@ -114,7 +160,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
                   {isImage(link) ? (
                     <Image
                       src={link}
-                      alt={`Galeri görseli ${i + 1}`}
+                      alt={`${l.galleryImage} ${i + 1}`}
                       width={800}
                       height={500}
                       className="w-full object-contain bg-black"
@@ -127,7 +173,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
                     />
                   ) : (
                     <a href={link} target="_blank" rel="noopener noreferrer" className="text-white font-bold underline p-4 block text-center hover:text-neo-yellow">
-                      Dosyayı Görüntüle
+                      {l.viewFile}
                     </a>
                   )}
                 </div>
@@ -138,4 +184,4 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
       </div>
     </div>
   );
-} 
+}

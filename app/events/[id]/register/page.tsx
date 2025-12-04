@@ -31,6 +31,7 @@ export default function RegisterPage() {
         department: '',
         email: '',
         paymentProofUrl: '',
+        kvkkConsent: false,
     });
     const [uploading, setUploading] = useState(false);
 
@@ -317,10 +318,34 @@ export default function RegisterPage() {
                             </div>
                         )}
 
+                        {/* KVKK Onayı */}
+                        <div className="bg-gray-50 p-4 border-4 border-black">
+                            <label className="flex items-start space-x-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    required
+                                    checked={formData.kvkkConsent}
+                                    onChange={(e) => setFormData({ ...formData, kvkkConsent: e.target.checked })}
+                                    className="w-5 h-5 border-2 border-black mt-0.5 flex-shrink-0"
+                                />
+                                <span className="text-sm text-black font-medium">
+                                    <a
+                                        href="/kvkk"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:text-blue-800 underline font-bold"
+                                    >
+                                        KVKK Aydınlatma Metni
+                                    </a>
+                                    &apos;ni okudum ve kişisel verilerimin etkinlik süreçleri kapsamında işleneceğini onaylıyorum. <span className="text-red-600">*</span>
+                                </span>
+                            </label>
+                        </div>
+
                         <div>
                             <button
                                 type="submit"
-                                disabled={submitting}
+                                disabled={submitting || !formData.kvkkConsent}
                                 className="w-full flex justify-center py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {submitting ? 'Kaydediliyor...' : 'Kaydol'}

@@ -1,18 +1,21 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLanguage } from "../_context/LanguageContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface Announcement {
   slug: string;
   title: string;
+  titleEn?: string;
   date: string;
   description: string;
+  descriptionEn?: string;
   type: "event" | "news" | "workshop";
   content: string;
+  contentEn?: string;
   image?: string;
   isDraft: boolean;
 }
@@ -22,50 +25,7 @@ export default function Announcements() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef(null);
   const cardsRef = useRef(null);
-
-  // Animations removed per user request
-  // useGSAP(() => {
-  //   if (announcements.length > 0) {
-  //     gsap.fromTo(titleRef.current,
-  //       {
-  //         y: -50,
-  //         scale: 1.2,
-  //         opacity: 0,
-  //       },
-  //       {
-  //         scrollTrigger: {
-  //           trigger: sectionRef.current,
-  //           start: "top 60%",
-  //           toggleActions: "play none none reverse",
-  //         },
-  //         y: 0,
-  //         scale: 1,
-  //         opacity: 1,
-  //         duration: 0.8,
-  //         ease: "back.out(1.7)",
-  //       }
-  //     );
-
-  //     gsap.fromTo(".announcement-card",
-  //       {
-  //         y: -100,
-  //         opacity: 0,
-  //       },
-  //       {
-  //         scrollTrigger: {
-  //           trigger: cardsRef.current,
-  //           start: "top 60%",
-  //           toggleActions: "play none none reverse",
-  //         },
-  //         y: 0,
-  //         opacity: 1,
-  //         duration: 0.8,
-  //         stagger: 0.1,
-  //         ease: "bounce.out",
-  //       }
-  //     );
-  //   }
-  // }, { scope: sectionRef, dependencies: [announcements] });
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     async function loadAnnouncements() {
@@ -97,15 +57,39 @@ export default function Announcements() {
   };
 
   const getTypeText = (type: Announcement["type"]) => {
-    switch (type) {
-      case "event":
-        return "Etkinlik";
-      case "news":
-        return "Duyuru";
-      case "workshop":
-        return "Workshop";
+    const typeLabels = {
+      tr: { event: "Etkinlik", news: "Duyuru", workshop: "Workshop" },
+      en: { event: "Event", news: "News", workshop: "Workshop" }
+    };
+    return typeLabels[language][type];
+  };
+
+  const getTitle = (a: Announcement) => {
+    if (language === 'en' && a.titleEn) return a.titleEn;
+    return a.title;
+  };
+
+  const getDescription = (a: Announcement) => {
+    if (language === 'en' && a.descriptionEn) return a.descriptionEn;
+    return a.description;
+  };
+
+  const labels = {
+    tr: {
+      title: 'Duyurular',
+      subtitle: 'En güncel etkinlik ve duyurularımızdan haberdar olun.',
+      seeDetails: 'Detayları Gör',
+      eventCalendar: 'Etkinlik Takvimi'
+    },
+    en: {
+      title: 'Announcements',
+      subtitle: 'Stay updated with our latest events and announcements.',
+      seeDetails: 'See Details',
+      eventCalendar: 'Event Calendar'
     }
   };
+
+  const l = labels[language];
 
   return (
     <section
@@ -116,13 +100,11 @@ export default function Announcements() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-6 py-2 transform rotate-1">
-            Duyurular
+            {l.title}
           </h2>
           <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-2">
-            En güncel etkinlik ve duyurularımızdan haberdar olun.
+            {l.subtitle}
           </p>
-
-
         </div>
 
         <div ref={cardsRef} className="flex gap-8 overflow-x-auto overflow-y-hidden py-6 custom-scrollbar">
@@ -149,15 +131,15 @@ export default function Announcements() {
               </div>
 
               <h3 className="text-xl font-black text-black mb-3 uppercase group-hover:text-neo-purple transition-colors">
-                {announcement.title}
+                {getTitle(announcement)}
               </h3>
 
               <p className="text-black font-medium mb-4 line-clamp-3 border-t-2 border-black pt-2">
-                {announcement.description}
+                {getDescription(announcement)}
               </p>
 
               <button className="mt-auto w-full py-2 bg-black text-white font-bold border-2 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all">
-                Detayları Gör
+                {l.seeDetails}
               </button>
             </a>
           ))}
@@ -181,7 +163,7 @@ export default function Announcements() {
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            Etkinlik Takvimi
+            {l.eventCalendar}
           </a>
         </div>
       </div>

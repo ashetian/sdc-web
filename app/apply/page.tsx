@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../_context/LanguageContext";
 
-type Department = "Proje Departmanı" | "Teknik Departman" | "Medya Departmanı" | "Kurumsal İletişim Departmanı";
+type Department = "Proje Departmanı" | "Teknik Departman" | "Medya Departmanı" | "Kurumsal İletişim Departmanı" | string;
+
+interface DepartmentData {
+    _id: string;
+    name: string;
+    nameEn?: string;
+    slug: string;
+}
 
 interface FormData {
     fullName: string;
@@ -28,6 +36,8 @@ export default function ApplyPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [departments, setDepartments] = useState<DepartmentData[]>([]);
+    const { language } = useLanguage();
     const [formData, setFormData] = useState<FormData>({
         fullName: "",
         faculty: "",
@@ -46,6 +56,116 @@ export default function ApplyPage() {
         kvkkConsent: false,
         communicationConsent: false,
     });
+
+    const labels = {
+        tr: {
+            title: 'KTÜ SDC – Departman Başvuru Formu',
+            personalInfo: '1. Kişisel Bilgiler',
+            fullName: 'Ad Soyad',
+            faculty: 'Fakülte',
+            department: 'Bölüm',
+            classYear: 'Sınıf',
+            classYearPlaceholder: 'Örn: 2. Sınıf, 3. Sınıf',
+            phone: 'Telefon',
+            email: 'E-posta',
+            github: 'GitHub (varsa)',
+            linkedin: 'LinkedIn (varsa)',
+            deptSelection: '2. Başvurulan Departman',
+            selectDept: 'Departman Seçimi',
+            chooseDept: 'Departman seçiniz...',
+            motivationSection: '3. Motivasyon ve Uygunluk Soruları',
+            whyDept: 'Neden bu departmana başvuruyorsun?',
+            hasExperience: 'Daha önce kulüp, takım, etkinlik vb. bir organizasyon tecrübem var',
+            expDesc: 'Deneyimini açıkla',
+            deptQuestions: '4. Departmana Özel Sorular',
+            additionalNotes: '5. Ek Notlar',
+            notesLabel: 'Eklemek istediğin notlar',
+            optional: 'Opsiyonel',
+            kvkkSection: '6. KVKK ve Onay',
+            kvkkText: 'KVKK Aydınlatma Metni',
+            kvkkConsent: "'ni okudum ve kişisel verilerimin kulüp içi kullanım amaçlı işleneceğini onaylıyorum.",
+            commConsent: 'Kulüp tarafından e-posta/telefon yoluyla bilgilendirilmesine onay veriyorum.',
+            submit: 'Başvuruyu Gönder',
+            sending: 'Gönderiliyor...',
+            success: 'Başvurunuz başarıyla gönderildi!',
+            error: 'Bir hata oluştu',
+            projectDept: 'Proje Departmanı Soruları',
+            eventExp: 'Daha önce etkinlik planlama / moderasyon / görevli deneyimin var mı?',
+            interpersonal: 'İnsan ilişkisi gerektiren durumlarda genelde nasıl davranırsın?',
+            commIdea: 'Üyeler arası iletişimi geliştirmek için bir fikir yaz.',
+            techDept: 'Teknik Departman Soruları',
+            techInterests: 'Hangi teknolojilerle ilgileniyorsun? (Frontend, Backend, AI, DevOps, Mobile, Siber Güvenlik gibi...)',
+            projectDesc: 'Şu ana kadar yaptığın bir projeyi kısaca anlat.',
+            mediaDept: 'Medya Departmanı Soruları',
+            tools: 'Hangi araçları kullanıyorsun? (Canva, Figma, Premiere, After Effects gibi...)',
+            portfolio: 'Daha önce afiş veya video çalışman varsa link bırak.',
+            corpDept: 'Kurumsal İletişim Departmanı Soruları',
+            formalComm: 'Daha önce mail yazışması, sponsorluk görüşmesi veya resmi iletişim deneyimin var mı?',
+            sponsorStrategy: 'Etkinlik için sponsorluk bulma sürecinde nasıl bir strateji izlerdin?'
+        },
+        en: {
+            title: 'KTU SDC – Department Application Form',
+            personalInfo: '1. Personal Information',
+            fullName: 'Full Name',
+            faculty: 'Faculty',
+            department: 'Department',
+            classYear: 'Class Year',
+            classYearPlaceholder: 'Ex: 2nd Year, 3rd Year',
+            phone: 'Phone',
+            email: 'Email',
+            github: 'GitHub (if any)',
+            linkedin: 'LinkedIn (if any)',
+            deptSelection: '2. Department Selection',
+            selectDept: 'Select Department',
+            chooseDept: 'Choose a department...',
+            motivationSection: '3. Motivation and Suitability Questions',
+            whyDept: 'Why are you applying to this department?',
+            hasExperience: 'I have previous experience in a club, team, event organization etc.',
+            expDesc: 'Explain your experience',
+            deptQuestions: '4. Department Specific Questions',
+            additionalNotes: '5. Additional Notes',
+            notesLabel: 'Notes you want to add',
+            optional: 'Optional',
+            kvkkSection: '6. GDPR and Consent',
+            kvkkText: 'GDPR Clarification Text',
+            kvkkConsent: " I have read and I consent to the processing of my personal data for internal club use.",
+            commConsent: 'I consent to being informed by the club via email/phone.',
+            submit: 'Submit Application',
+            sending: 'Sending...',
+            success: 'Your application has been submitted successfully!',
+            error: 'An error occurred',
+            projectDept: 'Project Department Questions',
+            eventExp: 'Do you have any experience in event planning / moderation / staffing?',
+            interpersonal: 'How do you generally behave in situations requiring human relations?',
+            commIdea: 'Write an idea to improve communication among members.',
+            techDept: 'Technical Department Questions',
+            techInterests: 'Which technologies are you interested in? (Frontend, Backend, AI, DevOps, Mobile, Cyber Security etc...)',
+            projectDesc: 'Briefly describe a project you have done so far.',
+            mediaDept: 'Media Department Questions',
+            tools: 'Which tools do you use? (Canva, Figma, Premiere, After Effects etc...)',
+            portfolio: 'Leave a link if you have previous poster or video work.',
+            corpDept: 'Corporate Relations Department Questions',
+            formalComm: 'Do you have any experience in email correspondence, sponsorship meetings or formal communication?',
+            sponsorStrategy: 'What strategy would you follow in the process of finding sponsorship for an event?'
+        }
+    };
+
+    const l = labels[language];
+
+    useEffect(() => {
+        const fetchDepartments = async () => {
+            try {
+                const res = await fetch('/api/departments');
+                if (res.ok) {
+                    const data = await res.json();
+                    setDepartments(data);
+                }
+            } catch (error) {
+                console.error('Departmanlar yüklenemedi:', error);
+            }
+        };
+        fetchDepartments();
+    }, []);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -94,178 +214,164 @@ export default function ApplyPage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Başvuru gönderilemedi");
+                throw new Error(errorData.error || l.error);
             }
 
-            alert("Başvurunuz başarıyla gönderildi!");
+            alert(l.success);
             router.push("/");
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Bir hata oluştu");
+            setError(err instanceof Error ? err.message : l.error);
         } finally {
             setLoading(false);
         }
     };
 
     const renderDepartmentQuestions = () => {
-        switch (formData.selectedDepartment) {
-            case "Proje Departmanı":
-                return (
-                    <div className="space-y-6">
-                        <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
-                            Proje Departmanı Soruları
-                        </h3>
+        // Map department names to keys if needed, or use string matching
+        // For simplicity, we'll check against Turkish names as they are the values
 
-                        {/* Organizasyon Birimi */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Daha önce etkinlik planlama / moderasyon / görevli deneyimin var mı?
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.eventExperience || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("eventExperience", e.target.value)}
-                                rows={4}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                        </div>
-
-                        {/* Topluluk & İK Birimi */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                İnsan ilişkisi gerektiren durumlarda genelde nasıl davranırsın?
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.interpersonalSkills || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("interpersonalSkills", e.target.value)}
-                                rows={4}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Üyeler arası iletişimi geliştirmek için bir fikir yaz.
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.communicationIdea || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("communicationIdea", e.target.value)}
-                                rows={4}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                        </div>
+        if (formData.selectedDepartment.includes("Proje")) {
+            return (
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
+                        {l.projectDept}
+                    </h3>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.eventExp}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.eventExperience || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("eventExperience", e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            required
+                        />
                     </div>
-                );
-
-            case "Teknik Departman":
-                return (
-                    <div className="space-y-6">
-                        <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
-                            Teknik Departman Soruları
-                        </h3>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Hangi teknolojilerle ilgileniyorsun? (Frontend, Backend, AI, DevOps, Mobile, Siber Güvenlik gibi...)
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.technologies || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("technologies", e.target.value)}
-                                rows={4}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Şu ana kadar yaptığın bir projeyi kısaca anlat.
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.projectDescription || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("projectDescription", e.target.value)}
-                                rows={4}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                        </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.interpersonal}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.interpersonalSkills || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("interpersonalSkills", e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            required
+                        />
                     </div>
-                );
-
-            case "Medya Departmanı":
-                return (
-                    <div className="space-y-6">
-                        <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
-                            Medya Departmanı Soruları
-                        </h3>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Hangi araçları kullanıyorsun? (Canva, Figma, Premiere, After Effects gibi...)
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.tools || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("tools", e.target.value)}
-                                rows={4}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Daha önce afiş veya video çalışman varsa link bırak.
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.portfolioLinks || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("portfolioLinks", e.target.value)}
-                                rows={3}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                placeholder="Opsiyonel"
-                            />
-                        </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.commIdea}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.communicationIdea || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("communicationIdea", e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            required
+                        />
                     </div>
-                );
-
-            case "Kurumsal İletişim Departmanı":
-                return (
-                    <div className="space-y-6">
-                        <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
-                            Kurumsal İletişim Departmanı Soruları
-                        </h3>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Daha önce mail yazışması, sponsorluk görüşmesi veya resmi iletişim deneyimin var mı?
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.formalCommunicationExperience || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("formalCommunicationExperience", e.target.value)}
-                                rows={4}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Etkinlik için sponsorluk bulma sürecinde nasıl bir strateji izlerdin?
-                            </label>
-                            <textarea
-                                value={formData.departmentSpecificAnswers.sponsorshipStrategy || ""}
-                                onChange={(e) => handleDepartmentAnswerChange("sponsorshipStrategy", e.target.value)}
-                                rows={4}
-                                className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                        </div>
+                </div>
+            );
+        } else if (formData.selectedDepartment.includes("Teknik")) {
+            return (
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
+                        {l.techDept}
+                    </h3>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.techInterests}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.technologies || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("technologies", e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            required
+                        />
                     </div>
-                );
-
-            default:
-                return null;
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.projectDesc}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.projectDescription || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("projectDescription", e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            required
+                        />
+                    </div>
+                </div>
+            );
+        } else if (formData.selectedDepartment.includes("Medya")) {
+            return (
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
+                        {l.mediaDept}
+                    </h3>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.tools}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.tools || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("tools", e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.portfolio}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.portfolioLinks || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("portfolioLinks", e.target.value)}
+                            rows={3}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            placeholder={l.optional}
+                        />
+                    </div>
+                </div>
+            );
+        } else if (formData.selectedDepartment.includes("Kurumsal")) {
+            return (
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
+                        {l.corpDept}
+                    </h3>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.formalComm}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.formalCommunicationExperience || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("formalCommunicationExperience", e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {l.sponsorStrategy}
+                        </label>
+                        <textarea
+                            value={formData.departmentSpecificAnswers.sponsorshipStrategy || ""}
+                            onChange={(e) => handleDepartmentAnswerChange("sponsorshipStrategy", e.target.value)}
+                            rows={4}
+                            className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                            required
+                        />
+                    </div>
+                </div>
+            );
         }
+        return null;
     };
 
     return (
@@ -273,7 +379,7 @@ export default function ApplyPage() {
             <div className="max-w-3xl mx-auto">
                 <div className="bg-white border-4 border-black shadow-neo p-8">
                     <h1 className="text-3xl font-black text-black mb-2 border-b-4 border-black pb-4">
-                        KTÜ SDC – Departman Başvuru Formu
+                        {l.title}
                     </h1>
 
                     {error && (
@@ -286,12 +392,12 @@ export default function ApplyPage() {
                         {/* 1. Kişisel Bilgiler */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                1. Kişisel Bilgiler
+                                {l.personalInfo}
                             </h2>
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Ad Soyad <span className="text-red-600">*</span>
+                                        {l.fullName} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -305,7 +411,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Fakülte <span className="text-red-600">*</span>
+                                        {l.faculty} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -319,7 +425,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Bölüm <span className="text-red-600">*</span>
+                                        {l.department} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -333,7 +439,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Sınıf <span className="text-red-600">*</span>
+                                        {l.classYear} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -341,14 +447,14 @@ export default function ApplyPage() {
                                         value={formData.classYear}
                                         onChange={handleInputChange}
                                         className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        placeholder="Örn: 2. Sınıf, 3. Sınıf"
+                                        placeholder={l.classYearPlaceholder}
                                         required
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Telefon <span className="text-red-600">*</span>
+                                        {l.phone} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="tel"
@@ -362,7 +468,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        E-posta <span className="text-red-600">*</span>
+                                        {l.email} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="email"
@@ -376,7 +482,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        GitHub (varsa)
+                                        {l.github}
                                     </label>
                                     <input
                                         type="url"
@@ -384,13 +490,13 @@ export default function ApplyPage() {
                                         value={formData.github}
                                         onChange={handleInputChange}
                                         className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        placeholder="https://github.com/kullanici-adi"
+                                        placeholder="https://github.com/..."
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        LinkedIn (varsa)
+                                        {l.linkedin}
                                     </label>
                                     <input
                                         type="url"
@@ -398,7 +504,7 @@ export default function ApplyPage() {
                                         value={formData.linkedin}
                                         onChange={handleInputChange}
                                         className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        placeholder="https://linkedin.com/in/kullanici-adi"
+                                        placeholder="https://linkedin.com/in/..."
                                     />
                                 </div>
                             </div>
@@ -407,11 +513,11 @@ export default function ApplyPage() {
                         {/* 2. Başvurulan Departman */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                2. Başvurulan Departman
+                                {l.deptSelection}
                             </h2>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Departman Seçimi <span className="text-red-600">*</span>
+                                    {l.selectDept} <span className="text-red-600">*</span>
                                 </label>
                                 <select
                                     name="selectedDepartment"
@@ -420,11 +526,21 @@ export default function ApplyPage() {
                                     className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
                                     required
                                 >
-                                    <option value="">Departman seçiniz...</option>
-                                    <option value="Proje Departmanı">Proje Departmanı</option>
-                                    <option value="Teknik Departman">Teknik Departman</option>
-                                    <option value="Medya Departmanı">Medya Departmanı</option>
-                                    <option value="Kurumsal İletişim Departmanı">Kurumsal İletişim Departmanı</option>
+                                    <option value="">{l.chooseDept}</option>
+                                    {departments.length > 0 ? (
+                                        departments.map((dept) => (
+                                            <option key={dept._id} value={dept.name}>
+                                                {language === 'en' && dept.nameEn ? dept.nameEn : dept.name}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <>
+                                            <option value="Proje Departmanı">Proje Departmanı</option>
+                                            <option value="Teknik Departman">Teknik Departman</option>
+                                            <option value="Medya Departmanı">Medya Departmanı</option>
+                                            <option value="Kurumsal İletişim Departmanı">Kurumsal İletişim Departmanı</option>
+                                        </>
+                                    )}
                                 </select>
                             </div>
                         </section>
@@ -432,12 +548,12 @@ export default function ApplyPage() {
                         {/* 3. Motivasyon ve Uygunluk Soruları */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                3. Motivasyon ve Uygunluk Soruları
+                                {l.motivationSection}
                             </h2>
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Neden bu departmana başvuruyorsun? <span className="text-red-600">*</span>
+                                        {l.whyDept} <span className="text-red-600">*</span>
                                     </label>
                                     <textarea
                                         name="motivation"
@@ -459,7 +575,7 @@ export default function ApplyPage() {
                                             className="w-5 h-5 border-2 border-black"
                                         />
                                         <span className="text-sm font-medium text-gray-700">
-                                            Daha önce kulüp, takım, etkinlik vb. bir organizasyon tecrübem var
+                                            {l.hasExperience}
                                         </span>
                                     </label>
                                 </div>
@@ -467,7 +583,7 @@ export default function ApplyPage() {
                                 {formData.hasExperience && (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Deneyimini açıkla <span className="text-red-600">*</span>
+                                            {l.expDesc} <span className="text-red-600">*</span>
                                         </label>
                                         <textarea
                                             name="experienceDescription"
@@ -486,7 +602,7 @@ export default function ApplyPage() {
                         {formData.selectedDepartment && (
                             <section>
                                 <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                    4. Departmana Özel Sorular
+                                    {l.deptQuestions}
                                 </h2>
                                 {renderDepartmentQuestions()}
                             </section>
@@ -495,11 +611,11 @@ export default function ApplyPage() {
                         {/* 5. Ek Notlar */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                5. Ek Notlar
+                                {l.additionalNotes}
                             </h2>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Eklemek istediğin notlar
+                                    {l.notesLabel}
                                 </label>
                                 <textarea
                                     name="additionalNotes"
@@ -507,7 +623,7 @@ export default function ApplyPage() {
                                     onChange={handleInputChange}
                                     rows={4}
                                     className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                    placeholder="Opsiyonel"
+                                    placeholder={l.optional}
                                 />
                             </div>
                         </section>
@@ -515,7 +631,7 @@ export default function ApplyPage() {
                         {/* 6. KVKK ve Onay */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                6. KVKK ve Onay
+                                {l.kvkkSection}
                             </h2>
                             <div className="space-y-3">
                                 <label className="flex items-start space-x-2 cursor-pointer">
@@ -528,7 +644,15 @@ export default function ApplyPage() {
                                         required
                                     />
                                     <span className="text-sm text-gray-700">
-                                        Verilerimin kulüp içi kullanım amaçlı işleneceğini onaylıyorum. <span className="text-red-600">*</span>
+                                        <a
+                                            href="/kvkk"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:text-blue-800 underline font-bold"
+                                        >
+                                            {l.kvkkText}
+                                        </a>
+                                        {l.kvkkConsent} <span className="text-red-600">*</span>
                                     </span>
                                 </label>
 
@@ -542,7 +666,7 @@ export default function ApplyPage() {
                                         required
                                     />
                                     <span className="text-sm text-gray-700">
-                                        Kulüp tarafından e-posta/telefon yoluyla bilgilendirilmesine onay veriyorum. <span className="text-red-600">*</span>
+                                        {l.commConsent} <span className="text-red-600">*</span>
                                     </span>
                                 </label>
                             </div>
@@ -557,7 +681,7 @@ export default function ApplyPage() {
                          hover:bg-white hover:text-black transition-colors duration-200 
                          disabled:opacity-50 disabled:cursor-not-allowed shadow-neo hover:shadow-neo-lg"
                             >
-                                {loading ? "Gönderiliyor..." : "Başvuruyu Gönder"}
+                                {loading ? l.sending : l.submit}
                             </button>
                         </div>
                     </form>

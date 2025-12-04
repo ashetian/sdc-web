@@ -7,6 +7,8 @@ interface Event {
     _id: string;
     title: string;
     isOpen: boolean;
+    isPaid: boolean;
+    price?: number;
     createdAt: string;
 }
 
@@ -62,83 +64,114 @@ export default function AdminEventsPage() {
         }
     };
 
-    if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="bg-white border-4 border-black shadow-neo px-8 py-4">
+                    <span className="text-xl font-black text-black animate-pulse">Yükleniyor...</span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Etkinlik Yönetimi</h1>
+            {/* Header */}
+            <div className="bg-white border-4 border-black shadow-neo p-6 flex justify-between items-center">
+                <h1 className="text-2xl font-black text-black uppercase">Etkinlik Yönetimi</h1>
                 <Link
                     href="/admin/events/create"
-                    className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    className="bg-neo-green text-black border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-white hover:shadow-none transition-all"
                 >
-                    Yeni Etkinlik Oluştur
+                    + Yeni Etkinlik
                 </Link>
             </div>
 
-            <div className="overflow-hidden rounded-lg bg-white shadow">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Etkinlik Adı
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Durum
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Oluşturulma Tarihi
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                İşlemler
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {events.map((event) => (
-                            <tr key={event._id}>
-
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm font-medium text-gray-900">{event.title}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${event.isOpen
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-red-100 text-red-800'
-                                            }`}
-                                    >
-                                        {event.isOpen ? 'Başvuruya Açık' : 'Kapalı'}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {new Date(event.createdAt).toLocaleDateString('tr-TR')}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
-                                    <button
-                                        onClick={() => toggleStatus(event._id, event.isOpen)}
-                                        className="text-indigo-600 hover:text-indigo-900"
-                                    >
-                                        {event.isOpen ? 'Kapat' : 'Aç'}
-                                    </button>
-                                    <Link
-                                        href={`/admin/events/${event._id}/registrations`}
-                                        className="text-blue-600 hover:text-blue-900"
-                                    >
-                                        Başvurular
-                                    </Link>
-                                    <button
-                                        onClick={() => deleteEvent(event._id)}
-                                        className="text-red-600 hover:text-red-900"
-                                    >
-                                        Sil
-                                    </button>
-                                </td>
+            {/* Events List */}
+            <div className="bg-white border-4 border-black shadow-neo overflow-hidden">
+                {events.length === 0 ? (
+                    <div className="p-12 text-center">
+                        <p className="text-gray-500 font-bold">Henüz etkinlik bulunmuyor.</p>
+                    </div>
+                ) : (
+                    <table className="min-w-full">
+                        <thead className="bg-black text-white">
+                            <tr>
+                                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">
+                                    Etkinlik Adı
+                                </th>
+                                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">
+                                    Durum
+                                </th>
+                                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">
+                                    Ücret
+                                </th>
+                                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider">
+                                    Tarih
+                                </th>
+                                <th className="px-6 py-4 text-right text-sm font-black uppercase tracking-wider">
+                                    İşlemler
+                                </th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y-2 divide-black">
+                            {events.map((event) => (
+                                <tr key={event._id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className="text-base font-black text-black">{event.title}</span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            className={`px-3 py-1 text-xs font-black border-2 border-black uppercase ${event.isOpen
+                                                    ? 'bg-neo-green text-black'
+                                                    : 'bg-red-500 text-white'
+                                                }`}
+                                        >
+                                            {event.isOpen ? 'Açık' : 'Kapalı'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        {event.isPaid ? (
+                                            <span className="bg-neo-purple text-white px-3 py-1 text-xs font-black border-2 border-black">
+                                                {event.price} TL
+                                            </span>
+                                        ) : (
+                                            <span className="bg-gray-200 text-black px-3 py-1 text-xs font-black border-2 border-black">
+                                                ÜCRETSİZ
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-600">
+                                        {new Date(event.createdAt).toLocaleDateString('tr-TR')}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                                        <button
+                                            onClick={() => toggleStatus(event._id, event.isOpen)}
+                                            className={`px-3 py-1 text-xs font-black border-2 border-black transition-all ${event.isOpen
+                                                    ? 'bg-yellow-400 text-black hover:bg-yellow-500'
+                                                    : 'bg-neo-green text-black hover:bg-green-400'
+                                                }`}
+                                        >
+                                            {event.isOpen ? 'Kapat' : 'Aç'}
+                                        </button>
+                                        <Link
+                                            href={`/admin/events/${event._id}/registrations`}
+                                            className="inline-block px-3 py-1 text-xs font-black bg-neo-blue text-black border-2 border-black hover:bg-blue-300 transition-all"
+                                        >
+                                            Başvurular
+                                        </Link>
+                                        <button
+                                            onClick={() => deleteEvent(event._id)}
+                                            className="px-3 py-1 text-xs font-black bg-red-500 text-white border-2 border-black hover:bg-red-600 transition-all"
+                                        >
+                                            Sil
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );

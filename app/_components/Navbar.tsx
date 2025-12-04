@@ -6,13 +6,16 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
+import { useLanguage } from "../_context/LanguageContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const navRef = useRef(null);
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     setMounted(true);
@@ -34,6 +37,8 @@ export default function Navbar() {
   }, [isMenuOpen]);
 
   useGSAP(() => {
+    if (!navRef.current) return;
+
     gsap.from(navRef.current, {
       y: -100,
       duration: 1,
@@ -84,6 +89,8 @@ export default function Navbar() {
     open: { opacity: 1, y: 0 }
   };
 
+  if (pathname?.startsWith('/admin')) return null;
+
   return (
     <>
       <nav ref={navRef} className="fixed w-full z-50 bg-neo-yellow border-b-4 border-black">
@@ -93,24 +100,53 @@ export default function Navbar() {
               onClick={() => scrollToSection("home")}
               className="flex items-center group"
             >
-              <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white transition-all">
+              <div className="relative w-14 h-14 bg-white border-2 border-black shadow-neo-sm transition-all hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] p-1">
                 <Image
                   src="/logopng.png"
-                  alt="KTUSDC Logo"
+                  alt="KTÜ SDC Logo"
                   fill
                   className="object-contain"
                   priority
                 />
               </div>
-              <span className="font-black p-2 text-2xl bg-white text-black tracking-tighter uppercase">KTUSDC</span>
             </button>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-6">
-              <NavLink onClick={() => scrollToSection("home")} text="Ana Sayfa" />
-              <NavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
-              <NavLink onClick={() => window.open("/events", "_blank")} text="Etkinlik Takvimi" />
-              <NavLink onClick={() => scrollToSection("contact")} text="İletişim" />
+              <NavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
+              <NavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
+              <NavLink onClick={() => window.open("/events", "_blank")} text={t('nav.events')} />
+              <NavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
+
+              {/* Language Switcher */}
+              <div className="relative">
+                <button
+                  onClick={() => setLangMenuOpen(!langMenuOpen)}
+                  className="p-2 bg-white border-2 border-black hover:shadow-neo transition-all flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                  <span className="font-bold text-sm">{language.toUpperCase()}</span>
+                </button>
+
+                {langMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 bg-white border-4 border-black shadow-neo z-50">
+                    <button
+                      onClick={() => { setLanguage('tr'); setLangMenuOpen(false); }}
+                      className={`w-full px-4 py-2 font-bold text-left hover:bg-neo-yellow ${language === 'tr' ? 'bg-neo-yellow' : ''}`}
+                    >
+                      🇹🇷 Türkçe
+                    </button>
+                    <button
+                      onClick={() => { setLanguage('en'); setLangMenuOpen(false); }}
+                      className={`w-full px-4 py-2 font-bold text-left hover:bg-neo-yellow ${language === 'en' ? 'bg-neo-yellow' : ''}`}
+                    >
+                      🇬🇧 English
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -135,21 +171,49 @@ export default function Navbar() {
               animate="open"
               exit="closed"
               variants={menuVariants}
-              className="fixed inset-0 bg-white/50 backdrop-blur-md z-[60] flex flex-col items-center justify-center md:hidden touch-none"
+              className="fixed inset-0 bg-neo-yellow z-[60] flex flex-col items-center justify-center md:hidden touch-none"
               onClick={() => setIsMenuOpen(false)}
             >
-              <div className="flex flex-col items-center space-y-8">
+              {/* Logo in Mobile Menu */}
+              <motion.div variants={itemVariants} className="mb-12">
+                <div className="relative w-32 h-32 mx-auto bg-white border-4 border-black shadow-neo p-2">
+                  <Image
+                    src="/logopng.png"
+                    alt="KTÜ SDC Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </motion.div>
+
+              <div className="flex flex-col items-center space-y-6">
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("home")} text="Ana Sayfa" />
+                  <MobileNavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
                 </motion.div>
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("about")} text="Hakkımızda" />
+                  <MobileNavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
                 </motion.div>
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => window.open("/events", "_blank")} text="Etkinlik Takvimi" />
+                  <MobileNavLink onClick={() => window.open("/events", "_blank")} text={t('nav.events')} />
                 </motion.div>
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("contact")} text="İletişim" />
+                  <MobileNavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
+                </motion.div>
+
+                {/* Language Switcher Mobile */}
+                <motion.div variants={itemVariants} className="flex gap-4 mt-8">
+                  <button
+                    onClick={() => { setLanguage('tr'); setIsMenuOpen(false); }}
+                    className={`px-6 py-3 border-4 border-black font-black text-xl ${language === 'tr' ? 'bg-black text-white' : 'bg-white'}`}
+                  >
+                    🇹🇷 TR
+                  </button>
+                  <button
+                    onClick={() => { setLanguage('en'); setIsMenuOpen(false); }}
+                    className={`px-6 py-3 border-4 border-black font-black text-xl ${language === 'en' ? 'bg-black text-white' : 'bg-white'}`}
+                  >
+                    🇬🇧 EN
+                  </button>
                 </motion.div>
               </div>
             </motion.div>

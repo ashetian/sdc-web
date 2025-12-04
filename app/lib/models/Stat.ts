@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 export interface IStat {
     key: string; // unique identifier like 'members', 'projects', 'events'
     label: string; // display text like 'Üye', 'Proje', 'Etkinlik'
+    labelEn?: string; // English display text like 'Members', 'Projects', 'Events'
     value: string; // the number/text to display like '220+', '2', '12'
     color: string; // neo-brutalist color class like 'bg-neo-green'
     order: number; // display order (0, 1, 2, etc.)
@@ -21,6 +22,10 @@ const statSchema = new mongoose.Schema<IStat>(
         label: {
             type: String,
             required: true,
+        },
+        labelEn: {
+            type: String,
+            required: false,
         },
         value: {
             type: String,

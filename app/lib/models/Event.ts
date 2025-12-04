@@ -13,6 +13,8 @@ export interface IEvent {
   iban?: string;
   createdAt: Date;
   updatedAt: Date;
+  titleEn?: string;
+  descriptionEn?: string;
 }
 
 const eventSchema = new mongoose.Schema<IEvent>(
@@ -54,6 +56,14 @@ const eventSchema = new mongoose.Schema<IEvent>(
       required: false,
     },
     iban: {
+      type: String,
+      required: false,
+    },
+    titleEn: {
+      type: String,
+      required: false,
+    },
+    descriptionEn: {
       type: String,
       required: false,
     },

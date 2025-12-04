@@ -47,7 +47,28 @@ export async function POST(request: Request) {
         await connectDB();
         const body = await request.json();
 
-        const event = await Event.create(body);
+        // Auto-translate if DeepL API key is available
+        let eventData = { ...body };
+        if (process.env.DEEPL_API_KEY) {
+            try {
+                const { translateFields } = await import('@/app/lib/translate');
+                const translations = await translateFields({
+                    title: body.title,
+                    description: body.description,
+                }, 'tr');
+
+                eventData = {
+                    ...body,
+                    titleEn: translations.title?.en || '',
+                    descriptionEn: translations.description?.en || '',
+                };
+            } catch (translateError) {
+                console.error('Auto-translation failed:', translateError);
+                // Continue without translation
+            }
+        }
+
+        const event = await Event.create(eventData);
         return NextResponse.json(event, { status: 201 });
     } catch {
         return NextResponse.json({ error: 'Etkinlik oluşturulamadı.' }, { status: 500 });

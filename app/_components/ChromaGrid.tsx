@@ -5,6 +5,7 @@ import Image from "next/image";
 import TeamModal from "./TeamModal";
 
 export interface ChromaItem {
+  _id?: string;
   image: string;
   name: string;
   subtitle?: string;
@@ -65,7 +66,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({ items, className = "" }) => {
     <>
       <div
         className={[
-          "grid gap-8 mx-6",
+          "grid gap-8 mx-6 justify-center",
           "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
           className,
         ].join(" ")}

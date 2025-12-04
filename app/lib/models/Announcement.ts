@@ -16,6 +16,11 @@ export interface IAnnouncement {
   isInGallery?: boolean;
   galleryDescription?: string;
   eventId?: string;
+  titleEn?: string;
+  dateEn?: string;
+  descriptionEn?: string;
+  contentEn?: string;
+  galleryDescriptionEn?: string;
 }
 
 const announcementSchema = new mongoose.Schema<IAnnouncement>(
@@ -73,6 +78,26 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
     },
     eventId: {
       type: String, // ObjectId olarak tutmak daha doğru olurdu ama ref karmaşası olmasın diye string tutuyoruz, zaten manuel gireceğiz.
+      required: false,
+    },
+    titleEn: {
+      type: String,
+      required: false,
+    },
+    dateEn: {
+      type: String,
+      required: false,
+    },
+    descriptionEn: {
+      type: String,
+      required: false,
+    },
+    contentEn: {
+      type: String,
+      required: false,
+    },
+    galleryDescriptionEn: {
+      type: String,
       required: false,
     },
   },

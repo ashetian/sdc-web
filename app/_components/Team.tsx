@@ -1,150 +1,95 @@
 "use client";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import ChromaGrid from "./ChromaGrid";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLanguage } from "../_context/LanguageContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export interface TeamMember {
+interface Department {
+    _id: string;
     name: string;
+    slug: string;
+    color: string;
+}
+
+export interface TeamMember {
+    _id?: string;
+    name: string;
+    email?: string;
+    photo?: string;
+    image?: string;
     role?: string;
     subtitle?: string;
-    email?: string;
+    departmentId?: Department;
+    title?: string;
     description?: string;
     location?: string;
-    borderColor?: string;
-    image: string;
-    linkedin?: string;
     github?: string;
-    x?: string;
+    linkedin?: string;
     instagram?: string;
+    x?: string;
     website?: string;
     freelance?: string;
     handle?: string;
+    order?: number;
 }
 
-const teamMembers: TeamMember[] = [
-    {
-        name: "Murat C. Akyol",
-        subtitle: "Kulüp Başkanı",
-        description:
-            "Murat Can Akyol, Karadeniz Teknik Üniversitesi Yazılım Geliştirme Bölümü öğrencisidir ve aynı zamanda Yazılım Geliştirme Kulübü’nün kurucu başkanıdır. Akademik çalışmalarının yanı sıra keman çalmada da yeteneklidir. Murat Can, yazılım geliştirme konusundaki tutkusunu ve liderlik becerilerini birleştirerek kulübün büyümesine ve gelişmesine öncülük etmektedir.",
-        image: "/team/muratcan.jpg",
-        location: "İstanbul",
-        github: "https://github.com/Iuppitter",
-        email: "contact@muratcanakyol.com",
-        linkedin: "https://www.linkedin.com/in/murat-c-akyol-5847b4332/",
-        instagram: "https://www.instagram.com/muratcan_akyol/",
-        website: "https://muratcanakyol.com",
-    },
-    {
-        name: "Cihan Bayram",
-        subtitle: "Teknik Departman, WebDev",
-        email: "contact@c1h4n.com",
-        image: "/team/cc.jpeg",
-        linkedin: "https://www.linkedin.com/in/c1h4n/",
-        location: "Trabzon",
-        description:
-            "Merhaba ben Cihan. Günlük hayatımda tutkulu bir geliştiriciyim. Kendi kendine öğrenme tutumuna sahip hızlı öğrenen biriyim. Yeni teknolojileri öğrenmeyi ve keşfetmeyi, yapay zekayı kullanmayı seviyorum. Bu siteyi ve yaptığım diğer projeleri görmek için github sayfamı ve websitemi ziyaret edebilirsiniz.",
-        github: "https://github.com/C1H4N",
-        x: "https://x.com/cjh4n",
-        instagram: "https://www.instagram.com/c1h4n",
-        website: "https://c1h4n.com",
-    },
-    {
-        name: "Caner Görez",
-        subtitle: "Designer, WebDev",
-        description: "I am a web developer and designer.",
-        email: "caner19741@outlook.com",
-        image: "/team/canergorez.jpg",
-        location: "İstanbul",
-        linkedin: "https://www.linkedin.com/in/caner-gorez/",
-        github: "https://github.com/ashetian",
-        instagram: "https://www.instagram.com/ashetian_",
-        x: "https://x.com/ashetian_",
-        freelance: "https://wa.me/+905446549256",
-    },
-    {
-        name: "Yunus Emre Demirci",
-        subtitle: "HSD Ambassador",
-        description:
-            "Yapay zeka ve teknolojiyle ilgilenen bir yazılım öğrencisiyim. ...",
-        github: "https://github.com/yedemirci",
-        email: "ye.demirci@outlook.com",
-        location: "Trabzon",
-        image: "/team/yunusemre.png",
-        instagram: "https://www.instagram.com/y.emre.demirci/",
-        linkedin: "https://www.linkedin.com/in/yedemirci/",
-    },
-    {
-        name: "Tunahan Akargül",
-        subtitle: "Front-end Developer",
-        description: "Merhaba ben Tunahan. ...",
-        email: "tuna.akargul@gmail.com",
-        image: "/team/tunahan.png",
-        location: "İstanbul",
-        instagram: "https://www.instagram.com/tunahan.akargul/",
-        linkedin: "https://www.linkedin.com/in/tunahan-akarg%C3%BCl-b7a7a9208/",
-        github: "https://github.com/tunahan-akargul",
-        x: "https://x.com/TunahanAka7260",
-        website: "https://tunahanakargul.online/",
-    },
-    {
-        name: "Tarık Kılıç",
-        subtitle: "ML Engineer",
-        description:
-            "Makine Öğrenmesi ve otomasyon teknolojileri alanında kendini geliştiren bir yazılımcı adayıyım.",
-        email: "tedtkilic@gmail.com",
-        github: "https://github.com/TedT002",
-        linkedin:
-            "https://www.linkedin.com/in/tar%C4%B1k-k%C4%B1l%C4%B1%C3%A7-73544733b/",
-        location: "İstanbul",
-        image: "/team/tarik31.jpeg",
-        instagram: "https://www.instagram.com/tedt_emmett_brown/",
-    },
-    {
-        name: "Çağrı Aydemir",
-        subtitle: "Unreal Game Developer",
-        description:
-            "Merhaba, ben Çağrı. KTÜ Yazılım Geliştirme Bölümü öğrencisiyim.",
-        email: "cagriaydemir67@gmail.com",
-        image: "/team/cagri.png",
-        location: "Zonguldak",
-        linkedin:
-            "https://www.linkedin.com/in/%C3%A7a%C4%9Fr%C4%B1-aydemir-106822353/",
-        instagram: "https://www.instagram.com/_cagriaydemir_/",
-        x: "https://x.com/MoonIron_67",
-    },
-    {
-        name: "Hasan Böcek",
-        subtitle: "Backend Developer",
-        description: "Backend dev for 7 years, tennis player.",
-        location: "Antalya",
-        linkedin: "https://www.linkedin.com/in/hasanbocek/",
-        github: "https://github.com/HasanBocek",
-        email: "contact@hasanbocek.com",
-        website: "https://hasanbocek.com",
-        image: "/team/hasan.png",
-    },
+const palette = [
+    { border: "#000000", gradient: "#FFDE00" },
+    { border: "#000000", gradient: "#FF6B6B" },
+    { border: "#000000", gradient: "#4ECDC4" },
+    { border: "#000000", gradient: "#70D6FF" },
+    { border: "#000000", gradient: "#9B5DE5" },
+    { border: "#000000", gradient: "#F15BB5" },
 ] as const;
 
-const palette = [
-    { border: "#000000", gradient: "#FFDE00" }, // Neo Yellow
-    { border: "#000000", gradient: "#FF6B6B" }, // Neo Pink
-    { border: "#000000", gradient: "#4ECDC4" }, // Neo Blue
-    { border: "#000000", gradient: "#70D6FF" }, // Neo Green
-    { border: "#000000", gradient: "#9B5DE5" }, // Neo Purple
-    { border: "#000000", gradient: "#F15BB5" }, // Neo Orange
-] as const;
+const roleOrder: Record<string, number> = {
+    'president': 0,
+    'vice_president': 1,
+    'head': 2,
+    'featured': 3,
+    'member': 4,
+};
 
 export default function Team() {
     const sectionRef = useRef<HTMLElement>(null);
     const titleRef = useRef(null);
     const gridRef = useRef(null);
+    const [members, setMembers] = useState<TeamMember[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { language, t } = useLanguage();
+
+    useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                const res = await fetch('/api/team?showInTeam=true');
+                if (res.ok) {
+                    const data = await res.json();
+                    // Sort by role priority, then by order
+                    const sorted = data.sort((a: TeamMember, b: TeamMember) => {
+                        const roleA = a.role ? roleOrder[a.role] ?? 99 : 99;
+                        const roleB = b.role ? roleOrder[b.role] ?? 99 : 99;
+                        if (roleA !== roleB) return roleA - roleB;
+                        return (a.order ?? 0) - (b.order ?? 0);
+                    });
+                    setMembers(sorted);
+                }
+            } catch (error) {
+                console.error('Ekip verisi yüklenemedi:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMembers();
+    }, []);
 
     useGSAP(() => {
+        if (!titleRef.current || !sectionRef.current || !gridRef.current) return;
+
         gsap.fromTo(titleRef.current,
             {
                 x: -100,
@@ -158,14 +103,13 @@ export default function Team() {
                     toggleActions: "play none none reverse",
                 },
                 x: 0,
-                rotation: -1, // Target rotation from className
+                rotation: -1,
                 opacity: 1,
                 duration: 1,
                 ease: "elastic.out(1, 0.75)",
             }
         );
 
-        // Grid animation is handled inside ChromaGrid or we can animate the container
         gsap.fromTo(gridRef.current,
             {
                 scale: 0.8,
@@ -183,18 +127,26 @@ export default function Team() {
                 ease: "elastic.out(1, 0.75)",
             }
         );
-    }, { scope: sectionRef });
+    }, { scope: sectionRef, dependencies: [members] });
 
     const chromaItems = useMemo(() => {
-        return teamMembers.map((m, i) => {
+        return members.map((m, i) => {
             const p = palette[i % palette.length];
+
+            // Format subtitle based on role with language support
+            let subtitle = m.title;
+            if (m.role === 'president') subtitle = language === 'tr' ? 'Kulüp Başkanı' : 'Club President';
+            else if (m.role === 'vice_president') subtitle = language === 'tr' ? 'Başkan Yardımcısı' : 'Vice President';
+            else if (m.role === 'head' && m.departmentId)
+                subtitle = language === 'tr' ? `${m.departmentId.name} Başkanı` : `${m.departmentId.name} Head`;
+
             return {
-                image: m.image,
+                image: m.photo || '/team/default.png',
                 name: m.name,
-                handle: m.handle,
+                handle: undefined,
                 email: m.email,
                 borderColor: p.border,
-                subtitle: m.subtitle,
+                subtitle,
                 description: m.description,
                 gradient: p.gradient,
                 github: m.github,
@@ -203,10 +155,42 @@ export default function Team() {
                 website: m.website,
                 linkedin: m.linkedin,
                 location: m.location,
-                freelance: m.freelance,
+                freelance: undefined,
             };
         });
-    }, []);
+    }, [members, language]);
+
+    if (loading) {
+        return (
+            <section id="team" className="relative py-20 bg-white border-b-4 border-black">
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center">
+                        <div className="inline-block bg-neo-green border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
+                            <h2 className="text-4xl sm:text-5xl font-black text-black">{t('team.title')}</h2>
+                        </div>
+                        <p className="text-xl font-bold text-black mt-8 animate-pulse">{t('common.loading')}</p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (members.length === 0) {
+        return (
+            <section id="team" className="relative py-20 bg-white border-b-4 border-black">
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center">
+                        <div className="inline-block bg-neo-green border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
+                            <h2 className="text-4xl sm:text-5xl font-black text-black">{t('team.title')}</h2>
+                        </div>
+                        <p className="text-xl font-bold text-black mt-8">
+                            {language === 'tr' ? 'Yakında ekibimizle tanışacaksınız!' : 'Meet our team soon!'}
+                        </p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section
@@ -217,10 +201,12 @@ export default function Team() {
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-neo-green border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
-                        Ekibimiz
+                        {t('team.title')}
                     </h2>
                     <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-4">
-                        Yazılım tutkusuyla bir araya gelmiş, yenilikçi ve dinamik ekibimizle tanışın.
+                        {language === 'tr'
+                            ? 'Yazılım tutkusuyla bir araya gelmiş, yenilikçi ve dinamik ekibimizle tanışın.'
+                            : 'Meet our innovative and dynamic team, united by a passion for software.'}
                     </p>
                 </div>
 

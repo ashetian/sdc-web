@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import AdminNavbar from "./_components/AdminNavbar";
 
 export const metadata: Metadata = {
   title: "SDC Admin Paneli",
@@ -12,52 +12,19 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="fixed inset-x-0 top-0 z-50">
-        <nav className="border-b border-gray-200 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 justify-between">
-              <div className="flex">
-                <Link href="/" className="flex flex-shrink-0 items-center">
-                  <span className="text-xl font-bold text-gray-900">
-                    SDC Admin
-                  </span>
-                </Link>
-                <div className="ml-6 flex items-center space-x-8">
-                  <Link
-                    href="/admin"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
-                    Duyurular
-                  </Link>
-                  <Link
-                    href="/admin/events"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
-                    Etkinlikler
-                  </Link>
-                  <Link
-                    href="/admin/applicants"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
-                    Başvurular
-                  </Link>
-                  <Link
-                    href="/admin/stats"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
-                    İstatistikler
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </nav>
-      </header>
+    <>
+      {/* Hide main navbar and footer for admin */}
+      {/* Hide main navbar and footer for admin - handled in components now */}
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20">
-        {children}
-      </main>
-    </div>
+      <div className="min-h-screen bg-neo-yellow">
+        {/* Admin Navbar */}
+        <AdminNavbar />
+
+        {/* Main Content */}
+        <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+          {children}
+        </main>
+      </div>
+    </>
   );
 }

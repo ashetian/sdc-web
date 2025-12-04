@@ -1,60 +1,131 @@
+"use client";
+import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import connectDB from "@/app/lib/db";
-import { Announcement } from "@/app/lib/models/Announcement";
-import { Event } from "@/app/lib/models/Event";
-import AnnouncementImage from "./_components/AnnouncementImage";
+import { useLanguage } from "../../_context/LanguageContext";
 
-
-async function getAnnouncementFromDB(slug: string) {
-  try {
-    await connectDB();
-    const announcement = await Announcement.findOne({ slug, isDraft: false });
-    if (!announcement) return null;
-    return announcement;
-  } catch (error) {
-    console.error("Duyuru alınırken hata:", error);
-    return null;
-  }
+interface Announcement {
+  slug: string;
+  title: string;
+  titleEn?: string;
+  date: string;
+  description: string;
+  descriptionEn?: string;
+  type: "event" | "news" | "workshop";
+  content: string;
+  contentEn?: string;
+  image?: string;
+  isDraft: boolean;
+  eventId?: string;
 }
 
-async function getEventFromDB(eventId: string) {
-  try {
-    await connectDB();
-    const event = await Event.findById(eventId);
-    return event;
-  } catch (error) {
-    console.error("Etkinlik alınırken hata:", error);
-    return null;
-  }
+interface Event {
+  _id: string;
+  title: string;
+  isOpen: boolean;
 }
 
-export default async function AnnouncementPage({
+export default function AnnouncementPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
-  const announcement = await getAnnouncementFromDB(slug);
-  let event = null;
+  const { slug } = use(params);
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { language } = useLanguage();
 
-  if (announcement?.eventId) {
-    event = await getEventFromDB(announcement.eventId);
+  const labels = {
+    tr: {
+      notFound: 'Duyuru Bulunamadı',
+      notFoundDesc: 'Aradığınız duyuru bulunamadı veya kaldırılmış olabilir.',
+      backHome: 'Ana Sayfaya Dön',
+      event: 'Etkinlik',
+      news: 'Duyuru',
+      workshop: 'Workshop',
+      registerEvent: 'Etkinliğe Kaydol'
+    },
+    en: {
+      notFound: 'Announcement Not Found',
+      notFoundDesc: 'The announcement you are looking for could not be found or has been removed.',
+      backHome: 'Back to Home',
+      event: 'Event',
+      news: 'Announcement',
+      workshop: 'Workshop',
+      registerEvent: 'Register for Event'
+    }
+  };
+
+  const l = labels[language];
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch(`/api/announcements/${slug}`);
+        if (!res.ok) throw new Error("Duyuru yüklenemedi");
+        const data = await res.json();
+        if (data.isDraft) {
+          setAnnouncement(null);
+        } else {
+          setAnnouncement(data);
+          // Load event if exists
+          if (data.eventId) {
+            const eventRes = await fetch(`/api/events/${data.eventId}`);
+            if (eventRes.ok) {
+              setEvent(await eventRes.json());
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Duyuru yüklenirken hata:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, [slug]);
+
+  const getTitle = () => {
+    if (!announcement) return '';
+    if (language === 'en' && announcement.titleEn) return announcement.titleEn;
+    return announcement.title;
+  };
+
+  const getContent = () => {
+    if (!announcement) return '';
+    if (language === 'en' && announcement.contentEn) return announcement.contentEn;
+    return announcement.content;
+  };
+
+  const getTypeLabel = (type: "event" | "news" | "workshop") => {
+    return l[type];
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neo-yellow py-20 flex items-center justify-center">
+        <div className="bg-white border-4 border-black shadow-neo px-8 py-6">
+          <div className="animate-pulse text-xl font-black">...</div>
+        </div>
+      </div>
+    );
   }
 
   if (!announcement) {
     return (
       <div className="min-h-screen bg-neo-yellow py-20 flex items-center justify-center">
         <div className="bg-white border-4 border-black shadow-neo p-8 transform rotate-1 text-center">
-          <h1 className="text-4xl font-black text-black mb-4">Duyuru Bulunamadı</h1>
+          <h1 className="text-4xl font-black text-black mb-4">{l.notFound}</h1>
           <p className="text-xl font-bold text-black mb-8">
-            Aradığınız duyuru bulunamadı veya kaldırılmış olabilir.
+            {l.notFoundDesc}
           </p>
           <Link
             href="/"
             className="inline-block bg-black text-white px-6 py-3 border-4 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all font-bold uppercase"
           >
-            Ana Sayfaya Dön
+            {l.backHome}
           </Link>
         </div>
       </div>
@@ -75,29 +146,30 @@ export default async function AnnouncementPage({
                     : "bg-neo-green text-black"
                   }`}
               >
-                {announcement.type === "event"
-                  ? "Etkinlik"
-                  : announcement.type === "news"
-                    ? "Duyuru"
-                    : "Workshop"}
+                {getTypeLabel(announcement.type)}
               </span>
               <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{announcement.date}</time>
             </div>
 
             <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight">
-              {announcement.title}
+              {getTitle()}
             </h1>
           </div>
 
           <div className="prose prose-lg max-w-none mb-12 clearfix">
             {announcement.image && (
-              <AnnouncementImage
-                src={announcement.image}
-                alt={announcement.title}
-              />
+              <div className="float-left mr-6 mb-4 border-4 border-black shadow-neo w-full sm:w-64">
+                <Image
+                  src={announcement.image}
+                  alt={getTitle()}
+                  width={256}
+                  height={256}
+                  className="w-full object-cover"
+                />
+              </div>
             )}
 
-            {announcement.content
+            {getContent()
               .split("\n")
               .map((paragraph: string, index: number) => (
                 <p key={index} className="text-black font-medium mb-4 leading-relaxed">
@@ -106,15 +178,13 @@ export default async function AnnouncementPage({
               ))}
           </div>
 
-
-
           {event && event.isOpen && (
             <div className="mt-8 flex justify-center">
               <Link
                 href={`/events/${event._id}/register`}
                 className="inline-flex items-center px-8 py-4 border-4 border-black shadow-neo text-xl font-black text-white bg-neo-green hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-1"
               >
-                Etkinliğe Kaydol
+                {l.registerEvent}
               </Link>
             </div>
           )}
@@ -137,7 +207,7 @@ export default async function AnnouncementPage({
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              Ana Sayfaya Dön
+              {l.backHome}
             </Link>
           </div>
         </div>

@@ -2,22 +2,48 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "../_context/LanguageContext";
 
 interface Announcement {
   slug: string;
   title: string;
+  titleEn?: string;
   date: string;
   description: string;
+  descriptionEn?: string;
   type: "event" | "news" | "workshop";
   galleryLinks?: string[];
   galleryCover?: string;
   isInGallery?: boolean;
   galleryDescription?: string;
+  galleryDescriptionEn?: string;
 }
 
 export default function GalleryPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
+  const { language } = useLanguage();
+
+  const labels = {
+    tr: {
+      title: 'Galeri / Arşiv',
+      noContent: 'Henüz galeriye eklenmiş etkinlik yok.',
+      view: 'İncele',
+      event: 'Etkinlik',
+      news: 'Duyuru',
+      workshop: 'Workshop'
+    },
+    en: {
+      title: 'Gallery / Archive',
+      noContent: 'No events have been added to the gallery yet.',
+      view: 'View',
+      event: 'Event',
+      news: 'News',
+      workshop: 'Workshop'
+    }
+  };
+
+  const l = labels[language];
 
   useEffect(() => {
     async function loadGallery() {
@@ -36,6 +62,23 @@ export default function GalleryPage() {
     loadGallery();
   }, []);
 
+  const getTitle = (a: Announcement) => {
+    if (language === 'en' && a.titleEn) return a.titleEn;
+    return a.title;
+  };
+
+  const getDescription = (a: Announcement) => {
+    if (language === 'en') {
+      if (a.galleryDescriptionEn) return a.galleryDescriptionEn;
+      if (a.descriptionEn) return a.descriptionEn;
+    }
+    return a.galleryDescription || a.description;
+  };
+
+  const getTypeLabel = (type: "event" | "news" | "workshop") => {
+    return l[type];
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neo-purple">
@@ -49,7 +92,7 @@ export default function GalleryPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="inline-block text-4xl sm:text-6xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-8 py-4 transform -rotate-1">
-            Galeri / Arşiv
+            {l.title}
           </h2>
         </div>
 
@@ -57,7 +100,7 @@ export default function GalleryPage() {
           {announcements.length === 0 && (
             <div className="col-span-full text-center">
               <div className="inline-block bg-white border-4 border-black shadow-neo p-8 transform rotate-1">
-                <p className="text-2xl font-black text-black">Henüz galeriye eklenmiş etkinlik yok.</p>
+                <p className="text-2xl font-black text-black">{l.noContent}</p>
               </div>
             </div>
           )}
@@ -71,7 +114,7 @@ export default function GalleryPage() {
             >
               {a.galleryCover && (
                 <div className="mb-4 overflow-hidden border-b-4 border-black">
-                  <Image src={a.galleryCover} alt={a.title} width={400} height={250} className="w-full h-56 object-cover" />
+                  <Image src={a.galleryCover} alt={getTitle(a)} width={400} height={250} className="w-full h-56 object-cover" />
                 </div>
               )}
               <div className="p-6 pt-2 flex-1 flex flex-col">
@@ -83,15 +126,15 @@ export default function GalleryPage() {
                           "bg-neo-green text-black"}
                     `}
                   >
-                    {a.type === "event" ? "Etkinlik" : a.type === "news" ? "Duyuru" : "Workshop"}
+                    {getTypeLabel(a.type)}
                   </span>
                   <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{a.date}</time>
                 </div>
-                <h3 className="text-2xl font-black text-black mb-3 uppercase leading-tight">{a.title}</h3>
-                <p className="text-black font-medium mb-4 line-clamp-3 border-l-4 border-black pl-3">{a.galleryDescription || a.description}</p>
+                <h3 className="text-2xl font-black text-black mb-3 uppercase leading-tight">{getTitle(a)}</h3>
+                <p className="text-black font-medium mb-4 line-clamp-3 border-l-4 border-black pl-3">{getDescription(a)}</p>
                 <div className="mt-auto pt-4 border-t-4 border-black">
                   <span className="inline-block w-full text-center py-2 bg-black text-white font-bold uppercase hover:bg-white hover:text-black hover:border-2 hover:border-black transition-all">
-                    İncele
+                    {l.view}
                   </span>
                 </div>
               </div>
@@ -101,4 +144,4 @@ export default function GalleryPage() {
       </div>
     </section>
   );
-} 
+}

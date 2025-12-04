@@ -42,7 +42,6 @@ export default function AdminPage() {
 
         if (!res.ok) throw new Error("Duyuru silinemedi");
 
-        // Başarılı silme işleminden sonra listeyi güncelle
         setAnnouncements(announcements.filter((a) => a.slug !== slug));
       } catch (error) {
         console.error("Duyuru silinirken hata:", error);
@@ -51,86 +50,114 @@ export default function AdminPage() {
     }
   };
 
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case "event": return "bg-neo-purple text-white";
+      case "news": return "bg-neo-blue text-black";
+      case "workshop": return "bg-neo-green text-black";
+      default: return "bg-gray-200 text-black";
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case "event": return "Etkinlik";
+      case "news": return "Haber";
+      case "workshop": return "Atölye";
+      default: return type;
+    }
+  };
+
   return (
-    <div className="bg-white shadow rounded-lg">
-      <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-gray-900">Duyurular</h1>
-        <div className="flex space-x-4">
-          <Link
-            href="/admin/settings"
-            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Genel Ayarlar
-          </Link>
-          <Link
-            href="/admin/announcements/new"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Yeni Duyuru
-          </Link>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white border-4 border-black shadow-neo p-6 flex justify-between items-center">
+        <h1 className="text-2xl font-black text-black uppercase">Duyurular</h1>
+        <Link
+          href="/admin/announcements/new"
+          className="bg-neo-green text-black border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-white hover:shadow-none transition-all"
+        >
+          + Yeni Duyuru
+        </Link>
       </div>
 
-      <div className="border-t border-gray-200">
-        <ul className="divide-y divide-gray-200">
-          {announcements.map((announcement) => (
-            <li key={announcement._id} className="px-4 py-4">
-              <div className="flex items-center space-x-4">
-                {announcement.image && (
-                  <div className="flex-shrink-0">
-                    <Image
-                      src={announcement.image}
-                      alt={announcement.title}
-                      width={100}
-                      height={100}
-                      className="rounded-lg object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex-grow">
-                  <div className="flex items-center space-x-2">
-                    <h2 className="text-lg font-medium text-gray-900">
-                      {announcement.title}
-                    </h2>
-                    {announcement.isDraft && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        Taslak
+      {/* Announcements List */}
+      <div className="bg-white border-4 border-black shadow-neo">
+        {announcements.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-gray-500 font-bold">Henüz duyuru bulunmuyor.</p>
+          </div>
+        ) : (
+          <ul className="divide-y-4 divide-black">
+            {announcements.map((announcement) => (
+              <li key={announcement._id} className="p-6 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start space-x-4">
+                  {/* Image */}
+                  {announcement.image && (
+                    <div className="flex-shrink-0">
+                      <Image
+                        src={announcement.image}
+                        alt={announcement.title}
+                        width={120}
+                        height={80}
+                        className="border-2 border-black object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h2 className="text-lg font-black text-black truncate">
+                        {announcement.title}
+                      </h2>
+                      {announcement.isDraft && (
+                        <span className="bg-yellow-400 text-black px-2 py-1 text-xs font-black border-2 border-black">
+                          TASLAK
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-sm text-gray-600 font-medium mb-3 line-clamp-2">
+                      {announcement.description}
+                    </p>
+
+                    <div className="flex items-center space-x-3">
+                      <span className="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-1 border border-black">
+                        {announcement.date}
                       </span>
-                    )}
+                      <span className={`text-xs font-black px-2 py-1 border-2 border-black uppercase ${getTypeColor(announcement.type)}`}>
+                        {getTypeLabel(announcement.type)}
+                      </span>
+                    </div>
                   </div>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {announcement.description}
-                  </p>
-                  <div className="mt-2 flex space-x-4 text-sm text-gray-500">
-                    <span>{announcement.date}</span>
-                    <span>•</span>
-                    <span className="capitalize">{announcement.type}</span>
+
+                  {/* Actions */}
+                  <div className="flex flex-col space-y-2 flex-shrink-0">
+                    <Link
+                      href={`/admin/announcements/${announcement.slug}/edit`}
+                      className="bg-neo-blue text-black border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-blue-300 transition-all text-center"
+                    >
+                      Düzenle
+                    </Link>
+                    <Link
+                      href={`/admin/announcements/${announcement.slug}/gallery`}
+                      className="bg-neo-purple text-white border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-purple-400 transition-all text-center"
+                    >
+                      Galeri
+                    </Link>
+                    <button
+                      className="bg-red-500 text-white border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-red-600 transition-all"
+                      onClick={() => handleDelete(announcement.slug)}
+                    >
+                      Sil
+                    </button>
                   </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Link
-                    href={`/admin/announcements/${announcement.slug}/edit`}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    Düzenle
-                  </Link>
-                  <Link
-                    href={`/admin/announcements/${announcement.slug}/gallery`}
-                    className="text-green-600 hover:text-green-800"
-                  >
-                    Galeriye Ekle/Düzenle
-                  </Link>
-                  <button
-                    className="text-red-600 hover:text-red-800"
-                    onClick={() => handleDelete(announcement.slug)}
-                  >
-                    Sil
-                  </button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
