@@ -13,8 +13,8 @@ export async function GET() {
         const results = { announcements: 0, events: 0, departments: 0, teamMembers: 0, stats: 0 };
 
         // Helper function to sanitize - always run replacement
-        const sanitize = (text: string | undefined | null) => {
-            if (!text) return text;
+        const sanitize = (text: string | undefined | null): string | undefined => {
+            if (!text) return undefined;
             return text.replace(/İ/g, 'I').replace(/ı/g, 'i');
         };
 
