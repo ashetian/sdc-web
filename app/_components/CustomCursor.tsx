@@ -3,16 +3,33 @@
 import { useEffect, useState } from "react";
 
 export default function CustomCursor() {
+    const [isVisible, setIsVisible] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
+        // Only show custom cursor on devices with a fine pointer (mouse)
+        const mediaQuery = window.matchMedia("(pointer: fine)");
+        setIsVisible(mediaQuery.matches);
+
+        const handleMediaChange = (e: MediaQueryListEvent) => {
+            setIsVisible(e.matches);
+        };
+
+        mediaQuery.addEventListener("change", handleMediaChange);
+
         const updateCursor = (e: MouseEvent) => {
             setPosition({ x: e.clientX, y: e.clientY });
         };
 
         window.addEventListener("mousemove", updateCursor);
-        return () => window.removeEventListener("mousemove", updateCursor);
+
+        return () => {
+            window.removeEventListener("mousemove", updateCursor);
+            mediaQuery.removeEventListener("change", handleMediaChange);
+        };
     }, []);
+
+    if (!isVisible) return null;
 
     return (
         <div
