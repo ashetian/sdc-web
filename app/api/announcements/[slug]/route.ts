@@ -7,9 +7,9 @@ import z from 'zod';
 const schema = z.object({
   title: z.string().min(1).max(100),
   date: z.string().min(1).max(100),
-  description: z.string().min(1).max(100),
+  description: z.string().min(1).max(500),
   type: z.string().min(1).max(100),
-  content: z.string().min(1).max(100),
+  content: z.string().min(1).max(10000),
   eventId: z.string().optional(),
 });
 

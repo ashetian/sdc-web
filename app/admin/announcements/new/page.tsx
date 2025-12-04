@@ -261,10 +261,14 @@ export default function NewAnnouncementPage() {
               name="description"
               id="description"
               required
+              maxLength={500}
               value={formData.description}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
             />
+            <div className={`text-xs text-right mt-1 ${formData.description.length >= 500 ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+              {formData.description.length} / 500
+            </div>
           </div>
 
           <div>
@@ -311,10 +315,14 @@ export default function NewAnnouncementPage() {
               id="content"
               rows={10}
               required
+              maxLength={10000}
               value={formData.content}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
             />
+            <div className={`text-xs text-right mt-1 ${formData.content.length >= 10000 ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+              {formData.content.length} / 10000
+            </div>
           </div>
 
           <div className="flex items-center">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import connectDB from "@/app/lib/db";
 import { Announcement } from "@/app/lib/models/Announcement";
 import { Event } from "@/app/lib/models/Event";
+import AnnouncementImage from "./_components/AnnouncementImage";
 
 
 async function getAnnouncementFromDB(slug: string) {
@@ -63,41 +64,38 @@ export default async function AnnouncementPage({
     <article className="min-h-screen bg-neo-yellow py-20 pt-40 border-b-4 border-black">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform -rotate-1">
-          {announcement.image && (
-            <div className="mb-8 border-4 border-black shadow-neo">
-              <Image
-                src={announcement.image}
-                alt={announcement.title}
-                width={800}
-                height={400}
-                className="w-full object-cover"
-              />
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <span
+                className={`px-4 py-1 text-sm font-black uppercase border-2 border-black shadow-neo-sm ${announcement.type === "event"
+                  ? "bg-neo-purple text-white"
+                  : announcement.type === "news"
+                    ? "bg-neo-blue text-black"
+                    : "bg-neo-green text-black"
+                  }`}
+              >
+                {announcement.type === "event"
+                  ? "Etkinlik"
+                  : announcement.type === "news"
+                    ? "Duyuru"
+                    : "Workshop"}
+              </span>
+              <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{announcement.date}</time>
             </div>
-          )}
 
-          <div className="flex items-center justify-between mb-6">
-            <span
-              className={`px-4 py-1 text-sm font-black uppercase border-2 border-black shadow-neo-sm ${announcement.type === "event"
-                ? "bg-neo-purple text-white"
-                : announcement.type === "news"
-                  ? "bg-neo-blue text-black"
-                  : "bg-neo-green text-black"
-                }`}
-            >
-              {announcement.type === "event"
-                ? "Etkinlik"
-                : announcement.type === "news"
-                  ? "Duyuru"
-                  : "Workshop"}
-            </span>
-            <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{announcement.date}</time>
+            <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight">
+              {announcement.title}
+            </h1>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight">
-            {announcement.title}
-          </h1>
+          <div className="prose prose-lg max-w-none mb-12 clearfix">
+            {announcement.image && (
+              <AnnouncementImage
+                src={announcement.image}
+                alt={announcement.title}
+              />
+            )}
 
-          <div className="prose prose-lg max-w-none mb-12">
             {announcement.content
               .split("\n")
               .map((paragraph: string, index: number) => (

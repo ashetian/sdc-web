@@ -8,9 +8,9 @@ const schema = z.object({
   slug: z.string().min(1).max(100),
   title: z.string().min(1).max(100),
   date: z.string().min(1).max(100),
-  description: z.string().min(1).max(100),
+  description: z.string().min(1).max(500),
   type: z.string().min(1).max(100),
-  content: z.string().min(1).max(100),
+  content: z.string().min(100).max(10000),
   eventId: z.string().optional(),
 });
 
