@@ -18,6 +18,8 @@ export default function EventsPage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedEvents, setSelectedEvents] = useState<Event[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         fetchEvents();
@@ -77,6 +79,13 @@ export default function EventsPage() {
         });
     };
 
+    const handleDayClick = (dayEvents: Event[]) => {
+        if (window.innerWidth < 640 && dayEvents.length > 0) {
+            setSelectedEvents(dayEvents);
+            setIsModalOpen(true);
+        }
+    };
+
     const renderCalendarDays = () => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
@@ -87,7 +96,7 @@ export default function EventsPage() {
 
         // Empty cells for previous month
         for (let i = 0; i < firstDay; i++) {
-            days.push(<div key={`empty-${i}`} className="h-32 sm:h-48 bg-gray-100 border-r-2 border-b-2 border-gray-300"></div>);
+            days.push(<div key={`empty-${i}`} className="h-24 sm:h-48 bg-gray-100 border-r-2 border-b-2 border-gray-300"></div>);
         }
 
         // Days of current month
@@ -98,13 +107,31 @@ export default function EventsPage() {
                 new Date().getMonth() === month &&
                 new Date().getFullYear() === year;
 
+            const hasEvents = dayEvents.length > 0;
+
+            // Background logic:
+            // Mobile: Purple if event, Yellow if today (no event), White otherwise
+            // Desktop (sm): Yellow if today, White otherwise (events don't change bg on desktop)
+            let bgClass = '';
+            if (hasEvents) {
+                bgClass = 'bg-neo-purple sm:bg-white';
+                if (isToday) bgClass = 'bg-neo-purple sm:bg-neo-yellow';
+            } else {
+                bgClass = isToday ? 'bg-neo-yellow' : 'bg-white';
+            }
+
             days.push(
-                <div key={day} className={`min-h-[8rem] sm:min-h-[12rem] bg-white border-r-2 border-b-2 border-black p-2 relative group transition-all hover:bg-blue-50 ${isToday ? 'bg-neo-yellow' : ''}`}>
-                    <span className={`absolute top-2 left-2 font-black text-lg ${isToday ? 'bg-black text-white px-2 rounded-full' : 'text-black'}`}>
+                <div
+                    key={day}
+                    onClick={() => handleDayClick(dayEvents)}
+                    className={`h-24 sm:h-auto sm:min-h-[12rem] border-r-2 border-b-2 border-black p-2 relative group transition-all hover:bg-blue-50 ${bgClass} ${hasEvents ? 'cursor-pointer sm:cursor-default' : ''}`}
+                >
+                    <span className={`absolute top-2 left-2 font-black text-lg ${isToday ? 'bg-black text-white px-2 rounded-full' : (hasEvents ? 'text-white sm:text-black' : 'text-black')}`}>
                         {day}
                     </span>
 
-                    <div className="mt-8 space-y-2">
+                    {/* Desktop Event List */}
+                    <div className="mt-8 space-y-2 hidden sm:block">
                         {dayEvents.map(event => (
                             <Link
                                 key={event._id}
@@ -153,7 +180,7 @@ export default function EventsPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
-                        <h2 className="text-3xl font-black uppercase tracking-wider">
+                        <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-wider">
                             {months[currentDate.getMonth()]} {currentDate.getFullYear()}
                         </h2>
                         <button
@@ -169,7 +196,7 @@ export default function EventsPage() {
                     {/* Days of Week Header */}
                     <div className="grid grid-cols-7 bg-neo-blue border-b-4 border-black">
                         {daysOfWeek.map(day => (
-                            <div key={day} className="py-4 text-center font-black text-black border-r-2 border-black last:border-r-0 uppercase">
+                            <div key={day} className="py-2 sm:py-4 text-center font-black text-black border-r-2 border-black last:border-r-0 uppercase text-sm sm:text-base">
                                 {day}
                             </div>
                         ))}
@@ -181,6 +208,37 @@ export default function EventsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Event Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm sm:hidden" onClick={() => setIsModalOpen(false)}>
+                    <div className="bg-white border-4 border-black shadow-neo-lg w-full max-w-sm p-6 relative" onClick={e => e.stopPropagation()}>
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="absolute top-2 right-2 p-2 hover:bg-red-500 hover:text-white border-2 border-black transition-colors"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <h3 className="text-2xl font-black mb-6 border-b-4 border-black pb-2">Etkinlikler</h3>
+
+                        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                            {selectedEvents.map(event => (
+                                <Link
+                                    key={event._id}
+                                    href={event.announcementSlug ? `/announcements/${event.announcementSlug}` : `/events/${event._id}/register`}
+                                    className="block bg-neo-purple text-white font-bold p-4 border-2 border-black shadow-neo-sm active:scale-95 transition-transform"
+                                    onClick={() => setIsModalOpen(false)}
+                                >
+                                    {event.title}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
