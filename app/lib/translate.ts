@@ -45,7 +45,14 @@ export async function translateContent(text: string, sourceLanguage: 'tr' | 'en'
         }
 
         const data = await response.json();
-        const translatedText = data.translations[0]?.text || text;
+        let translatedText = data.translations[0]?.text || text;
+
+        // Sanitize Turkish characters that shouldn't appear in English
+        if (sourceLanguage === 'tr') {
+            translatedText = translatedText
+                .replace(/İ/g, 'I')
+                .replace(/ı/g, 'i');
+        }
 
         return sourceLanguage === 'tr'
             ? { tr: text, en: translatedText }

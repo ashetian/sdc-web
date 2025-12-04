@@ -11,6 +11,7 @@ interface Announcement {
   title: string;
   titleEn?: string;
   date: string;
+  dateEn?: string;
   description: string;
   descriptionEn?: string;
   type: "event" | "news" | "workshop";
@@ -126,7 +127,7 @@ export default function Announcements() {
                   {getTypeText(announcement.type)}
                 </span>
                 <time className="text-sm font-bold text-black bg-gray-200 px-2 py-1 border-2 border-black shadow-neo-sm">
-                  {announcement.date}
+                  {language === 'en' && announcement.dateEn ? announcement.dateEn : announcement.date}
                 </time>
               </div>
 
