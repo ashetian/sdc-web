@@ -6,114 +6,78 @@ import TeamMember from '@/app/lib/models/TeamMember';
 import { Stat } from '@/app/lib/models/Stat';
 import connectDB from '@/app/lib/db';
 
-// Fix Turkish İ and ı in all English fields across all models
+// Force fix ALL English fields - replace İ→I and ı→i regardless of detection
 export async function GET() {
     try {
         await connectDB();
         const results = { announcements: 0, events: 0, departments: 0, teamMembers: 0, stats: 0 };
-        const fixedItems: string[] = [];
 
-        // Helper function to sanitize
-        const sanitize = (text: string) => text.replace(/İ/g, 'I').replace(/ı/g, 'i');
+        // Helper function to sanitize - always run replacement
+        const sanitize = (text: string | undefined | null) => {
+            if (!text) return text;
+            return text.replace(/İ/g, 'I').replace(/ı/g, 'i');
+        };
 
-        // Fix Announcements
-        const announcements = await Announcement.find({}).lean();
+        // Update ALL Announcements - force update all English fields
+        const announcements = await Announcement.find({});
         for (const doc of announcements) {
-            const updates: Record<string, string> = {};
-
-            if (doc.titleEn && /[İı]/.test(doc.titleEn)) {
-                updates.titleEn = sanitize(doc.titleEn);
-            }
-            if (doc.descriptionEn && /[İı]/.test(doc.descriptionEn)) {
-                updates.descriptionEn = sanitize(doc.descriptionEn);
-            }
-            if (doc.contentEn && /[İı]/.test(doc.contentEn)) {
-                updates.contentEn = sanitize(doc.contentEn);
-            }
-            if (doc.galleryDescriptionEn && /[İı]/.test(doc.galleryDescriptionEn)) {
-                updates.galleryDescriptionEn = sanitize(doc.galleryDescriptionEn);
-            }
-
-            if (Object.keys(updates).length > 0) {
-                await Announcement.findByIdAndUpdate(doc._id, { $set: updates });
+            if (doc.titleEn || doc.descriptionEn || doc.contentEn || doc.galleryDescriptionEn) {
+                doc.titleEn = sanitize(doc.titleEn);
+                doc.descriptionEn = sanitize(doc.descriptionEn);
+                doc.contentEn = sanitize(doc.contentEn);
+                doc.galleryDescriptionEn = sanitize(doc.galleryDescriptionEn);
+                await doc.save();
                 results.announcements++;
-                fixedItems.push(`Announcement: ${doc.slug}`);
             }
         }
 
-        // Fix Events
-        const events = await Event.find({}).lean();
+        // Update ALL Events
+        const events = await Event.find({});
         for (const doc of events) {
-            const updates: Record<string, string> = {};
-
-            if (doc.titleEn && /[İı]/.test(doc.titleEn)) {
-                updates.titleEn = sanitize(doc.titleEn);
-            }
-            if (doc.descriptionEn && /[İı]/.test(doc.descriptionEn)) {
-                updates.descriptionEn = sanitize(doc.descriptionEn);
-            }
-
-            if (Object.keys(updates).length > 0) {
-                await Event.findByIdAndUpdate(doc._id, { $set: updates });
+            if (doc.titleEn || doc.descriptionEn) {
+                doc.titleEn = sanitize(doc.titleEn);
+                doc.descriptionEn = sanitize(doc.descriptionEn);
+                await doc.save();
                 results.events++;
-                fixedItems.push(`Event: ${doc.title}`);
             }
         }
 
-        // Fix Departments
-        const departments = await Department.find({}).lean();
+        // Update ALL Departments
+        const departments = await Department.find({});
         for (const doc of departments) {
-            const updates: Record<string, string> = {};
-
-            if (doc.nameEn && /[İı]/.test(doc.nameEn)) {
-                updates.nameEn = sanitize(doc.nameEn);
-            }
-            if (doc.descriptionEn && /[İı]/.test(doc.descriptionEn)) {
-                updates.descriptionEn = sanitize(doc.descriptionEn);
-            }
-
-            if (Object.keys(updates).length > 0) {
-                await Department.findByIdAndUpdate(doc._id, { $set: updates });
+            if (doc.nameEn || doc.descriptionEn) {
+                doc.nameEn = sanitize(doc.nameEn);
+                doc.descriptionEn = sanitize(doc.descriptionEn);
+                await doc.save();
                 results.departments++;
-                fixedItems.push(`Department: ${doc.name}`);
             }
         }
 
-        // Fix Team Members
-        const teamMembers = await TeamMember.find({}).lean();
+        // Update ALL Team Members
+        const teamMembers = await TeamMember.find({});
         for (const doc of teamMembers) {
-            const updates: Record<string, string> = {};
-
-            if (doc.titleEn && /[İı]/.test(doc.titleEn)) {
-                updates.titleEn = sanitize(doc.titleEn);
-            }
-            if (doc.descriptionEn && /[İı]/.test(doc.descriptionEn)) {
-                updates.descriptionEn = sanitize(doc.descriptionEn);
-            }
-
-            if (Object.keys(updates).length > 0) {
-                await TeamMember.findByIdAndUpdate(doc._id, { $set: updates });
+            if (doc.titleEn || doc.descriptionEn) {
+                doc.titleEn = sanitize(doc.titleEn);
+                doc.descriptionEn = sanitize(doc.descriptionEn);
+                await doc.save();
                 results.teamMembers++;
-                fixedItems.push(`Team: ${doc.name}`);
             }
         }
 
-        // Fix Stats
-        const stats = await Stat.find({}).lean();
+        // Update ALL Stats
+        const stats = await Stat.find({});
         for (const doc of stats) {
-            if (doc.labelEn && /[İı]/.test(doc.labelEn)) {
-                await Stat.findByIdAndUpdate(doc._id, {
-                    $set: { labelEn: sanitize(doc.labelEn) }
-                });
+            if (doc.labelEn) {
+                doc.labelEn = sanitize(doc.labelEn);
+                await doc.save();
                 results.stats++;
-                fixedItems.push(`Stat: ${doc.key}`);
             }
         }
 
         return NextResponse.json({
             success: true,
-            results,
-            fixed: fixedItems
+            message: 'Force updated all English fields with İ→I sanitization',
+            results
         });
     } catch (error) {
         console.error('Fix error:', error);
