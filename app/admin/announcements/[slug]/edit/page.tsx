@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,8 +25,9 @@ interface Event {
 export default function EditAnnouncementPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = use(params);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,7 +63,7 @@ export default function EditAnnouncementPage({
   useEffect(() => {
     async function loadAnnouncement() {
       try {
-        const res = await fetch(`/api/announcements/${params.slug}`);
+        const res = await fetch(`/api/announcements/${slug}`);
         if (!res.ok) throw new Error("Duyuru yüklenemedi");
         const data = await res.json();
         setFormData(data);
@@ -76,7 +77,7 @@ export default function EditAnnouncementPage({
     }
 
     loadAnnouncement();
-  }, [params.slug, router]);
+  }, [slug, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +113,7 @@ export default function EditAnnouncementPage({
       // Yeni slug'ı formData'ya ekle
       const updatedData = { ...formData, slug: newSlug };
 
-      const res = await fetch(`/api/announcements/${params.slug}`, {
+      const res = await fetch(`/api/announcements/${slug}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

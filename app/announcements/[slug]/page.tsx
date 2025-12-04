@@ -32,9 +32,10 @@ async function getEventFromDB(eventId: string) {
 export default async function AnnouncementPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const announcement = await getAnnouncementFromDB(params.slug);
+  const { slug } = await params;
+  const announcement = await getAnnouncementFromDB(slug);
   let event = null;
 
   if (announcement?.eventId) {

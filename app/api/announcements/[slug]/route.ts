@@ -15,11 +15,12 @@ const schema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
-    const announcement = await Announcement.findOne({ slug: params.slug });
+    const { slug } = await params;
+    const announcement = await Announcement.findOne({ slug });
 
     if (!announcement) {
       return NextResponse.json(
@@ -40,10 +41,11 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
+    const { slug } = await params;
     const data = await request.json();
 
     // Gerekli alanların kontrolü ama zodla
@@ -64,7 +66,7 @@ export async function PUT(
     }
 
     // Find existing announcement to compare images
-    const existingAnnouncement = await Announcement.findOne({ slug: params.slug });
+    const existingAnnouncement = await Announcement.findOne({ slug });
     if (!existingAnnouncement) {
       return NextResponse.json({ error: 'Duyuru bulunamadı' }, { status: 404 });
     }
@@ -97,7 +99,7 @@ export async function PUT(
     }
 
     const announcement = await Announcement.findOneAndUpdate(
-      { slug: params.slug },
+      { slug },
       { ...data },
       { new: true, runValidators: true }
     );
@@ -116,11 +118,12 @@ import { deleteFromCloudinary } from '@/app/lib/cloudinaryHelper';
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
-    const announcement = await Announcement.findOne({ slug: params.slug });
+    const { slug } = await params;
+    const announcement = await Announcement.findOne({ slug });
 
     if (!announcement) {
       return NextResponse.json(
@@ -138,7 +141,7 @@ export async function DELETE(
       }
     }
 
-    await Announcement.findOneAndDelete({ slug: params.slug });
+    await Announcement.findOneAndDelete({ slug });
 
     return NextResponse.json({ message: 'Duyuru başarıyla silindi' });
   } catch (error) {

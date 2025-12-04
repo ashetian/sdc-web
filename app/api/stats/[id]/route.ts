@@ -13,10 +13,11 @@ const statUpdateSchema = z.object({
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
+        const { id } = await params;
         const data = await request.json();
 
         // Zod validation
@@ -29,7 +30,7 @@ export async function PATCH(
         }
 
         const stat = await Stat.findByIdAndUpdate(
-            params.id,
+            id,
             parsed.data,
             { new: true, runValidators: true }
         );
@@ -53,12 +54,13 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
+        const { id } = await params;
 
-        const stat = await Stat.findByIdAndDelete(params.id);
+        const stat = await Stat.findByIdAndDelete(id);
 
         if (!stat) {
             return NextResponse.json(

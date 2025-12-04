@@ -4,11 +4,11 @@ import { Registration } from '@/app/lib/models/Registration';
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
-        const { id } = params;
+        const { id } = await params;
         const body = await request.json();
         const { paymentStatus } = body;
 

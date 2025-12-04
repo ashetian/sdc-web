@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,8 +22,9 @@ interface Announcement {
 export default function GalleryEditPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = use(params);
   const router = useRouter();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [galleryLinks, setGalleryLinks] = useState<string[]>([""]);
@@ -33,7 +34,7 @@ export default function GalleryEditPage({
 
   useEffect(() => {
     async function fetchAnnouncement() {
-      const res = await fetch(`/api/announcements/${params.slug}`);
+      const res = await fetch(`/api/announcements/${slug}`);
       if (res.ok) {
         const data = await res.json();
         setAnnouncement(data);
@@ -47,7 +48,7 @@ export default function GalleryEditPage({
       }
     }
     fetchAnnouncement();
-  }, [params.slug]);
+  }, [slug]);
 
   const handleGalleryLinkChange = (index: number, value: string) => {
     setGalleryLinks((prev) => {
@@ -69,7 +70,7 @@ export default function GalleryEditPage({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/announcements/${params.slug}`, {
+      const res = await fetch(`/api/announcements/${slug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

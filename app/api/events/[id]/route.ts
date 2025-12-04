@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Event } from '@/app/lib/models/Event';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDB();
-        const { id } = params;
+        const { id } = await params;
         const event = await Event.findById(id);
 
         if (!event) {
@@ -19,11 +19,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDB();
         const body = await request.json();
-        const { id } = params;
+        const { id } = await params;
 
         const event = await Event.findByIdAndUpdate(id, body, { new: true });
 
@@ -40,10 +40,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
 import { deleteFromCloudinary, deleteFolder, sanitizeFolderName } from '@/app/lib/cloudinaryHelper';
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDB();
-        const { id } = params;
+        const { id } = await params;
 
         // Find event first to get posterUrl
         const event = await Event.findById(id);

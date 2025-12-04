@@ -4,12 +4,13 @@ import { Applicant } from '@/app/lib/models/Applicant';
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
+        const { id } = await params;
 
-        const applicant = await Applicant.findByIdAndDelete(params.id);
+        const applicant = await Applicant.findByIdAndDelete(id);
 
         if (!applicant) {
             return NextResponse.json(

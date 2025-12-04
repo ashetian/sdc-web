@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,14 +24,15 @@ function isVideo(url: string) {
   return url.match(/\.(mp4|webm|mov)$/i) || url.includes("video/upload");
 }
 
-export default function GalleryDetailPage({ params }: { params: { slug: string } }) {
+export default function GalleryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadAnnouncement() {
       try {
-        const res = await fetch(`/api/announcements/${params.slug}`);
+        const res = await fetch(`/api/announcements/${slug}`);
         if (!res.ok) throw new Error("Duyuru yüklenemedi");
         const data = await res.json();
         if (data.isInGallery) {
@@ -45,7 +46,7 @@ export default function GalleryDetailPage({ params }: { params: { slug: string }
     }
 
     loadAnnouncement();
-  }, [params.slug]);
+  }, [slug]);
 
   if (loading) {
     return (

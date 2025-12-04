@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Registration } from '@/app/lib/models/Registration';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDB();
-        const { id } = params; // eventId
+        const { id } = await params; // eventId
 
         const registrations = await Registration.find({ eventId: id }).sort({ createdAt: -1 });
         return NextResponse.json(registrations);
