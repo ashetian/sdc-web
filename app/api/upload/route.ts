@@ -8,12 +8,14 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB for videos
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB for images
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const uploadType = formData.get('type') as string; // 'gallery' | 'receipt' | 'image'
 
     if (!file) {
       return NextResponse.json(
@@ -23,18 +25,27 @@ export async function POST(request: Request) {
     }
 
     // Dosya tipi kontrolü
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const imageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const videoTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    const validTypes = uploadType === 'gallery' ? [...imageTypes, ...videoTypes] : imageTypes;
+
     if (!validTypes.includes(file.type)) {
+      const allowedFormats = uploadType === 'gallery'
+        ? 'resim (JPEG, PNG, WEBP, GIF) veya video (MP4, WEBM, MOV)'
+        : 'resim (JPEG, PNG, WEBP)';
       return NextResponse.json(
-        { error: 'Sadece resim dosyaları (JPEG, PNG, WEBP) yüklenebilir.' },
+        { error: `Sadece ${allowedFormats} dosyaları yüklenebilir.` },
         { status: 400 }
       );
     }
 
     // Dosya boyutu kontrolü
-    if (file.size > MAX_FILE_SIZE) {
+    const isVideo = videoTypes.includes(file.type);
+    const maxSize = isVideo ? MAX_FILE_SIZE : MAX_IMAGE_SIZE;
+
+    if (file.size > maxSize) {
       return NextResponse.json(
-        { error: `Dosya boyutu çok büyük. Maksimum ${MAX_FILE_SIZE / 1024 / 1024}MB olmalıdır.` },
+        { error: `Dosya boyutu çok büyük. Maksimum ${maxSize / 1024 / 1024}MB olmalıdır.` },
         { status: 400 }
       );
     }
@@ -42,29 +53,29 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // PDF magic bytes kontrolü kaldırıldı çünkü sadece resim kabul ediyoruz
-
     const eventId = formData.get('eventId') as string;
     const eventTitle = formData.get('eventTitle') as string;
+    const gallerySlug = formData.get('gallerySlug') as string;
 
     // Folder selection logic
     let folder = 'sdc-web-uploads';
 
-    if (eventTitle) {
-      // Use sanitized event title if available
+    if (uploadType === 'gallery' && gallerySlug) {
+      const { sanitizeFolderName } = await import('@/app/lib/cloudinaryHelper');
+      folder = `sdc-web-gallery/${sanitizeFolderName(gallerySlug)}`;
+    } else if (eventTitle) {
       const { sanitizeFolderName } = await import('@/app/lib/cloudinaryHelper');
       folder = `sdc-web-receipts/${sanitizeFolderName(eventTitle)}`;
     } else if (eventId) {
-      // Fallback to ID
       folder = `sdc-web-receipts/${eventId}`;
     }
 
-    // Tüm dosyaları Cloudinary'ye yükle (PDF dahil)
+    // Upload to Cloudinary
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
           folder: folder,
-          resource_type: 'auto', // PDF ve resimler için otomatik algılama
+          resource_type: isVideo ? 'video' : 'image',
         },
         (error, result) => {
           if (error || !result) reject(error || new Error("Upload failed"));
@@ -75,7 +86,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      path: result.secure_url
+      path: result.secure_url,
+      resourceType: isVideo ? 'video' : 'image'
     });
 
   } catch (error) {

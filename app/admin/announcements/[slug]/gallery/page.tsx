@@ -19,6 +19,14 @@ interface Announcement {
   galleryDescription?: string;
 }
 
+function isImage(url: string) {
+  return url.match(/\.(jpeg|jpg|gif|png|webp)$/i) || url.includes("image/upload");
+}
+
+function isVideo(url: string) {
+  return url.match(/\.(mp4|webm|mov)$/i) || url.includes("video/upload");
+}
+
 export default function GalleryEditPage({
   params,
 }: {
@@ -27,10 +35,12 @@ export default function GalleryEditPage({
   const { slug } = use(params);
   const router = useRouter();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
-  const [galleryLinks, setGalleryLinks] = useState<string[]>([""]);
+  const [galleryLinks, setGalleryLinks] = useState<string[]>([]);
   const [galleryCover, setGalleryCover] = useState<string>("");
   const [galleryDescription, setGalleryDescription] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
 
   useEffect(() => {
     async function fetchAnnouncement() {
@@ -38,11 +48,7 @@ export default function GalleryEditPage({
       if (res.ok) {
         const data = await res.json();
         setAnnouncement(data);
-        setGalleryLinks(
-          data.galleryLinks && data.galleryLinks.length > 0
-            ? data.galleryLinks
-            : [""]
-        );
+        setGalleryLinks(data.galleryLinks || []);
         setGalleryCover(data.galleryCover || data.image || "");
         setGalleryDescription(data.galleryDescription || "");
       }
@@ -50,16 +56,74 @@ export default function GalleryEditPage({
     fetchAnnouncement();
   }, [slug]);
 
-  const handleGalleryLinkChange = (index: number, value: string) => {
-    setGalleryLinks((prev) => {
-      const updated = [...prev];
-      updated[index] = value;
-      return updated;
-    });
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'gallery');
+    formData.append('gallerySlug', slug);
+
+    setUploadingCover(true);
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Yükleme başarısız');
+      }
+
+      const data = await res.json();
+      setGalleryCover(data.path);
+    } catch (error) {
+      console.error('Kapak görseli yükleme hatası:', error);
+      alert(error instanceof Error ? error.message : 'Görsel yüklenirken bir hata oluştu.');
+    } finally {
+      setUploadingCover(false);
+    }
   };
 
-  const addGalleryLink = () => {
-    setGalleryLinks((prev) => [...prev, ""]);
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+
+    const files = Array.from(e.target.files);
+    setUploadingMedia(true);
+
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'gallery');
+        formData.append('gallerySlug', slug);
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Yükleme başarısız');
+        }
+
+        const data = await res.json();
+        return data.path;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setGalleryLinks(prev => [...prev, ...uploadedUrls]);
+    } catch (error) {
+      console.error('Medya yükleme hatası:', error);
+      alert(error instanceof Error ? error.message : 'Dosya yüklenirken bir hata oluştu.');
+    } finally {
+      setUploadingMedia(false);
+      // Reset input
+      e.target.value = '';
+    }
   };
 
   const removeGalleryLink = (index: number) => {
@@ -106,75 +170,123 @@ export default function GalleryEditPage({
         </Link>
       </div>
       <div className="border-t border-gray-200">
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 space-y-6">
+          {/* Kapak Görseli */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Kapak Görseli (URL)
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Kapak Görseli
             </label>
-            <input
-              type="text"
-              value={galleryCover}
-              onChange={(e) => setGalleryCover(e.target.value)}
-              placeholder="Kapak görseli linki veya duyuru görseli"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
-            />
+            <div className="flex items-center space-x-4">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleCoverUpload}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              {uploadingCover && <span className="text-sm text-blue-500">Yükleniyor...</span>}
+            </div>
             {galleryCover && (
-              <div className="mt-2">
+              <div className="mt-3 relative inline-block">
                 <Image
                   src={galleryCover}
                   alt="Kapak Görseli"
                   width={300}
                   height={200}
-                  className="rounded-lg"
+                  className="rounded-lg border border-gray-300"
                 />
+                <button
+                  type="button"
+                  onClick={() => setGalleryCover("")}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold hover:bg-red-600"
+                >
+                  ×
+                </button>
               </div>
             )}
           </div>
+
+          {/* Galeri Açıklaması */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Galeriye Özel Açıklama
             </label>
             <textarea
               value={galleryDescription}
               onChange={(e) => setGalleryDescription(e.target.value)}
               placeholder="Bu açıklama sadece galeri sayfasında görünür."
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
               rows={3}
             />
           </div>
+
+          {/* Galeri Medyaları */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Cloudinary Görsel/Video Linkleri
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Galeri Görselleri ve Videoları
             </label>
-            {galleryLinks.map((link, idx) => (
-              <div key={idx} className="flex items-center space-x-2 mt-1">
-                <input
-                  type="text"
-                  value={link}
-                  onChange={(e) => handleGalleryLinkChange(idx, e.target.value)}
-                  placeholder="Cloudinary görsel veya video linki"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
-                />
-                {galleryLinks.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeGalleryLink(idx)}
-                    className="text-red-500"
-                  >
-                    Sil
-                  </button>
-                )}
+            <div className="mb-4">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+                multiple
+                onChange={handleMediaUpload}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Resim (JPEG, PNG, WEBP, GIF) veya Video (MP4, WEBM, MOV) yükleyebilirsiniz. Birden fazla dosya seçebilirsiniz.
+              </p>
+              {uploadingMedia && (
+                <span className="text-sm text-blue-500 mt-2 block">Dosyalar yükleniyor...</span>
+              )}
+            </div>
+
+            {/* Yüklenen Medyalar */}
+            {galleryLinks.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {galleryLinks.map((link, idx) => (
+                  <div key={idx} className="relative group">
+                    {isImage(link) ? (
+                      <Image
+                        src={link}
+                        alt={`Galeri görseli ${idx + 1}`}
+                        width={200}
+                        height={150}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-300"
+                      />
+                    ) : isVideo(link) ? (
+                      <video
+                        src={link}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-300 bg-black"
+                      />
+                    ) : (
+                      <div className="w-full h-32 flex items-center justify-center bg-gray-100 rounded-lg border border-gray-300">
+                        <span className="text-xs text-gray-500 p-2 text-center break-all">{link}</span>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => removeGalleryLink(idx)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      ×
+                    </button>
+                    {isVideo(link) && (
+                      <div className="absolute bottom-1 left-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">
+                        Video
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-            <button
-              type="button"
-              onClick={addGalleryLink}
-              className="mt-2 text-blue-600 hover:underline"
-            >
-              + Link Ekle
-            </button>
+            )}
+
+            {galleryLinks.length === 0 && (
+              <p className="text-sm text-gray-500 italic">Henüz medya eklenmedi.</p>
+            )}
           </div>
-          <div className="flex justify-end space-x-3">
+
+          {/* Butonlar */}
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
             <Link
               href="/admin"
               className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
