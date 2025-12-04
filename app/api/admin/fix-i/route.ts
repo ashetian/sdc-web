@@ -1,82 +1,106 @@
 import { NextResponse } from 'next/server';
-import { Announcement } from '@/app/lib/models/Announcement';
-import { Event } from '@/app/lib/models/Event';
-import Department from '@/app/lib/models/Department';
-import TeamMember from '@/app/lib/models/TeamMember';
-import { Stat } from '@/app/lib/models/Stat';
+import mongoose from 'mongoose';
 import connectDB from '@/app/lib/db';
 
-// Force fix ALL English fields - replace İ→I and ı→i using Unicode code points
+// Use MongoDB native driver to replace characters directly
 export async function GET() {
     try {
         await connectDB();
-        const results = { announcements: 0, events: 0, departments: 0, teamMembers: 0, stats: 0 };
+        const db = mongoose.connection.db;
+        if (!db) {
+            return NextResponse.json({ error: 'Database not connected' }, { status: 500 });
+        }
 
-        // Use Unicode code points: İ = \u0130, ı = \u0131
-        const sanitize = (text: string | undefined | null): string | undefined => {
-            if (!text) return undefined;
-            return text.replace(/\u0130/g, 'I').replace(/\u0131/g, 'i');
-        };
+        const results: Record<string, number> = {};
 
-        // Update ALL Announcements
-        const announcements = await Announcement.find({});
+        // Turkish İ (U+0130) and ı (U+0131)
+        const turkishI = String.fromCharCode(0x0130);
+        const turkishDotlessI = String.fromCharCode(0x0131);
+
+        // Fix Announcements
+        const annCollection = db.collection('announcements');
+        const announcements = await annCollection.find({}).toArray();
+        let annCount = 0;
+
         for (const doc of announcements) {
-            if (doc.titleEn || doc.descriptionEn || doc.contentEn || doc.galleryDescriptionEn) {
-                doc.titleEn = sanitize(doc.titleEn);
-                doc.descriptionEn = sanitize(doc.descriptionEn);
-                doc.contentEn = sanitize(doc.contentEn);
-                doc.galleryDescriptionEn = sanitize(doc.galleryDescriptionEn);
-                await doc.save();
-                results.announcements++;
+            const updates: Record<string, string> = {};
+
+            for (const field of ['titleEn', 'descriptionEn', 'contentEn', 'galleryDescriptionEn']) {
+                const val = doc[field];
+                if (typeof val === 'string' && (val.includes(turkishI) || val.includes(turkishDotlessI))) {
+                    updates[field] = val.split(turkishI).join('I').split(turkishDotlessI).join('i');
+                }
+            }
+
+            if (Object.keys(updates).length > 0) {
+                await annCollection.updateOne({ _id: doc._id }, { $set: updates });
+                annCount++;
             }
         }
+        results.announcements = annCount;
 
-        // Update ALL Events
-        const events = await Event.find({});
-        for (const doc of events) {
-            if (doc.titleEn || doc.descriptionEn) {
-                doc.titleEn = sanitize(doc.titleEn);
-                doc.descriptionEn = sanitize(doc.descriptionEn);
-                await doc.save();
-                results.events++;
-            }
-        }
+        // Fix Departments
+        const deptCollection = db.collection('departments');
+        const departments = await deptCollection.find({}).toArray();
+        let deptCount = 0;
 
-        // Update ALL Departments
-        const departments = await Department.find({});
         for (const doc of departments) {
-            if (doc.nameEn || doc.descriptionEn) {
-                doc.nameEn = sanitize(doc.nameEn);
-                doc.descriptionEn = sanitize(doc.descriptionEn);
-                await doc.save();
-                results.departments++;
+            const updates: Record<string, string> = {};
+
+            for (const field of ['nameEn', 'descriptionEn']) {
+                const val = doc[field];
+                if (typeof val === 'string' && (val.includes(turkishI) || val.includes(turkishDotlessI))) {
+                    updates[field] = val.split(turkishI).join('I').split(turkishDotlessI).join('i');
+                }
+            }
+
+            if (Object.keys(updates).length > 0) {
+                await deptCollection.updateOne({ _id: doc._id }, { $set: updates });
+                deptCount++;
             }
         }
+        results.departments = deptCount;
 
-        // Update ALL Team Members
-        const teamMembers = await TeamMember.find({});
-        for (const doc of teamMembers) {
-            if (doc.titleEn || doc.descriptionEn) {
-                doc.titleEn = sanitize(doc.titleEn);
-                doc.descriptionEn = sanitize(doc.descriptionEn);
-                await doc.save();
-                results.teamMembers++;
-            }
-        }
+        // Fix Stats
+        const statsCollection = db.collection('stats');
+        const stats = await statsCollection.find({}).toArray();
+        let statsCount = 0;
 
-        // Update ALL Stats
-        const stats = await Stat.find({});
         for (const doc of stats) {
-            if (doc.labelEn) {
-                doc.labelEn = sanitize(doc.labelEn);
-                await doc.save();
-                results.stats++;
+            const val = doc.labelEn;
+            if (typeof val === 'string' && (val.includes(turkishI) || val.includes(turkishDotlessI))) {
+                const newVal = val.split(turkishI).join('I').split(turkishDotlessI).join('i');
+                await statsCollection.updateOne({ _id: doc._id }, { $set: { labelEn: newVal } });
+                statsCount++;
             }
         }
+        results.stats = statsCount;
+
+        // Fix TeamMembers
+        const teamCollection = db.collection('teammembers');
+        const teamMembers = await teamCollection.find({}).toArray();
+        let teamCount = 0;
+
+        for (const doc of teamMembers) {
+            const updates: Record<string, string> = {};
+
+            for (const field of ['titleEn', 'descriptionEn']) {
+                const val = doc[field];
+                if (typeof val === 'string' && (val.includes(turkishI) || val.includes(turkishDotlessI))) {
+                    updates[field] = val.split(turkishI).join('I').split(turkishDotlessI).join('i');
+                }
+            }
+
+            if (Object.keys(updates).length > 0) {
+                await teamCollection.updateOne({ _id: doc._id }, { $set: updates });
+                teamCount++;
+            }
+        }
+        results.teamMembers = teamCount;
 
         return NextResponse.json({
             success: true,
-            message: 'Force updated all English fields with Turkish I fix',
+            message: 'MongoDB native update complete',
             results
         });
     } catch (error) {
