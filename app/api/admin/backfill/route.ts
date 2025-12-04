@@ -162,7 +162,7 @@ export async function GET() {
 
         // 4. Backfill TeamMembers
         const teamMembers = await TeamMember.find({
-            title: { $exists: true, $ne: null, $ne: '' },
+            title: { $exists: true, $nin: [null, ''] },
             $or: [
                 { titleEn: { $exists: false } },
                 { titleEn: null },
