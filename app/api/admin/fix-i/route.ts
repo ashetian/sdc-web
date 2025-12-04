@@ -6,19 +6,19 @@ import TeamMember from '@/app/lib/models/TeamMember';
 import { Stat } from '@/app/lib/models/Stat';
 import connectDB from '@/app/lib/db';
 
-// Force fix ALL English fields - replace İ→I and ı→i regardless of detection
+// Force fix ALL English fields - replace İ→I and ı→i using Unicode code points
 export async function GET() {
     try {
         await connectDB();
         const results = { announcements: 0, events: 0, departments: 0, teamMembers: 0, stats: 0 };
 
-        // Helper function to sanitize - always run replacement
+        // Use Unicode code points: İ = \u0130, ı = \u0131
         const sanitize = (text: string | undefined | null): string | undefined => {
             if (!text) return undefined;
-            return text.replace(/İ/g, 'I').replace(/ı/g, 'i');
+            return text.replace(/\u0130/g, 'I').replace(/\u0131/g, 'i');
         };
 
-        // Update ALL Announcements - force update all English fields
+        // Update ALL Announcements
         const announcements = await Announcement.find({});
         for (const doc of announcements) {
             if (doc.titleEn || doc.descriptionEn || doc.contentEn || doc.galleryDescriptionEn) {
@@ -76,7 +76,7 @@ export async function GET() {
 
         return NextResponse.json({
             success: true,
-            message: 'Force updated all English fields with İ→I sanitization',
+            message: 'Force updated all English fields with Turkish I fix',
             results
         });
     } catch (error) {
