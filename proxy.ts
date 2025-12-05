@@ -121,7 +121,7 @@ function createForbiddenResponse(message: string): NextResponse {
   });
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
   const clientIP = getClientIP(request);
