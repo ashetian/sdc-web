@@ -11,6 +11,7 @@ const schema = z.object({
   type: z.string().min(1).max(100),
   content: z.string().min(1).max(10000),
   eventId: z.string().optional(),
+  imageOrientation: z.enum(['horizontal', 'vertical']).optional(),
 });
 
 export async function GET(
@@ -98,9 +99,22 @@ export async function PUT(
       }
     }
 
+    // Auto-translate galleryDescription if DeepL API is available
+    let updateData = { ...data };
+    if (data.galleryDescription && process.env.DEEPL_API_KEY) {
+      try {
+        const { translateContent } = await import('@/app/lib/translate');
+        const galleryDescResult = await translateContent(data.galleryDescription, 'tr');
+        updateData.galleryDescriptionEn = galleryDescResult.en;
+        console.log('Gallery description auto-translated');
+      } catch (translateError) {
+        console.error('Gallery description translation failed:', translateError);
+      }
+    }
+
     const announcement = await Announcement.findOneAndUpdate(
       { slug },
-      { ...data },
+      { ...updateData },
       { new: true, runValidators: true }
     );
 

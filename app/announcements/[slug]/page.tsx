@@ -3,6 +3,7 @@ import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
+import ShareButtons from "../../_components/ShareButtons";
 
 interface Announcement {
   slug: string;
@@ -100,6 +101,12 @@ export default function AnnouncementPage({
     return announcement.content;
   };
 
+  const getDescription = () => {
+    if (!announcement) return '';
+    if (language === 'en' && announcement.descriptionEn) return announcement.descriptionEn;
+    return announcement.description;
+  };
+
   const getTypeLabel = (type: "event" | "news" | "workshop") => {
     return l[type];
   };
@@ -190,7 +197,16 @@ export default function AnnouncementPage({
             </div>
           )}
 
-          <div className="mt-12 border-t-4 border-black pt-8 flex justify-center">
+          {/* Share Buttons */}
+          <div className="mt-8 pt-6 border-t-2 border-gray-200">
+            <ShareButtons
+              url={typeof window !== 'undefined' ? window.location.href : `https://ktusdc.com/announcements/${slug}`}
+              title={getTitle()}
+              description={getDescription()}
+            />
+          </div>
+
+          <div className="mt-8 border-t-4 border-black pt-8 flex justify-center">
             <Link
               href="/"
               className="inline-flex items-center text-black font-black uppercase hover:underline decoration-4 decoration-neo-purple underline-offset-4 transition-all"

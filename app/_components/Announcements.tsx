@@ -1,10 +1,8 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface Announcement {
   slug: string;
@@ -18,42 +16,70 @@ interface Announcement {
   content: string;
   contentEn?: string;
   image?: string;
+  imageOrientation?: "horizontal" | "vertical";
   isDraft: boolean;
+  isArchived?: boolean;
+  eventId?: string;
 }
 
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef(null);
-  const cardsRef = useRef(null);
-  const { language, t } = useLanguage();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const { language } = useLanguage();
 
   useEffect(() => {
     async function loadAnnouncements() {
       try {
-        const res = await fetch("/api/announcements");
+        const res = await fetch("/api/announcements?active=true");
         if (!res.ok) throw new Error("Duyurular alınamadı");
         const data = await res.json();
-        const publishedAnnouncements = data.filter(
-          (a: Announcement) => !a.isDraft
-        );
-        setAnnouncements(publishedAnnouncements);
+        const activeAnnouncements = data
+          .filter((a: Announcement) => !a.isDraft && !a.isArchived)
+          .slice(0, 10); // Limit to 10 announcements
+        setAnnouncements(activeAnnouncements);
       } catch (error) {
         console.error("Duyurular yüklenirken hata:", error);
       }
     }
-
     loadAnnouncements();
   }, []);
 
+  // Auto-swipe: first slide 15s, others 7s
+  // Reset timer when currentIndex changes
+  useEffect(() => {
+    if (announcements.length <= 1) return;
+
+    const delay = currentIndex === 0 ? 15000 : 7000;
+    const timeout = setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % announcements.length);
+    }, delay);
+
+    return () => clearTimeout(timeout);
+  }, [announcements.length, currentIndex]);
+
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % announcements.length);
+  }, [announcements.length]);
+
+  const goToPrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + announcements.length) % announcements.length);
+  }, [announcements.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goToPrev();
+      if (e.key === "ArrowRight") goToNext();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [goToNext, goToPrev]);
+
   const getTypeStyles = (type: Announcement["type"]) => {
     switch (type) {
-      case "event":
-        return "bg-neo-purple text-white border-2 border-black";
-      case "news":
-        return "bg-neo-blue text-black border-2 border-black";
-      case "workshop":
-        return "bg-neo-green text-black border-2 border-black";
+      case "event": return "bg-neo-purple text-white";
+      case "news": return "bg-neo-blue text-black";
+      case "workshop": return "bg-neo-green text-black";
     }
   };
 
@@ -65,109 +91,227 @@ export default function Announcements() {
     return typeLabels[language][type];
   };
 
-  const getTitle = (a: Announcement) => {
-    if (language === 'en' && a.titleEn) return a.titleEn;
-    return a.title;
-  };
-
-  const getDescription = (a: Announcement) => {
-    if (language === 'en' && a.descriptionEn) return a.descriptionEn;
-    return a.description;
+  const getText = (tr: string | undefined, en: string | undefined, fallback: string) => {
+    if (language === 'en' && en) return en;
+    return tr || fallback;
   };
 
   const labels = {
     tr: {
-      title: 'Duyurular',
-      subtitle: 'En güncel etkinlik ve duyurularımızdan haberdar olun.',
-      seeDetails: 'Detayları Gör',
-      eventCalendar: 'Etkinlik Takvimi'
+      noAnnouncements: 'Henüz duyuru bulunmuyor.',
+      details: 'Detayları Gör',
+      register: 'Etkinliğe Kaydol',
+      viewAll: 'Tüm Duyurular'
     },
     en: {
-      title: 'Announcements',
-      subtitle: 'Stay updated with our latest events and announcements.',
-      seeDetails: 'See Details',
-      eventCalendar: 'Event Calendar'
+      noAnnouncements: 'No announcements yet.',
+      details: 'View Details',
+      register: 'Register for Event',
+      viewAll: 'All Announcements'
     }
   };
 
   const l = labels[language];
 
+  if (announcements.length === 0) {
+    return (
+      <section id="announcements" className="min-h-[60vh] bg-neo-mint flex items-center justify-center border-b-4 border-black">
+        <p className="text-2xl font-bold text-black">{l.noAnnouncements}</p>
+      </section>
+    );
+  }
+
+  const current = announcements[currentIndex];
+  const isVertical = current?.imageOrientation === "vertical";
+
   return (
     <section
-      ref={sectionRef}
       id="announcements"
-      className="relative py-20 bg-neo-yellow border-b-4 border-black"
+      className="relative min-h-[80vh] bg-neo-mint border-b-4 border-black overflow-hidden"
     >
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-6 py-2 transform rotate-1">
-            {l.title}
-          </h2>
-          <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-2">
-            {l.subtitle}
-          </p>
+      {/* Announcement Content */}
+      <div className={`max-w-7xl mx-auto px-12 sm:px-20 lg:px-24 pt-24 pb-24 flex items-center justify-center min-h-[80vh] ${isVertical ? 'flex-col' : 'flex-row gap-12'}`}>
+
+        {/* Date & Type - Absolute Top Left */}
+        <div className="absolute top-6 left-8 flex items-center gap-3 z-20 hidden sm:flex">
+          <span className={`px-4 py-2 text-sm font-black uppercase border-2 border-black shadow-neo-sm ${getTypeStyles(current.type)}`}>
+            {getTypeText(current.type)}
+          </span>
+          <time className="text-sm font-bold text-black bg-white px-3 py-2 border-2 border-black shadow-neo-sm">
+            {getText(current.date, current.dateEn, '')}
+          </time>
         </div>
 
-        <div ref={cardsRef} className="flex gap-8 overflow-x-auto overflow-y-hidden py-6 custom-scrollbar">
-          {announcements.map((announcement, index) => (
-            <a
-              href={`/announcements/${announcement.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              key={index}
-              className="announcement-card min-w-[320px] max-w-xs group bg-white border-4 border-black shadow-neo  p-4 flex flex-col
-                        transform transition-all duration-200 hover:-translate-y-2 hover:shadow-neo-lg"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span
-                  className={`px-3 py-1 text-sm font-bold shadow-neo-sm ${getTypeStyles(
-                    announcement.type
-                  )}`}
-                >
-                  {getTypeText(announcement.type)}
-                </span>
-                <time className="text-sm font-bold text-black bg-gray-200 px-2 py-1 border-2 border-black shadow-neo-sm">
-                  {language === 'en' && announcement.dateEn ? announcement.dateEn : announcement.date}
-                </time>
+        {/* Mobile Date & Type - Absolute Top Left (Smaller) */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2 z-20 sm:hidden">
+          <span className={`px-3 py-1 text-xs font-black uppercase border-2 border-black shadow-neo-sm w-fit ${getTypeStyles(current.type)}`}>
+            {getTypeText(current.type)}
+          </span>
+          <time className="text-xs font-bold text-black bg-white px-2 py-1 border-2 border-black shadow-neo-sm w-fit">
+            {getText(current.date, current.dateEn, '')}
+          </time>
+        </div>
+
+        {/* Vertical Image Layout - Image Left, Text Right */}
+        {isVertical && current && (
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full">
+            {current.image && (
+              <div className="flex-shrink-0 w-full md:w-2/5">
+                <div className="relative aspect-[4/5] max-h-[60vh] border-4 border-black shadow-neo overflow-hidden mx-auto md:mx-0">
+                  <Image
+                    src={current.image}
+                    alt={getText(current.title, current.titleEn, '')}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
               </div>
-
-              <h3 className="text-xl font-black text-black mb-3 uppercase group-hover:text-neo-purple transition-colors">
-                {getTitle(announcement)}
-              </h3>
-
-              <p className="text-black font-medium mb-4 line-clamp-3 border-t-2 border-black pt-2">
-                {getDescription(announcement)}
+            )}
+            <div className={`flex-1 flex flex-col ${current.image ? 'items-start text-left' : 'items-center text-center'}`}>
+              <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase">
+                {getText(current.title, current.titleEn, '')}
+              </h2>
+              <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
+                {getText(current.description, current.descriptionEn, '')}
               </p>
+              <div className={`flex gap-4 flex-wrap ${current.image ? '' : 'justify-center'}`}>
+                <Link
+                  href={`/announcements/${current.slug}`}
+                  className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
+                >
+                  {l.details}
+                </Link>
+                {current.eventId && (
+                  <Link
+                    href={`/events/${current.eventId}/register`}
+                    className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
+                  >
+                    {l.register}
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
-              <button className="mt-auto w-full py-2 bg-black text-white font-bold border-2 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all">
-                {l.seeDetails}
-              </button>
-            </a>
-          ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <a
-            href="/events"
-            className="inline-flex items-center px-8 py-4 bg-neo-green text-black border-4 border-black shadow-neo text-lg font-black hover:bg-black hover:text-white hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-1"
-          >
-            <svg
-              className="w-6 h-6 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth="3"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-            {l.eventCalendar}
-          </a>
-        </div>
+        {/* Horizontal Layout */}
+        {!isVertical && current && (
+          <>
+            {current.image && (
+              <div className="flex-shrink-0 w-full md:w-1/2 flex justify-center">
+                <div className="relative aspect-[5/4] w-full border-4 border-black shadow-neo overflow-hidden">
+                  <Image
+                    src={current.image}
+                    alt={getText(current.title, current.titleEn, '')}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              </div>
+            )}
+            <div className={`flex-1 py-8 flex flex-col ${current.image ? 'items-start text-left' : 'items-center text-center'}`}>
+              <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase">
+                {getText(current.title, current.titleEn, '')}
+              </h2>
+              <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
+                {getText(current.description, current.descriptionEn, '')}
+              </p>
+              <div className={`flex gap-4 flex-wrap ${current.image ? '' : 'justify-center'}`}>
+                <Link
+                  href={`/announcements/${current.slug}`}
+                  className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
+                >
+                  {l.details}
+                </Link>
+                {current.eventId && (
+                  <Link
+                    href={`/events/${current.eventId}/register`}
+                    className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
+                  >
+                    {l.register}
+                  </Link>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
+
+      {/* Navigation Controls */}
+      {announcements.length > 1 && (
+        <>
+          {/* Arrow Buttons */}
+          <button
+            onClick={goToPrev}
+            className="absolute left-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-all z-10"
+            aria-label="Previous announcement"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={goToNext}
+            className="absolute right-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-all z-10"
+            aria-label="Next announcement"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Dot Indicators */}
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+            {announcements.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`w-3 h-3 border-2 border-black transition-all ${idx === currentIndex ? 'bg-black scale-125' : 'bg-white hover:bg-gray-300'
+                  }`}
+                aria-label={`Go to announcement ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Progress Bar */}
+      {announcements.length > 1 && (
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
+          <div
+            key={currentIndex}
+            className="h-full bg-black"
+            style={{
+              animation: `progress ${currentIndex === 0 ? '15s' : '7s'} linear forwards`,
+              width: '0%'
+            }}
+          />
+        </div>
+      )}
+      {/* View All Announcements Button - Bottom Right */}
+      <Link
+        href="/announcements"
+        className="absolute bottom-8 right-8 px-6 py-2 bg-white border-2 border-black font-bold text-sm hover:bg-black hover:text-white transition-all z-20 shadow-neo-sm hidden sm:block"
+      >
+        {l.viewAll} →
+      </Link>
+
+      {/* Mobile View All Button */}
+      <Link
+        href="/announcements"
+        className="absolute bottom-4 right-4 px-4 py-2 bg-white border-2 border-black font-bold text-xs hover:bg-black hover:text-white transition-all z-20 shadow-neo-sm sm:hidden"
+      >
+        {l.viewAll} →
+      </Link>
+
+      <style jsx>{`
+        @keyframes progress {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+      `}</style>
     </section>
   );
 }

@@ -17,6 +17,7 @@ interface Announcement {
   galleryCover?: string;
   isInGallery?: boolean;
   galleryDescription?: string;
+  galleryDescriptionEn?: string;
 }
 
 function isImage(url: string) {
@@ -213,10 +214,11 @@ export default function GalleryEditPage({
             <textarea
               value={galleryDescription}
               onChange={(e) => setGalleryDescription(e.target.value)}
-              placeholder="Bu açıklama sadece galeri sayfasında görünür."
+              placeholder="Bu açıklama sadece galeri sayfasında görünür. İngilizce çeviri otomatik yapılacaktır."
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
               rows={3}
             />
+            <p className="mt-1 text-xs text-gray-500">İngilizce çeviri otomatik olarak DeepL ile yapılacaktır.</p>
           </div>
 
           {/* Galeri Medyaları */}

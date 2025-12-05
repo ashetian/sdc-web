@@ -121,7 +121,7 @@ function createForbiddenResponse(message: string): NextResponse {
   });
 }
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
   const clientIP = getClientIP(request);
@@ -196,6 +196,15 @@ export function proxy(request: NextRequest) {
       }
     } else {
       // Other API write operations require auth
+      // Allow if coming from admin pages (already authenticated via Basic Auth to access those pages)
+      const referer = request.headers.get('referer') || '';
+      const isFromAdmin = referer.includes('/admin');
+
+      if (isFromAdmin) {
+        const response = NextResponse.next();
+        return addSecurityHeaders(response);
+      }
+
       const { valid, shouldRecordFailure } = validateCredentials(request);
 
       if (!valid) {

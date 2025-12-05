@@ -93,9 +93,9 @@ export default function Navbar() {
 
   return (
     <>
-      <nav ref={navRef} className="fixed w-full z-50 bg-neo-yellow border-b-4 border-black">
+      <nav ref={navRef} className="fixed w-full z-50 bg-neo-peach border-b-4 border-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20 items-center relative z-50 bg-neo-yellow">
+          <div className="flex justify-between h-20 items-center relative z-50 bg-transparent">
             <button
               onClick={() => scrollToSection("home")}
               className="flex items-center group"
@@ -136,13 +136,13 @@ export default function Navbar() {
                       onClick={() => { setLanguage('tr'); setLangMenuOpen(false); }}
                       className={`w-full px-4 py-2 font-bold text-left hover:bg-neo-yellow ${language === 'tr' ? 'bg-neo-yellow' : ''}`}
                     >
-                      🇹🇷 Türkçe
+                      Türkçe
                     </button>
                     <button
                       onClick={() => { setLanguage('en'); setLangMenuOpen(false); }}
                       className={`w-full px-4 py-2 font-bold text-left hover:bg-neo-yellow ${language === 'en' ? 'bg-neo-yellow' : ''}`}
                     >
-                      🇬🇧 English
+                      English
                     </button>
                   </div>
                 )}
@@ -171,7 +171,7 @@ export default function Navbar() {
               animate="open"
               exit="closed"
               variants={menuVariants}
-              className="fixed inset-0 bg-neo-yellow z-[60] flex flex-col items-center justify-center md:hidden touch-none"
+              className="fixed inset-0 bg-neo-peach z-[60] flex flex-col items-center justify-center md:hidden touch-none"
               onClick={() => setIsMenuOpen(false)}
             >
               {/* Logo in Mobile Menu */}
@@ -206,13 +206,13 @@ export default function Navbar() {
                     onClick={() => { setLanguage('tr'); setIsMenuOpen(false); }}
                     className={`px-6 py-3 border-4 border-black font-black text-xl ${language === 'tr' ? 'bg-black text-white' : 'bg-white'}`}
                   >
-                    🇹🇷 TR
+                    TR
                   </button>
                   <button
                     onClick={() => { setLanguage('en'); setIsMenuOpen(false); }}
                     className={`px-6 py-3 border-4 border-black font-black text-xl ${language === 'en' ? 'bg-black text-white' : 'bg-white'}`}
                   >
-                    🇬🇧 EN
+                    EN
                   </button>
                 </motion.div>
               </div>

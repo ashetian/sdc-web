@@ -31,11 +31,11 @@ export default function HomePage() {
       <section id="home">
         <Home />
       </section>
-      <section id="about">
-        <About />
-      </section>
       <section id="announcements">
         <Announcements />
+      </section>
+      <section id="about">
+        <About />
       </section>
       <section id="gallery-preview">
         <GalleryPreview />

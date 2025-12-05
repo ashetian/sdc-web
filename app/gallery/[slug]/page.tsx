@@ -3,6 +3,7 @@ import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
+import ShareButtons from "../../_components/ShareButtons";
 
 interface Announcement {
   slug: string;
@@ -181,6 +182,15 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
               ))}
             </div>
           )}
+
+          {/* Share Buttons */}
+          <div className="mt-8 pt-6 border-t-2 border-gray-200">
+            <ShareButtons
+              url={typeof window !== 'undefined' ? window.location.href : `https://ktusdc.com/gallery/${slug}`}
+              title={getTitle(announcement)}
+              description={getDescription(announcement)}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 
+ * Force English text-transform behavior to prevent Turkish İ in uppercase.
+ * Without this, CSS uppercase on lang="tr" converts 'i' → 'İ' instead of 'I'.
+ * Using :lang(en) selector and !important to override browser defaults.
+ */
+:lang(en) .uppercase,
+.uppercase:lang(en),
+[lang="en"] .uppercase {
+  text-transform: uppercase;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #000000;

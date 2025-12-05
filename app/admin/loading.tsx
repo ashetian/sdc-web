@@ -1,15 +1,52 @@
+"use client";
+import Image from "next/image";
+
 export default function AdminLoading() {
     return (
         <div className="flex items-center justify-center min-h-[400px]">
-            <div className="bg-white border-4 border-black shadow-neo px-8 py-6 text-center">
-                <div className="animate-pulse">
-                    <span className="bg-neo-purple text-white px-4 py-2 text-xl font-black border-2 border-black inline-block">
-                        SDC
-                    </span>
-                    <span className="text-black font-black text-lg ml-2">ADMIN</span>
+            <div className="relative">
+                {/* Animated Logo */}
+                <div className="animate-bounce-slow">
+                    <div className="relative w-20 h-20 animate-pulse-scale">
+                        <Image
+                            src="/sdclogo.png"
+                            alt="SDC Logo"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
+                    </div>
                 </div>
-                <p className="mt-4 font-black animate-pulse">Yükleniyor...</p>
+
+                {/* Animated ring */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-24 h-24 border-2 border-neo-purple/30 animate-ping-slow" />
+                </div>
             </div>
+
+            <style jsx>{`
+                @keyframes bounce-slow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-8px); }
+                }
+                @keyframes pulse-scale {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                }
+                @keyframes ping-slow {
+                    0% { transform: scale(1); opacity: 0.5; }
+                    100% { transform: scale(1.5); opacity: 0; }
+                }
+                .animate-bounce-slow {
+                    animation: bounce-slow 2s ease-in-out infinite;
+                }
+                .animate-pulse-scale {
+                    animation: pulse-scale 1.5s ease-in-out infinite;
+                }
+                .animate-ping-slow {
+                    animation: ping-slow 2s ease-out infinite;
+                }
+            `}</style>
         </div>
     );
 }

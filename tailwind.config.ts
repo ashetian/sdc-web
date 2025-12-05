@@ -16,12 +16,22 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         neo: {
-          yellow: '#FFDE00',
-          pink: '#FF6B6B',
+          // Fresh modern palette replacing old yellow
+          coral: '#FF6B6B',       // Vibrant coral red
+          lavender: '#A78BFA',    // Soft lavender purple
+          mint: '#6EE7B7',        // Fresh mint green
+          sky: '#38BDF8',         // Bright sky blue
+          peach: '#FBBF24',       // Warm peach/amber (replacing yellow)
+          rose: '#FB7185',        // Soft rose pink
+          cyan: '#22D3D3',        // Vivid cyan
+          violet: '#8B5CF6',      // Deep violet
+          // Keep essential colors
+          purple: '#9B5DE5',
           blue: '#4ECDC4',
           green: '#70D6FF',
-          purple: '#9B5DE5',
+          pink: '#FF6B6B',
           orange: '#F15BB5',
+          yellow: '#FBBF24',      // Updated to warmer amber
           black: '#000000',
           white: '#FFFFFF',
         }

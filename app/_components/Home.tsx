@@ -126,9 +126,19 @@ export default function Home() {
 
           <div ref={titleRef} className="bg-neo-yellow border-4 border-black shadow-neo-lg p-6 transform rotate-1 lg:-rotate-2">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-black uppercase tracking-tighter text-left">
-              KTU Software
-              <br />
-              Development Club
+              {language === 'tr' ? (
+                <>
+                  KTÜ Yazılım
+                  <br />
+                  Geliştirme Kulübü
+                </>
+              ) : (
+                <>
+                  KTU Software
+                  <br />
+                  Development Club
+                </>
+              )}
             </h1>
           </div>
         </div>

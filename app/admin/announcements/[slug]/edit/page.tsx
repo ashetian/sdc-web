@@ -13,6 +13,7 @@ interface Announcement {
   type: "event" | "news" | "workshop";
   content: string;
   image?: string;
+  imageOrientation?: "horizontal" | "vertical";
   isDraft: boolean;
   eventId?: string;
 }
@@ -325,6 +326,42 @@ export default function EditAnnouncementPage({
                 >
                   Görseli Kaldır
                 </button>
+
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Görsel Yönü
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <input
+                        id="orientation-horizontal"
+                        name="imageOrientation"
+                        type="radio"
+                        value="horizontal"
+                        checked={formData.imageOrientation === 'horizontal' || !formData.imageOrientation}
+                        onChange={handleChange}
+                        className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <label htmlFor="orientation-horizontal" className="ml-2 block text-sm text-gray-700">
+                        Yatay (5:4)
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        id="orientation-vertical"
+                        name="imageOrientation"
+                        type="radio"
+                        value="vertical"
+                        checked={formData.imageOrientation === 'vertical'}
+                        onChange={handleChange}
+                        className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <label htmlFor="orientation-vertical" className="ml-2 block text-sm text-gray-700">
+                        Dikey (4:5)
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

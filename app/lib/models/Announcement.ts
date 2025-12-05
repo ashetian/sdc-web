@@ -8,7 +8,9 @@ export interface IAnnouncement {
   type: 'event' | 'news' | 'workshop';
   content: string;
   image?: string;
+  imageOrientation?: 'horizontal' | 'vertical';
   isDraft: boolean;
+  isArchived?: boolean;
   createdAt: Date;
   updatedAt: Date;
   galleryLinks?: string[];
@@ -55,7 +57,16 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
       type: String,
       required: false,
     },
+    imageOrientation: {
+      type: String,
+      enum: ['horizontal', 'vertical'],
+      default: 'horizontal',
+    },
     isDraft: {
+      type: Boolean,
+      default: false,
+    },
+    isArchived: {
       type: Boolean,
       default: false,
     },
