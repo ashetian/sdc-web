@@ -12,7 +12,8 @@ export async function GET() {
         let updated = 0;
 
         for (const doc of announcements) {
-            if (doc.date && !doc.dateEn) {
+            // Also update if dateEn is empty string
+            if (doc.date && (!doc.dateEn || doc.dateEn.trim() === '')) {
                 doc.dateEn = translateDate(doc.date);
                 await doc.save();
                 updated++;

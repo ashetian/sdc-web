@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "../_context/LanguageContext";
+import ImageLightbox from "../_components/ImageLightbox";
 
 interface Announcement {
     slug: string;

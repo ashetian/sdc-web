@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
+import ImageLightbox from "./ImageLightbox";
 
 interface Announcement {
   slug: string;
@@ -158,12 +159,11 @@ export default function Announcements() {
             {current.image && (
               <div className="flex-shrink-0 w-full md:w-2/5">
                 <div className="relative aspect-[4/5] max-h-[60vh] border-4 border-black shadow-neo overflow-hidden mx-auto md:mx-0">
-                  <Image
+                  <ImageLightbox
                     src={current.image}
                     alt={getText(current.title, current.titleEn, '')}
                     fill
                     className="object-cover"
-                    priority
                   />
                 </div>
               </div>
@@ -201,12 +201,11 @@ export default function Announcements() {
             {current.image && (
               <div className="flex-shrink-0 w-full md:w-1/2 flex justify-center">
                 <div className="relative aspect-[5/4] w-full border-4 border-black shadow-neo overflow-hidden">
-                  <Image
+                  <ImageLightbox
                     src={current.image}
                     alt={getText(current.title, current.titleEn, '')}
                     fill
                     className="object-cover"
-                    priority
                   />
                 </div>
               </div>

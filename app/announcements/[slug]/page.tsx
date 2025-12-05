@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
+import ImageLightbox from "../../_components/ImageLightbox";
 
 interface Announcement {
   slug: string;
@@ -167,7 +168,7 @@ export default function AnnouncementPage({
           <div className="prose prose-lg max-w-none mb-12 clearfix">
             {announcement.image && (
               <div className="float-left mr-6 mb-4 border-4 border-black shadow-neo w-full sm:w-64">
-                <Image
+                <ImageLightbox
                   src={announcement.image}
                   alt={getTitle()}
                   width={256}

@@ -9,6 +9,7 @@ interface Announcement {
   title: string;
   titleEn?: string;
   date: string;
+  dateEn?: string;
   description: string;
   descriptionEn?: string;
   type: "event" | "news" | "workshop";
@@ -64,6 +65,11 @@ export default function GalleryPreview() {
     if (type === 'event') return 'Etkinlik';
     if (type === 'news') return 'Duyuru';
     return 'Workshop';
+  };
+
+  const getDate = (a: Announcement) => {
+    if (language === 'en' && a.dateEn) return a.dateEn;
+    return a.date;
   };
 
   if (loading) return null;
@@ -128,7 +134,7 @@ export default function GalleryPreview() {
                   >
                     {getTypeLabel(a.type)}
                   </span>
-                  <time className="text-xs font-bold text-black bg-gray-100 px-2 py-0.5 border-2 border-black shadow-neo-sm">{a.date}</time>
+                  <time className="text-xs font-bold text-black bg-gray-100 px-2 py-0.5 border-2 border-black shadow-neo-sm">{getDate(a)}</time>
                 </div>
                 <h3 className="text-lg font-black text-black mb-1 line-clamp-1 uppercase">
                   {getTitle(a)}
