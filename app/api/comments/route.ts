@@ -25,7 +25,8 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Geçersiz içerik türü' }, { status: 400 });
         }
 
-        const comments = await Comment.find({ contentType, contentId })
+        // Only show non-deleted comments
+        const comments = await Comment.find({ contentType, contentId, isDeleted: { $ne: true } })
             .populate('memberId', 'fullName nickname department avatar profileVisibility')
             .sort({ createdAt: -1 });
 
@@ -164,11 +165,16 @@ export async function DELETE(request: NextRequest) {
         // Check if admin request
         const adminPassword = request.headers.get('x-admin-password');
         if (adminPassword === process.env.ADMIN_PASSWORD) {
-            const comment = await Comment.findByIdAndDelete(commentId);
+            // Admin soft delete
+            const comment = await Comment.findByIdAndUpdate(
+                commentId,
+                { isDeleted: true, deletedAt: new Date() },
+                { new: true }
+            );
             if (!comment) {
                 return NextResponse.json({ error: 'Yorum bulunamadı' }, { status: 404 });
             }
-            return NextResponse.json({ message: 'Yorum silindi' });
+            return NextResponse.json({ message: 'Yorum silindi (30 gün boyunca geri alınabilir)' });
         }
 
         // Regular user - check auth
@@ -196,7 +202,11 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: 'Bu yorumu silme yetkiniz yok' }, { status: 403 });
         }
 
-        await Comment.findByIdAndDelete(commentId);
+        // User soft delete
+        await Comment.findByIdAndUpdate(commentId, {
+            isDeleted: true,
+            deletedAt: new Date()
+        });
         return NextResponse.json({ message: 'Yorum silindi' });
     } catch (error) {
         console.error('Comment delete error:', error);

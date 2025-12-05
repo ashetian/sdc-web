@@ -12,6 +12,7 @@ import Link from "next/link";
 interface AuthUser {
   nickname: string;
   studentNo: string;
+  avatar?: string;
 }
 
 export default function Navbar() {
@@ -188,7 +189,7 @@ export default function Navbar() {
                 >
                   <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-black overflow-hidden relative">
                     <Image
-                      src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
+                      src={user.avatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
                       alt="Avatar"
                       fill
                       className="object-cover"
@@ -293,7 +294,7 @@ export default function Navbar() {
                     >
                       <div className="w-10 h-10 rounded-full bg-gray-100 border-2 border-black overflow-hidden relative">
                         <Image
-                          src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
+                          src={user.avatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
                           alt="Avatar"
                           fill
                           className="object-cover"

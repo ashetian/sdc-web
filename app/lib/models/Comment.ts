@@ -7,6 +7,8 @@ export interface IComment extends Document {
     memberId: mongoose.Types.ObjectId;
     content: string;
     isEdited: boolean;
+    isDeleted: boolean;
+    deletedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -47,6 +49,14 @@ const CommentSchema = new Schema<IComment>(
             type: Boolean,
             default: false,
         },
+        isDeleted: {
+            type: Boolean,
+            default: false,
+            index: true,
+        },
+        deletedAt: {
+            type: Date,
+        },
     },
     {
         timestamps: true,
@@ -58,6 +68,9 @@ CommentSchema.index({ contentType: 1, contentId: 1 });
 
 // Spam protection: One comment per minute per user per content
 CommentSchema.index({ memberId: 1, createdAt: -1 });
+
+// Index for deleted comments cleanup
+CommentSchema.index({ isDeleted: 1, deletedAt: 1 });
 
 const Comment: Model<IComment> =
     mongoose.models.Comment || mongoose.model<IComment>('Comment', CommentSchema);

@@ -52,11 +52,22 @@ function parseDate(dateStr: string): number {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await connectDB();
+
+    const { searchParams } = new URL(request.url);
+    const activeOnly = searchParams.get('active') === 'true';
+
+    // Build query based on parameters
+    const query: { isDraft?: boolean; isArchived?: boolean } = {};
+    if (activeOnly) {
+      query.isDraft = false;
+      query.isArchived = false;
+    }
+
     // Önce hepsini çekiyoruz, çünkü string tarih alanına göre veritabanı seviyesinde sıralama yapamayız
-    const announcements = await Announcement.find({});
+    const announcements = await Announcement.find(query);
 
     // JavaScript tarafında sıralama yapıyoruz
     const sortedAnnouncements = announcements.sort((a, b) => {

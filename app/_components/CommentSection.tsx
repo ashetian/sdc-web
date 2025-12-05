@@ -33,6 +33,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [showDisclaimer, setShowDisclaimer] = useState(false);
     const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+    const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
 
     const labels = {
         tr: {
@@ -43,7 +44,10 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
             loginToComment: 'Yorum yapmak için giriş yapın',
             edited: 'düzenlendi',
             delete: 'Sil',
-            confirmDelete: 'Bu yorumu silmek istediğinize emin misiniz?',
+            confirmDeleteTitle: '⚠️ Yorumu Sil',
+            confirmDeleteText: 'Bu yorumu silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+            confirmYes: 'Evet, Sil',
+            confirmCancel: 'İptal',
             disclaimerTitle: '⚠️ Önemli Uyarı',
             disclaimerText: `Yorum yapmadan önce aşağıdaki bilgileri dikkatlice okuyunuz:
 
@@ -62,7 +66,10 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
             loginToComment: 'Login to comment',
             edited: 'edited',
             delete: 'Delete',
-            confirmDelete: 'Are you sure you want to delete this comment?',
+            confirmDeleteTitle: '⚠️ Delete Comment',
+            confirmDeleteText: 'Are you sure you want to delete this comment? This action cannot be undone.',
+            confirmYes: 'Yes, Delete',
+            confirmCancel: 'Cancel',
             disclaimerTitle: '⚠️ Important Notice',
             disclaimerText: `Please read the following information carefully before commenting:
 
@@ -80,11 +87,6 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
     useEffect(() => {
         fetchComments();
         checkLoginStatus();
-        // Check if disclaimer was previously accepted in this session
-        const accepted = sessionStorage.getItem('commentDisclaimerAccepted');
-        if (accepted === 'true') {
-            setDisclaimerAccepted(true);
-        }
     }, [contentId]);
 
     const checkLoginStatus = async () => {
@@ -124,7 +126,6 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
 
     const handleAcceptDisclaimer = () => {
         setDisclaimerAccepted(true);
-        sessionStorage.setItem('commentDisclaimerAccepted', 'true');
         setShowDisclaimer(false);
     };
 
@@ -132,6 +133,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
         e.preventDefault();
         if (!newComment.trim()) return;
 
+        // Show disclaimer every time before submitting
         if (!disclaimerAccepted) {
             setShowDisclaimer(true);
             return;
@@ -139,6 +141,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
 
         setSubmitting(true);
         setCommentError('');
+        setDisclaimerAccepted(false); // Reset for next comment
 
         try {
             const res = await fetch(`/api/comments?type=${contentType}&id=${contentId}`, {
@@ -163,8 +166,6 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
     };
 
     const handleDeleteComment = async (commentId: string) => {
-        if (!confirm(l.confirmDelete)) return;
-
         try {
             const res = await fetch(`/api/comments?id=${commentId}`, { method: 'DELETE' });
             if (res.ok) {
@@ -172,6 +173,8 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
             }
         } catch (err) {
             console.error('Comment delete error:', err);
+        } finally {
+            setDeleteModalId(null);
         }
     };
 
@@ -284,8 +287,8 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                                             </div>
                                             {currentUserId && comment.author._id === currentUserId && (
                                                 <button
-                                                    onClick={() => handleDeleteComment(comment._id)}
-                                                    className="text-red-500 text-sm hover:underline"
+                                                    onClick={() => setDeleteModalId(comment._id)}
+                                                    className="px-3 py-1 bg-red-500 text-white text-xs font-bold border-2 border-black hover:bg-red-600 transition-all"
                                                 >
                                                     {l.delete}
                                                 </button>
@@ -303,6 +306,32 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                     </div>
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteModalId && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
+                        <h3 className="text-xl font-black text-black mb-4">{l.confirmDeleteTitle}</h3>
+                        <p className="text-gray-700 mb-6">
+                            {l.confirmDeleteText}
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => handleDeleteComment(deleteModalId)}
+                                className="flex-1 bg-red-500 text-white py-3 font-bold border-2 border-black hover:bg-red-600 transition-all"
+                            >
+                                {l.confirmYes}
+                            </button>
+                            <button
+                                onClick={() => setDeleteModalId(null)}
+                                className="flex-1 bg-gray-200 text-black py-3 font-bold border-2 border-black hover:bg-gray-300 transition-all"
+                            >
+                                {l.confirmCancel}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

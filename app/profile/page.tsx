@@ -24,7 +24,10 @@ interface User {
 }
 
 // Pre-defined avatar options using DiceBear API
-const AVATAR_STYLES = ['avataaars', 'bottts', 'pixel-art', 'lorelei', 'notionists', 'adventurer'];
+const AVATAR_STYLES = [
+    'avataaars', 'bottts', 'pixel-art', 'lorelei', 'notionists', 'adventurer',
+    'big-ears', 'croodles', 'fun-emoji', 'icons', 'identicon', 'miniavs'
+];
 const AVATAR_SEEDS = ['Felix', 'Aneka', 'Sasha', 'Milo', 'Luna', 'Oliver', 'Bella', 'Max'];
 
 export default function ProfilePage() {
@@ -195,8 +198,8 @@ export default function ProfilePage() {
                                             key={`${style}-${seed}`}
                                             onClick={() => setAvatar(url)}
                                             className={`w-12 h-12 rounded-full border-2 overflow-hidden transition-all ${isSelected
-                                                    ? 'border-yellow-400 ring-4 ring-yellow-200'
-                                                    : 'border-black hover:border-yellow-400'
+                                                ? 'border-yellow-400 ring-4 ring-yellow-200'
+                                                : 'border-black hover:border-yellow-400'
                                                 }`}
                                         >
                                             <Image

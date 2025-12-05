@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import Comment from '@/app/lib/models/Comment';
 
-// GET - All comments for admin
+// GET - All comments for admin (with optional deleted filter)
 export async function GET(request: NextRequest) {
     try {
         await connectDB();
@@ -15,10 +15,19 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url);
         const contentType = searchParams.get('type');
+        const showDeleted = searchParams.get('deleted') === 'true';
 
-        const query: { contentType?: string } = {};
+        const query: { contentType?: string; isDeleted?: boolean | { $ne: boolean } } = {};
+
         if (contentType && ['project', 'gallery', 'announcement'].includes(contentType)) {
             query.contentType = contentType;
+        }
+
+        // Filter by deleted status
+        if (showDeleted) {
+            query.isDeleted = true;
+        } else {
+            query.isDeleted = { $ne: true };
         }
 
         const comments = await Comment.find(query)
@@ -60,6 +69,8 @@ export async function GET(request: NextRequest) {
                 contentId: comment.contentId,
                 contentTitle,
                 content: comment.content,
+                isDeleted: comment.isDeleted,
+                deletedAt: comment.deletedAt,
                 createdAt: comment.createdAt,
                 author: {
                     fullName: member?.fullName || 'Bilinmiyor',
@@ -72,6 +83,79 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(enrichedComments);
     } catch (error) {
         console.error('Admin comments fetch error:', error);
+        return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
+    }
+}
+
+// PUT - Restore deleted comment or permanently delete
+export async function PUT(request: NextRequest) {
+    try {
+        await connectDB();
+
+        const adminPassword = request.headers.get('x-admin-password');
+        if (adminPassword !== process.env.ADMIN_PASSWORD) {
+            return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+        }
+
+        const body = await request.json();
+        const { commentId, action } = body;
+
+        if (!commentId || !action) {
+            return NextResponse.json({ error: 'commentId ve action gerekli' }, { status: 400 });
+        }
+
+        if (action === 'restore') {
+            // Restore deleted comment
+            const comment = await Comment.findByIdAndUpdate(
+                commentId,
+                { isDeleted: false, $unset: { deletedAt: 1 } },
+                { new: true }
+            );
+            if (!comment) {
+                return NextResponse.json({ error: 'Yorum bulunamadı' }, { status: 404 });
+            }
+            return NextResponse.json({ message: 'Yorum geri yüklendi' });
+        } else if (action === 'permanentDelete') {
+            // Permanently delete
+            const comment = await Comment.findByIdAndDelete(commentId);
+            if (!comment) {
+                return NextResponse.json({ error: 'Yorum bulunamadı' }, { status: 404 });
+            }
+            return NextResponse.json({ message: 'Yorum kalıcı olarak silindi' });
+        }
+
+        return NextResponse.json({ error: 'Geçersiz işlem' }, { status: 400 });
+    } catch (error) {
+        console.error('Admin comment action error:', error);
+        return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
+    }
+}
+
+// DELETE - Cleanup old deleted comments (30+ days)
+export async function DELETE(request: NextRequest) {
+    try {
+        await connectDB();
+
+        const adminPassword = request.headers.get('x-admin-password');
+        if (adminPassword !== process.env.ADMIN_PASSWORD) {
+            return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+        }
+
+        // Delete comments that were soft-deleted more than 30 days ago
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const result = await Comment.deleteMany({
+            isDeleted: true,
+            deletedAt: { $lt: thirtyDaysAgo }
+        });
+
+        return NextResponse.json({
+            message: `${result.deletedCount} eski yorum kalıcı olarak silindi`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        console.error('Cleanup error:', error);
         return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
     }
 }
