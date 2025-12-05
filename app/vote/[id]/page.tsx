@@ -25,8 +25,10 @@ interface Election {
     _id: string;
     title: string;
     description?: string;
-    status: 'draft' | 'active' | 'completed';
+    status: 'draft' | 'active' | 'completed' | 'suspended';
     useRankedChoice: boolean;
+    isSuspended?: boolean;
+    suspensionReason?: string;
 }
 
 interface Candidate {
@@ -114,6 +116,8 @@ export default function VotePage({ params }: { params: Promise<{ id: string }> }
             notStarted: 'Bu seçim henüz başlamamıştır.',
             ended: 'Bu seçim sona ermiştir.',
             rankedChoiceInfo: 'ⓘ Çok tercihli oylama sistemi - Adayları tercih sıranıza göre sıralayın',
+            suspendedTitle: '⚠️ Seçim Askıya Alındı',
+            suspendedDesc: 'Bu seçim olağanüstü bir durum nedeniyle askıya alınmıştır.',
             verifyTitle: 'Kimlik Doğrulama',
             studentNo: 'Öğrenci Numarası',
             studentNoPlaceholder: 'Örn: 445851',
@@ -140,6 +144,8 @@ export default function VotePage({ params }: { params: Promise<{ id: string }> }
             notStarted: 'This election has not started yet.',
             ended: 'This election has ended.',
             rankedChoiceInfo: 'ⓘ Ranked choice voting system - Rank candidates in order of preference',
+            suspendedTitle: '⚠️ Election Suspended',
+            suspendedDesc: 'This election has been suspended due to an emergency.',
             verifyTitle: 'Identity Verification',
             studentNo: 'Student Number',
             studentNoPlaceholder: 'Ex: 445851',
@@ -278,16 +284,31 @@ export default function VotePage({ params }: { params: Promise<{ id: string }> }
         );
     }
 
-    if (election.status !== 'active') {
+    if (election.status !== 'active' || election.isSuspended) {
         return (
             <div className="min-h-screen bg-neo-yellow flex items-center justify-center p-4">
                 <div className="bg-white border-4 border-black shadow-neo p-8 text-center max-w-md">
                     <h1 className="text-2xl font-black mb-4">{election.title}</h1>
-                    <p className="text-gray-600 font-bold">
-                        {election.status === 'draft'
-                            ? l.notStarted
-                            : l.ended}
-                    </p>
+                    {election.isSuspended ? (
+                        <>
+                            <div className="text-5xl mb-4">⚠️</div>
+                            <h2 className="text-xl font-black text-orange-600 mb-4">{l.suspendedTitle}</h2>
+                            <p className="text-gray-600 font-bold mb-4">{l.suspendedDesc}</p>
+                            {election.suspensionReason && (
+                                <div className="bg-orange-100 border-2 border-orange-500 p-4 text-left">
+                                    <p className="font-bold text-orange-800">
+                                        {election.suspensionReason}
+                                    </p>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <p className="text-gray-600 font-bold">
+                            {election.status === 'draft'
+                                ? l.notStarted
+                                : l.ended}
+                        </p>
+                    )}
                 </div>
             </div>
         );

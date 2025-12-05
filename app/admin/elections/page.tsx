@@ -9,10 +9,13 @@ interface Election {
     title: string;
     description?: string;
     type: 'president' | 'department_head';
-    status: 'draft' | 'active' | 'completed';
+    status: 'draft' | 'active' | 'completed' | 'suspended';
     startDate?: string;
     endDate?: string;
     useRankedChoice: boolean;
+    isSuspended?: boolean;
+    suspensionReason?: string;
+    suspendedAt?: string;
     stats?: {
         candidateCount: number;
         memberCount: number;
@@ -26,12 +29,14 @@ const statusLabels: Record<string, string> = {
     draft: 'Taslak',
     active: 'Devam Ediyor',
     completed: 'Tamamlandı',
+    suspended: 'Askıya Alındı',
 };
 
 const statusColors: Record<string, string> = {
     draft: 'bg-gray-300',
     active: 'bg-neo-green',
     completed: 'bg-neo-purple text-white',
+    suspended: 'bg-red-500 text-white',
 };
 
 export default function ElectionsPage() {
@@ -44,6 +49,12 @@ export default function ElectionsPage() {
         type: 'president' as 'president' | 'department_head',
         useRankedChoice: true,
     });
+
+    // Modal states
+    const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
+    const [suspendModalId, setSuspendModalId] = useState<string | null>(null);
+    const [suspensionReason, setSuspensionReason] = useState('');
+    const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
         fetchElections();
@@ -82,8 +93,7 @@ export default function ElectionsPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Bu seçimi ve tüm verilerini silmek istediğinize emin misiniz?')) return;
-
+        setActionLoading(true);
         try {
             const res = await fetch(`/api/elections/${id}`, { method: 'DELETE' });
             if (res.ok) {
@@ -91,6 +101,52 @@ export default function ElectionsPage() {
             }
         } catch (error) {
             console.error('Seçim silinemedi:', error);
+        } finally {
+            setActionLoading(false);
+            setDeleteModalId(null);
+        }
+    };
+
+    const handleSuspend = async (id: string) => {
+        if (suspensionReason.trim().length < 10) {
+            alert('Askıya alma nedeni en az 10 karakter olmalıdır');
+            return;
+        }
+
+        setActionLoading(true);
+        try {
+            const res = await fetch(`/api/elections/${id}/suspend`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: suspensionReason }),
+            });
+
+            if (res.ok) {
+                fetchElections();
+                setSuspensionReason('');
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Bir hata oluştu');
+            }
+        } catch (error) {
+            console.error('Seçim askıya alınamadı:', error);
+        } finally {
+            setActionLoading(false);
+            setSuspendModalId(null);
+        }
+    };
+
+    const handleResume = async (id: string) => {
+        setActionLoading(true);
+        try {
+            const res = await fetch(`/api/elections/${id}/suspend`, { method: 'DELETE' });
+            if (res.ok) {
+                fetchElections();
+            }
+        } catch (error) {
+            console.error('Seçim askıdan kaldırılamadı:', error);
+        } finally {
+            setActionLoading(false);
         }
     };
 
@@ -199,7 +255,7 @@ export default function ElectionsPage() {
                 ) : (
                     <div className="divide-y-4 divide-black">
                         {elections.map((election) => (
-                            <div key={election._id} className="p-6 flex items-center justify-between hover:bg-gray-50 gap-4 flex-wrap">
+                            <div key={election._id} className={`p-6 flex items-center justify-between hover:bg-gray-50 gap-4 flex-wrap ${election.isSuspended ? 'bg-red-50' : ''}`}>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3 flex-wrap">
                                         <h3 className="text-lg font-black text-black">{election.title}</h3>
@@ -218,17 +274,42 @@ export default function ElectionsPage() {
                                     {election.description && (
                                         <p className="text-gray-500 text-sm mt-1">{election.description}</p>
                                     )}
+                                    {election.isSuspended && election.suspensionReason && (
+                                        <div className="mt-2 p-3 bg-red-100 border-2 border-red-500 text-red-700 text-sm">
+                                            <strong>Askıya Alma Nedeni:</strong> {election.suspensionReason}
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="flex gap-2 flex-shrink-0">
+                                <div className="flex gap-2 flex-shrink-0 flex-wrap">
                                     <Link
                                         href={`/admin/elections/${election._id}`}
                                         className="px-4 py-2 bg-neo-blue text-black border-2 border-black font-black text-sm hover:bg-blue-300 transition-all"
                                     >
                                         Yönet
                                     </Link>
-                                    {election.status === 'draft' && (
+
+                                    {election.status === 'active' && !election.isSuspended && (
                                         <button
-                                            onClick={() => handleDelete(election._id)}
+                                            onClick={() => setSuspendModalId(election._id)}
+                                            className="px-4 py-2 bg-orange-500 text-white border-2 border-black font-black text-sm hover:bg-orange-600 transition-all"
+                                        >
+                                            Askıya Al
+                                        </button>
+                                    )}
+
+                                    {election.isSuspended && (
+                                        <button
+                                            onClick={() => handleResume(election._id)}
+                                            disabled={actionLoading}
+                                            className="px-4 py-2 bg-green-500 text-white border-2 border-black font-black text-sm hover:bg-green-600 transition-all disabled:opacity-50"
+                                        >
+                                            Devam Ettir
+                                        </button>
+                                    )}
+
+                                    {(election.status === 'draft' || election.status === 'suspended' || election.status === 'completed') && (
+                                        <button
+                                            onClick={() => setDeleteModalId(election._id)}
                                             className="px-4 py-2 bg-red-500 text-white border-2 border-black font-black text-sm hover:bg-red-600 transition-all"
                                         >
                                             Sil
@@ -240,6 +321,75 @@ export default function ElectionsPage() {
                     </div>
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteModalId && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
+                        <h3 className="text-xl font-black text-black mb-4">🗑️ Seçimi Sil</h3>
+                        <p className="text-gray-700 mb-6">
+                            Bu seçimi silmek istediğinize emin misiniz? Tüm adaylar, üyeler ve oylar da silinecektir. Bu işlem geri alınamaz!
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => handleDelete(deleteModalId)}
+                                disabled={actionLoading}
+                                className="flex-1 bg-red-500 text-white py-3 font-bold border-2 border-black hover:bg-red-600 transition-all disabled:opacity-50"
+                            >
+                                {actionLoading ? 'Siliniyor...' : 'Evet, Sil'}
+                            </button>
+                            <button
+                                onClick={() => setDeleteModalId(null)}
+                                disabled={actionLoading}
+                                className="flex-1 bg-gray-200 text-black py-3 font-bold border-2 border-black hover:bg-gray-300 transition-all disabled:opacity-50"
+                            >
+                                İptal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Suspend Modal */}
+            {suspendModalId && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white border-4 border-black shadow-neo max-w-lg w-full p-6">
+                        <h3 className="text-xl font-black text-black mb-4">⚠️ Seçimi Askıya Al</h3>
+                        <p className="text-gray-700 mb-4">
+                            Olağanüstü durumlarda seçimi askıya alabilirsiniz. Kullanıcılara gösterilecek bir neden girmeniz gerekmektedir.
+                        </p>
+                        <div className="mb-6">
+                            <label className="block text-sm font-black text-black uppercase mb-2">
+                                Askıya Alma Nedeni *
+                            </label>
+                            <textarea
+                                value={suspensionReason}
+                                onChange={(e) => setSuspensionReason(e.target.value)}
+                                rows={4}
+                                placeholder="Örn: Teknik sorunlar nedeniyle seçim askıya alınmıştır. En kısa sürede devam edilecektir."
+                                className="w-full px-4 py-3 border-4 border-black font-medium focus:outline-none focus:shadow-neo"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">En az 10 karakter girilmelidir. Bu mesaj oy kullanmaya çalışan üyelere gösterilecektir.</p>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => handleSuspend(suspendModalId)}
+                                disabled={actionLoading || suspensionReason.trim().length < 10}
+                                className="flex-1 bg-orange-500 text-white py-3 font-bold border-2 border-black hover:bg-orange-600 transition-all disabled:opacity-50"
+                            >
+                                {actionLoading ? 'Askıya Alınıyor...' : 'Askıya Al'}
+                            </button>
+                            <button
+                                onClick={() => { setSuspendModalId(null); setSuspensionReason(''); }}
+                                disabled={actionLoading}
+                                className="flex-1 bg-gray-200 text-black py-3 font-bold border-2 border-black hover:bg-gray-300 transition-all disabled:opacity-50"
+                            >
+                                İptal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

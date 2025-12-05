@@ -13,6 +13,8 @@ interface Project {
     technologies: string[];
     status: 'pending' | 'approved' | 'rejected';
     rejectionReason?: string;
+    isDeleted?: boolean;
+    deletedAt?: string;
     createdAt: string;
     memberId: {
         fullName: string;
@@ -22,14 +24,18 @@ interface Project {
     };
 }
 
+type TabType = 'pending' | 'approved' | 'rejected' | 'all' | 'deleted';
+
 export default function AdminProjectsPage() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [password, setPassword] = useState('');
     const [authenticated, setAuthenticated] = useState(false);
-    const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+    const [filter, setFilter] = useState<TabType>('pending');
     const [rejectReason, setRejectReason] = useState('');
     const [rejectingId, setRejectingId] = useState<string | null>(null);
+    const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
+    const [permanentDeleteModalId, setPermanentDeleteModalId] = useState<string | null>(null);
 
     useEffect(() => {
         const savedPassword = localStorage.getItem('adminPassword');
@@ -48,7 +54,13 @@ export default function AdminProjectsPage() {
     const fetchProjects = async () => {
         setLoading(true);
         try {
-            const url = filter === 'all' ? '/api/admin/projects' : `/api/admin/projects?status=${filter}`;
+            let url = '/api/admin/projects';
+            if (filter === 'deleted') {
+                url = '/api/admin/projects?deleted=true';
+            } else if (filter !== 'all') {
+                url = `/api/admin/projects?status=${filter}`;
+            }
+
             const res = await fetch(url, {
                 headers: { 'x-admin-password': password },
             });
@@ -109,6 +121,61 @@ export default function AdminProjectsPage() {
         }
     };
 
+    const handleSoftDelete = async (id: string) => {
+        try {
+            const res = await fetch(`/api/admin/projects?id=${id}`, {
+                method: 'DELETE',
+                headers: { 'x-admin-password': password },
+            });
+
+            if (res.ok) {
+                setDeleteModalId(null);
+                fetchProjects();
+            }
+        } catch (err) {
+            console.error('Soft delete error:', err);
+        }
+    };
+
+    const handleRestore = async (id: string) => {
+        try {
+            const res = await fetch('/api/admin/projects', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-password': password,
+                },
+                body: JSON.stringify({ projectId: id, action: 'restore' }),
+            });
+
+            if (res.ok) {
+                fetchProjects();
+            }
+        } catch (err) {
+            console.error('Restore error:', err);
+        }
+    };
+
+    const handlePermanentDelete = async (id: string) => {
+        try {
+            const res = await fetch('/api/admin/projects', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-password': password,
+                },
+                body: JSON.stringify({ projectId: id, action: 'permanent-delete' }),
+            });
+
+            if (res.ok) {
+                setPermanentDeleteModalId(null);
+                fetchProjects();
+            }
+        } catch (err) {
+            console.error('Permanent delete error:', err);
+        }
+    };
+
     const getGithubPreview = (githubUrl: string) => {
         const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
         if (match) {
@@ -124,6 +191,13 @@ export default function AdminProjectsPage() {
             case 'rejected': return 'bg-neo-pink';
             default: return 'bg-gray-200';
         }
+    };
+
+    const getDaysUntilPermanentDelete = (deletedAt: string) => {
+        const deleted = new Date(deletedAt);
+        const now = new Date();
+        const diffTime = 30 * 24 * 60 * 60 * 1000 - (now.getTime() - deleted.getTime());
+        return Math.max(0, Math.ceil(diffTime / (24 * 60 * 60 * 1000)));
     };
 
     if (!authenticated) {
@@ -152,17 +226,17 @@ export default function AdminProjectsPage() {
     return (
         <div className="min-h-screen bg-gray-900 p-6">
             <div className="max-w-6xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
                     <h1 className="text-3xl font-bold text-white">Proje Yönetimi</h1>
-                    <div className="flex gap-2">
-                        {(['pending', 'approved', 'rejected', 'all'] as const).map((f) => (
+                    <div className="flex gap-2 flex-wrap">
+                        {(['pending', 'approved', 'rejected', 'all', 'deleted'] as const).map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
                                 className={`px-4 py-2 font-bold border-2 border-gray-600 ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                                    }`}
+                                    } ${f === 'deleted' ? 'border-red-600' : ''}`}
                             >
-                                {f === 'all' ? 'Tümü' : f === 'pending' ? 'Bekleyen' : f === 'approved' ? 'Onaylı' : 'Reddedilen'}
+                                {f === 'all' ? 'Tümü' : f === 'pending' ? 'Bekleyen' : f === 'approved' ? 'Onaylı' : f === 'rejected' ? 'Reddedilen' : 'Silinenler'}
                             </button>
                         ))}
                     </div>
@@ -175,7 +249,7 @@ export default function AdminProjectsPage() {
                 ) : (
                     <div className="space-y-6">
                         {projects.map((project) => (
-                            <div key={project._id} className="bg-gray-800 border-2 border-gray-700 overflow-hidden">
+                            <div key={project._id} className={`bg-gray-800 border-2 ${project.isDeleted ? 'border-red-700' : 'border-gray-700'} overflow-hidden`}>
                                 <div className="flex flex-col lg:flex-row">
                                     {/* Preview */}
                                     <div className="relative w-full lg:w-72 h-48 border-b-2 lg:border-b-0 lg:border-r-2 border-gray-700">
@@ -193,9 +267,16 @@ export default function AdminProjectsPage() {
                                         <div className="flex items-start justify-between mb-4">
                                             <div>
                                                 <h2 className="text-xl font-bold text-white">{project.title}</h2>
-                                                <span className={`inline-block mt-2 px-3 py-1 text-sm font-bold text-black ${getStatusColor(project.status)}`}>
-                                                    {project.status === 'pending' ? 'Bekliyor' : project.status === 'approved' ? 'Onaylı' : 'Reddedildi'}
-                                                </span>
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <span className={`inline-block px-3 py-1 text-sm font-bold text-black ${getStatusColor(project.status)}`}>
+                                                        {project.status === 'pending' ? 'Bekliyor' : project.status === 'approved' ? 'Onaylı' : 'Reddedildi'}
+                                                    </span>
+                                                    {project.isDeleted && project.deletedAt && (
+                                                        <span className="inline-block px-3 py-1 text-sm font-bold bg-red-600 text-white">
+                                                            Kalıcı silmeye {getDaysUntilPermanentDelete(project.deletedAt)} gün kaldı
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -240,20 +321,50 @@ export default function AdminProjectsPage() {
                                             </div>
                                         )}
 
-                                        {/* Actions */}
-                                        {project.status === 'pending' && (
+                                        {/* Actions for active projects */}
+                                        {!project.isDeleted && (
+                                            <div className="flex gap-3 flex-wrap">
+                                                {project.status === 'pending' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleApprove(project._id)}
+                                                            className="px-4 py-2 bg-green-600 text-white font-bold hover:bg-green-700"
+                                                        >
+                                                            Onayla
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setRejectingId(project._id)}
+                                                            className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
+                                                        >
+                                                            Reddet
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {project.status === 'approved' && (
+                                                    <button
+                                                        onClick={() => setDeleteModalId(project._id)}
+                                                        className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
+                                                    >
+                                                        Sil
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Actions for deleted projects */}
+                                        {project.isDeleted && (
                                             <div className="flex gap-3">
                                                 <button
-                                                    onClick={() => handleApprove(project._id)}
+                                                    onClick={() => handleRestore(project._id)}
                                                     className="px-4 py-2 bg-green-600 text-white font-bold hover:bg-green-700"
                                                 >
-                                                    Onayla
+                                                    Geri Yükle
                                                 </button>
                                                 <button
-                                                    onClick={() => setRejectingId(project._id)}
+                                                    onClick={() => setPermanentDeleteModalId(project._id)}
                                                     className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
                                                 >
-                                                    Reddet
+                                                    Kalıcı Sil
                                                 </button>
                                             </div>
                                         )}
@@ -291,6 +402,58 @@ export default function AdminProjectsPage() {
                     </div>
                 )}
             </div>
+
+            {/* Soft Delete Confirmation Modal */}
+            {deleteModalId && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-800 border-2 border-gray-700 p-6 max-w-md w-full">
+                        <h3 className="text-xl font-bold text-white mb-4">Projeyi Sil</h3>
+                        <p className="text-gray-300 mb-6">
+                            Bu projeyi silmek istediğinizden emin misiniz? Proje 30 gün boyunca Silinenler sekmesinde tutulacak ve sonra kalıcı olarak silinecek.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setDeleteModalId(null)}
+                                className="px-4 py-2 bg-gray-600 text-white font-bold hover:bg-gray-500"
+                            >
+                                İptal
+                            </button>
+                            <button
+                                onClick={() => handleSoftDelete(deleteModalId)}
+                                className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
+                            >
+                                Sil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Permanent Delete Confirmation Modal */}
+            {permanentDeleteModalId && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-800 border-2 border-red-700 p-6 max-w-md w-full">
+                        <h3 className="text-xl font-bold text-red-400 mb-4">Kalıcı Olarak Sil</h3>
+                        <p className="text-gray-300 mb-6">
+                            Bu projeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setPermanentDeleteModalId(null)}
+                                className="px-4 py-2 bg-gray-600 text-white font-bold hover:bg-gray-500"
+                            >
+                                İptal
+                            </button>
+                            <button
+                                onClick={() => handlePermanentDelete(permanentDeleteModalId)}
+                                className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
+                            >
+                                Kalıcı Olarak Sil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

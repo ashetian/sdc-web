@@ -12,7 +12,7 @@ export async function GET() {
     try {
         await connectDB();
 
-        const projects = await Project.find({ status: 'approved' })
+        const projects = await Project.find({ status: 'approved', isDeleted: { $ne: true } })
             .populate('memberId', 'fullName nickname department profileVisibility')
             .sort({ createdAt: -1 });
 

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export type ElectionType = 'president' | 'department_head';
-export type ElectionStatus = 'draft' | 'active' | 'completed';
+export type ElectionStatus = 'draft' | 'active' | 'completed' | 'suspended';
 
 export interface IElection extends Document {
     title: string;
@@ -12,6 +12,9 @@ export interface IElection extends Document {
     startDate?: Date;
     endDate?: Date;
     useRankedChoice: boolean;
+    isSuspended: boolean;
+    suspensionReason?: string;
+    suspendedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -36,7 +39,7 @@ const ElectionSchema = new Schema<IElection>(
         },
         status: {
             type: String,
-            enum: ['draft', 'active', 'completed'],
+            enum: ['draft', 'active', 'completed', 'suspended'],
             default: 'draft',
         },
         startDate: {
@@ -48,6 +51,16 @@ const ElectionSchema = new Schema<IElection>(
         useRankedChoice: {
             type: Boolean,
             default: true,
+        },
+        isSuspended: {
+            type: Boolean,
+            default: false,
+        },
+        suspensionReason: {
+            type: String,
+        },
+        suspendedAt: {
+            type: Date,
         },
     },
     {

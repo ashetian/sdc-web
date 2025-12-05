@@ -12,6 +12,8 @@ export interface IProject extends Document {
     status: 'pending' | 'approved' | 'rejected';
     rejectionReason?: string;
     viewCount: number;
+    isDeleted: boolean;
+    deletedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -82,11 +84,22 @@ const ProjectSchema = new Schema<IProject>(
             type: Number,
             default: 0,
         },
+        isDeleted: {
+            type: Boolean,
+            default: false,
+            index: true,
+        },
+        deletedAt: {
+            type: Date,
+        },
     },
     {
         timestamps: true,
     }
 );
+
+// Index for soft-deleted projects
+ProjectSchema.index({ isDeleted: 1, deletedAt: 1 });
 
 // GitHub URL'den owner/repo bilgisini çıkar
 ProjectSchema.methods.getGithubInfo = function () {
