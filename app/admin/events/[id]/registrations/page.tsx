@@ -32,8 +32,27 @@ interface ExcelData {
     'E-posta': string;
     'Telefon': string;
     'Başvuru Tarihi': string;
+    'Üyelik Durumu'?: string;
     'Ödeme Durumu'?: string;
     'Dekont URL'?: string;
+}
+
+interface VerificationResult {
+    isMember: boolean;
+    member?: {
+        studentNo: string;
+        fullName: string;
+        email: string;
+        phone?: string;
+        department?: string;
+    };
+    matches: {
+        studentNo: boolean;
+        fullName: boolean;
+        email: boolean;
+        phone: boolean;
+        department: boolean;
+    };
 }
 
 export default function EventRegistrationsPage() {
@@ -42,6 +61,8 @@ export default function EventRegistrationsPage() {
     const [event, setEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedReceiptUrl, setSelectedReceiptUrl] = useState<string | null>(null);
+    const [memberVerifications, setMemberVerifications] = useState<Record<string, VerificationResult>>({});
+    const [verifyingMembers, setVerifyingMembers] = useState(false);
 
     useEffect(() => {
         if (params.id) {
@@ -64,12 +85,44 @@ export default function EventRegistrationsPage() {
             if (registrationsRes.ok) {
                 const registrationsData = await registrationsRes.json();
                 setRegistrations(registrationsData);
+                // Auto-verify members
+                verifyAllMembers(registrationsData);
             }
         } catch (error) {
             console.error('Veriler yüklenirken hata:', error);
         } finally {
             setLoading(false);
         }
+    };
+
+    const verifyAllMembers = async (regs: Registration[]) => {
+        setVerifyingMembers(true);
+        const verifications: Record<string, VerificationResult> = {};
+
+        for (const reg of regs) {
+            try {
+                const res = await fetch('/api/members/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        studentNo: reg.studentNumber,
+                        fullName: reg.name,
+                        email: reg.email,
+                        phone: reg.phone,
+                        department: reg.department,
+                    }),
+                });
+
+                if (res.ok) {
+                    verifications[reg._id] = await res.json();
+                }
+            } catch (error) {
+                console.error('Üyelik doğrulaması hatası:', error);
+            }
+        }
+
+        setMemberVerifications(verifications);
+        setVerifyingMembers(false);
     };
 
     const updatePaymentStatus = async (registrationId: string, status: string) => {
@@ -106,6 +159,7 @@ export default function EventRegistrationsPage() {
 
         // Prepare data for Excel
         const excelData = registrations.map((reg) => {
+            const verification = memberVerifications[reg._id];
             const data: ExcelData = {
                 'Öğrenci No': reg.studentNumber,
                 'Ad Soyad': reg.name,
@@ -113,6 +167,7 @@ export default function EventRegistrationsPage() {
                 'E-posta': reg.email,
                 'Telefon': reg.phone,
                 'Başvuru Tarihi': `${new Date(reg.createdAt).toLocaleDateString('tr-TR')} ${new Date(reg.createdAt).toLocaleTimeString('tr-TR')}`,
+                'Üyelik Durumu': verification?.isMember ? 'Üye' : 'Üye Değil',
             };
 
             if (event?.isPaid) {
@@ -136,6 +191,59 @@ export default function EventRegistrationsPage() {
 
         // Download file
         XLSX.writeFile(workbook, filename);
+    };
+
+    const renderMemberBadge = (regId: string) => {
+        const verification = memberVerifications[regId];
+
+        if (verifyingMembers && !verification) {
+            return <span className="text-xs text-gray-400">...</span>;
+        }
+
+        if (!verification) {
+            return <span className="text-xs text-gray-400">-</span>;
+        }
+
+        if (!verification.isMember) {
+            return (
+                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                    ❌ Üye Değil
+                </span>
+            );
+        }
+
+        // Count matches
+        const matchCount = Object.values(verification.matches).filter(Boolean).length;
+        const totalFields = Object.keys(verification.matches).length;
+
+        return (
+            <div className="flex flex-col gap-1">
+                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    ✅ Üye
+                </span>
+                <div className="text-xs text-gray-500 flex flex-wrap gap-1">
+                    <span title={verification.matches.fullName ? 'Ad Soyad eşleşiyor' : `Veritabanı: ${verification.member?.fullName}`}
+                        className={verification.matches.fullName ? 'text-green-600' : 'text-red-600 cursor-help'}>
+                        Ad{verification.matches.fullName ? '✓' : '✗'}
+                    </span>
+                    <span title={verification.matches.email ? 'E-posta eşleşiyor' : `Veritabanı: ${verification.member?.email}`}
+                        className={verification.matches.email ? 'text-green-600' : 'text-red-600 cursor-help'}>
+                        E-posta{verification.matches.email ? '✓' : '✗'}
+                    </span>
+                    <span title={verification.matches.phone ? 'Telefon eşleşiyor' : `Veritabanı: ${verification.member?.phone || 'yok'}`}
+                        className={verification.matches.phone ? 'text-green-600' : 'text-orange-500 cursor-help'}>
+                        Tel{verification.matches.phone ? '✓' : '?'}
+                    </span>
+                    <span title={verification.matches.department ? 'Bölüm eşleşiyor' : `Veritabanı: ${verification.member?.department || 'yok'}`}
+                        className={verification.matches.department ? 'text-green-600' : 'text-orange-500 cursor-help'}>
+                        Böl{verification.matches.department ? '✓' : '?'}
+                    </span>
+                </div>
+                <span className="text-xs text-gray-400">
+                    ({matchCount}/{totalFields} alan eşleşti)
+                </span>
+            </div>
+        );
     };
 
     if (loading) return (
@@ -168,6 +276,9 @@ export default function EventRegistrationsPage() {
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Üyelik
+                            </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Öğrenci No
                             </th>
@@ -204,6 +315,9 @@ export default function EventRegistrationsPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {registrations.map((reg) => (
                             <tr key={reg._id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {renderMemberBadge(reg._id)}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {reg.studentNumber}
                                 </td>
@@ -279,7 +393,7 @@ export default function EventRegistrationsPage() {
                         ))}
                         {registrations.length === 0 && (
                             <tr>
-                                <td colSpan={event?.isPaid ? 9 : 6} className="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colSpan={event?.isPaid ? 10 : 7} className="px-6 py-4 text-center text-sm text-gray-500">
                                     Henüz başvuru bulunmamaktadır.
                                 </td>
                             </tr>

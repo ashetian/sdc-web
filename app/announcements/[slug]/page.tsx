@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
 import ImageLightbox from "../../_components/ImageLightbox";
+import CommentSection from "../../_components/CommentSection";
 
 interface Announcement {
+  _id: string;
   slug: string;
   title: string;
   titleEn?: string;
@@ -229,6 +231,9 @@ export default function AnnouncementPage({
             </Link>
           </div>
         </div>
+
+        {/* Comments Section - Outside main content for visual separation */}
+        <CommentSection contentType="announcement" contentId={announcement._id} />
       </div>
     </article>
   );

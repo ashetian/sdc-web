@@ -86,29 +86,11 @@ export default function EditAnnouncementPage({
     setIsSubmitting(true);
 
     try {
-      // Türkçe karakterleri İngilizce karakterlere dönüştür
-      const turkishToEnglish: { [key: string]: string } = {
-        ğ: "g",
-        Ğ: "G",
-        ü: "u",
-        Ü: "U",
-        ş: "s",
-        Ş: "S",
-        ı: "i",
-        İ: "I",
-        ö: "o",
-        Ö: "O",
-        ç: "c",
-        Ç: "C",
-      };
-
-      // Başlıktan yeni slug oluştur
+      // Başlıktan yeni slug oluştur (Türkçe karakter desteği ile)
       const newSlug = formData.title
-        .toLowerCase()
-        .split("")
-        .map((char) => turkishToEnglish[char] || char)
-        .join("")
-        .replace(/[^a-z0-9]/g, "-")
+        .toLocaleLowerCase('tr-TR')
+        .replace(/[^a-z0-9çğıöşü\s-]/g, "")
+        .replace(/\s+/g, "-")
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "");
 

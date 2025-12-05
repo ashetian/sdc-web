@@ -10,6 +10,8 @@ const menuItems = [
     { href: '/admin/applicants', label: 'Başvurular', color: 'bg-neo-blue' },
     { href: '/admin/departments', label: 'Departmanlar', color: 'bg-neo-pink' },
     { href: '/admin/team', label: 'Ekip', color: 'bg-neo-orange' },
+    { href: '/admin/projects', label: 'Projeler', color: 'bg-neo-blue' },
+    { href: '/admin/comments', label: 'Yorumlar', color: 'bg-neo-purple text-white' },
     { href: '/admin/elections', label: 'Seçimler', color: 'bg-neo-yellow' },
     { href: '/admin/stats', label: 'İstatistikler', color: 'bg-neo-purple text-white' },
     { href: '/admin/settings', label: 'Ayarlar', color: 'bg-gray-700 text-white' },
@@ -93,8 +95,8 @@ export default function AdminNavbar() {
                                         href={item.href}
                                         onClick={() => setMenuOpen(false)}
                                         className={`block px-4 py-3 font-black uppercase border-4 border-black transition-all ${isActive
-                                                ? `${item.color} shadow-neo`
-                                                : 'bg-white hover:shadow-neo'
+                                            ? `${item.color} shadow-neo`
+                                            : 'bg-white hover:shadow-neo'
                                             }`}
                                     >
                                         {item.label}

@@ -7,11 +7,18 @@ import { useGSAP } from "@gsap/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useLanguage } from "../_context/LanguageContext";
+import Link from "next/link";
+
+interface AuthUser {
+  nickname: string;
+  studentNo: string;
+}
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const navRef = useRef(null);
@@ -19,7 +26,22 @@ export default function Navbar() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Check auth status
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user || null);
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      }
+    };
+    checkAuth();
+  }, [pathname]);
 
   // Scroll lock effect
   useEffect(() => {
@@ -95,29 +117,39 @@ export default function Navbar() {
     <>
       <nav ref={navRef} className="fixed w-full z-50 bg-neo-peach border-b-4 border-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20 items-center relative z-50 bg-transparent">
-            <button
-              onClick={() => scrollToSection("home")}
-              className="flex items-center group"
-            >
-              <div className="relative w-14 h-14 bg-white border-2 border-black shadow-neo-sm transition-all hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] p-1">
-                <Image
-                  src="/logopng.png"
-                  alt="KTÜ SDC Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+          <div className="flex h-20 items-center relative z-50 bg-transparent">
+            {/* Left Side: Logo + Links */}
+            <div className="flex items-center gap-8">
+              <button
+                onClick={() => scrollToSection("home")}
+                className="flex items-center group"
+              >
+                <div className="relative w-14 h-14 bg-white border-2 border-black shadow-neo-sm transition-all hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] p-1">
+                  <Image
+                    src="/logopng.png"
+                    alt="KTÜ SDC Logo"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </button>
+
+              {/* Desktop Menu Links */}
+              <div className="hidden md:flex items-center space-x-6">
+                <NavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
+                <NavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
+                <NavLink onClick={() => window.open("/events", "_blank")} text={t('nav.events')} />
+                <NavLink onClick={() => window.open("/projects", "_blank")} text={language === 'tr' ? 'Projeler' : 'Projects'} />
+                <NavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
               </div>
-            </button>
+            </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-6">
-              <NavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
-              <NavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
-              <NavLink onClick={() => window.open("/events", "_blank")} text={t('nav.events')} />
-              <NavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
+            {/* Spacer */}
+            <div className="flex-1"></div>
 
+            {/* Right Side: Language + Auth */}
+            <div className="hidden md:flex items-center gap-8">
               {/* Language Switcher */}
               <div className="relative">
                 <button
@@ -147,6 +179,41 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+
+              {/* Auth Buttons */}
+              {user ? (
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-white border-2 border-black hover:shadow-neo transition-all group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-black overflow-hidden relative">
+                    <Image
+                      src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
+                      alt="Avatar"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <span className="font-bold text-black">
+                    {user.nickname || 'Profil'}
+                  </span>
+                </Link>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/auth/login"
+                    className="px-4 py-2 font-bold bg-white text-black border-2 border-black hover:shadow-neo transition-all"
+                  >
+                    {t('auth.login') || 'Giriş'}
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="px-4 py-2 font-bold bg-neo-yellow text-black border-2 border-black hover:shadow-neo transition-all"
+                  >
+                    {t('auth.signup') || 'Kayıt'}
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -214,6 +281,46 @@ export default function Navbar() {
                   >
                     EN
                   </button>
+                </motion.div>
+
+                {/* Auth Buttons Mobile */}
+                <motion.div variants={itemVariants} className="flex flex-col gap-4 mt-6">
+                  {user ? (
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-4 px-8 py-4 bg-white border-4 border-black shadow-neo active:shadow-none transition-all"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-gray-100 border-2 border-black overflow-hidden relative">
+                        <Image
+                          src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
+                          alt="Avatar"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <span className="font-black text-xl text-black">
+                        {user.nickname || 'Profil'}
+                      </span>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/auth/login"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="px-8 py-4 bg-white text-black font-black text-xl border-4 border-black text-center"
+                      >
+                        Giriş Yap
+                      </Link>
+                      <Link
+                        href="/auth/signup"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="px-8 py-4 bg-neo-yellow text-black font-black text-xl border-4 border-black text-center"
+                      >
+                        Kayıt Ol
+                      </Link>
+                    </>
+                  )}
                 </motion.div>
               </div>
             </motion.div>

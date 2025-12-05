@@ -97,7 +97,7 @@ export default function GalleryPage() {
     <section className="py-20 pt-40 bg-neo-purple min-h-screen border-b-4 border-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="inline-block text-4xl sm:text-6xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-8 py-4 transform -rotate-1">
+          <h2 className="inline-block text-4xl sm:text-6xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-8 py-4 transform -rotate-1" lang={language}>
             {l.title}
           </h2>
         </div>
@@ -136,10 +136,10 @@ export default function GalleryPage() {
                   </span>
                   <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{getDate(a)}</time>
                 </div>
-                <h3 className="text-2xl font-black text-black mb-3 uppercase leading-tight">{getTitle(a)}</h3>
+                <h3 className="text-2xl font-black text-black mb-3 uppercase leading-tight" lang={language}>{getTitle(a)}</h3>
                 <p className="text-black font-medium mb-4 line-clamp-3 border-l-4 border-black pl-3">{getDescription(a)}</p>
                 <div className="mt-auto pt-4 border-t-4 border-black">
-                  <span className="inline-block w-full text-center py-2 bg-black text-white font-bold uppercase hover:bg-white hover:text-black hover:border-2 hover:border-black transition-all">
+                  <span className="inline-block w-full text-center py-2 bg-black text-white font-bold uppercase hover:bg-white hover:text-black hover:border-2 hover:border-black transition-all" lang={language}>
                     {l.view}
                   </span>
                 </div>

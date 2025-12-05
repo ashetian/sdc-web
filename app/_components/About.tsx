@@ -148,7 +148,7 @@ export default function About() {
               <div className="mb-4 bg-white border-2 border-black w-16 h-16 flex items-center justify-center rounded-none shadow-neo-sm">
                 {iconMap[dept.icon] || iconMap.code}
               </div>
-              <h3 className="text-xl font-black text-black mb-3 uppercase">
+              <h3 className="text-xl font-black text-black mb-3 uppercase" lang={language}>
                 {language === 'en' && dept.nameEn ? dept.nameEn : dept.name}
               </h3>
               <p className="text-black font-medium border-t-2 border-black pt-2">
@@ -197,7 +197,7 @@ export default function About() {
             {/* Modal Header */}
             <div className={`${selectedDept.color} p-6 border-b-4 border-black flex justify-between items-center`}>
               <div>
-                <h3 className="text-2xl font-black text-black uppercase">{language === 'en' && selectedDept.nameEn ? selectedDept.nameEn : selectedDept.name}</h3>
+                <h3 className="text-2xl font-black text-black uppercase" lang={language}>{language === 'en' && selectedDept.nameEn ? selectedDept.nameEn : selectedDept.name}</h3>
                 <p className="text-black font-medium mt-1">{language === 'en' && selectedDept.descriptionEn ? selectedDept.descriptionEn : selectedDept.description}</p>
               </div>
               <button
@@ -242,7 +242,7 @@ export default function About() {
                         <h4 className="text-lg font-black text-black">{member.name}</h4>
                         <p className="text-sm font-bold text-gray-600">{member.title}</p>
                         {member.role === 'head' && (
-                          <span className="inline-block mt-2 px-3 py-1 bg-black text-white text-xs font-black">
+                          <span className="inline-block mt-2 px-3 py-1 bg-black text-white text-xs font-black" lang={language}>
                             {language === 'tr' ? 'DEPARTMAN BAŞKANI' : 'DEPARTMENT HEAD'}
                           </span>
                         )}

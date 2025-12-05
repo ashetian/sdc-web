@@ -174,6 +174,24 @@ export function proxy(request: NextRequest) {
       return addSecurityHeaders(response);
     }
 
+    // Allow auth endpoints (public)
+    if (pathname.startsWith('/api/auth')) {
+      const response = NextResponse.next();
+      return addSecurityHeaders(response);
+    }
+
+    // Allow comments endpoints (uses JWT authentication, not Basic Auth)
+    if (pathname.startsWith('/api/comments')) {
+      const response = NextResponse.next();
+      return addSecurityHeaders(response);
+    }
+
+    // Allow projects endpoints (uses JWT authentication for user actions)
+    if (pathname.startsWith('/api/projects')) {
+      const response = NextResponse.next();
+      return addSecurityHeaders(response);
+    }
+
     // Allow uploads only from admin context (check referer) or with auth
     if (pathname.startsWith('/api/upload')) {
       const referer = request.headers.get('referer') || '';

@@ -24,10 +24,30 @@ interface Applicant {
     createdAt: string;
 }
 
+interface VerificationResult {
+    isMember: boolean;
+    member?: {
+        studentNo: string;
+        fullName: string;
+        email: string;
+        phone?: string;
+        department?: string;
+    };
+    matches: {
+        studentNo: boolean;
+        fullName: boolean;
+        email: boolean;
+        phone: boolean;
+        department: boolean;
+    };
+}
+
 export default function ApplicantsPage() {
     const [applicants, setApplicants] = useState<Applicant[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [memberVerifications, setMemberVerifications] = useState<Record<string, VerificationResult>>({});
+    const [verifyingMembers, setVerifyingMembers] = useState(false);
 
     useEffect(() => {
         loadApplicants();
@@ -39,12 +59,43 @@ export default function ApplicantsPage() {
             if (!res.ok) throw new Error("Başvurular alınamadı");
             const data = await res.json();
             setApplicants(data);
+            // Auto-verify members
+            verifyAllMembers(data);
         } catch (error) {
             console.error("Başvurular yüklenirken hata:", error);
             alert("Başvurular yüklenirken bir hata oluştu");
         } finally {
             setLoading(false);
         }
+    };
+
+    const verifyAllMembers = async (apps: Applicant[]) => {
+        setVerifyingMembers(true);
+        const verifications: Record<string, VerificationResult> = {};
+
+        for (const app of apps) {
+            try {
+                const res = await fetch('/api/members/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: app.fullName,
+                        email: app.email,
+                        phone: app.phone,
+                        department: app.department,
+                    }),
+                });
+
+                if (res.ok) {
+                    verifications[app._id] = await res.json();
+                }
+            } catch (error) {
+                console.error('Üyelik doğrulaması hatası:', error);
+            }
+        }
+
+        setMemberVerifications(verifications);
+        setVerifyingMembers(false);
     };
 
     const handleDelete = async (id: string, name: string) => {
@@ -87,6 +138,62 @@ export default function ApplicantsPage() {
             case "Kurumsal İletişim Departmanı": return "bg-yellow-400 text-black";
             default: return "bg-gray-200 text-black";
         }
+    };
+
+    const renderMemberBadge = (appId: string) => {
+        const verification = memberVerifications[appId];
+
+        if (verifyingMembers && !verification) {
+            return <span className="text-xs text-gray-400 animate-pulse">Kontrol ediliyor...</span>;
+        }
+
+        if (!verification) {
+            return null;
+        }
+
+        if (!verification.isMember) {
+            return (
+                <span className="px-2 py-1 text-xs font-black bg-red-100 text-red-800 border-2 border-red-300">
+                    ❌ Kulüp Üyesi Değil
+                </span>
+            );
+        }
+
+        // Count matches
+        const matchCount = Object.values(verification.matches).filter(Boolean).length;
+        const importantMatches = [verification.matches.fullName, verification.matches.email];
+        const allImportantMatch = importantMatches.every(Boolean);
+
+        return (
+            <div className="flex flex-col gap-1">
+                <span className="px-2 py-1 text-xs font-black bg-green-100 text-green-800 border-2 border-green-300">
+                    ✅ Kulüp Üyesi
+                </span>
+                <div className="text-xs flex flex-wrap gap-1">
+                    <span
+                        title={verification.matches.fullName ? 'Ad Soyad eşleşiyor' : `Veritabanı: ${verification.member?.fullName}`}
+                        className={`px-1 border ${verification.matches.fullName ? 'bg-green-50 text-green-700 border-green-300' : 'bg-red-50 text-red-700 border-red-300'}`}
+                    >
+                        Ad{verification.matches.fullName ? '✓' : '✗'}
+                    </span>
+                    <span
+                        title={verification.matches.email ? 'E-posta eşleşiyor' : `Veritabanı: ${verification.member?.email}`}
+                        className={`px-1 border ${verification.matches.email ? 'bg-green-50 text-green-700 border-green-300' : 'bg-red-50 text-red-700 border-red-300'}`}
+                    >
+                        E-posta{verification.matches.email ? '✓' : '✗'}
+                    </span>
+                    <span
+                        title={verification.matches.phone ? 'Telefon eşleşiyor' : `Veritabanı: ${verification.member?.phone || 'yok'}`}
+                        className={`px-1 border ${verification.matches.phone ? 'bg-green-50 text-green-700 border-green-300' : 'bg-orange-50 text-orange-700 border-orange-300'}`}
+                    >
+                        Tel{verification.matches.phone ? '✓' : '?'}
+                    </span>
+                </div>
+                {!allImportantMatch && (
+                    <span className="text-xs text-orange-600 font-bold">⚠️ Bilgi uyumsuzluğu var</span>
+                )}
+            </div>
+        );
     };
 
     if (loading) {
@@ -133,6 +240,8 @@ export default function ApplicantsPage() {
                                                 <span className={`px-3 py-1 text-xs font-black border-2 border-black uppercase ${getDepartmentColor(applicant.selectedDepartment)}`}>
                                                     {applicant.selectedDepartment}
                                                 </span>
+                                                {/* Member Badge */}
+                                                {renderMemberBadge(applicant._id)}
                                             </div>
                                             <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-gray-600 font-medium">
                                                 <span className="bg-gray-100 px-2 py-1 border border-black">
@@ -176,6 +285,53 @@ export default function ApplicantsPage() {
                                     {/* Expanded View */}
                                     {expandedId === applicant._id && (
                                         <div className="mt-4 bg-gray-100 border-4 border-black p-6 space-y-6">
+                                            {/* Member Verification Details */}
+                                            {memberVerifications[applicant._id]?.isMember && (
+                                                <div>
+                                                    <h3 className="text-sm font-black text-black mb-3 bg-green-400 px-3 py-1 inline-block border-2 border-black">
+                                                        Üyelik Bilgileri Karşılaştırması
+                                                    </h3>
+                                                    <div className="bg-white p-4 border-2 border-black overflow-x-auto">
+                                                        <table className="text-xs w-full">
+                                                            <thead>
+                                                                <tr className="border-b-2 border-black">
+                                                                    <th className="text-left p-2">Alan</th>
+                                                                    <th className="text-left p-2">Başvurudaki</th>
+                                                                    <th className="text-left p-2">Veritabanındaki</th>
+                                                                    <th className="text-center p-2">Durum</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr className="border-b border-gray-200">
+                                                                    <td className="p-2 font-bold">Ad Soyad</td>
+                                                                    <td className="p-2">{applicant.fullName}</td>
+                                                                    <td className="p-2">{memberVerifications[applicant._id].member?.fullName}</td>
+                                                                    <td className="p-2 text-center">{memberVerifications[applicant._id].matches.fullName ? '✅' : '❌'}</td>
+                                                                </tr>
+                                                                <tr className="border-b border-gray-200">
+                                                                    <td className="p-2 font-bold">E-posta</td>
+                                                                    <td className="p-2">{applicant.email}</td>
+                                                                    <td className="p-2">{memberVerifications[applicant._id].member?.email}</td>
+                                                                    <td className="p-2 text-center">{memberVerifications[applicant._id].matches.email ? '✅' : '❌'}</td>
+                                                                </tr>
+                                                                <tr className="border-b border-gray-200">
+                                                                    <td className="p-2 font-bold">Telefon</td>
+                                                                    <td className="p-2">{applicant.phone}</td>
+                                                                    <td className="p-2">{memberVerifications[applicant._id].member?.phone || '-'}</td>
+                                                                    <td className="p-2 text-center">{memberVerifications[applicant._id].matches.phone ? '✅' : '⚠️'}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td className="p-2 font-bold">Bölüm</td>
+                                                                    <td className="p-2">{applicant.department}</td>
+                                                                    <td className="p-2">{memberVerifications[applicant._id].member?.department || '-'}</td>
+                                                                    <td className="p-2 text-center">{memberVerifications[applicant._id].matches.department ? '✅' : '⚠️'}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* Social Links */}
                                             {(applicant.github || applicant.linkedin) && (
                                                 <div>

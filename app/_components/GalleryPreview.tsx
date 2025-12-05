@@ -96,7 +96,7 @@ export default function GalleryPreview() {
         <div className="flex gap-8 overflow-x-auto py-4 custom-scrollbar">
           {announcements.length === 0 ? (
             <div className="w-full text-center py-12 bg-white border-4 border-black shadow-neo transform rotate-1">
-              <p className="text-xl font-black text-black uppercase">
+              <p className="text-xl font-black text-black uppercase" lang={language}>
                 {language === 'tr' ? 'Henüz galeriye eklenmiş içerik yok.' : 'No content added to gallery yet.'}
               </p>
               <p className="text-black font-medium mt-2">
@@ -136,7 +136,7 @@ export default function GalleryPreview() {
                   </span>
                   <time className="text-xs font-bold text-black bg-gray-100 px-2 py-0.5 border-2 border-black shadow-neo-sm">{getDate(a)}</time>
                 </div>
-                <h3 className="text-lg font-black text-black mb-1 line-clamp-1 uppercase">
+                <h3 className="text-lg font-black text-black mb-1 line-clamp-1 uppercase" lang={language}>
                   {getTitle(a)}
                 </h3>
                 <p className="text-black font-medium text-sm mb-2 line-clamp-2 border-t-2 border-black pt-2">

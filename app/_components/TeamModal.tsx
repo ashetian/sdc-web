@@ -34,11 +34,11 @@ export default function TeamModal({
 
   useEffect(() => {
     if (!open) return;
-    
+
     // Lock scroll
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
-    
+
     return () => {
       // Unlock scroll
       document.body.style.overflow = "";
@@ -66,7 +66,7 @@ export default function TeamModal({
       role="dialog"
       aria-modal="true"
       aria-label={`${member.name} profili`}
-      className="fixed inset-0 z-[10] flex items-center justify-center p-4" 
+      className="fixed inset-0 z-[10] flex items-center justify-center p-4"
     >
       {/* backdrop */}
       <div
@@ -110,7 +110,7 @@ export default function TeamModal({
                 <User size={64} />
               </div>
             )}
-            
+
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none sm:hidden" />
 

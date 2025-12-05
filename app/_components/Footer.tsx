@@ -49,6 +49,9 @@ export default function Footer() {
               <a href="/events" className="text-sm font-bold bg-neo-purple text-white px-3 py-1 border-2 border-white hover:bg-white hover:text-black transition-all">
                 {t('nav.events')}
               </a>
+              <a href="/projects" className="text-sm font-bold bg-neo-blue text-black px-3 py-1 border-2 border-white hover:bg-white transition-all">
+                {language === 'tr' ? 'Projeler' : 'Projects'}
+              </a>
               <a href="/apply" className="text-sm font-bold bg-neo-pink text-black px-3 py-1 border-2 border-white hover:bg-white transition-all">
                 {t('nav.apply')}
               </a>

@@ -4,8 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
+import CommentSection from "../../_components/CommentSection";
 
 interface Announcement {
+  _id: string;
   slug: string;
   title: string;
   titleEn?: string;
@@ -118,7 +120,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
     <div className="min-h-screen bg-neo-purple py-20 pt-40 border-b-4 border-black">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform rotate-1">
-          <Link href="/gallery" className="text-black font-black hover:underline mb-6 inline-block uppercase text-sm">
+          <Link href="/gallery" className="text-black font-black hover:underline mb-6 inline-block uppercase text-sm" lang={language}>
             {l.backToGallery}
           </Link>
 
@@ -147,7 +149,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
             <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{language === 'en' && announcement.dateEn ? announcement.dateEn : announcement.date}</time>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight">{getTitle(announcement)}</h1>
+          <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight" lang={language}>{getTitle(announcement)}</h1>
 
           {(announcement.galleryDescription || announcement.galleryDescriptionEn) && (
             <p className="text-black font-medium text-lg mb-8 whitespace-pre-line border-l-4 border-black pl-4">
@@ -192,6 +194,9 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
             />
           </div>
         </div>
+
+        {/* Comments Section - Outside main content for visual separation */}
+        <CommentSection contentType="gallery" contentId={announcement._id} />
       </div>
     </div>
   );

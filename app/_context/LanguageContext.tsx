@@ -134,6 +134,10 @@ const translations: Record<Language, Record<string, string>> = {
         'vote.success': 'Oyunuz kaydedildi!',
         'vote.dragHint': 'Adayları sürükleyerek tercih sıranızı belirleyin',
         'vote.thankYou': 'Katılımınız için teşekkür ederiz',
+
+        // Auth
+        'auth.login': 'Giriş Yap',
+        'auth.signup': 'Kayıt Ol',
     },
     en: {
         // Navbar
@@ -258,6 +262,10 @@ const translations: Record<Language, Record<string, string>> = {
         'vote.success': 'Your vote has been recorded!',
         'vote.dragHint': 'Drag candidates to set your preference order',
         'vote.thankYou': 'Thank you for participating',
+
+        // Auth
+        'auth.login': 'Log In',
+        'auth.signup': 'Sign Up',
     },
 };
 
@@ -274,6 +282,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         }
         setIsHydrated(true);
     }, []);
+
+    // Sync html lang attribute
+    useEffect(() => {
+        document.documentElement.lang = language;
+    }, [language]);
 
     const setLanguage = (lang: Language) => {
         setLanguageState(lang);

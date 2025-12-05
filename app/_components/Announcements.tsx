@@ -169,7 +169,7 @@ export default function Announcements() {
               </div>
             )}
             <div className={`flex-1 flex flex-col ${current.image ? 'items-start text-left' : 'items-center text-center'}`}>
-              <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase">
+              <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase" lang={language}>
                 {getText(current.title, current.titleEn, '')}
               </h2>
               <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
@@ -179,6 +179,7 @@ export default function Announcements() {
                 <Link
                   href={`/announcements/${current.slug}`}
                   className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
+                  lang={language}
                 >
                   {l.details}
                 </Link>
@@ -186,6 +187,7 @@ export default function Announcements() {
                   <Link
                     href={`/events/${current.eventId}/register`}
                     className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
+                    lang={language}
                   >
                     {l.register}
                   </Link>
@@ -211,7 +213,7 @@ export default function Announcements() {
               </div>
             )}
             <div className={`flex-1 py-8 flex flex-col ${current.image ? 'items-start text-left' : 'items-center text-center'}`}>
-              <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase">
+              <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase" lang={language}>
                 {getText(current.title, current.titleEn, '')}
               </h2>
               <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
@@ -221,6 +223,7 @@ export default function Announcements() {
                 <Link
                   href={`/announcements/${current.slug}`}
                   className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
+                  lang={language}
                 >
                   {l.details}
                 </Link>
@@ -228,6 +231,7 @@ export default function Announcements() {
                   <Link
                     href={`/events/${current.eventId}/register`}
                     className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
+                    lang={language}
                   >
                     {l.register}
                   </Link>

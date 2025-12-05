@@ -100,7 +100,7 @@ export default function AnnouncementsPage() {
                     >
                         {l.backHome}
                     </Link>
-                    <h1 className="text-4xl sm:text-5xl font-black text-black uppercase mb-4">
+                    <h1 className="text-4xl sm:text-5xl font-black text-black uppercase mb-4" lang={language}>
                         {l.title}
                     </h1>
                     <p className="text-xl font-medium text-gray-700">{l.subtitle}</p>
@@ -138,7 +138,7 @@ export default function AnnouncementsPage() {
                                             {getText(announcement.date, announcement.dateEn)}
                                         </time>
                                     </div>
-                                    <h3 className="text-lg font-black text-black uppercase mb-2 line-clamp-2 group-hover:text-neo-purple transition-colors">
+                                    <h3 className="text-lg font-black text-black uppercase mb-2 line-clamp-2 group-hover:text-neo-purple transition-colors" lang={language}>
                                         {getText(announcement.title, announcement.titleEn)}
                                     </h3>
                                     <p className="text-sm text-gray-700 line-clamp-2">

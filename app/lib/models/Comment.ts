@@ -1,0 +1,65 @@
+import mongoose, { Schema, Document, Model } from 'mongoose';
+
+export interface IComment extends Document {
+    // Polymorphic content reference
+    contentType: 'project' | 'gallery' | 'announcement';
+    contentId: mongoose.Types.ObjectId;
+    memberId: mongoose.Types.ObjectId;
+    content: string;
+    isEdited: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const CommentSchema = new Schema<IComment>(
+    {
+        contentType: {
+            type: String,
+            enum: ['project', 'gallery', 'announcement'],
+            required: true,
+            index: true,
+        },
+        contentId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            index: true,
+        },
+        memberId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Member',
+            required: true,
+            index: true,
+        },
+        content: {
+            type: String,
+            required: true,
+            maxlength: 500,
+            validate: {
+                validator: function (v: string) {
+                    // Link içermemeli
+                    const urlPattern = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
+                    return !urlPattern.test(v);
+                },
+                message: 'Yorumlara link eklenemez',
+            },
+        },
+        isEdited: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    {
+        timestamps: true,
+    }
+);
+
+// Compound index for efficient queries
+CommentSchema.index({ contentType: 1, contentId: 1 });
+
+// Spam protection: One comment per minute per user per content
+CommentSchema.index({ memberId: 1, createdAt: -1 });
+
+const Comment: Model<IComment> =
+    mongoose.models.Comment || mongoose.model<IComment>('Comment', CommentSchema);
+
+export default Comment;

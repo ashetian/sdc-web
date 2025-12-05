@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,6 +13,7 @@ interface Event {
 export default function NewAnnouncementPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [formData, setFormData] = useState({
     title: "",
@@ -26,55 +27,36 @@ export default function NewAnnouncementPage() {
     isDraft: false,
     eventId: "",
   });
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch('/api/events?mode=admin');
+        const res = await fetch("/api/events?mode=admin");
         if (res.ok) {
           const data = await res.json();
           setEvents(data);
         }
       } catch (error) {
-        console.error('Etkinlikler yüklenirken hata:', error);
+        console.error("Etkinlikler yüklenirken hata:", error);
       }
     };
+
     fetchEvents();
   }, []);
 
-  const generateSlug = (text: string) => {
-    const turkishToEnglish: { [key: string]: string } = {
-      ğ: "g",
-      Ğ: "G",
-      ü: "u",
-      Ü: "U",
-      ş: "s",
-      Ş: "S",
-      ı: "i",
-      İ: "I",
-      ö: "o",
-      Ö: "O",
-      ç: "c",
-      Ç: "C",
-    };
-    return text
-      .toLowerCase()
-      .split("")
-      .map((char) => turkishToEnglish[char] || char)
-      .join("")
-      .replace(/[^a-z0-9\s-]/g, "")
+  const generateSlug = (text: string) =>
+    text
+      .toLocaleLowerCase("tr-TR")
+      .replace(/[^a-z0-9çğıöşü\s-]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // slug'ı otomatik oluştur veya kullanıcıdan al
       const slug = formData.slug
         ? generateSlug(formData.slug)
         : generateSlug(formData.title);
@@ -119,23 +101,23 @@ export default function NewAnnouncementPage() {
     if (!e.target.files?.[0]) return;
 
     const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
+    const uploadForm = new FormData();
+    uploadForm.append("file", file);
 
     setUploading(true);
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadForm,
       });
 
-      if (!res.ok) throw new Error('Yükleme başarısız');
+      if (!res.ok) throw new Error("Yükleme başarısız");
 
       const data = await res.json();
-      setFormData(prev => ({ ...prev, image: data.path }));
+      setFormData((prev) => ({ ...prev, image: data.path }));
     } catch (error) {
-      console.error('Görsel yükleme hatası:', error);
-      alert('Görsel yüklenirken bir hata oluştu.');
+      console.error("Görsel yükleme hatası:", error);
+      alert("Görsel yüklenirken bir hata oluştu.");
     } finally {
       setUploading(false);
     }
@@ -267,7 +249,12 @@ export default function NewAnnouncementPage() {
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
             />
-            <div className={`text-xs text-right mt-1 ${formData.description.length >= 500 ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+            <div
+              className={`text-xs text-right mt-1 ${formData.description.length >= 500
+                ? "text-red-600 font-bold"
+                : "text-gray-500"
+                }`}
+            >
               {formData.description.length} / 500
             </div>
           </div>
@@ -287,15 +274,24 @@ export default function NewAnnouncementPage() {
                 onChange={handleImageUpload}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
-              {uploading && <span className="text-sm text-blue-500">Yükleniyor...</span>}
+              {uploading && (
+                <span className="text-sm text-blue-500">Yükleniyor...</span>
+              )}
             </div>
             {formData.image && (
               <div className="mt-2">
                 <p className="text-sm text-green-600 mb-1">Görsel yüklendi:</p>
-                <Image src={formData.image} alt="Önizleme" width={300} height={200} className="h-32 w-auto object-cover rounded border border-gray-300" unoptimized />
+                <Image
+                  src={formData.image}
+                  alt="Önizleme"
+                  width={300}
+                  height={200}
+                  className="h-32 w-auto object-cover rounded border border-gray-300"
+                  unoptimized
+                />
                 <button
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                  onClick={() => setFormData((prev) => ({ ...prev, image: "" }))}
                   className="mt-1 text-xs text-red-600 hover:text-red-800"
                 >
                   Görseli Kaldır
@@ -304,7 +300,6 @@ export default function NewAnnouncementPage() {
             )}
           </div>
 
-          {/* Image Orientation */}
           {formData.image && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -320,7 +315,9 @@ export default function NewAnnouncementPage() {
                     onChange={handleChange}
                     className="w-4 h-4 text-blue-600"
                   />
-                  <span className="text-sm text-gray-700">Yatay (Görsel solda)</span>
+                  <span className="text-sm text-gray-700">
+                    Yatay (Görsel solda)
+                  </span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -331,7 +328,9 @@ export default function NewAnnouncementPage() {
                     onChange={handleChange}
                     className="w-4 h-4 text-blue-600"
                   />
-                  <span className="text-sm text-gray-700">Dikey (Görsel üstte)</span>
+                  <span className="text-sm text-gray-700">
+                    Dikey (Görsel üstte)
+                  </span>
                 </label>
               </div>
             </div>
@@ -354,7 +353,12 @@ export default function NewAnnouncementPage() {
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
             />
-            <div className={`text-xs text-right mt-1 ${formData.content.length >= 10000 ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+            <div
+              className={`text-xs text-right mt-1 ${formData.content.length >= 10000
+                ? "text-red-600 font-bold"
+                : "text-gray-500"
+                }`}
+            >
               {formData.content.length} / 10000
             </div>
           </div>

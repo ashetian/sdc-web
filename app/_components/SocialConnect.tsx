@@ -89,7 +89,7 @@ export default function SocialConnect() {
               <div className="mb-4">
                 {link.icon}
               </div>
-              <span className="text-lg font-black uppercase">
+              <span className="text-lg font-black uppercase" lang="en">
                 {link.name}
               </span>
             </a>
