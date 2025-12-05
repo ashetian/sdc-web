@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LoadingSpinner from '@/app/_components/LoadingSpinner';
 
 interface Applicant {
     _id: string;
@@ -91,9 +92,7 @@ export default function ApplicantsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="bg-white border-4 border-black shadow-neo px-8 py-4">
-                    <span className="text-xl font-black text-black animate-pulse">Yükleniyor...</span>
-                </div>
+                <LoadingSpinner size="lg" />
             </div>
         );
     }
@@ -159,8 +158,8 @@ export default function ApplicantsPage() {
                                             <button
                                                 onClick={() => toggleExpand(applicant._id)}
                                                 className={`px-4 py-2 text-sm font-black border-2 border-black transition-all ${expandedId === applicant._id
-                                                        ? "bg-black text-white"
-                                                        : "bg-neo-blue text-black hover:bg-blue-300"
+                                                    ? "bg-black text-white"
+                                                    : "bg-neo-blue text-black hover:bg-blue-300"
                                                     }`}
                                             >
                                                 {expandedId === applicant._id ? "Gizle" : "Detaylar"}

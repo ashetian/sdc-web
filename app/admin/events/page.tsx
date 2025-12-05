@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import LoadingSpinner from '@/app/_components/LoadingSpinner';
 
 interface Event {
     _id: string;
@@ -67,9 +68,7 @@ export default function AdminEventsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="bg-white border-4 border-black shadow-neo px-8 py-4">
-                    <span className="text-xl font-black text-black animate-pulse">Yükleniyor...</span>
-                </div>
+                <LoadingSpinner size="lg" />
             </div>
         );
     }
@@ -123,8 +122,8 @@ export default function AdminEventsPage() {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span
                                             className={`px-3 py-1 text-xs font-black border-2 border-black uppercase ${event.isOpen
-                                                    ? 'bg-neo-green text-black'
-                                                    : 'bg-red-500 text-white'
+                                                ? 'bg-neo-green text-black'
+                                                : 'bg-red-500 text-white'
                                                 }`}
                                         >
                                             {event.isOpen ? 'Açık' : 'Kapalı'}
@@ -148,8 +147,8 @@ export default function AdminEventsPage() {
                                         <button
                                             onClick={() => toggleStatus(event._id, event.isOpen)}
                                             className={`px-3 py-1 text-xs font-black border-2 border-black transition-all ${event.isOpen
-                                                    ? 'bg-yellow-400 text-black hover:bg-yellow-500'
-                                                    : 'bg-neo-green text-black hover:bg-green-400'
+                                                ? 'bg-yellow-400 text-black hover:bg-yellow-500'
+                                                : 'bg-neo-green text-black hover:bg-green-400'
                                                 }`}
                                         >
                                             {event.isOpen ? 'Kapat' : 'Aç'}

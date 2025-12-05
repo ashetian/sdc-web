@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LoadingSpinner from '@/app/_components/LoadingSpinner';
 
 interface Stat {
     _id: string;
@@ -151,7 +152,7 @@ export default function StatsPage() {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="text-xl text-gray-600">Yükleniyor...</div>
+                <LoadingSpinner size="lg" />
             </div>
         );
     }

@@ -1,5 +1,19 @@
+# Robots.txt for ktusdc.com
+
 User-agent: *
 Allow: /
 
+# Disallow admin and API routes
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api
+Disallow: /api/
+
+# Disallow voting pages (private)
+Disallow: /vote
+
+# Crawl-delay (optional, be nice to servers)
+Crawl-delay: 1
+
 # Sitemap location
-Sitemap: https://ktusdc.com/sitemap.xml 
+Sitemap: https://ktusdc.com/sitemap.xml

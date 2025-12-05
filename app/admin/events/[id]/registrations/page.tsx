@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
 import ReceiptViewerModal from './ReceiptViewerModal';
+import LoadingSpinner from '@/app/_components/LoadingSpinner';
 
 interface Registration {
     _id: string;
@@ -137,7 +138,11 @@ export default function EventRegistrationsPage() {
         XLSX.writeFile(workbook, filename);
     };
 
-    if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
+    if (loading) return (
+        <div className="flex items-center justify-center p-8">
+            <LoadingSpinner size="lg" />
+        </div>
+    );
 
     return (
         <div className="space-y-6">

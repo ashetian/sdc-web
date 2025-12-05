@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import LoadingSpinner from "@/app/_components/LoadingSpinner";
 
 interface Announcement {
   slug: string;
@@ -179,7 +180,7 @@ export default function EditAnnouncementPage({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="text-gray-600">Yükleniyor...</div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

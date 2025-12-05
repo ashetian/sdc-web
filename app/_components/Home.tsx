@@ -145,7 +145,7 @@ export default function Home() {
 
         <div ref={subtitleRef} className="bg-neo-blue border-4 border-black shadow-neo p-4 mx-auto transform rotate-1 max-w-3xl mt-8">
           <h2 className="text-xl md:text-3xl font-bold text-black">
-            {language === 'tr' ? 'Geleceği inşa ediyoruz!' : 'Building the future!'}
+            {language === 'tr' ? 'Geleceği inşa ediyoruz!' : 'We are building the future!'}
           </h2>
         </div>
 

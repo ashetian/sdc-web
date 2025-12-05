@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import LoadingSpinner from "@/app/_components/LoadingSpinner";
 
 interface Announcement {
   slug: string;
@@ -157,7 +158,11 @@ export default function GalleryEditPage({
   };
 
   if (!announcement) {
-    return <div className="p-8">Yükleniyor...</div>;
+    return (
+      <div className="flex justify-center items-center p-8">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
   return (

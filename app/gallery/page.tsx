@@ -9,6 +9,7 @@ interface Announcement {
   title: string;
   titleEn?: string;
   date: string;
+  dateEn?: string;
   description: string;
   descriptionEn?: string;
   type: "event" | "news" | "workshop";
@@ -79,6 +80,11 @@ export default function GalleryPage() {
     return l[type];
   };
 
+  const getDate = (a: Announcement) => {
+    if (language === 'en' && a.dateEn) return a.dateEn;
+    return a.date;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neo-purple">
@@ -128,7 +134,7 @@ export default function GalleryPage() {
                   >
                     {getTypeLabel(a.type)}
                   </span>
-                  <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{a.date}</time>
+                  <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{getDate(a)}</time>
                 </div>
                 <h3 className="text-2xl font-black text-black mb-3 uppercase leading-tight">{getTitle(a)}</h3>
                 <p className="text-black font-medium mb-4 line-clamp-3 border-l-4 border-black pl-3">{getDescription(a)}</p>

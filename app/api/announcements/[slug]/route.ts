@@ -99,16 +99,38 @@ export async function PUT(
       }
     }
 
-    // Auto-translate galleryDescription if DeepL API is available
+    // Auto-translate content if DeepL API is available
     let updateData = { ...data };
-    if (data.galleryDescription && process.env.DEEPL_API_KEY) {
+    if (process.env.DEEPL_API_KEY) {
       try {
-        const { translateContent } = await import('@/app/lib/translate');
-        const galleryDescResult = await translateContent(data.galleryDescription, 'tr');
-        updateData.galleryDescriptionEn = galleryDescResult.en;
-        console.log('Gallery description auto-translated');
+        const { translateContent, translateFields, translateDate } = await import('@/app/lib/translate');
+
+        // Translate main fields: title, description, content
+        const mainTranslations = await translateFields({
+          title: data.title,
+          description: data.description,
+          content: data.content,
+        }, 'tr');
+
+        updateData.titleEn = mainTranslations.title?.en || '';
+        updateData.descriptionEn = mainTranslations.description?.en || '';
+        updateData.contentEn = mainTranslations.content?.en || '';
+
+        // Translate date
+        if (data.date) {
+          updateData.dateEn = translateDate(data.date);
+        }
+
+        // Translate gallery description if present
+        if (data.galleryDescription) {
+          const galleryDescResult = await translateContent(data.galleryDescription, 'tr');
+          updateData.galleryDescriptionEn = galleryDescResult.en;
+        }
+
+        console.log('Announcement auto-translated on update');
       } catch (translateError) {
-        console.error('Gallery description translation failed:', translateError);
+        console.error('Auto-translation failed:', translateError);
+        // Continue without translation
       }
     }
 

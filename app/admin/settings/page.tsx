@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import LoadingSpinner from '@/app/_components/LoadingSpinner';
 
 export default function AdminSettingsPage() {
     const [whatsappLink, setWhatsappLink] = useState('');
@@ -59,7 +60,11 @@ export default function AdminSettingsPage() {
         }
     };
 
-    if (loading) return <div className="p-8">Yükleniyor...</div>;
+    if (loading) return (
+        <div className="flex items-center justify-center p-8">
+            <LoadingSpinner size="md" />
+        </div>
+    );
 
     return (
         <div className="bg-white shadow rounded-lg p-6">

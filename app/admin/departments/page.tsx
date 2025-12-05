@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import LoadingSpinner from '@/app/_components/LoadingSpinner';
 
 interface Department {
     _id: string;
@@ -116,9 +117,7 @@ export default function DepartmentsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="bg-white border-4 border-black shadow-neo px-8 py-4">
-                    <span className="text-xl font-black text-black animate-pulse">Yükleniyor...</span>
-                </div>
+                <LoadingSpinner size="lg" />
             </div>
         );
     }
