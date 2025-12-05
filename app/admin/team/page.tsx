@@ -127,8 +127,8 @@ export default function TeamPage() {
             });
 
             if (res.ok) {
-                const { url } = await res.json();
-                setFormData({ ...formData, photo: url });
+                const { path } = await res.json();
+                setFormData({ ...formData, photo: path });
             }
         } catch (error) {
             console.error('Fotoğraf yüklenemedi:', error);
