@@ -57,11 +57,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: 'Konu bulunamadı' }, { status: 404 });
         }
 
-        // Increment view count
-        await ForumTopic.findByIdAndUpdate(id, { $inc: { viewCount: 1 } });
+        // Get query params
+        const { searchParams } = new URL(request.url);
+        const incrementView = searchParams.get('view') === 'true';
+        
+        // Increment view count only when explicitly requested
+        if (incrementView) {
+            await ForumTopic.findByIdAndUpdate(id, { $inc: { viewCount: 1 } });
+        }
 
         // Get replies
-        const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '50');
 

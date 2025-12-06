@@ -102,37 +102,47 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Update vote counts
-        const Model = contentType === 'topic' ? ForumTopic : ForumReply;
-        const updateField = voteChange > 0 
-            ? (value === 1 ? 'upvotes' : 'downvotes')
-            : (value === 1 ? 'upvotes' : 'downvotes');
-        
-        if (existingVote && existingVote.value !== value) {
-            // Changed vote - update both counters
-            if (value === 1) {
-                await Model.findByIdAndUpdate(contentId, {
-                    $inc: { upvotes: 1, downvotes: -1 }
-                });
+        // Update vote counts based on content type
+        if (contentType === 'topic') {
+            if (existingVote && existingVote.value !== value) {
+                // Changed vote - update both counters
+                if (value === 1) {
+                    await ForumTopic.updateOne({ _id: contentId }, { $inc: { upvotes: 1, downvotes: -1 } });
+                } else {
+                    await ForumTopic.updateOne({ _id: contentId }, { $inc: { upvotes: -1, downvotes: 1 } });
+                }
+            } else if (existingVote) {
+                // Removed vote - reverse the previous vote
+                const field = existingVote.value === 1 ? 'upvotes' : 'downvotes';
+                await ForumTopic.updateOne({ _id: contentId }, { $inc: { [field]: -1 } });
             } else {
-                await Model.findByIdAndUpdate(contentId, {
-                    $inc: { upvotes: -1, downvotes: 1 }
-                });
+                // New vote
+                const field = value === 1 ? 'upvotes' : 'downvotes';
+                await ForumTopic.updateOne({ _id: contentId }, { $inc: { [field]: 1 } });
             }
-        } else if (existingVote) {
-            // Removed vote
-            await Model.findByIdAndUpdate(contentId, {
-                $inc: { [updateField]: -1 }
-            });
         } else {
-            // New vote
-            await Model.findByIdAndUpdate(contentId, {
-                $inc: { [updateField]: 1 }
-            });
+            if (existingVote && existingVote.value !== value) {
+                // Changed vote - update both counters
+                if (value === 1) {
+                    await ForumReply.updateOne({ _id: contentId }, { $inc: { upvotes: 1, downvotes: -1 } });
+                } else {
+                    await ForumReply.updateOne({ _id: contentId }, { $inc: { upvotes: -1, downvotes: 1 } });
+                }
+            } else if (existingVote) {
+                // Removed vote - reverse the previous vote
+                const field = existingVote.value === 1 ? 'upvotes' : 'downvotes';
+                await ForumReply.updateOne({ _id: contentId }, { $inc: { [field]: -1 } });
+            } else {
+                // New vote
+                const field = value === 1 ? 'upvotes' : 'downvotes';
+                await ForumReply.updateOne({ _id: contentId }, { $inc: { [field]: 1 } });
+            }
         }
 
         // Get updated counts
-        const content = await Model.findById(contentId).select('upvotes downvotes');
+        const content = contentType === 'topic' 
+            ? await ForumTopic.findById(contentId).select('upvotes downvotes')
+            : await ForumReply.findById(contentId).select('upvotes downvotes');
 
         return NextResponse.json({
             message,

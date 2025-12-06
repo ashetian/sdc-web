@@ -113,7 +113,8 @@ export default function TopicPage({ params }: PageProps) {
   useEffect(() => {
     async function loadTopic() {
       try {
-        const res = await fetch(`/api/forum/topics/${id}`);
+        // Add view=true to increment view count
+        const res = await fetch(`/api/forum/topics/${id}?view=true`);
         if (res.ok) {
           const data = await res.json();
           setTopic(data.topic);
@@ -167,9 +168,13 @@ export default function TopicPage({ params }: PageProps) {
           prev ? { ...prev, upvotes: data.upvotes, downvotes: data.downvotes } : null
         );
         setUserVote(data.userVote);
+      } else {
+        const error = await res.json();
+        alert(error.error || (language === "tr" ? "Oy verilemedi" : "Vote failed"));
       }
     } catch (error) {
       console.error("Vote error:", error);
+      alert(language === "tr" ? "Bir hata oluştu" : "An error occurred");
     }
   };
 
