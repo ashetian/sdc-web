@@ -45,7 +45,6 @@ const ChatPositionSchema = new Schema<IChatPosition>({
     },
 });
 
-// Index for efficient querying
-ChatPositionSchema.index({ lastSeen: 1 });
+// lastSeen already indexed by TTL/expires
 
 export default mongoose.models.ChatPosition || mongoose.model<IChatPosition>('ChatPosition', ChatPositionSchema);

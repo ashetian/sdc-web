@@ -42,8 +42,7 @@ const ChatMessageSchema = new Schema<IChatMessage>({
     },
 });
 
-// Index for efficient querying
-ChatMessageSchema.index({ createdAt: 1 });
+// Index for efficient querying (createdAt already indexed by TTL/expires)
 ChatMessageSchema.index({ memberId: 1, createdAt: -1 });
 
 export default mongoose.models.ChatMessage || mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);
