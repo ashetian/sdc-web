@@ -355,7 +355,7 @@ function NavLink({ onClick, text }: { onClick: () => void; text: string }) {
   return (
     <button
       onClick={onClick}
-      className="px-4 py-2 font-bold bg-white/70 text-black border-2 border-transparent hover:border-black hover:bg-white hover:shadow-neo transition-all duration-200"
+      className="px-4 py-2 font-bold bg-white/70 text-black border-2 hover:border-black hover:bg-white hover:shadow-neo transition-all duration-200"
     >
       {text}
     </button>

@@ -32,6 +32,15 @@ body {
 html,
 body {
   cursor: none !important;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Prevent horizontal overflow from shadows and transforms */
+main,
+section,
+.overflow-clip {
+  overflow-x: clip;
 }
 
 @layer base {
