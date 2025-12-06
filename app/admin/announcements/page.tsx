@@ -4,6 +4,7 @@ import Link from "next/link";
 import GlobalLoading from '@/app/_components/GlobalLoading';
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Pencil, Images, Trash2 } from "lucide-react";
 
 interface Announcement {
     _id: string;
@@ -137,7 +138,7 @@ export default function AnnouncementsIndexPage() {
                                             <span className="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-1 border border-black">
                                                 {announcement.date}
                                             </span>
-                                            <div className={`absolute top-4 right-4 bg-neo-yellow text-neo-black font-black px-4 py-2 border-2 border-neo-black shadow-neo z-10 ${getTypeColor(announcement.type)}`}>
+                                            <div className={`text-xs font-black px-2 py-1 border-2 border-neo-black shadow-neo-sm ${getTypeColor(announcement.type)}`}>
                                                 {getTypeLabel(announcement.type)}
                                             </div>
                                         </div>
@@ -147,21 +148,21 @@ export default function AnnouncementsIndexPage() {
                                     <div className="flex flex-col space-y-2 flex-shrink-0">
                                         <Link
                                             href={`/admin/announcements/${announcement.slug}/edit`}
-                                            className="bg-neo-blue text-black border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-blue-300 transition-all text-center"
+                                            className="bg-neo-blue text-black border-2 border-black px-3 py-2 text-sm font-black uppercase hover:bg-blue-300 transition-all text-center flex items-center justify-center gap-2"
                                         >
-                                            Düzenle
+                                            <Pencil size={16} /> Düzenle
                                         </Link>
                                         <Link
                                             href={`/admin/announcements/${announcement.slug}/gallery`}
-                                            className="bg-neo-purple text-white border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-purple-400 transition-all text-center"
+                                            className="bg-neo-purple text-white border-2 border-black px-3 py-2 text-sm font-black uppercase hover:bg-purple-400 transition-all text-center flex items-center justify-center gap-2"
                                         >
-                                            Galeri
+                                            <Images size={16} /> Galeri
                                         </Link>
                                         <button
-                                            className="bg-red-500 text-white border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-red-600 transition-all"
+                                            className="bg-red-500 text-white border-2 border-black px-3 py-2 text-sm font-black uppercase hover:bg-red-600 transition-all flex items-center justify-center gap-2"
                                             onClick={() => handleDelete(announcement.slug)}
                                         >
-                                            Sil
+                                            <Trash2 size={16} /> Sil
                                         </button>
                                     </div>
                                 </div>

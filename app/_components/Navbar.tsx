@@ -201,7 +201,7 @@ export default function Navbar() {
                     />
                   </div>
                   <span className="font-bold text-black">
-                    {user.nickname || 'Profil'}
+                    {user.nickname || (language === 'tr' ? 'Profil' : 'Profile')}
                   </span>
                 </Link>
               ) : (
@@ -319,7 +319,7 @@ export default function Navbar() {
                         />
                       </div>
                       <span className="font-black text-xl text-black">
-                        {user.nickname || 'Profil'}
+                        {user.nickname || (language === 'tr' ? 'Profil' : 'Profile')}
                       </span>
                     </Link>
                   ) : (
@@ -329,14 +329,14 @@ export default function Navbar() {
                         onClick={() => setIsMenuOpen(false)}
                         className="px-8 py-4 bg-white text-black font-black text-xl border-4 border-black text-center"
                       >
-                        Giriş Yap
+                        {t('auth.login') || 'Login'}
                       </Link>
                       <Link
                         href="/auth/signup"
                         onClick={() => setIsMenuOpen(false)}
                         className="px-8 py-4 bg-neo-yellow text-black font-black text-xl border-4 border-black text-center"
                       >
-                        Kayıt Ol
+                        {t('auth.signup') || 'Sign Up'}
                       </Link>
                     </>
                   )}

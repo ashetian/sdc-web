@@ -5,6 +5,7 @@ import Link from 'next/link';
 import GlobalLoading from '@/app/_components/GlobalLoading';
 import Image from 'next/image';
 import { useLanguage } from '../../_context/LanguageContext';
+import BookmarkButton from '@/app/_components/BookmarkButton';
 
 interface Project {
     _id: string;
@@ -239,9 +240,12 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </div>
 
                     <div className="p-8">
-                        <h1 className="text-3xl font-black text-black mb-4">
-                            {language === 'en' && project.titleEn ? project.titleEn : project.title}
-                        </h1>
+                        <div className="flex items-start justify-between gap-4 mb-4">
+                            <h1 className="text-3xl font-black text-black">
+                                {language === 'en' && project.titleEn ? project.titleEn : project.title}
+                            </h1>
+                            <BookmarkButton contentType="project" contentId={project._id} />
+                        </div>
 
                         {/* Meta */}
                         <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">

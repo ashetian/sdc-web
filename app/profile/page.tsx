@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FolderGit2, Bookmark, Home, LogOut } from 'lucide-react';
+import { useLanguage } from '../_context/LanguageContext';
 
 interface User {
     id: string;
@@ -32,12 +34,72 @@ const AVATAR_SEEDS = ['Felix', 'Aneka', 'Sasha', 'Milo', 'Luna', 'Oliver', 'Bell
 
 export default function ProfilePage() {
     const router = useRouter();
+    const { language } = useLanguage();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+
+    const labels = {
+        tr: {
+            projects: 'Projelerim',
+            bookmarks: 'Kaydedilenler',
+            home: 'Ana Sayfa',
+            logout: 'Çıkış',
+            changeAvatar: 'Avatar\'ı değiştirmek için tıklayın',
+            pickAvatar: 'Avatar Seç',
+            pickAvatarDesc: 'Profilinizde ve yorumlarınızda görünecek avatarı seçin:',
+            resetDefault: 'Varsayılana Dön',
+            close: 'Kapat',
+            profileSettings: 'Profil Ayarları',
+            nickname: 'Nickname (Görünen İsim)',
+            nicknameDesc: 'Sitede bu isim görünür',
+            privacySettings: 'Gizlilik Ayarları',
+            privacyDesc: 'Profilinizde hangi bilgilerin görüneceğini seçin:',
+            realName: 'Gerçek İsim',
+            email: 'E-posta',
+            phone: 'Telefon',
+            department: 'Bölüm',
+            notSpecified: 'Belirtilmemiş',
+            saveChanges: 'Değişiklikleri Kaydet',
+            saving: 'Kaydediliyor...',
+            lastLogin: 'Son giriş:',
+            profileUpdated: 'Profil güncellendi!',
+            error: 'Bir hata oluştu',
+            logoutError: 'Çıkış yapılamadı'
+        },
+        en: {
+            projects: 'My Projects',
+            bookmarks: 'Bookmarks',
+            home: 'Home',
+            logout: 'Logout',
+            changeAvatar: 'Click to change avatar',
+            pickAvatar: 'Choose Avatar',
+            pickAvatarDesc: 'Choose an avatar to appear on your profile and comments:',
+            resetDefault: 'Reset to Default',
+            close: 'Close',
+            profileSettings: 'Profile Settings',
+            nickname: 'Nickname (Display Name)',
+            nicknameDesc: 'This name appears on the site',
+            privacySettings: 'Privacy Settings',
+            privacyDesc: 'Choose what information appears on your profile:',
+            realName: 'Real Name',
+            email: 'Email',
+            phone: 'Phone',
+            department: 'Department',
+            notSpecified: 'Not Specified',
+            saveChanges: 'Save Changes',
+            saving: 'Saving...',
+            lastLogin: 'Last login:',
+            profileUpdated: 'Profile updated!',
+            error: 'An error occurred',
+            logoutError: 'Logout failed'
+        }
+    };
+
+    const l = labels[language];
 
     // Edit form state
     const [nickname, setNickname] = useState('');
@@ -96,13 +158,13 @@ export default function ProfilePage() {
             const data = await res.json();
 
             if (res.ok) {
-                setMessage('Profil güncellendi!');
+                setMessage(l.profileUpdated);
                 setUser(prev => prev ? { ...prev, nickname, avatar, profileVisibility: visibility } : null);
             } else {
-                setError(data.error || 'Bir hata oluştu');
+                setError(data.error || l.error);
             }
         } catch {
-            setError('Bir hata oluştu');
+            setError(l.error);
         } finally {
             setSaving(false);
         }
@@ -142,7 +204,7 @@ export default function ProfilePage() {
                             <div
                                 className="w-16 h-16 relative rounded-full border-2 border-black overflow-hidden bg-gray-100 cursor-pointer hover:ring-4 hover:ring-yellow-400 transition-all shrink-0"
                                 onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                                title="Avatar'ı değiştirmek için tıklayın"
+                                title={l.changeAvatar}
                             >
                                 <Image
                                     src={getCurrentAvatar()}
@@ -157,24 +219,34 @@ export default function ProfilePage() {
                                 <p className="text-gray-500 text-sm">@{user.studentNo}</p>
                             </div>
                         </div>
-                        <div className="flex gap-2 flex-wrap justify-center w-full md:w-auto">
+                        <div className="flex gap-2 flex-wrap justify-center md:justify-end w-full md:w-auto">
                             <Link
                                 href="/profile/projects"
-                                className="px-4 py-2 bg-neo-purple text-white font-bold border-2 border-black hover:shadow-neo whitespace-nowrap"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-neo-purple text-white font-bold border-2 border-black hover:shadow-neo whitespace-nowrap"
                             >
-                                Projelerim
+                                <FolderGit2 size={18} />
+                                {l.projects}
+                            </Link>
+                            <Link
+                                href="/profile/bookmarks"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-neo-yellow text-black font-bold border-2 border-black hover:shadow-neo whitespace-nowrap"
+                            >
+                                <Bookmark size={18} />
+                                {l.bookmarks}
                             </Link>
                             <Link
                                 href="/"
-                                className="px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 whitespace-nowrap"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 whitespace-nowrap"
                             >
-                                Ana Sayfa
+                                <Home size={18} />
+                                {l.home}
                             </Link>
                             <button
                                 onClick={handleLogout}
-                                className="px-4 py-2 bg-red-500 text-white font-bold border-2 border-black hover:bg-red-600 whitespace-nowrap"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-bold border-2 border-black hover:bg-red-600 whitespace-nowrap"
                             >
-                                Çıkış
+                                <LogOut size={18} />
+                                {l.logout}
                             </button>
                         </div>
                     </div>
@@ -184,10 +256,10 @@ export default function ProfilePage() {
                 {showAvatarPicker && (
                     <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                         <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                            Avatar Seç
+                            {l.pickAvatar}
                         </h2>
                         <p className="text-sm text-gray-600 mb-4">
-                            Profilinizde ve yorumlarınızda görünecek avatarı seçin:
+                            {l.pickAvatarDesc}
                         </p>
                         <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                             {AVATAR_STYLES.flatMap(style =>
@@ -220,13 +292,13 @@ export default function ProfilePage() {
                                 onClick={() => setAvatar('')}
                                 className="px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 text-sm"
                             >
-                                Varsayılana Dön
+                                {l.resetDefault}
                             </button>
                             <button
                                 onClick={() => setShowAvatarPicker(false)}
                                 className="px-4 py-2 bg-black text-white font-bold border-2 border-black hover:bg-gray-800 text-sm"
                             >
-                                Kapat
+                                {l.close}
                             </button>
                         </div>
                     </div>
@@ -235,13 +307,13 @@ export default function ProfilePage() {
                 {/* Profile Settings */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                     <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                        Profil Ayarları
+                        {l.profileSettings}
                     </h2>
 
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                Nickname (Görünen İsim)
+                                {l.nickname}
                             </label>
                             <input
                                 type="text"
@@ -249,7 +321,7 @@ export default function ProfilePage() {
                                 onChange={(e) => setNickname(e.target.value)}
                                 className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
                             />
-                            <p className="text-xs text-gray-500 mt-1">Sitede bu isim görünür</p>
+                            <p className="text-xs text-gray-500 mt-1">{l.nicknameDesc}</p>
                         </div>
                     </div>
                 </div>
@@ -257,10 +329,10 @@ export default function ProfilePage() {
                 {/* Privacy Settings */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                     <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                        Gizlilik Ayarları
+                        {l.privacySettings}
                     </h2>
                     <p className="text-sm text-gray-600 mb-4">
-                        Profilinizde hangi bilgilerin görüneceğini seçin:
+                        {l.privacyDesc}
                     </p>
 
                     <div className="space-y-3">
@@ -272,7 +344,7 @@ export default function ProfilePage() {
                                 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">Gerçek İsim</span>
+                                <span className="font-bold whitespace-nowrap">{l.realName}</span>
                                 <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.fullName})</span>
                             </div>
                         </label>
@@ -285,7 +357,7 @@ export default function ProfilePage() {
                                 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">E-posta</span>
+                                <span className="font-bold whitespace-nowrap">{l.email}</span>
                                 <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.email})</span>
                             </div>
                         </label>
@@ -298,8 +370,8 @@ export default function ProfilePage() {
                                 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">Telefon</span>
-                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.phone || 'Belirtilmemiş'})</span>
+                                <span className="font-bold whitespace-nowrap">{l.phone}</span>
+                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.phone || l.notSpecified})</span>
                             </div>
                         </label>
 
@@ -311,8 +383,8 @@ export default function ProfilePage() {
                                 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">Bölüm</span>
-                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.department || 'Belirtilmemiş'})</span>
+                                <span className="font-bold whitespace-nowrap">{l.department}</span>
+                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.department || l.notSpecified})</span>
                             </div>
                         </label>
                     </div>
@@ -336,13 +408,13 @@ export default function ProfilePage() {
                     disabled={saving}
                     className="w-full bg-yellow-400 text-black font-black py-4 border-4 border-black hover:bg-yellow-500 disabled:opacity-50 transition-colors"
                 >
-                    {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
+                    {saving ? l.saving : l.saveChanges}
                 </button>
 
                 {/* Last Login Info */}
                 {user.lastLogin && (
                     <p className="text-center text-gray-500 text-sm mt-4">
-                        Son giriş: {new Date(user.lastLogin).toLocaleString('tr-TR')}
+                        {l.lastLogin} {new Date(user.lastLogin).toLocaleString(language === 'tr' ? 'tr-TR' : 'en-US')}
                     </p>
                 )}
             </div>

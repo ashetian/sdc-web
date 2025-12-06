@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import GlobalLoading from '@/app/_components/GlobalLoading';
 import { useLanguage } from '../../_context/LanguageContext';
+import BookmarkButton from '@/app/_components/BookmarkButton';
 
 interface Project {
     _id: string;
@@ -163,6 +164,7 @@ export default function MyProjectsPage() {
                                         </span>
                                     </div>
                                     <div className="flex gap-2">
+                                        <BookmarkButton contentType="project" contentId={project._id} />
                                         <Link
                                             href={`/profile/projects/${project._id}/edit`}
                                             className="px-3 py-1 bg-neo-blue text-black font-bold border-2 border-black text-sm hover:shadow-neo transition-all"

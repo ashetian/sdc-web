@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
 import CommentSection from "../../_components/CommentSection";
+import BookmarkButton from "../../_components/BookmarkButton";
 
 interface Announcement {
   _id: string;
@@ -146,7 +147,10 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
             >
               {getTypeLabel(announcement.type)}
             </span>
-            <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{language === 'en' && announcement.dateEn ? announcement.dateEn : announcement.date}</time>
+            <div className="flex items-center gap-3">
+              <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{language === 'en' && announcement.dateEn ? announcement.dateEn : announcement.date}</time>
+              <BookmarkButton contentType="gallery" contentId={announcement._id} />
+            </div>
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-black text-black mb-6 uppercase leading-tight" lang={language}>{getTitle(announcement)}</h1>

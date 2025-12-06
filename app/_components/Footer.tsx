@@ -70,7 +70,7 @@ export default function Footer() {
 
           <div className="flex flex-row gap-2 items-center">
             <span className="text-sm font-bold bg-neo-pink text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-              Developed by
+              {language === 'tr' ? 'Geliştiriciler:' : 'Developed by:'}
             </span>
             <span className="text-sm font-bold bg-neo-blue text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
               Caner
