@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         // Get user's current position
-        const position = await ChatPosition.findOne({ memberId }).lean();
+        const position = await ChatPosition.findOne({ memberId }).lean() as { x: number; y: number; color?: string } | null;
         const userPosition = position ? { x: position.x, y: position.y } : { x: 400, y: 300 };
 
         // Create message
