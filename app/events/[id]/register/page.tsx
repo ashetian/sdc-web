@@ -218,7 +218,7 @@ export default function RegisterPage() {
 
                     <div className="space-y-4">
                         <Link
-                            href={`/login?redirect=/events/${params.id}/register`}
+                            href={`/auth/login?redirect=/events/${params.id}/register`}
                             className="w-full flex justify-center py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-neo-green hover:text-black hover:shadow-none transition-all uppercase"
                         >
                             Giriş Yap
