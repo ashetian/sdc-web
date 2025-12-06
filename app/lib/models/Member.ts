@@ -27,6 +27,11 @@ export interface IMember extends Document {
     avatar?: string;
     profileVisibility: IProfileVisibility;
 
+    // Permissions
+    emailConsent: boolean;
+    kvkkAccepted: boolean;
+    nativeLanguage?: 'tr' | 'en';
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -53,6 +58,7 @@ const MemberSchema = new Schema<IMember>(
         fullName: {
             type: String,
             required: true,
+
         },
         email: {
             type: String,
@@ -103,6 +109,21 @@ const MemberSchema = new Schema<IMember>(
                 showDepartment: true,
                 showFullName: false,
             }),
+        },
+
+        // Permissions
+        emailConsent: {
+            type: Boolean,
+            default: false,
+        },
+        kvkkAccepted: {
+            type: Boolean,
+            default: false,
+        },
+        nativeLanguage: {
+            type: String,
+            enum: ['tr', 'en'],
+            default: 'tr',
         },
     },
     {

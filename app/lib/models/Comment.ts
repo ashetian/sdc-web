@@ -11,6 +11,7 @@ export interface IComment extends Document {
     deletedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
+    parentId?: mongoose.Types.ObjectId | null;
 }
 
 const CommentSchema = new Schema<IComment>(
@@ -57,6 +58,12 @@ const CommentSchema = new Schema<IComment>(
         deletedAt: {
             type: Date,
         },
+        parentId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Comment',
+            default: null,
+            index: true,
+        },
     },
     {
         timestamps: true,
@@ -70,9 +77,14 @@ CommentSchema.index({ contentType: 1, contentId: 1 });
 CommentSchema.index({ memberId: 1, createdAt: -1 });
 
 // Index for deleted comments cleanup
+// Index for deleted comments cleanup
 CommentSchema.index({ isDeleted: 1, deletedAt: 1 });
 
-const Comment: Model<IComment> =
-    mongoose.models.Comment || mongoose.model<IComment>('Comment', CommentSchema);
+// Force recompilation of model to pick up schema changes (dev mode specific fix)
+if (mongoose.models.Comment) {
+    delete mongoose.models.Comment;
+}
+
+const Comment: Model<IComment> = mongoose.model<IComment>('Comment', CommentSchema);
 
 export default Comment;

@@ -18,6 +18,7 @@ export interface IEvent {
   // Attendance fields
   attendanceCode?: string;
   isEnded: boolean;
+  remindersSent?: boolean;
   actualDuration?: number; // in minutes, admin-entered
 }
 

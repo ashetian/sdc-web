@@ -88,7 +88,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Geçerli bir GitHub repo URL\'si girin' }, { status: 400 });
         }
 
-        const project = await Project.create({
+        if (!githubPattern.test(githubUrl)) {
+            return NextResponse.json({ error: 'Geçerli bir GitHub repo URL\'si girin' }, { status: 400 });
+        }
+
+        // Auto-translate if DeepL API key is available
+        let projectData = {
             memberId: member._id,
             title,
             titleEn,
@@ -98,7 +103,27 @@ export async function POST(request: NextRequest) {
             demoUrl,
             technologies: technologies || [],
             status: 'pending',
-        });
+        };
+
+        if (process.env.DEEPL_API_KEY) {
+            try {
+                const { translateFields } = await import('@/app/lib/translate');
+                const translations = await translateFields({
+                    title: title,
+                    description: description,
+                }, 'tr');
+
+                // Only overwrite if English fields are not provided
+                if (!titleEn) projectData.titleEn = translations.title?.en;
+                if (!descriptionEn) projectData.descriptionEn = translations.description?.en;
+
+            } catch (translateError) {
+                console.error('Auto-translation failed:', translateError);
+                // Continue without translation
+            }
+        }
+
+        const project = await Project.create(projectData);
 
         return NextResponse.json({
             message: 'Proje başarıyla eklendi. Onay bekliyor.',

@@ -68,7 +68,10 @@ export default function ProfilePage() {
             lastLogin: 'Son giriş:',
             profileUpdated: 'Profil güncellendi!',
             error: 'Bir hata oluştu',
-            logoutError: 'Çıkış yapılamadı'
+            logoutError: 'Çıkış yapılamadı',
+            notificationSettings: 'Bildirim Ayarları',
+            notificationDesc: 'Hangi konularda e-posta almak istediğinizi seçin:',
+            allowEmails: 'Kulüp etkinlikleri ve gelişmeleri hakkında e-posta almak istiyorum.',
         },
         en: {
             projects: 'My Projects',
@@ -95,7 +98,10 @@ export default function ProfilePage() {
             lastLogin: 'Last login:',
             profileUpdated: 'Profile updated!',
             error: 'An error occurred',
-            logoutError: 'Logout failed'
+            logoutError: 'Logout failed',
+            notificationSettings: 'Notification Settings',
+            notificationDesc: 'Choose what emails you want to receive:',
+            allowEmails: 'I want to receive emails about club events and news.',
         }
     };
 
@@ -110,6 +116,8 @@ export default function ProfilePage() {
         showDepartment: true,
         showFullName: false,
     });
+    const [emailConsent, setEmailConsent] = useState(false);
+    const [nativeLanguage, setNativeLanguage] = useState('tr');
 
     useEffect(() => {
         fetchProfile();
@@ -129,6 +137,8 @@ export default function ProfilePage() {
                     showDepartment: true,
                     showFullName: false,
                 });
+                setEmailConsent(data.user.emailConsent || false);
+                setNativeLanguage(data.user.nativeLanguage || 'tr');
             } else {
                 router.push('/auth/login');
             }
@@ -152,6 +162,8 @@ export default function ProfilePage() {
                     nickname,
                     avatar,
                     profileVisibility: visibility,
+                    emailConsent,
+                    nativeLanguage,
                 }),
             });
 
@@ -385,6 +397,48 @@ export default function ProfilePage() {
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
                                 <span className="font-bold whitespace-nowrap">{l.department}</span>
                                 <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.department || l.notSpecified})</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                {/* Language Settings */}
+                <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
+                    <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
+                        {language === 'tr' ? 'Dil Tercihi' : 'Language Preference'}
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        {language === 'tr' ? 'Size gönderilecek e-postaların dilini seçin:' : 'Choose the language for emails sent to you:'}
+                    </p>
+                    <select
+                        value={nativeLanguage}
+                        onChange={(e) => setNativeLanguage(e.target.value)}
+                        className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white"
+                    >
+                        <option value="tr">Türkçe</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                {/* Notification Settings */}
+                <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
+                    <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
+                        {l.notificationSettings}
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        {l.notificationDesc}
+                    </p>
+
+                    <div className="space-y-3">
+                        <label className="flex items-start sm:items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer bg-gray-50/50 hover:bg-white transition-colors">
+                            <input
+                                type="checkbox"
+                                checked={emailConsent}
+                                onChange={(e) => setEmailConsent(e.target.checked)}
+                                className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
+                            />
+                            <div className="flex flex-col sm:flex-row sm:items-baseline">
+                                <span className="font-bold whitespace-nowrap">{l.allowEmails}</span>
                             </div>
                         </label>
                     </div>

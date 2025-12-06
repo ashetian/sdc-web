@@ -47,6 +47,28 @@ export async function PUT(
                 .replace(/[^a-z0-9-]/g, '');
         }
 
+        // Auto-translate if DeepL API key is available
+        if (process.env.DEEPL_API_KEY && (data.name || data.description)) {
+            try {
+                // Check if English fields are missing in the update
+                if ((data.name && !data.nameEn) || (data.description && !data.descriptionEn)) {
+                    const { translateFields } = await import('@/app/lib/translate');
+
+                    const fieldsToTranslate: any = {};
+                    if (data.name) fieldsToTranslate.name = data.name;
+                    if (data.description) fieldsToTranslate.description = data.description;
+
+                    const translations = await translateFields(fieldsToTranslate, 'tr');
+
+                    if (data.name && !data.nameEn) data.nameEn = translations.name?.en;
+                    if (data.description && !data.descriptionEn) data.descriptionEn = translations.description?.en;
+                }
+
+            } catch (translateError) {
+                console.error('Auto-translation failed:', translateError);
+            }
+        }
+
         const department = await Department.findByIdAndUpdate(id, data, { new: true });
 
         if (!department) {

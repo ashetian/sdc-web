@@ -3,7 +3,7 @@ import connectDB from '@/app/lib/db';
 import ClubMember from '@/app/lib/models/ClubMember';
 import OTPCode from '@/app/lib/models/OTPCode';
 import Election from '@/app/lib/models/Election';
-import nodemailer from 'nodemailer';
+import { sendEmail } from '@/app/lib/email';
 import crypto from 'crypto';
 
 // Generate 6-digit OTP
@@ -65,18 +65,7 @@ export async function POST(
         );
 
         // Send email
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: parseInt(process.env.SMTP_PORT || '587'),
-            secure: false,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
-        });
-
-        await transporter.sendMail({
-            from: process.env.SMTP_FROM || 'SDC <noreply@ktusdc.com>',
+        await sendEmail({
             to: email,
             subject: `SDC Seçim Doğrulama Kodu - ${election.title}`,
             html: `

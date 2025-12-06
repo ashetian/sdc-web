@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
         const data = await request.json();
 
         // Generate slug from name
+        // Generate slug from name
         const slug = data.name
             .toLowerCase()
             .replace(/ı/g, 'i')
@@ -32,10 +33,26 @@ export async function POST(request: NextRequest) {
             .replace(/\s+/g, '-')
             .replace(/[^a-z0-9-]/g, '');
 
-        const department = await Department.create({
-            ...data,
-            slug,
-        });
+        let departmentData = { ...data, slug };
+
+        // Auto-translate if DeepL API key is available
+        if (process.env.DEEPL_API_KEY) {
+            try {
+                const { translateFields } = await import('@/app/lib/translate');
+                const translations = await translateFields({
+                    name: data.name,
+                    description: data.description,
+                }, 'tr');
+
+                if (data.name && !data.nameEn) departmentData.nameEn = translations.name?.en;
+                if (data.description && !data.descriptionEn) departmentData.descriptionEn = translations.description?.en;
+
+            } catch (translateError) {
+                console.error('Auto-translation failed:', translateError);
+            }
+        }
+
+        const department = await Department.create(departmentData);
 
         return NextResponse.json(department, { status: 201 });
     } catch (error) {

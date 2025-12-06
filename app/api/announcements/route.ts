@@ -169,6 +169,44 @@ export async function POST(request: Request) {
 
     const announcement = await Announcement.create(announcementData);
     console.log('Announcement created:', announcement.slug);
+
+    // Send email to consenting members if it's not a draft
+    if (!announcement.isDraft) {
+      // Run in background to not block response
+      (async () => {
+        try {
+          const Member = (await import('@/app/lib/models/Member')).default;
+          const { sendEmail, wrapEmailHtml } = await import('@/app/lib/email');
+
+          const members = await Member.find({
+            isActive: true,
+            emailConsent: true
+          }).select('email');
+
+          if (members.length > 0) {
+            const html = wrapEmailHtml(`
+                        <h2 style="margin-bottom: 20px;">${announcement.title}</h2>
+                        <div style="margin-bottom: 20px;">
+                            ${announcement.description}
+                        </div>
+                        <p>Detaylar için web sitemizi ziyaret edin.</p>
+                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/announcements" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Duyuruya Git</a>
+                    `, 'Yeni Duyuru');
+
+            for (const member of members) {
+              await sendEmail({
+                to: member.email,
+                subject: `Yeni Duyuru: ${announcement.title}`,
+                html
+              }).catch(e => console.error(`Failed to send to ${member.email}`, e));
+            }
+          }
+        } catch (err) {
+          console.error('Announcement email trigger failed:', err);
+        }
+      })();
+    }
+
     return NextResponse.json(announcement);
   } catch (error) {
     console.error('Duyuru eklenirken hata oluştu:', error);

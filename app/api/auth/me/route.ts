@@ -40,6 +40,7 @@ export async function GET() {
                 department: member.department,
                 profileVisibility: member.profileVisibility,
                 lastLogin: member.lastLogin,
+                emailConsent: member.emailConsent,
             },
         });
     } catch (error) {
@@ -62,7 +63,7 @@ export async function PUT(request: NextRequest) {
         const memberId = payload.memberId as string;
 
         const body = await request.json();
-        const { nickname, avatar, profileVisibility } = body;
+        const { nickname, avatar, profileVisibility, emailConsent, nativeLanguage } = body;
 
         await connectDB();
 
@@ -78,6 +79,14 @@ export async function PUT(request: NextRequest) {
         if (avatar !== undefined) {
             // Avatar can be a URL or empty string to remove
             updateData.avatar = avatar.trim();
+        }
+
+        if (emailConsent !== undefined) {
+            updateData.emailConsent = Boolean(emailConsent);
+        }
+
+        if (nativeLanguage !== undefined && ['tr', 'en'].includes(nativeLanguage)) {
+            updateData.nativeLanguage = nativeLanguage;
         }
 
         if (profileVisibility !== undefined) {
@@ -108,6 +117,7 @@ export async function PUT(request: NextRequest) {
                 nickname: member.nickname,
                 avatar: member.avatar,
                 profileVisibility: member.profileVisibility,
+                emailConsent: member.emailConsent,
             },
         });
     } catch (error) {

@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '../_context/LanguageContext';
 import LikeButton from './LikeButton';
+import { Reply, CornerDownRight } from 'lucide-react';
 
 interface Comment {
     _id: string;
     content: string;
     isEdited: boolean;
     createdAt: string;
+    parentId: string | null;
     author: {
         _id: string;
         nickname: string;
@@ -17,12 +19,174 @@ interface Comment {
         fullName?: string;
         department?: string;
     };
+    replies?: Comment[];
 }
 
 interface CommentSectionProps {
     contentType: 'project' | 'gallery' | 'announcement';
     contentId: string;
 }
+
+// Extracted CommentItem component to prevent re-renders losing focus
+interface CommentItemProps {
+    comment: Comment;
+    depth?: number;
+    replyingTo: string | null;
+    setReplyingTo: (id: string | null) => void;
+    replyContent: string;
+    setReplyContent: (content: string) => void;
+    handleSubmit: (e: React.FormEvent, parentId: string | null) => void;
+    setDeleteModalId: (id: string | null) => void;
+    currentUserId: string | null;
+    isLoggedIn: boolean;
+    l: any;
+    formatDate: (dateStr: string) => string;
+    submitting: boolean;
+}
+
+const CommentItem = ({
+    comment,
+    depth = 0,
+    replyingTo,
+    setReplyingTo,
+    replyContent,
+    setReplyContent,
+    handleSubmit,
+    setDeleteModalId,
+    currentUserId,
+    isLoggedIn,
+    l,
+    formatDate,
+    submitting
+}: CommentItemProps) => {
+    const isReplying = replyingTo === comment._id;
+
+    return (
+        <div className={`mt-4 ${depth > 0 ? 'ml-8 sm:ml-12 border-l-4 border-black pl-4' : ''}`}>
+            <div className="flex items-start gap-3">
+                {comment.author.avatar ? (
+                    <img
+                        src={comment.author.avatar}
+                        alt={comment.author.nickname}
+                        className={`${depth > 0 ? 'w-8 h-8' : 'w-10 h-10'} rounded-full border-2 border-black flex-shrink-0 object-cover`}
+                    />
+                ) : (
+                    <div className={`${depth > 0 ? 'w-8 h-8 text-xs' : 'w-10 h-10'} bg-neo-purple text-white font-bold rounded-full flex items-center justify-center border-2 border-black flex-shrink-0`}>
+                        {comment.author.nickname.charAt(0).toUpperCase()}
+                    </div>
+                )}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-black">{comment.author.nickname}</span>
+                            {comment.author.department && (
+                                <span className="text-gray-500 text-xs sm:text-sm">• {comment.author.department}</span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <LikeButton contentType="comment" contentId={comment._id} size="sm" />
+
+                            {currentUserId && comment.author._id === currentUserId && (
+                                <button
+                                    onClick={() => setDeleteModalId(comment._id)}
+                                    className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold border-2 border-black hover:bg-red-600 transition-all"
+                                >
+                                    {l.delete}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    <p className="text-gray-800 mb-2 break-words text-sm sm:text-base">{comment.content}</p>
+                    <div className="flex items-center justify-between mt-2">
+                        <div className="text-[10px] sm:text-xs text-gray-500">
+                            {formatDate(comment.createdAt)}
+                            {comment.isEdited && ` (${l.edited})`}
+                        </div>
+
+                        {/* Reply Button - Only for root comments */}
+                        {isLoggedIn && depth === 0 && (
+                            <button
+                                onClick={() => {
+                                    if (replyingTo === comment._id) {
+                                        setReplyingTo(null);
+                                    } else {
+                                        setReplyingTo(comment._id);
+                                        setReplyContent(`@${comment.author.nickname} `);
+                                    }
+                                }}
+                                className="text-gray-500 hover:text-black transition-colors flex items-center gap-1.5 text-xs font-bold px-3 py-1 hover:bg-gray-100 rounded"
+                                title={l.reply}
+                            >
+                                <Reply size={14} />
+                                {l.reply}
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Reply Form */}
+                    {isReplying && (
+                        <form onSubmit={(e) => handleSubmit(e, comment._id)} className="mt-4 mb-4">
+                            <div className="flex gap-2">
+                                <CornerDownRight className="text-gray-400 mt-2" size={20} />
+                                <div className="flex-1">
+                                    <textarea
+                                        value={replyContent}
+                                        onChange={(e) => setReplyContent(e.target.value)}
+                                        placeholder={l.replyPlaceholder}
+                                        maxLength={500}
+                                        rows={2}
+                                        autoFocus
+                                        className="w-full p-2 text-sm border-2 border-black focus:outline-none focus:ring-2 focus:ring-neo-yellow resize-none mb-2"
+                                    />
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setReplyingTo(null)}
+                                            className="px-3 py-1 text-xs font-bold border-2 border-transparent hover:underline"
+                                        >
+                                            {l.cancelReply}
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={submitting || !replyContent.trim()}
+                                            className="px-4 py-1 bg-black text-white text-xs font-bold border-2 border-black hover:bg-white hover:text-black transition-all disabled:opacity-50"
+                                        >
+                                            {submitting ? '...' : l.reply}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
+
+            {/* Recursive Replies */}
+            {comment.replies && comment.replies.length > 0 && (
+                <div className="mt-2">
+                    {comment.replies.map(reply => (
+                        <CommentItem
+                            key={reply._id}
+                            comment={reply}
+                            depth={depth + 1}
+                            replyingTo={replyingTo}
+                            setReplyingTo={setReplyingTo}
+                            replyContent={replyContent}
+                            setReplyContent={setReplyContent}
+                            handleSubmit={handleSubmit}
+                            setDeleteModalId={setDeleteModalId}
+                            currentUserId={currentUserId}
+                            isLoggedIn={isLoggedIn}
+                            l={l}
+                            formatDate={formatDate}
+                            submitting={submitting}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
 export default function CommentSection({ contentType, contentId }: CommentSectionProps) {
     const { language } = useLanguage();
@@ -36,12 +200,19 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
     const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
     const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
 
+    // Reply logic
+    const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    const [replyContent, setReplyContent] = useState('');
+
     const labels = {
         tr: {
             comments: 'Yorumlar',
             noComments: 'Henüz yorum yapılmamış. İlk yorumu siz yapın!',
             commentPlaceholder: 'Yorumunuzu yazın... (link eklenemez)',
+            replyPlaceholder: 'Yanıtınızı yazın...',
             submit: 'Gönder',
+            reply: 'Yanıtla',
+            cancelReply: 'İptal',
             loginToComment: 'Yorum yapmak için giriş yapın',
             edited: 'düzenlendi',
             delete: 'Sil',
@@ -63,7 +234,10 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
             comments: 'Comments',
             noComments: 'No comments yet. Be the first to comment!',
             commentPlaceholder: 'Write your comment... (no links allowed)',
+            replyPlaceholder: 'Write your reply...',
             submit: 'Submit',
+            reply: 'Reply',
+            cancelReply: 'Cancel',
             loginToComment: 'Login to comment',
             edited: 'edited',
             delete: 'Delete',
@@ -112,7 +286,26 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
             const res = await fetch(`/api/comments?type=${contentType}&id=${contentId}`);
             if (res.ok) {
                 const data = await res.json();
-                setComments(data);
+                // Process comments into tree structure
+                const commentMap = new Map<string, Comment>();
+                const rootComments: Comment[] = [];
+
+                data.forEach((c: Comment) => {
+                    c.replies = [];
+                    commentMap.set(c._id, c);
+                });
+
+                data.forEach((c: Comment) => {
+                    if (c.parentId && commentMap.has(c.parentId)) {
+                        const parent = commentMap.get(c.parentId);
+                        parent!.replies!.push(c);
+                        parent!.replies!.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                    } else if (!c.parentId) {
+                        rootComments.push(c);
+                    }
+                });
+
+                setComments(rootComments);
             }
         } catch (err) {
             console.error('Comments fetch error:', err);
@@ -130,11 +323,13 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
         setShowDisclaimer(false);
     };
 
-    const handleSubmitComment = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent, parentId: string | null = null) => {
         e.preventDefault();
-        if (!newComment.trim()) return;
 
-        // Show disclaimer every time before submitting
+        const content = parentId ? replyContent : newComment;
+
+        if (!content.trim()) return;
+
         if (!disclaimerAccepted) {
             setShowDisclaimer(true);
             return;
@@ -142,19 +337,27 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
 
         setSubmitting(true);
         setCommentError('');
-        setDisclaimerAccepted(false); // Reset for next comment
 
         try {
             const res = await fetch(`/api/comments?type=${contentType}&id=${contentId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: newComment }),
+                body: JSON.stringify({
+                    content,
+                    parentId: parentId
+                }),
             });
 
             const data = await res.json();
 
             if (res.ok) {
-                setNewComment('');
+                if (parentId) {
+                    setReplyContent('');
+                    setReplyingTo(null);
+                } else {
+                    setNewComment('');
+                    setDisclaimerAccepted(false);
+                }
                 fetchComments();
             } else {
                 setCommentError(data.error || 'Bir hata oluştu');
@@ -170,7 +373,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
         try {
             const res = await fetch(`/api/comments?id=${commentId}`, { method: 'DELETE' });
             if (res.ok) {
-                setComments(comments.filter(c => c._id !== commentId));
+                fetchComments();
             }
         } catch (err) {
             console.error('Comment delete error:', err);
@@ -191,7 +394,6 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
 
     return (
         <>
-            {/* Disclaimer Modal */}
             {showDisclaimer && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-lg w-full p-6">
@@ -217,15 +419,13 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                 </div>
             )}
 
-            {/* Comments Section */}
             <div className="bg-white border-4 border-black shadow-neo p-6 mt-12 transform -rotate-1">
                 <h2 className="text-xl font-black text-black mb-4 border-b-4 border-black pb-3">
-                    {l.comments} ({comments.length})
+                    {l.comments} ({comments.length + comments.reduce((acc, c) => acc + (c.replies?.length || 0) + (c.replies?.reduce((subAcc, subC) => subAcc + (subC.replies?.length || 0), 0) || 0), 0)})
                 </h2>
 
-                {/* Comment Form */}
                 {isLoggedIn ? (
-                    <form onSubmit={handleSubmitComment} className="mb-6">
+                    <form onSubmit={(e) => handleSubmit(e, null)} className="mb-8">
                         <textarea
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
@@ -235,7 +435,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                             rows={3}
                             className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-neo-yellow resize-none mb-3"
                         />
-                        {commentError && (
+                        {commentError && !replyingTo && (
                             <p className="text-red-600 text-sm mb-3">{commentError}</p>
                         )}
                         <button
@@ -243,7 +443,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                             disabled={submitting || !newComment.trim() || !disclaimerAccepted}
                             className="px-6 py-2 bg-black text-white font-bold border-2 border-black hover:bg-white hover:text-black transition-all disabled:opacity-50"
                         >
-                            {submitting ? '...' : l.submit}
+                            {submitting && !replyingTo ? '...' : l.submit}
                         </button>
                         {!disclaimerAccepted && newComment.trim() && (
                             <p className="text-orange-600 text-xs mt-2">
@@ -259,59 +459,32 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                     </div>
                 )}
 
-                {/* Comments List */}
                 {comments.length === 0 ? (
                     <p className="text-gray-500 text-center py-6">{l.noComments}</p>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {comments.map((comment) => (
-                            <div key={comment._id} className="border-b-2 border-gray-200 pb-4 last:border-0">
-                                <div className="flex items-start gap-3">
-                                    {comment.author.avatar ? (
-                                        <img
-                                            src={comment.author.avatar}
-                                            alt={comment.author.nickname}
-                                            className="w-10 h-10 rounded-full border-2 border-black flex-shrink-0 object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-10 h-10 bg-neo-purple text-white font-bold rounded-full flex items-center justify-center border-2 border-black flex-shrink-0">
-                                            {comment.author.nickname.charAt(0).toUpperCase()}
-                                        </div>
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="font-bold text-black">{comment.author.nickname}</span>
-                                                {comment.author.department && (
-                                                    <span className="text-gray-500 text-sm">• {comment.author.department}</span>
-                                                )}
-                                            </div>
-                                            {currentUserId && comment.author._id === currentUserId && (
-                                                <button
-                                                    onClick={() => setDeleteModalId(comment._id)}
-                                                    className="px-3 py-1 bg-red-500 text-white text-xs font-bold border-2 border-black hover:bg-red-600 transition-all"
-                                                >
-                                                    {l.delete}
-                                                </button>
-                                            )}
-                                        </div>
-                                        <p className="text-gray-800 mb-2 break-words">{comment.content}</p>
-                                        <div className="flex items-center justify-between mt-2">
-                                            <div className="text-xs text-gray-500">
-                                                {formatDate(comment.createdAt)}
-                                                {comment.isEdited && ` (${l.edited})`}
-                                            </div>
-                                            <LikeButton contentType="comment" contentId={comment._id} size="sm" />
-                                        </div>
-                                    </div>
-                                </div>
+                            <div key={comment._id} className="border-b-2 border-gray-200 pb-6 last:border-0 last:pb-0">
+                                <CommentItem
+                                    comment={comment}
+                                    replyingTo={replyingTo}
+                                    setReplyingTo={setReplyingTo}
+                                    replyContent={replyContent}
+                                    setReplyContent={setReplyContent}
+                                    handleSubmit={handleSubmit}
+                                    setDeleteModalId={setDeleteModalId}
+                                    currentUserId={currentUserId}
+                                    isLoggedIn={isLoggedIn}
+                                    l={l}
+                                    formatDate={formatDate}
+                                    submitting={submitting}
+                                />
                             </div>
                         ))}
                     </div>
                 )}
             </div>
 
-            {/* Delete Confirmation Modal */}
             {deleteModalId && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">

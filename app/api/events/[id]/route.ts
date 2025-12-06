@@ -25,7 +25,32 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         const body = await request.json();
         const { id } = await params;
 
-        const event = await Event.findByIdAndUpdate(id, body, { new: true });
+        // Auto-translate if DeepL API key is available
+        let updateData = { ...body };
+        if (process.env.DEEPL_API_KEY && (body.title || body.description)) {
+            try {
+                // If English fields are not provided in the update, try to translate
+                if (!body.titleEn || !body.descriptionEn) {
+                    const { translateFields } = await import('@/app/lib/translate');
+                    // We need the full object for translation context, but mainly the fields being updated
+                    // If only one field is updated, we might need to fetch the other from DB? 
+                    // For simplicity, let's just translate what is provided.
+                    const fieldsToTranslate: any = {};
+                    if (body.title) fieldsToTranslate.title = body.title;
+                    if (body.description) fieldsToTranslate.description = body.description;
+
+                    const translations = await translateFields(fieldsToTranslate, 'tr');
+
+                    if (body.title && !body.titleEn) updateData.titleEn = translations.title?.en;
+                    if (body.description && !body.descriptionEn) updateData.descriptionEn = translations.description?.en;
+                }
+            } catch (translateError) {
+                console.error('Auto-translation failed:', translateError);
+                // Continue without translation
+            }
+        }
+
+        const event = await Event.findByIdAndUpdate(id, updateData, { new: true });
 
         if (!event) {
             return NextResponse.json({ error: 'Etkinlik bulunamadı.' }, { status: 404 });

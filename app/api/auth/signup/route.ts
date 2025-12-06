@@ -10,10 +10,14 @@ export async function POST(request: NextRequest) {
     try {
         await connectDB();
 
-        const { studentNo } = await request.json();
+        const { studentNo, kvkkAccepted, emailConsent } = await request.json();
 
         if (!studentNo) {
             return NextResponse.json({ error: 'Öğrenci numarası gerekli' }, { status: 400 });
+        }
+
+        if (!kvkkAccepted) {
+            return NextResponse.json({ error: 'KVKK metnini onaylamanız gerekmektedir.' }, { status: 400 });
         }
 
         // Find member in database
@@ -39,6 +43,13 @@ export async function POST(request: NextRequest) {
         // Generate secure token
         const token = crypto.randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        // Update member with consent info
+        // Update member with consent info
+        member.kvkkAccepted = true;
+        member.emailConsent = emailConsent || false;
+        member.nativeLanguage = (await request.json()).nativeLanguage || 'tr';
+        await member.save();
 
         // Save token (invalidate any existing tokens)
         await PasswordToken.deleteMany({ memberId: member._id, type: 'signup' });

@@ -1,14 +1,6 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface EmailOptions {
     to: string;
@@ -17,12 +9,30 @@ interface EmailOptions {
 }
 
 export async function sendEmail(options: EmailOptions): Promise<void> {
-    await transporter.sendMail({
-        from: process.env.SMTP_FROM || 'SDC <noreply@ktusdc.com>',
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-    });
+    const { to, subject, html } = options;
+
+    try {
+        const data = await resend.emails.send({
+            from: 'SDC <noreply@ktusdc.com>', // User must verify this domain in Resend
+            to: [to],
+            // reply_to: 'iletisim@ktusdc.com', // Optional: Good practice
+            subject: subject,
+            html: html,
+            headers: {
+                'List-Unsubscribe': `<${process.env.NEXT_PUBLIC_BASE_URL}/profile>`,
+                'X-Entity-ID': 'KTUSDC-Web',
+            }
+        });
+
+        if (data.error) {
+            console.error('Resend Error:', data.error);
+            throw new Error(data.error.message);
+        }
+    } catch (error) {
+        console.error('Email sending failed:', error);
+        // Fallback or re-throw depending on importance. For now re-throw.
+        throw error;
+    }
 }
 
 export function maskEmail(email: string): string {
@@ -80,3 +90,6 @@ export function generatePasswordSetupEmail(name: string, token: string, isReset:
         </div>
     `;
 }
+
+// Re-export for compatibility
+export { wrapEmailHtml } from './email-template';

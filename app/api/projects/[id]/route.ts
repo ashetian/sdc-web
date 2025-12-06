@@ -110,7 +110,39 @@ export async function PUT(request: NextRequest, { params }: Params) {
         }
 
         const body = await request.json();
-        const { title, titleEn, description, descriptionEn, githubUrl, demoUrl, technologies } = body;
+        let { title, titleEn, description, descriptionEn, githubUrl, demoUrl, technologies } = body;
+
+        // Auto-translate if DeepL API key is available
+        if (process.env.DEEPL_API_KEY && (title || description)) {
+            try {
+                // If English fields are not provided in the update...
+                // But wait, user might have explicitly sent empty string or undefined?
+                // Logic: If title is changing but titleEn is NOT provided, translate title.
+                // If description is changing but descriptionEn is NOT provided, translate description.
+
+                const fieldsToTranslate: any = {};
+                let needsTranslation = false;
+
+                if (title && titleEn === undefined) {
+                    fieldsToTranslate.title = title;
+                    needsTranslation = true;
+                }
+                if (description && descriptionEn === undefined) {
+                    fieldsToTranslate.description = description;
+                    needsTranslation = true;
+                }
+
+                if (needsTranslation) {
+                    const { translateFields } = await import('@/app/lib/translate');
+                    const translations = await translateFields(fieldsToTranslate, 'tr');
+
+                    if (fieldsToTranslate.title) titleEn = translations.title?.en;
+                    if (fieldsToTranslate.description) descriptionEn = translations.description?.en;
+                }
+            } catch (translateError) {
+                console.error('Auto-translation failed:', translateError);
+            }
+        }
 
         if (title) project.title = title;
         if (titleEn !== undefined) project.titleEn = titleEn;

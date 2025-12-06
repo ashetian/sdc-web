@@ -10,6 +10,10 @@ export default function SignupPage() {
     const [message, setMessage] = useState('');
     const [maskedEmail, setMaskedEmail] = useState('');
     const [error, setError] = useState('');
+    const [kvkkAccepted, setKvkkAccepted] = useState(false);
+    const [emailConsent, setEmailConsent] = useState(false);
+    const [nativeLanguage, setNativeLanguage] = useState('tr');
+    const [showKvkkModal, setShowKvkkModal] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,7 +25,12 @@ export default function SignupPage() {
             const res = await fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ studentNo: studentNo.trim() }),
+                body: JSON.stringify({
+                    studentNo: studentNo.trim(),
+                    kvkkAccepted,
+                    emailConsent,
+                    nativeLanguage
+                }),
             });
 
             const data = await res.json();
@@ -99,6 +108,22 @@ export default function SignupPage() {
                             />
                         </div>
 
+                        <div>
+                            <label htmlFor="nativeLanguage" className="block text-sm font-black text-black mb-2">
+                                Dil Seçimi / Language Preference *
+                            </label>
+                            <select
+                                id="nativeLanguage"
+                                value={nativeLanguage}
+                                onChange={(e) => setNativeLanguage(e.target.value)}
+                                className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white"
+                                required
+                            >
+                                <option value="tr">Türkçe (İletişim dili Türkçe olacak)</option>
+                                <option value="en">English (Communication will be in English)</option>
+                            </select>
+                        </div>
+
                         {error && (
                             <div className={`bg-red-100 border-2 border-red-500 p-3 text-red-700 text-sm ${error === 'not_found' ? 'border-neo-yellow bg-yellow-50 text-black' : ''}`}>
                                 {error === 'not_found' ? (
@@ -125,9 +150,44 @@ export default function SignupPage() {
                             </div>
                         )}
 
+                        <div className="space-y-4">
+                            <div className="flex items-start gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="kvkk"
+                                    checked={kvkkAccepted}
+                                    onChange={(e) => setKvkkAccepted(e.target.checked)}
+                                    className="mt-1 w-4 h-4 text-black border-2 border-black rounded focus:ring-0 cursor-pointer"
+                                />
+                                <label htmlFor="kvkk" className="text-sm text-gray-700">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowKvkkModal(true)}
+                                        className="text-blue-600 font-bold hover:underline"
+                                    >
+                                        KVKK ve Aydınlatma Metnini
+                                    </button>{' '}
+                                    okudum ve kabul ediyorum. *
+                                </label>
+                            </div>
+
+                            <div className="flex items-start gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="emailConsent"
+                                    checked={emailConsent}
+                                    onChange={(e) => setEmailConsent(e.target.checked)}
+                                    className="mt-1 w-4 h-4 text-black border-2 border-black rounded focus:ring-0 cursor-pointer"
+                                />
+                                <label htmlFor="emailConsent" className="text-sm text-gray-700">
+                                    Kulüp etkinlikleri ve duyuruları hakkında e-posta almak istiyorum.
+                                </label>
+                            </div>
+                        </div>
+
                         <button
                             type="submit"
-                            disabled={loading || !studentNo.trim()}
+                            disabled={loading || !studentNo.trim() || !kvkkAccepted}
                             className="w-full bg-yellow-400 text-black font-black py-3 border-2 border-black hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             {loading ? 'Gönderiliyor...' : 'Kayıt Ol'}
@@ -142,6 +202,37 @@ export default function SignupPage() {
                     </form>
                 )}
             </div>
+
+            {/* KVKK Modal */}
+            {showKvkkModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white border-4 border-black shadow-neo max-w-lg w-full max-h-[80vh] flex flex-col">
+                        <div className="p-4 border-b-2 border-gray-200 flex justify-between items-center">
+                            <h3 className="font-bold text-lg">KVKK Aydınlatma Metni</h3>
+                            <button onClick={() => setShowKvkkModal(false)} className="text-xl font-bold">&times;</button>
+                        </div>
+                        <div className="p-4 overflow-y-auto text-sm text-gray-700 space-y-2">
+                            <p>İstanbul Üniversitesi Süleymaniye Veri Kulübü (SDC) olarak kişisel verilerinizin güvenliğine önem veriyoruz.</p>
+                            <p><strong>1. Veri Sorumlusu:</strong> İstanbul Üniversitesi Rektörlüğü</p>
+                            <p><strong>2. İşlenen Verileriniz:</strong> Ad soyad, öğrenci numarası, e-posta, telefon, bölüm bilgileri.</p>
+                            <p><strong>3. İşleme Amacı:</strong> Kulüp faaliyetlerinin yürütülmesi, üye kaydı, iletişim ve etkinlik yönetimi.</p>
+                            <p><strong>4. Veri Aktarımı:</strong> Verileriniz yasal zorunluluklar dışında üçüncü kişilerle paylaşılmamaktadır.</p>
+                            <p>Detaylı bilgi için üniversitemiz KVKK yönergesini inceleyebilirsiniz.</p>
+                        </div>
+                        <div className="p-4 border-t-2 border-gray-200 text-right">
+                            <button
+                                onClick={() => {
+                                    setKvkkAccepted(true);
+                                    setShowKvkkModal(false);
+                                }}
+                                className="bg-black text-white px-4 py-2 font-bold hover:bg-gray-800"
+                            >
+                                Okudum ve Anladım
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

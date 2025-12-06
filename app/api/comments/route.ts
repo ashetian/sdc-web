@@ -26,9 +26,10 @@ export async function GET(request: NextRequest) {
         }
 
         // Only show non-deleted comments
+        // Fetch all comments (both parents and replies)
         const comments = await Comment.find({ contentType, contentId, isDeleted: { $ne: true } })
             .populate('memberId', 'fullName nickname department avatar profileVisibility')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 }); // Newest first
 
         const sanitizedComments = comments.map(comment => {
             const member = comment.memberId as unknown as {
@@ -46,6 +47,7 @@ export async function GET(request: NextRequest) {
                 content: comment.content,
                 isEdited: comment.isEdited,
                 createdAt: comment.createdAt,
+                parentId: comment.parentId ? comment.parentId.toString() : null, // Ensure string format
                 author: {
                     _id: member?._id,
                     nickname: member?.nickname || 'Anonim',
@@ -56,6 +58,7 @@ export async function GET(request: NextRequest) {
             };
         });
 
+        // Backend doesn't nest them, frontend will handle the tree structure
         return NextResponse.json(sanitizedComments);
     } catch (error) {
         console.error('Comments fetch error:', error);
@@ -113,7 +116,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { content } = body;
+        const { content, parentId } = body; // ParentId from body
 
         if (!content || content.trim().length === 0) {
             return NextResponse.json({ error: 'Yorum içeriği boş olamaz' }, { status: 400 });
@@ -128,11 +131,23 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Yorumlara link eklenemez' }, { status: 400 });
         }
 
+        // Verify parent comment exists if parentId is provided
+        if (parentId) {
+            const parentComment = await Comment.findById(parentId);
+            if (!parentComment) {
+                return NextResponse.json({ error: 'Yanıtlanacak yorum bulunamadı' }, { status: 404 });
+            }
+            if (parentComment.contentType !== contentType || parentComment.contentId.toString() !== contentId) {
+                return NextResponse.json({ error: 'Yorum bağlamı uyuşmuyor' }, { status: 400 });
+            }
+        }
+
         const comment = await Comment.create({
             contentType,
             contentId,
             memberId: member._id,
             content: content.trim(),
+            parentId: parentId || null,
         });
 
         return NextResponse.json({
@@ -141,6 +156,7 @@ export async function POST(request: NextRequest) {
                 _id: comment._id,
                 content: comment.content,
                 createdAt: comment.createdAt,
+                parentId: comment.parentId,
                 author: { _id: member._id, nickname: member.nickname || 'Anonim' },
             },
         }, { status: 201 });
