@@ -1,8 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MessageSquare, Clock, TrendingUp } from "lucide-react";
+import { 
+  MessageSquare, Clock, TrendingUp, MessageCircle, Rocket, 
+  HelpCircle, Calendar, Briefcase, BookOpen, Pin, LucideIcon
+} from "lucide-react";
 import { useLanguage } from "../_context/LanguageContext";
+
+// Icon mapping for dynamic rendering
+const iconMap: Record<string, LucideIcon> = {
+  MessageCircle,
+  Rocket,
+  HelpCircle,
+  Calendar,
+  Briefcase,
+  BookOpen,
+  MessageSquare,
+};
+
+const CategoryIcon = ({ name, size = 28 }: { name: string; size?: number }) => {
+  const Icon = iconMap[name];
+  if (Icon) {
+    return <Icon size={size} className="text-black" />;
+  }
+  return <MessageCircle size={size} className="text-black" />;
+};
 
 interface Category {
   _id: string;
@@ -176,15 +198,17 @@ export default function ForumPage() {
                 <p className="text-lg font-bold text-black/60">{l.noCategories}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {categories.map((cat) => (
                   <Link
                     key={cat._id}
                     href={`/forum/${cat.slug}`}
-                    className={`${cat.color} border-4 border-black shadow-neo p-5 hover:-translate-y-1 hover:shadow-neo-lg transition-all`}
+                    className={`${cat.color} border-4 border-black shadow-neo p-5 hover:-translate-y-1 hover:shadow-neo-lg transition-all group`}
                   >
-                    <div className="flex items-start gap-3">
-                      <span className="text-3xl">{cat.icon}</span>
+                    <div className="flex items-start gap-4">
+                      <div className="flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <CategoryIcon name={cat.icon} size={24} />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-black text-black truncate">
                           {getTitle(cat)}
@@ -193,7 +217,10 @@ export default function ForumPage() {
                           {getDescription(cat)}
                         </p>
                         <div className="flex items-center gap-4 mt-3 text-sm font-bold text-black/60">
-                          <span>{cat.topicCount} {l.topics}</span>
+                          <span className="flex items-center gap-1">
+                            <MessageSquare size={14} />
+                            {cat.topicCount} {l.topics}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -223,8 +250,8 @@ export default function ForumPage() {
                   >
                     <div className="flex items-start gap-2">
                       {topic.isPinned && (
-                        <span className="bg-neo-yellow text-black text-xs font-bold px-2 py-0.5 border border-black">
-                          📌
+                        <span className="bg-neo-yellow text-black text-xs font-bold px-2 py-0.5 border border-black flex items-center gap-1">
+                          <Pin size={10} />
                         </span>
                       )}
                       <h4 className="font-black text-black line-clamp-2 flex-1">
