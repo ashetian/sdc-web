@@ -4,12 +4,25 @@ import Member from '@/app/lib/models/Member';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
 
 // POST - Login with student number and password
 export async function POST(request: NextRequest) {
     try {
+        // Rate limiting check
+        const clientIP = getClientIP(request);
+        const rateLimit = checkRateLimit(clientIP, 'login', RATE_LIMITS.LOGIN);
+
+        if (rateLimit.limited) {
+            const resetSeconds = Math.ceil(rateLimit.resetIn / 1000);
+            return NextResponse.json(
+                { error: `Çok fazla deneme. ${resetSeconds} saniye sonra tekrar deneyin.` },
+                { status: 429 }
+            );
+        }
+
         await connectDB();
 
         const { studentNo, password } = await request.json();
@@ -52,7 +65,7 @@ export async function POST(request: NextRequest) {
         })
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
-            .setExpirationTime('7d')
+            .setExpirationTime('24h')
             .sign(JWT_SECRET);
 
         // Set HTTP-only cookie
@@ -61,7 +74,7 @@ export async function POST(request: NextRequest) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60, // 7 days
+            maxAge: 24 * 60 * 60, // 24 hours
             path: '/',
         });
 

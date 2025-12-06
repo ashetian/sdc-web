@@ -26,9 +26,24 @@ export async function GET(request: NextRequest) {
             filter.role = role;
         }
 
-        const members = await TeamMember.find(filter)
-            .populate('departmentId', 'name slug color')
-            .sort({ role: 1, order: 1 });
+        let members = await TeamMember.find(filter)
+            .populate('departmentId', 'name slug color');
+
+        // Custom sort by role hierarchy + order
+        const roleOrder: Record<string, number> = {
+            president: 1,
+            vice_president: 2,
+            head: 3,
+            member: 4,
+            featured: 5
+        };
+
+        members.sort((a, b) => {
+            const roleA = roleOrder[a.role as string] || 99;
+            const roleB = roleOrder[b.role as string] || 99;
+            if (roleA !== roleB) return roleA - roleB;
+            return (a.order || 0) - (b.order || 0);
+        });
 
         return NextResponse.json(members);
     } catch (error) {

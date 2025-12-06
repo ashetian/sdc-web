@@ -20,6 +20,7 @@ export interface IMember extends Document {
     passwordHash?: string;
     isRegistered: boolean;
     lastLogin?: Date;
+    isTestAccount?: boolean;
 
     // Profile fields
     nickname?: string;
@@ -79,6 +80,10 @@ const MemberSchema = new Schema<IMember>(
         },
         lastLogin: {
             type: Date,
+        },
+        isTestAccount: {
+            type: Boolean,
+            default: false,
         },
 
         // Profile

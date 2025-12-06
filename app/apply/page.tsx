@@ -153,7 +153,34 @@ export default function ApplyPage() {
     const l = labels[language];
 
     useEffect(() => {
-        const fetchDepartments = async () => {
+        const init = async () => {
+            // Check Auth & Pre-fill
+            try {
+                const authRes = await fetch('/api/auth/me');
+                if (!authRes.ok) {
+                    router.push('/auth/login?redirect=/apply');
+                    return;
+                }
+                const authData = await authRes.json();
+                const user = authData.user;
+                if (user) {
+                    setFormData(prev => ({
+                        ...prev,
+                        fullName: user.fullName || "",
+                        email: user.email || "",
+                        phone: user.phone || "",
+                        // If user.department exists, use it. NOTE: This might ideally map to 'faculty' or 'department' field differently depending on data source, 
+                        // but sticking to simple mapping for now.
+                        department: user.department || prev.department,
+                    }));
+                }
+            } catch (error) {
+                console.error("Auth check failed", error);
+                router.push('/auth/login?redirect=/apply');
+                return;
+            }
+
+            // Fetch Departments
             try {
                 const res = await fetch('/api/departments');
                 if (res.ok) {
@@ -164,7 +191,8 @@ export default function ApplyPage() {
                 console.error('Departmanlar yüklenemedi:', error);
             }
         };
-        fetchDepartments();
+
+        init();
     }, []);
 
     const handleInputChange = (

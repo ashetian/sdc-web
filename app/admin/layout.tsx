@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdminNavbar from "./_components/AdminNavbar";
+import AdminGuard from "./_components/AdminGuard";
 
 export const metadata: Metadata = {
   title: "SDC Admin Paneli",
@@ -13,16 +14,16 @@ export default function AdminLayout({
 }>) {
   return (
     <>
-      {/* Hide main navbar and footer for admin */}
-      {/* Hide main navbar and footer for admin - handled in components now */}
-
       <div className="min-h-screen bg-neo-yellow">
         {/* Admin Navbar */}
         <AdminNavbar />
 
         {/* Main Content */}
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-12">
-          {children}
+          {/* Protect content with Admin Guard */}
+          <AdminGuard>
+            {children}
+          </AdminGuard>
         </main>
       </div>
     </>

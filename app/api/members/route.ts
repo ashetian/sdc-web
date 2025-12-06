@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
         const skip = (page - 1) * limit;
         const [members, total] = await Promise.all([
-            Member.find(query).sort({ fullName: 1 }).skip(skip).limit(limit),
+            Member.find(query).sort({ isTestAccount: -1, fullName: 1 }).skip(skip).limit(limit),
             Member.countDocuments(query),
         ]);
 
@@ -170,27 +170,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Geçerli üye bulunamadı' }, { status: 400 });
         }
 
-        // Get all student numbers from the new import
-        const newStudentNos = new Set(uniqueMembers.map(m => m.studentNo));
-
-        // Deactivate and reset registration for members NOT in the new import
-        // This handles the case when someone is removed from the club member list
-        const deactivateResult = await Member.updateMany(
-            {
-                studentNo: { $nin: Array.from(newStudentNos) },
-                isActive: true
-            },
-            {
-                $set: {
-                    isActive: false,
-                    isRegistered: false,
-                    passwordHash: null // Clear password so they can't login
-                }
-            }
-        );
-
-        console.log('Deactivated members not in new list:', deactivateResult.modifiedCount);
-
         // Upsert members (update if exists, insert if not)
         let upsertCount = 0;
         for (const member of uniqueMembers) {
@@ -203,9 +182,8 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json({
-            message: `${upsertCount} üye yüklendi/güncellendi, ${deactivateResult.modifiedCount} hesap devre dışı bırakıldı`,
-            count: upsertCount,
-            deactivated: deactivateResult.modifiedCount
+            message: `${upsertCount} üye yüklendi/güncellendi`,
+            count: upsertCount
         }, { status: 201 });
     } catch (error) {
         console.error('Error uploading members:', error);

@@ -15,6 +15,10 @@ export interface IEvent {
   updatedAt: Date;
   titleEn?: string;
   descriptionEn?: string;
+  // Attendance fields
+  attendanceCode?: string;
+  isEnded: boolean;
+  actualDuration?: number; // in minutes, admin-entered
 }
 
 const eventSchema = new mongoose.Schema<IEvent>(
@@ -65,6 +69,21 @@ const eventSchema = new mongoose.Schema<IEvent>(
     },
     descriptionEn: {
       type: String,
+      required: false,
+    },
+    // Attendance fields
+    attendanceCode: {
+      type: String,
+      required: false,
+      unique: true,
+      sparse: true,
+    },
+    isEnded: {
+      type: Boolean,
+      default: false,
+    },
+    actualDuration: {
+      type: Number,
       required: false,
     },
   },

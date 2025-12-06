@@ -3,151 +3,84 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
-import ReceiptViewerModal from './ReceiptViewerModal';
 import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import Link from 'next/link';
+
+interface Member {
+    _id: string;
+    fullName: string;
+    studentNo: string;
+    email: string;
+    phone?: string;
+    department?: string;
+    nickname?: string;
+}
 
 interface Registration {
     _id: string;
-    studentNumber: string;
-    name: string;
-    phone: string;
-    department: string;
-    email: string;
+    memberId: Member;
+    attendedAt?: string;
+    rating?: number;
+    feedback?: string;
     paymentProofUrl?: string;
     paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
     createdAt: string;
+    // Legacy fields (for old registrations)
+    studentNumber?: string;
+    name?: string;
+    phone?: string;
+    department?: string;
+    email?: string;
 }
 
 interface Event {
     _id: string;
     title: string;
     isPaid: boolean;
-    price: number;
+    price?: number;
+    isEnded?: boolean;
+    actualDuration?: number;
 }
 
-interface ExcelData {
-    'Öğrenci No': string;
-    'Ad Soyad': string;
-    'Bölüm': string;
-    'E-posta': string;
-    'Telefon': string;
-    'Başvuru Tarihi': string;
-    'Üyelik Durumu'?: string;
-    'Ödeme Durumu'?: string;
-    'Dekont URL'?: string;
-}
-
-interface VerificationResult {
-    isMember: boolean;
-    member?: {
-        studentNo: string;
-        fullName: string;
-        email: string;
-        phone?: string;
-        department?: string;
-    };
-    matches: {
-        studentNo: boolean;
-        fullName: boolean;
-        email: boolean;
-        phone: boolean;
-        department: boolean;
-    };
+interface AttendanceStats {
+    totalRegistered: number;
+    totalAttended: number;
+    averageRating: number;
 }
 
 export default function EventRegistrationsPage() {
     const params = useParams();
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [event, setEvent] = useState<Event | null>(null);
+    const [stats, setStats] = useState<AttendanceStats | null>(null);
     const [loading, setLoading] = useState(true);
-    const [selectedReceiptUrl, setSelectedReceiptUrl] = useState<string | null>(null);
-    const [memberVerifications, setMemberVerifications] = useState<Record<string, VerificationResult>>({});
-    const [verifyingMembers, setVerifyingMembers] = useState(false);
 
     useEffect(() => {
         if (params.id) {
-            fetchEventAndRegistrations(params.id as string);
+            fetchData(params.id as string);
         }
     }, [params.id]);
 
-    const fetchEventAndRegistrations = async (eventId: string) => {
+    const fetchData = async (eventId: string) => {
         try {
-            const [eventRes, registrationsRes] = await Promise.all([
+            const [eventRes, attendanceRes] = await Promise.all([
                 fetch(`/api/events/${eventId}`),
-                fetch(`/api/events/${eventId}/registrations`)
+                fetch(`/api/events/${eventId}/attendance`)
             ]);
 
             if (eventRes.ok) {
-                const eventData = await eventRes.json();
-                setEvent(eventData);
+                setEvent(await eventRes.json());
             }
 
-            if (registrationsRes.ok) {
-                const registrationsData = await registrationsRes.json();
-                setRegistrations(registrationsData);
-                // Auto-verify members
-                verifyAllMembers(registrationsData);
+            if (attendanceRes.ok) {
+                const data = await attendanceRes.json();
+                setRegistrations(data.registrations || []);
+                setStats(data.stats || null);
             }
         } catch (error) {
             console.error('Veriler yüklenirken hata:', error);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const verifyAllMembers = async (regs: Registration[]) => {
-        setVerifyingMembers(true);
-        const verifications: Record<string, VerificationResult> = {};
-
-        for (const reg of regs) {
-            try {
-                const res = await fetch('/api/members/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        studentNo: reg.studentNumber,
-                        fullName: reg.name,
-                        email: reg.email,
-                        phone: reg.phone,
-                        department: reg.department,
-                    }),
-                });
-
-                if (res.ok) {
-                    verifications[reg._id] = await res.json();
-                }
-            } catch (error) {
-                console.error('Üyelik doğrulaması hatası:', error);
-            }
-        }
-
-        setMemberVerifications(verifications);
-        setVerifyingMembers(false);
-    };
-
-    const updatePaymentStatus = async (registrationId: string, status: string) => {
-        if (!confirm(`Ödeme durumunu "${status}" olarak güncellemek istediğinize emin misiniz?`)) return;
-
-        try {
-            const res = await fetch(`/api/registrations/${registrationId}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ paymentStatus: status }),
-            });
-
-            if (res.ok) {
-                // Listeyi güncelle
-                if (params.id) {
-                    fetchEventAndRegistrations(params.id as string);
-                }
-            } else {
-                alert('Durum güncellenirken bir hata oluştu.');
-            }
-        } catch (error) {
-            console.error('Hata:', error);
-            alert('Bir hata oluştu.');
         }
     };
 
@@ -157,244 +90,174 @@ export default function EventRegistrationsPage() {
             return;
         }
 
-        // Prepare data for Excel
         const excelData = registrations.map((reg) => {
-            const verification = memberVerifications[reg._id];
-            const data: ExcelData = {
-                'Öğrenci No': reg.studentNumber,
-                'Ad Soyad': reg.name,
-                'Bölüm': reg.department,
-                'E-posta': reg.email,
-                'Telefon': reg.phone,
-                'Başvuru Tarihi': `${new Date(reg.createdAt).toLocaleDateString('tr-TR')} ${new Date(reg.createdAt).toLocaleTimeString('tr-TR')}`,
-                'Üyelik Durumu': verification?.isMember ? 'Üye' : 'Üye Değil',
+            const member = reg.memberId;
+            return {
+                'Öğrenci No': member?.studentNo || reg.studentNumber || '-',
+                'Ad Soyad': member?.fullName || reg.name || '-',
+                'Takma Ad': member?.nickname || '-',
+                'Bölüm': member?.department || reg.department || '-',
+                'E-posta': member?.email || reg.email || '-',
+                'Telefon': member?.phone || reg.phone || '-',
+                'Kayıt Tarihi': new Date(reg.createdAt).toLocaleString('tr-TR'),
+                'Kaydoldu': 'Evet',
+                'Yoklamada': reg.attendedAt ? 'Evet' : 'Hayır',
+                'Yoklama Tarihi': reg.attendedAt ? new Date(reg.attendedAt).toLocaleString('tr-TR') : '-',
+                'Puan': reg.rating || '-',
+                'Yorum': reg.feedback || '-',
+                ...(event?.isPaid ? {
+                    'Ödeme Durumu': reg.paymentStatus === 'verified' ? 'Onaylandı' :
+                        reg.paymentStatus === 'rejected' ? 'Reddedildi' :
+                            reg.paymentStatus === 'refunded' ? 'İade' : 'Bekliyor',
+                } : {}),
             };
-
-            if (event?.isPaid) {
-                data['Ödeme Durumu'] = reg.paymentStatus || '-';
-                data['Dekont URL'] = reg.paymentProofUrl || '-';
-            }
-
-            return data;
         });
 
-        // Create worksheet
         const worksheet = XLSX.utils.json_to_sheet(excelData);
-
-        // Create workbook
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Başvurular');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Katılımcılar');
 
-        // Generate filename with timestamp
         const timestamp = new Date().toISOString().slice(0, 10);
-        const filename = `etkinlik-basvurular-${params.id}-${timestamp}.xlsx`;
+        const filename = `${event?.title || 'etkinlik'}-katilimcilar-${timestamp}.xlsx`;
 
-        // Download file
         XLSX.writeFile(workbook, filename);
     };
 
-    const renderMemberBadge = (regId: string) => {
-        const verification = memberVerifications[regId];
-
-        if (verifyingMembers && !verification) {
-            return <span className="text-xs text-gray-400">...</span>;
-        }
-
-        if (!verification) {
-            return <span className="text-xs text-gray-400">-</span>;
-        }
-
-        if (!verification.isMember) {
-            return (
-                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                    ❌ Üye Değil
-                </span>
-            );
-        }
-
-        // Count matches
-        const matchCount = Object.values(verification.matches).filter(Boolean).length;
-        const totalFields = Object.keys(verification.matches).length;
-
+    if (loading) {
         return (
-            <div className="flex flex-col gap-1">
-                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                    ✅ Üye
-                </span>
-                <div className="text-xs text-gray-500 flex flex-wrap gap-1">
-                    <span title={verification.matches.fullName ? 'Ad Soyad eşleşiyor' : `Veritabanı: ${verification.member?.fullName}`}
-                        className={verification.matches.fullName ? 'text-green-600' : 'text-red-600 cursor-help'}>
-                        Ad{verification.matches.fullName ? '✓' : '✗'}
-                    </span>
-                    <span title={verification.matches.email ? 'E-posta eşleşiyor' : `Veritabanı: ${verification.member?.email}`}
-                        className={verification.matches.email ? 'text-green-600' : 'text-red-600 cursor-help'}>
-                        E-posta{verification.matches.email ? '✓' : '✗'}
-                    </span>
-                    <span title={verification.matches.phone ? 'Telefon eşleşiyor' : `Veritabanı: ${verification.member?.phone || 'yok'}`}
-                        className={verification.matches.phone ? 'text-green-600' : 'text-orange-500 cursor-help'}>
-                        Tel{verification.matches.phone ? '✓' : '?'}
-                    </span>
-                    <span title={verification.matches.department ? 'Bölüm eşleşiyor' : `Veritabanı: ${verification.member?.department || 'yok'}`}
-                        className={verification.matches.department ? 'text-green-600' : 'text-orange-500 cursor-help'}>
-                        Böl{verification.matches.department ? '✓' : '?'}
-                    </span>
-                </div>
-                <span className="text-xs text-gray-400">
-                    ({matchCount}/{totalFields} alan eşleşti)
-                </span>
+            <div className="flex items-center justify-center p-8">
+                <LoadingSpinner size="lg" />
             </div>
         );
-    };
-
-    if (loading) return (
-        <div className="flex items-center justify-center p-8">
-            <LoadingSpinner size="lg" />
-        </div>
-    );
+    }
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">
-                    {event ? `${event.title} - Başvuru Listesi` : 'Başvuru Listesi'}
-                </h1>
-                <div className="flex items-center gap-4">
-                    <div className="text-sm text-gray-500">
-                        Toplam Başvuru: {registrations.length}
+            {/* Header */}
+            <div className="bg-white border-4 border-black shadow-neo p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <Link href="/admin/events" className="text-sm font-bold text-gray-500 hover:text-black mb-2 inline-block">
+                            ← Etkinliklere Dön
+                        </Link>
+                        <h1 className="text-2xl font-black text-black uppercase">
+                            {event?.title || 'Etkinlik'} - Katılımcılar
+                        </h1>
                     </div>
                     <button
                         onClick={exportToExcel}
-                        className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-3 bg-neo-green text-black border-4 border-black shadow-neo font-black uppercase hover:shadow-none transition-all"
                         disabled={registrations.length === 0}
                     >
-                        Excel&apos;e Aktar
+                        📥 Excel İndir
                     </button>
                 </div>
+
+                {/* Stats */}
+                {stats && (
+                    <div className="grid grid-cols-3 gap-4 mt-4">
+                        <div className="bg-neo-blue border-2 border-black p-4 text-center">
+                            <div className="text-3xl font-black">{stats.totalRegistered}</div>
+                            <div className="text-sm font-bold uppercase">Kayıtlı</div>
+                        </div>
+                        <div className="bg-neo-green border-2 border-black p-4 text-center">
+                            <div className="text-3xl font-black">{stats.totalAttended}</div>
+                            <div className="text-sm font-bold uppercase">Yoklamada</div>
+                        </div>
+                        <div className="bg-neo-yellow border-2 border-black p-4 text-center">
+                            <div className="text-3xl font-black">
+                                {stats.averageRating > 0 ? `${stats.averageRating} ★` : '-'}
+                            </div>
+                            <div className="text-sm font-bold uppercase">Ort. Puan</div>
+                        </div>
+                    </div>
+                )}
+
+                {event?.isEnded && event.actualDuration && (
+                    <div className="mt-4 bg-gray-100 border-2 border-black p-3 text-center">
+                        <span className="font-bold">Etkinlik Süresi: </span>
+                        <span className="font-black">{event.actualDuration} dakika</span>
+                    </div>
+                )}
             </div>
 
-            <div className="overflow-hidden rounded-lg bg-white shadow">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            {/* Table */}
+            <div className="bg-white border-4 border-black shadow-neo overflow-x-auto">
+                <table className="min-w-full">
+                    <thead className="bg-black text-white">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Üyelik
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Öğrenci No
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Ad Soyad
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Bölüm
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                E-posta
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Telefon
-                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-black uppercase">Öğrenci No</th>
+                            <th className="px-4 py-3 text-left text-xs font-black uppercase">Ad Soyad</th>
+                            <th className="px-4 py-3 text-left text-xs font-black uppercase">Bölüm</th>
+                            <th className="px-4 py-3 text-left text-xs font-black uppercase">E-posta</th>
+                            <th className="px-4 py-3 text-center text-xs font-black uppercase">Kaydoldu</th>
+                            <th className="px-4 py-3 text-center text-xs font-black uppercase">Yoklamada</th>
+                            <th className="px-4 py-3 text-center text-xs font-black uppercase">Puan</th>
                             {event?.isPaid && (
-                                <>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Ödeme Durumu
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Dekont
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        İşlemler
-                                    </th>
-                                </>
+                                <th className="px-4 py-3 text-center text-xs font-black uppercase">Ödeme</th>
                             )}
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Başvuru Tarihi
-                            </th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {registrations.map((reg) => (
-                            <tr key={reg._id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                    {renderMemberBadge(reg._id)}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {reg.studentNumber}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {reg.name}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {reg.department}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {reg.email}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {reg.phone}
-                                </td>
-                                {event?.isPaid && (
-                                    <>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            {reg.paymentStatus && (
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                    ${reg.paymentStatus === 'verified' ? 'bg-green-100 text-green-800' :
-                                                        reg.paymentStatus === 'rejected' ? 'bg-red-100 text-red-800' :
-                                                            reg.paymentStatus === 'refunded' ? 'bg-yellow-100 text-yellow-800' :
-                                                                'bg-gray-100 text-gray-800'}`}>
-                                                    {reg.paymentStatus === 'verified' ? 'Onaylandı' :
-                                                        reg.paymentStatus === 'rejected' ? 'Reddedildi' :
-                                                            reg.paymentStatus === 'refunded' ? 'İade Edildi' : 'Bekliyor'}
-                                                </span>
-                                            )}
+                    <tbody className="divide-y-2 divide-black">
+                        {registrations.map((reg) => {
+                            const member = reg.memberId;
+                            return (
+                                <tr key={reg._id} className="hover:bg-gray-50">
+                                    <td className="px-4 py-3 text-sm font-bold">
+                                        {member?.studentNo || reg.studentNumber || '-'}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm font-bold">
+                                        {member?.fullName || reg.name || '-'}
+                                        {member?.nickname && (
+                                            <span className="text-gray-500 text-xs ml-1">({member.nickname})</span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-600">
+                                        {member?.department || reg.department || '-'}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-600">
+                                        {member?.email || reg.email || '-'}
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                        <span className="px-2 py-1 text-xs font-black bg-neo-green border border-black">
+                                            ✓
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                        {reg.attendedAt ? (
+                                            <span className="px-2 py-1 text-xs font-black bg-neo-blue border border-black">
+                                                ✓
+                                            </span>
+                                        ) : (
+                                            <span className="px-2 py-1 text-xs font-black bg-gray-200 border border-black text-gray-500">
+                                                -
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                        {reg.rating ? (
+                                            <span className="font-bold text-yellow-600">{reg.rating} ★</span>
+                                        ) : '-'}
+                                    </td>
+                                    {event?.isPaid && (
+                                        <td className="px-4 py-3 text-center">
+                                            <span className={`px-2 py-1 text-xs font-black border border-black
+                                                ${reg.paymentStatus === 'verified' ? 'bg-green-200 text-green-800' :
+                                                    reg.paymentStatus === 'rejected' ? 'bg-red-200 text-red-800' :
+                                                        'bg-yellow-200 text-yellow-800'}`}>
+                                                {reg.paymentStatus === 'verified' ? 'Onaylı' :
+                                                    reg.paymentStatus === 'rejected' ? 'Red' : 'Bekliyor'}
+                                            </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:text-blue-900">
-                                            {reg.paymentProofUrl ? (
-                                                <button
-                                                    onClick={() => setSelectedReceiptUrl(reg.paymentProofUrl!)}
-                                                    className="text-blue-600 hover:text-blue-900 font-medium underline"
-                                                >
-                                                    Görüntüle
-                                                </button>
-                                            ) : '-'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                            {reg.paymentStatus === 'pending' && (
-                                                <>
-                                                    <button
-                                                        onClick={() => updatePaymentStatus(reg._id, 'verified')}
-                                                        className="text-green-600 hover:text-green-900"
-                                                    >
-                                                        Onayla
-                                                    </button>
-                                                    <button
-                                                        onClick={() => updatePaymentStatus(reg._id, 'rejected')}
-                                                        className="text-red-600 hover:text-red-900"
-                                                    >
-                                                        Reddet
-                                                    </button>
-                                                </>
-                                            )}
-                                            {reg.paymentStatus === 'verified' && (
-                                                <button
-                                                    onClick={() => updatePaymentStatus(reg._id, 'refunded')}
-                                                    className="text-yellow-600 hover:text-yellow-900"
-                                                >
-                                                    İade Et
-                                                </button>
-                                            )}
-                                        </td>
-                                    </>
-                                )}
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {new Date(reg.createdAt).toLocaleDateString('tr-TR')} {new Date(reg.createdAt).toLocaleTimeString('tr-TR')}
-                                </td>
-                            </tr>
-                        ))}
+                                    )}
+                                </tr>
+                            );
+                        })}
+
                         {registrations.length === 0 && (
                             <tr>
-                                <td colSpan={event?.isPaid ? 10 : 7} className="px-6 py-4 text-center text-sm text-gray-500">
-                                    Henüz başvuru bulunmamaktadır.
+                                <td colSpan={event?.isPaid ? 8 : 7} className="px-6 py-8 text-center text-gray-500 font-bold">
+                                    Henüz katılımcı bulunmamaktadır.
                                 </td>
                             </tr>
                         )}
@@ -402,12 +265,24 @@ export default function EventRegistrationsPage() {
                 </table>
             </div>
 
-            {/* Receipt Viewer Modal */}
-            {selectedReceiptUrl && (
-                <ReceiptViewerModal
-                    imageUrl={selectedReceiptUrl}
-                    onClose={() => setSelectedReceiptUrl(null)}
-                />
+            {/* Feedback Section */}
+            {registrations.some(r => r.feedback) && (
+                <div className="bg-white border-4 border-black shadow-neo p-6">
+                    <h2 className="text-xl font-black uppercase mb-4">Katılımcı Yorumları</h2>
+                    <div className="space-y-3">
+                        {registrations.filter(r => r.feedback).map((reg) => (
+                            <div key={reg._id} className="bg-gray-50 border-2 border-black p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="font-bold">{reg.memberId?.fullName || reg.name}</span>
+                                    {reg.rating && (
+                                        <span className="text-yellow-600 font-bold">{reg.rating} ★</span>
+                                    )}
+                                </div>
+                                <p className="text-gray-700">{reg.feedback}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
         </div>
     );

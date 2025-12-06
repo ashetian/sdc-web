@@ -3,6 +3,7 @@ import connectDB from '@/app/lib/db';
 import Member from '@/app/lib/models/Member';
 import PasswordToken from '@/app/lib/models/PasswordToken';
 import { sendEmail, maskEmail, generatePasswordSetupEmail } from '@/app/lib/email';
+import { verifyAuth } from '@/app/lib/auth';
 import crypto from 'crypto';
 
 // GET - Get single member details (admin)
@@ -104,6 +105,36 @@ export async function POST(
         });
     } catch (error) {
         console.error('Admin reset password error:', error);
+        return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
+    }
+}
+
+// DELETE - Remove member (admin only)
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        // Verify authentication
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
+        await connectDB();
+        const { id } = await params;
+
+        const member = await Member.findByIdAndDelete(id);
+
+        if (!member) {
+            return NextResponse.json({ error: 'Üye bulunamadı' }, { status: 404 });
+        }
+
+        return NextResponse.json({
+            message: 'Üye başarıyla silindi',
+        });
+    } catch (error) {
+        console.error('Delete member error:', error);
         return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
     }
 }

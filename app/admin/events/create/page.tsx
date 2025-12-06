@@ -134,31 +134,72 @@ export default function CreateEventPage() {
                     )}
                 </div>
 
-                <div>
-                    <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700">
-                        Etkinlik Tarihi ve Saati *
-                    </label>
-                    <input
-                        type="datetime-local"
-                        id="eventDate"
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
-                        value={formData.eventDate}
-                        onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
-                    />
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="eventDateDay" className="block text-sm font-medium text-gray-700">
+                            Etkinlik Tarihi *
+                        </label>
+                        <input
+                            type="date"
+                            id="eventDateDay"
+                            required
+                            className="mt-1 block w-full rounded-md border-2 border-black bg-white text-gray-900 shadow-sm focus:border-neo-blue focus:ring-neo-blue p-3 font-bold"
+                            value={formData.eventDate.split('T')[0] || ''}
+                            onChange={(e) => {
+                                const time = formData.eventDate.split('T')[1] || '12:00';
+                                setFormData({ ...formData, eventDate: `${e.target.value}T${time}` });
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="eventDateTime" className="block text-sm font-medium text-gray-700">
+                            Saat *
+                        </label>
+                        <input
+                            type="time"
+                            id="eventDateTime"
+                            required
+                            className="mt-1 block w-full rounded-md border-2 border-black bg-white text-gray-900 shadow-sm focus:border-neo-blue focus:ring-neo-blue p-3 font-bold"
+                            value={formData.eventDate.split('T')[1] || ''}
+                            onChange={(e) => {
+                                const date = formData.eventDate.split('T')[0] || new Date().toISOString().split('T')[0];
+                                setFormData({ ...formData, eventDate: `${date}T${e.target.value}` });
+                            }}
+                        />
+                    </div>
                 </div>
 
-                <div>
-                    <label htmlFor="eventEndDate" className="block text-sm font-medium text-gray-700">
-                        Bitiş Tarihi ve Saati (İsteğe Bağlı)
-                    </label>
-                    <input
-                        type="datetime-local"
-                        id="eventEndDate"
-                        className="mt-1 block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border placeholder-gray-400"
-                        value={formData.eventEndDate}
-                        onChange={(e) => setFormData({ ...formData, eventEndDate: e.target.value })}
-                    />
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="eventEndDateDay" className="block text-sm font-medium text-gray-700">
+                            Bitiş Tarihi (İsteğe Bağlı)
+                        </label>
+                        <input
+                            type="date"
+                            id="eventEndDateDay"
+                            className="mt-1 block w-full rounded-md border-2 border-black bg-white text-gray-900 shadow-sm focus:border-neo-blue focus:ring-neo-blue p-3 font-bold"
+                            value={formData.eventEndDate.split('T')[0] || ''}
+                            onChange={(e) => {
+                                const time = formData.eventEndDate.split('T')[1] || '18:00';
+                                setFormData({ ...formData, eventEndDate: e.target.value ? `${e.target.value}T${time}` : '' });
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="eventEndDateTime" className="block text-sm font-medium text-gray-700">
+                            Bitiş Saati
+                        </label>
+                        <input
+                            type="time"
+                            id="eventEndDateTime"
+                            className="mt-1 block w-full rounded-md border-2 border-black bg-white text-gray-900 shadow-sm focus:border-neo-blue focus:ring-neo-blue p-3 font-bold"
+                            value={formData.eventEndDate.split('T')[1] || ''}
+                            onChange={(e) => {
+                                const date = formData.eventEndDate.split('T')[0] || formData.eventDate.split('T')[0] || new Date().toISOString().split('T')[0];
+                                setFormData({ ...formData, eventEndDate: `${date}T${e.target.value}` });
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <div>

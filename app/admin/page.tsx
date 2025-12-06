@@ -2,163 +2,108 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import LoadingSpinner from "@/app/_components/LoadingSpinner";
 
-interface Announcement {
-  _id: string;
-  slug: string;
-  title: string;
-  date: string;
+interface DashboardButton {
+  key: string;
+  label: string;
+  href: string;
+  color: string;
   description: string;
-  type: "event" | "news" | "workshop";
-  image?: string;
-  isDraft: boolean;
+  icon: string;
 }
 
-export default function AdminPage() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+const DASHBOARD_BUTTONS: DashboardButton[] = [
+  { key: 'announcements', label: 'Duyurular', href: '/admin/announcements', color: 'bg-white', description: 'Haber, Etkinlik, Atölye ve Makaleler', icon: '📢' },
+  { key: 'events', label: 'Etkinlikler', href: '/admin/events', color: 'bg-neo-green', description: 'Etkinlik oluşturma ve yönetim', icon: '📅' },
+  { key: 'applicants', label: 'Başvurular', href: '/admin/applicants', color: 'bg-neo-blue', description: 'Gelen başvuruları incele', icon: '📝' },
+  { key: 'departments', label: 'Departmanlar', href: '/admin/departments', color: 'bg-neo-pink', description: 'Departman bilgileri düzenle', icon: '🏢' },
+  { key: 'team', label: 'Ekip', href: '/admin/team', color: 'bg-neo-orange', description: 'Ekip üyelerini yönet', icon: '👥' },
+  { key: 'projects', label: 'Projeler', href: '/admin/projects', color: 'bg-neo-blue', description: 'Proje portfolyosu', icon: '🚀' },
+  { key: 'comments', label: 'Yorumlar', href: '/admin/comments', color: 'bg-neo-purple text-white', description: 'Kullanıcı yorumları', icon: '💬' },
+  { key: 'elections', label: 'Seçimler', href: '/admin/elections', color: 'bg-neo-yellow', description: 'Seçim ve anketler', icon: '🗳️' },
+  { key: 'stats', label: 'İstatistikler', href: '/admin/stats', color: 'bg-neo-purple text-white', description: 'Site istatistikleri', icon: '📊' },
+  { key: 'settings', label: 'Ayarlar', href: '/admin/settings', color: 'bg-gray-700 text-white', description: 'Genel ayarlar ve yapılandırma', icon: '⚙️' },
+];
+
+export default function AdminDashboard() {
+  const [loading, setLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<any>(null);
 
   useEffect(() => {
-    async function loadAnnouncements() {
+    async function checkAuth() {
       try {
-        const res = await fetch("/api/announcements");
-        if (!res.ok) throw new Error("Duyurular alınamadı");
-        const data = await res.json();
-        setAnnouncements(data);
+        const res = await fetch("/api/admin/check-auth");
+        if (res.ok) {
+          const data = await res.json();
+          setUserInfo(data);
+        } else {
+          // Redirect or show error if not admin (handled by layout/middleware usually, but safe check)
+        }
       } catch (error) {
-        console.error("Duyurular yüklenirken hata:", error);
+        console.error("Auth check failed:", error);
+      } finally {
+        setLoading(false);
       }
     }
-
-    loadAnnouncements();
+    checkAuth();
   }, []);
 
-  const handleDelete = async (slug: string) => {
-    if (window.confirm("Bu duyuruyu silmek istediğinizden emin misiniz?")) {
-      try {
-        const res = await fetch(`/api/announcements/${slug}`, {
-          method: "DELETE",
-        });
+  if (loading) {
+    return <div className="flex justify-center p-20"><LoadingSpinner size="lg" /></div>;
+  }
 
-        if (!res.ok) throw new Error("Duyuru silinemedi");
+  if (!userInfo) return <div className="p-10 text-center text-red-500 font-bold">Yetkisiz Erişim</div>;
 
-        setAnnouncements(announcements.filter((a) => a.slug !== slug));
-      } catch (error) {
-        console.error("Duyuru silinirken hata:", error);
-        alert("Duyuru silinirken bir hata oluştu");
-      }
-    }
-  };
+  const { isSuperAdmin, allowedKeys, name } = userInfo;
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "event": return "bg-neo-purple text-white";
-      case "news": return "bg-neo-blue text-black";
-      case "workshop": return "bg-neo-green text-black";
-      default: return "bg-gray-200 text-black";
-    }
-  };
-
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case "event": return "Etkinlik";
-      case "news": return "Haber";
-      case "workshop": return "Atölye";
-      default: return type;
-    }
-  };
+  // Filter buttons
+  const visibleButtons = DASHBOARD_BUTTONS.filter(btn => {
+    if (isSuperAdmin) return true;
+    return allowedKeys.includes(btn.key) || allowedKeys.includes('ALL');
+  });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="bg-white border-4 border-black shadow-neo p-6 flex justify-between items-center">
-        <h1 className="text-2xl font-black text-black uppercase">Duyurular</h1>
-        <Link
-          href="/admin/announcements/new"
-          className="bg-neo-green text-black border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-white hover:shadow-none transition-all"
-        >
-          + Yeni Duyuru
-        </Link>
+      <div className="bg-white border-4 border-black shadow-neo p-8">
+        <h1 className="text-3xl font-black text-black">
+          {isSuperAdmin ? 'SDC SÜPERADMİN PANEL' : 'SDC ADMİN PANEL'}
+        </h1>
+        <p className="text-gray-600 font-bold mt-2 text-lg">
+          Hoş geldin, <span className="text-black underline decoration-4 decoration-neo-green">{name}</span>
+        </p>
       </div>
 
-      {/* Announcements List */}
-      <div className="bg-white border-4 border-black shadow-neo">
-        {announcements.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-gray-500 font-bold">Henüz duyuru bulunmuyor.</p>
-          </div>
-        ) : (
-          <ul className="divide-y-4 divide-black">
-            {announcements.map((announcement) => (
-              <li key={announcement._id} className="p-6 hover:bg-gray-50 transition-colors">
-                <div className="flex items-start space-x-4">
-                  {/* Image */}
-                  {announcement.image && (
-                    <div className="flex-shrink-0">
-                      <Image
-                        src={announcement.image}
-                        alt={announcement.title}
-                        width={120}
-                        height={80}
-                        className="border-2 border-black object-cover"
-                      />
-                    </div>
-                  )}
-
-                  {/* Content */}
-                  <div className="flex-grow min-w-0">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h2 className="text-lg font-black text-black truncate">
-                        {announcement.title}
-                      </h2>
-                      {announcement.isDraft && (
-                        <span className="bg-yellow-400 text-black px-2 py-1 text-xs font-black border-2 border-black">
-                          TASLAK
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="text-sm text-gray-600 font-medium mb-3 line-clamp-2">
-                      {announcement.description}
-                    </p>
-
-                    <div className="flex items-center space-x-3">
-                      <span className="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-1 border border-black">
-                        {announcement.date}
-                      </span>
-                      <span className={`text-xs font-black px-2 py-1 border-2 border-black uppercase ${getTypeColor(announcement.type)}`}>
-                        {getTypeLabel(announcement.type)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-col space-y-2 flex-shrink-0">
-                    <Link
-                      href={`/admin/announcements/${announcement.slug}/edit`}
-                      className="bg-neo-blue text-black border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-blue-300 transition-all text-center"
-                    >
-                      Düzenle
-                    </Link>
-                    <Link
-                      href={`/admin/announcements/${announcement.slug}/gallery`}
-                      className="bg-neo-purple text-white border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-purple-400 transition-all text-center"
-                    >
-                      Galeri
-                    </Link>
-                    <button
-                      className="bg-red-500 text-white border-2 border-black px-4 py-2 text-sm font-black uppercase hover:bg-red-600 transition-all"
-                      onClick={() => handleDelete(announcement.slug)}
-                    >
-                      Sil
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+      {/* Vertical Menu List */}
+      <div className="flex flex-col gap-4 max-w-3xl mx-auto">
+        {visibleButtons.map(btn => (
+          <Link key={btn.key} href={btn.href} className={`
+                ${btn.color} border-4 border-black shadow-neo p-6 
+                flex items-center gap-6 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all
+                group
+            `}>
+            <div className="text-4xl group-hover:scale-110 transition-transform duration-300 w-16 text-center">
+              {btn.icon}
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl font-black uppercase mb-1">{btn.label}</h2>
+              <p className={`text-sm font-bold opacity-80 ${btn.color.includes('text-white') ? 'text-gray-200' : 'text-gray-600'}`}>
+                {btn.description}
+              </p>
+            </div>
+            <div className="text-2xl font-black opacity-50">
+              →
+            </div>
+          </Link>
+        ))}
       </div>
+
+      {visibleButtons.length === 0 && (
+        <div className="text-center p-12 bg-gray-100 border-2 border-dashed border-gray-400 font-bold text-gray-500">
+          Erişim izniniz bulunan modül yok. Yöneticinize başvurun.
+        </div>
+      )}
     </div>
   );
 }

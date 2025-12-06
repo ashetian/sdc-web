@@ -141,7 +141,12 @@ export default function Navbar() {
                 <NavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
                 <NavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
                 <NavLink onClick={() => window.open("/events", "_blank")} text={t('nav.events')} />
-                <NavLink onClick={() => window.open("/projects", "_blank")} text={language === 'tr' ? 'Projeler' : 'Projects'} />
+                {user && (
+                  <>
+                    <NavLink onClick={() => window.open("/articles", "_blank")} text={language === 'tr' ? 'Makaleler' : 'Articles'} />
+                    <NavLink onClick={() => window.open("/projects", "_blank")} text={language === 'tr' ? 'Projeler' : 'Projects'} />
+                  </>
+                )}
                 <NavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
               </div>
             </div>
@@ -264,6 +269,16 @@ export default function Navbar() {
                 <motion.div variants={itemVariants}>
                   <MobileNavLink onClick={() => window.open("/events", "_blank")} text={t('nav.events')} />
                 </motion.div>
+                {user && (
+                  <>
+                    <motion.div variants={itemVariants}>
+                      <MobileNavLink onClick={() => window.open("/articles", "_blank")} text={language === 'tr' ? 'Makaleler' : 'Articles'} />
+                    </motion.div>
+                    <motion.div variants={itemVariants}>
+                      <MobileNavLink onClick={() => window.open("/projects", "_blank")} text={language === 'tr' ? 'Projeler' : 'Projects'} />
+                    </motion.div>
+                  </>
+                )}
                 <motion.div variants={itemVariants}>
                   <MobileNavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
                 </motion.div>
@@ -298,6 +313,7 @@ export default function Navbar() {
                           alt="Avatar"
                           fill
                           className="object-cover"
+                          sizes="40px"
                         />
                       </div>
                       <span className="font-black text-xl text-black">

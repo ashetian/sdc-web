@@ -14,6 +14,7 @@ interface Department {
 
 interface TeamMember {
     _id: string;
+    memberId?: string; // Linked Member ID
     name: string;
     email: string;
     phone?: string;
@@ -38,6 +39,14 @@ interface Applicant {
     fullName: string;
     email: string;
     selectedDepartment: string;
+}
+
+interface Member {
+    _id: string;
+    fullName: string;
+    email: string;
+    studentNo: string;
+    avatar?: string;
 }
 
 const roleOptions = [
@@ -71,7 +80,13 @@ export default function TeamPage() {
     const [showApplicantModal, setShowApplicantModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
+
+    // Member Linking
+    const [memberQuery, setMemberQuery] = useState('');
+    const [foundMembers, setFoundMembers] = useState<Member[]>([]);
+
     const [formData, setFormData] = useState({
+        memberId: '',
         name: '',
         email: '',
         phone: '',
@@ -89,6 +104,32 @@ export default function TeamPage() {
         order: 0,
         showInTeam: true,
     });
+
+    useEffect(() => {
+        if (memberQuery.length < 2) { setFoundMembers([]); return; }
+        const timer = setTimeout(async () => {
+            try {
+                const res = await fetch(`/api/members?search=${memberQuery}&limit=5`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setFoundMembers(data.members || []);
+                }
+            } catch (e) { console.error(e); }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [memberQuery]);
+
+    const handleSelectMember = (m: Member) => {
+        setFormData(prev => ({
+            ...prev,
+            memberId: m._id,
+            name: m.fullName,
+            email: m.email,
+            photo: m.avatar || prev.photo, // Use avatar if exists, else keep current
+        }));
+        setMemberQuery('');
+        setFoundMembers([]);
+    };
 
     useEffect(() => {
         fetchData();
@@ -188,6 +229,7 @@ export default function TeamPage() {
 
     const handleEdit = (member: TeamMember) => {
         setFormData({
+            memberId: member.memberId || '',
             name: member.name,
             email: member.email,
             phone: member.phone || '',
@@ -224,6 +266,7 @@ export default function TeamPage() {
 
     const resetForm = () => {
         setFormData({
+            memberId: '',
             name: '', email: '', phone: '', photo: '', role: 'member', departmentId: '',
             title: '', description: '', location: '', github: '', linkedin: '',
             instagram: '', x: '', website: '', order: 0, showInTeam: true,
@@ -277,6 +320,41 @@ export default function TeamPage() {
                         {editingId ? 'Üye Düzenle' : 'Yeni Üye Ekle'}
                     </h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Member Linking */}
+                        <div className="bg-gray-50 p-4 border-2 border-dashed border-gray-400 mb-4">
+                            <label className="block text-sm font-black text-black uppercase mb-1">Site Üyesi Bağla (Opsiyonel)</label>
+                            <p className="text-xs text-gray-500 mb-2">Mevcut bir üyeyi seçerseniz bilgiler otomatik doldurulur.</p>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Üye adı veya öğrenci no ara..."
+                                    value={memberQuery}
+                                    onChange={(e) => setMemberQuery(e.target.value)}
+                                    className="w-full px-3 py-2 border-2 border-black"
+                                />
+                                {foundMembers.length > 0 && (
+                                    <div className="absolute top-full left-0 right-0 bg-white border-2 border-black border-t-0 max-h-40 overflow-y-auto z-10">
+                                        {foundMembers.map(m => (
+                                            <button
+                                                key={m._id}
+                                                type="button"
+                                                onClick={() => handleSelectMember(m)}
+                                                className="w-full text-left px-3 py-2 hover:bg-neo-yellow border-b border-gray-200 last:border-0 font-bold"
+                                            >
+                                                {m.fullName} ({m.studentNo})
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            {formData.memberId && (
+                                <div className="mt-2 text-sm text-green-600 font-black">
+                                    ✓ Bağlı Üye ID: {formData.memberId}
+                                    <button type="button" onClick={() => setFormData(p => ({ ...p, memberId: '' }))} className="ml-2 text-red-500 underline">Bağlantıyı Kaldır</button>
+                                </div>
+                            )}
+                        </div>
+
                         {/* Photo Upload */}
                         <div>
                             <label className="block text-sm font-black text-black uppercase mb-2">Fotoğraf</label>

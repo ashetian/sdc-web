@@ -8,6 +8,7 @@ export interface ITeamMember extends Document {
     phone?: string;
     photo?: string;
     role: TeamRole;
+    memberId?: Types.ObjectId;
     departmentId?: Types.ObjectId;
     title: string;
     titleEn?: string;
@@ -45,6 +46,10 @@ const TeamMemberSchema = new Schema<ITeamMember>(
             type: String,
             enum: ['president', 'vice_president', 'head', 'member', 'featured'],
             default: 'member',
+        },
+        memberId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Member',
         },
         departmentId: {
             type: Schema.Types.ObjectId,

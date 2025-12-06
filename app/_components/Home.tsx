@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -24,9 +25,13 @@ export default function Home() {
   const buttonsRef = useRef(null);
   const statsRef = useRef(null);
   const [stats, setStats] = useState<StatData[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const { t, language } = useLanguage();
+  const router = useRouter();
 
   useEffect(() => {
+    // Fetch stats
     fetch('/api/stats')
       .then(res => res.json())
       .then(data => setStats(data))
@@ -38,9 +43,25 @@ export default function Home() {
           { _id: '3', label: 'Etkinlik', labelEn: 'Events', value: '12', color: 'bg-neo-orange', order: 2 },
         ]);
       });
+
+    // Fetch user
+    fetch('/api/auth/me')
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error('Not logged in');
+      })
+      .then(data => {
+        setUser(data.user);
+        setLoadingUser(false);
+      })
+      .catch(() => {
+        setUser(null);
+        setLoadingUser(false);
+      });
   }, []);
 
   useGSAP(() => {
+    // ... GSAP code (unchanged logic, just re-running effect)
     if (!containerRef.current || !titleRef.current || !subtitleRef.current || !buttonsRef.current || !statsRef.current) return;
 
     const tl = gsap.timeline({
@@ -86,7 +107,6 @@ export default function Home() {
 
   const getStatLabel = (stat: StatData) => {
     if (language === 'en' && stat.labelEn) return stat.labelEn;
-    // Map common Turkish labels to English
     if (language === 'en') {
       const labelMap: Record<string, string> = {
         'Üye': 'Members',
@@ -149,20 +169,56 @@ export default function Home() {
           </h2>
         </div>
 
-        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-8">
-          <button
-            onClick={() => { window.location.href = "/join"; }}
-            className="w-64 sm:w-auto px-8 py-4 bg-neo-pink text-black border-4 border-black shadow-neo font-black text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
-          >
-            {language === 'tr' ? 'Kulübe Üye Ol' : 'Join the Club'}
-          </button>
-
-          <button
-            onClick={() => { document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); }}
-            className="w-64 sm:w-auto px-8 py-4 bg-white text-black border-4 border-black shadow-neo font-black text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
-          >
-            {t('nav.contact')}
-          </button>
+        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-8 cursor-default min-h-[80px]">
+          {!loadingUser && (
+            <>
+              {!user ? (
+                // GUEST BUTTONS
+                <>
+                  <button
+                    onClick={() => router.push("/join")}
+                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-pink text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  >
+                    {language === 'tr' ? 'Kulübe Üye Ol' : 'Join the Club'}
+                  </button>
+                  <button
+                    onClick={() => router.push("/auth/signup")}
+                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-blue text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  >
+                    {language === 'tr' ? 'Kayıt Ol' : 'Sign Up'}
+                  </button>
+                  <button
+                    onClick={() => router.push("/auth/login")}
+                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-white text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  >
+                    {language === 'tr' ? 'Giriş Yap' : 'Login'}
+                  </button>
+                </>
+              ) : (
+                // LOGGED IN USER BUTTONS
+                <>
+                  <button
+                    onClick={() => router.push("/articles")}
+                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-purple text-white border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  >
+                    {language === 'tr' ? 'Makaleler' : 'Articles'}
+                  </button>
+                  <button
+                    onClick={() => router.push("/projects")}
+                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-orange text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  >
+                    {language === 'tr' ? 'Projeler' : 'Projects'}
+                  </button>
+                  <button
+                    onClick={() => router.push("/events")}
+                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-green text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  >
+                    {language === 'tr' ? 'Etkinlikler' : 'Events'}
+                  </button>
+                </>
+              )}
+            </>
+          )}
         </div>
 
         <div ref={statsRef} className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto w-full">

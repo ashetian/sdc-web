@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Applicant } from '@/app/lib/models/Applicant';
 import { z } from 'zod';
+import { jwtVerify } from 'jose';
+import { cookies } from 'next/headers';
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
 
 // Validation schema
 const applicantSchema = z.object({
@@ -48,6 +52,21 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('auth-token')?.value;
+
+        if (!token) {
+            return NextResponse.json({ error: 'Başvuru yapmak için giriş yapmalısınız.' }, { status: 401 });
+        }
+
+        let memberId;
+        try {
+            const { payload } = await jwtVerify(token, JWT_SECRET);
+            memberId = payload.memberId;
+        } catch {
+            return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
+        }
+
         await connectDB();
         const data = await request.json();
 
@@ -60,7 +79,14 @@ export async function POST(request: Request) {
             );
         }
 
-        const applicant = await Applicant.create(parsed.data);
+        // Check if already applied? (Optional, but good practice)
+        // const existing = await Applicant.findOne({ memberId });
+        // if (existing) return NextResponse.json({ error: 'Zaten bir başvurunuz bulunmaktadır.' }, { status: 400 });
+
+        const applicant = await Applicant.create({
+            ...parsed.data,
+            memberId, // Link to member
+        });
         return NextResponse.json(applicant, { status: 201 });
     } catch (error) {
         console.error('Başvuru eklenirken hata oluştu:', error);

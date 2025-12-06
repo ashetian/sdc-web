@@ -1,11 +1,20 @@
 import mongoose from 'mongoose';
 
+export interface IContentBlock {
+  id: string;
+  type: 'text' | 'image' | 'image-grid';
+  content?: string;
+  contentEn?: string;
+  image?: string;
+  images?: string[];
+}
+
 export interface IAnnouncement {
   slug: string;
   title: string;
   date: string;
   description: string;
-  type: 'event' | 'news' | 'workshop';
+  type: 'event' | 'news' | 'workshop' | 'article';
   content: string;
   image?: string;
   imageOrientation?: 'horizontal' | 'vertical';
@@ -23,6 +32,8 @@ export interface IAnnouncement {
   descriptionEn?: string;
   contentEn?: string;
   galleryDescriptionEn?: string;
+  contentBlocks?: IContentBlock[];
+  contentBlocksEn?: IContentBlock[];
 }
 
 const announcementSchema = new mongoose.Schema<IAnnouncement>(
@@ -46,12 +57,13 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
     },
     type: {
       type: String,
-      enum: ['event', 'news', 'workshop'],
+      enum: ['event', 'news', 'workshop', 'article'],
       required: true,
     },
     content: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
     },
     image: {
       type: String,
@@ -110,6 +122,30 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
     galleryDescriptionEn: {
       type: String,
       required: false,
+    },
+    contentBlocks: {
+      type: [{
+        id: String,
+        type: { type: String, enum: ['text', 'image', 'image-grid'] },
+        content: String,
+        contentEn: String,
+        image: String,
+        images: [String],
+      }],
+      required: false,
+      default: [],
+    },
+    contentBlocksEn: {
+      type: [{
+        id: String,
+        type: { type: String, enum: ['text', 'image', 'image-grid'] },
+        content: String,
+        contentEn: String,
+        image: String,
+        images: [String],
+      }],
+      required: false,
+      default: [],
     },
   },
   {

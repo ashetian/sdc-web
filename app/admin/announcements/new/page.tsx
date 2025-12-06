@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import ContentBlockEditor, { ContentBlock } from "@/app/admin/_components/ContentBlockEditor";
 
 interface Event {
   _id: string;
@@ -15,6 +16,7 @@ export default function NewAnnouncementPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
+  const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -61,23 +63,35 @@ export default function NewAnnouncementPage() {
         ? generateSlug(formData.slug)
         : generateSlug(formData.title);
 
+      // Generate content from blocks for search/summary purposes (all types)
+      const finalContent = contentBlocks
+        .filter(block => block.type === "text" && block.content)
+        .map(block => block.content)
+        .join("\n\n") || formData.description || "";
+
       const res = await fetch("/api/announcements", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...formData, slug }),
+        body: JSON.stringify({
+          ...formData,
+          slug,
+          content: finalContent,
+          contentBlocks: contentBlocks,
+        }),
       });
 
       if (!res.ok) {
-        throw new Error("Duyuru eklenirken bir hata oluştu");
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Duyuru eklenirken bir hata oluştu");
       }
 
       router.push("/admin");
       router.refresh();
     } catch (error) {
       console.error("Duyuru eklenirken hata:", error);
-      alert("Duyuru eklenirken bir hata oluştu");
+      alert(error instanceof Error ? error.message : "Duyuru eklenirken bir hata oluştu");
     } finally {
       setIsSubmitting(false);
     }
@@ -124,279 +138,265 @@ export default function NewAnnouncementPage() {
   };
 
   return (
-    <div className="bg-white shadow rounded-lg">
-      <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-gray-900">Yeni Duyuru</h1>
-        <Link href="/admin" className="text-gray-600 hover:text-gray-800">
+    <div className="bg-white border-4 border-black shadow-neo">
+      <div className="px-6 py-5 flex justify-between items-center border-b-4 border-black">
+        <h1 className="text-xl font-black text-black uppercase">
+          Yeni Duyuru
+        </h1>
+        <Link href="/admin" className="text-gray-600 hover:text-gray-800 font-bold">
           Geri Dön
         </Link>
       </div>
 
-      <div className="border-t border-gray-200">
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Başlık
-            </label>
+      <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <div>
+          <label
+            htmlFor="title"
+            className="block text-sm font-bold text-gray-700 mb-1"
+          >
+            Başlık
+          </label>
+          <input
+            type="text"
+            name="title"
+            id="title"
+            required
+            value={formData.title}
+            onChange={handleChange}
+            className="block w-full rounded border-2 border-black p-3 text-gray-900 bg-white focus:ring-2 focus:ring-neo-blue"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="slug"
+            className="block text-sm font-bold text-gray-700 mb-1"
+          >
+            Slug (isteğe bağlı)
+          </label>
+          <input
+            type="text"
+            name="slug"
+            id="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            placeholder="Otomatik oluşur veya elle yazabilirsiniz"
+            className="block w-full rounded border-2 border-black p-3 text-gray-900 bg-white placeholder:text-gray-400 focus:ring-2 focus:ring-neo-blue"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="date"
+            className="block text-sm font-bold text-gray-700 mb-1"
+          >
+            Tarih
+          </label>
+          <input
+            type="text"
+            name="date"
+            id="date"
+            required
+            value={formData.date}
+            onChange={handleChange}
+            placeholder="örn: 1 Nisan 2024"
+            className="block w-full rounded border-2 border-black p-3 text-gray-900 bg-white placeholder:text-gray-400 focus:ring-2 focus:ring-neo-blue"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="type"
+            className="block text-sm font-bold text-gray-700 mb-1"
+          >
+            Tür
+          </label>
+          <select
+            name="type"
+            id="type"
+            required
+            value={formData.type}
+            onChange={handleChange}
+            className="block w-full rounded border-2 border-black p-3 text-gray-900 bg-white focus:ring-2 focus:ring-neo-blue"
+          >
+            <option value="event">Etkinlik</option>
+            <option value="news">Haber</option>
+            <option value="workshop">Atölye</option>
+            <option value="article">Makale</option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="eventId"
+            className="block text-sm font-bold text-gray-700 mb-1"
+          >
+            Etkinlik Seçimi (İsteğe Bağlı)
+          </label>
+          <select
+            name="eventId"
+            id="eventId"
+            value={formData.eventId}
+            onChange={handleChange}
+            className="block w-full rounded border-2 border-black p-3 text-gray-900 bg-white focus:ring-2 focus:ring-neo-blue"
+          >
+            <option value="">İlgili etkinlik seçiniz</option>
+            {events.map((event) => (
+              <option key={event._id} value={event._id}>
+                {event.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="description"
+            className="block text-sm font-bold text-gray-700 mb-1"
+          >
+            Kısa Açıklama
+          </label>
+          <input
+            type="text"
+            name="description"
+            id="description"
+            required
+            maxLength={500}
+            value={formData.description}
+            onChange={handleChange}
+            className="block w-full rounded border-2 border-black p-3 text-gray-900 bg-white focus:ring-2 focus:ring-neo-blue"
+          />
+          <div
+            className={`text-xs text-right mt-1 ${formData.description.length >= 500
+              ? "text-red-600 font-bold"
+              : "text-gray-500"
+              }`}
+          >
+            {formData.description.length} / 500
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="image"
+            className="block text-sm font-bold text-gray-700 mb-1"
+          >
+            Görsel Yükle (İsteğe Bağlı)
+          </label>
+          <div className="flex items-center space-x-4">
             <input
-              type="text"
-              name="title"
-              id="title"
-              required
-              value={formData.title}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:text-sm file:font-bold file:bg-neo-yellow file:text-black hover:file:bg-yellow-300"
             />
-          </div>
-          <div>
-            <label
-              htmlFor="slug"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Slug (isteğe bağlı)
-            </label>
-            <input
-              type="text"
-              name="slug"
-              id="slug"
-              value={formData.slug}
-              onChange={handleChange}
-              placeholder="Otomatik oluşur veya elle yazabilirsiniz"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="date"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Tarih
-            </label>
-            <input
-              type="text"
-              name="date"
-              id="date"
-              required
-              value={formData.date}
-              onChange={handleChange}
-              placeholder="örn: 1 Nisan 2024"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white placeholder:text-gray-400"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="type"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Tür
-            </label>
-            <select
-              name="type"
-              id="type"
-              required
-              value={formData.type}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
-            >
-              <option value="event">Etkinlik</option>
-              <option value="news">Haber</option>
-              <option value="workshop">Atölye</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="eventId"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Etkinlik Seçimi (İsteğe Bağlı)
-            </label>
-            <select
-              name="eventId"
-              id="eventId"
-              value={formData.eventId}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
-            >
-              <option value="">İlgili etkinlik seçiniz</option>
-              {events.map((event) => (
-                <option key={event._id} value={event._id}>
-                  {event.title}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Kısa Açıklama
-            </label>
-            <input
-              type="text"
-              name="description"
-              id="description"
-              required
-              maxLength={500}
-              value={formData.description}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
-            />
-            <div
-              className={`text-xs text-right mt-1 ${formData.description.length >= 500
-                ? "text-red-600 font-bold"
-                : "text-gray-500"
-                }`}
-            >
-              {formData.description.length} / 500
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="image"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Görsel Yükle (İsteğe Bağlı)
-            </label>
-            <div className="mt-1 flex items-center space-x-4">
-              <input
-                type="file"
-                id="image"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-              {uploading && (
-                <span className="text-sm text-blue-500">Yükleniyor...</span>
-              )}
-            </div>
-            {formData.image && (
-              <div className="mt-2">
-                <p className="text-sm text-green-600 mb-1">Görsel yüklendi:</p>
-                <Image
-                  src={formData.image}
-                  alt="Önizleme"
-                  width={300}
-                  height={200}
-                  className="h-32 w-auto object-cover rounded border border-gray-300"
-                  unoptimized
-                />
-                <button
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, image: "" }))}
-                  className="mt-1 text-xs text-red-600 hover:text-red-800"
-                >
-                  Görseli Kaldır
-                </button>
-              </div>
+            {uploading && (
+              <span className="text-sm text-blue-500 font-bold">Yükleniyor...</span>
             )}
           </div>
-
           {formData.image && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Görsel Yönü (Ana sayfa carousel için)
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="imageOrientation"
-                    value="horizontal"
-                    checked={formData.imageOrientation === "horizontal"}
-                    onChange={handleChange}
-                    className="w-4 h-4 text-blue-600"
-                  />
-                  <span className="text-sm text-gray-700">
-                    Yatay (Görsel solda)
-                  </span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="imageOrientation"
-                    value="vertical"
-                    checked={formData.imageOrientation === "vertical"}
-                    onChange={handleChange}
-                    className="w-4 h-4 text-blue-600"
-                  />
-                  <span className="text-sm text-gray-700">
-                    Dikey (Görsel üstte)
-                  </span>
-                </label>
-              </div>
+            <div className="mt-3">
+              <p className="text-sm text-green-600 mb-2 font-bold">Görsel yüklendi:</p>
+              <Image
+                src={formData.image}
+                alt="Önizleme"
+                width={300}
+                height={200}
+                className="h-32 w-auto object-cover border-2 border-black"
+                unoptimized
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, image: "" }))}
+                className="mt-2 text-xs text-red-600 hover:text-red-800 font-bold"
+              >
+                Görseli Kaldır
+              </button>
             </div>
           )}
+        </div>
 
+        {formData.image && (
           <div>
-            <label
-              htmlFor="content"
-              className="block text-sm font-medium text-gray-700"
-            >
-              İçerik
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Görsel Yönü (Ana sayfa carousel için)
             </label>
-            <textarea
-              name="content"
-              id="content"
-              rows={10}
-              required
-              maxLength={10000}
-              value={formData.content}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-900 bg-white"
-            />
-            <div
-              className={`text-xs text-right mt-1 ${formData.content.length >= 10000
-                ? "text-red-600 font-bold"
-                : "text-gray-500"
-                }`}
-            >
-              {formData.content.length} / 10000
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="imageOrientation"
+                  value="horizontal"
+                  checked={formData.imageOrientation === "horizontal"}
+                  onChange={handleChange}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm text-gray-700">
+                  Yatay (Görsel solda)
+                </span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="imageOrientation"
+                  value="vertical"
+                  checked={formData.imageOrientation === "vertical"}
+                  onChange={handleChange}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm text-gray-700">
+                  Dikey (Görsel üstte)
+                </span>
+              </label>
             </div>
           </div>
+        )}
 
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="isDraft"
-              id="isDraft"
-              checked={formData.isDraft}
-              onChange={handleChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label
-              htmlFor="isDraft"
-              className="ml-2 block text-sm text-gray-900"
-            >
-              Taslak olarak kaydet
-            </label>
-          </div>
 
-          <div className="flex justify-end space-x-3">
-            <Link
-              href="/admin"
-              className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              İptal
-            </Link>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {isSubmitting ? "Kaydediliyor..." : "Kaydet"}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-3">
+            İçerik Editörü
+          </label>
+          <p className="text-xs text-gray-500 mb-4">
+            Metin, Görsel (Dosya/URL), Video ve Kod blokları ekleyerek içeriğinizi oluşturun.
+          </p>
+          <ContentBlockEditor blocks={contentBlocks} onChange={setContentBlocks} />
+        </div>
+
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            name="isDraft"
+            id="isDraft"
+            checked={formData.isDraft}
+            onChange={handleChange}
+            className="h-4 w-4 border-2 border-black rounded"
+          />
+          <label
+            htmlFor="isDraft"
+            className="ml-2 block text-sm text-gray-900 font-bold"
+          >
+            Taslak olarak kaydet
+          </label>
+        </div>
+
+        <div className="flex justify-end space-x-3 pt-4 border-t-2 border-gray-200">
+          <Link
+            href="/admin"
+            className="px-6 py-3 border-2 border-black font-bold text-black bg-gray-200 hover:bg-gray-300"
+          >
+            İptal
+          </Link>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-6 py-3 border-2 border-black font-bold text-black bg-neo-green hover:bg-green-400 disabled:opacity-50"
+          >
+            {isSubmitting ? "Kaydediliyor..." : "Kaydet"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

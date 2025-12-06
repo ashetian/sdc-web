@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 
 export interface IApplicant {
+    // Member Reference
+    memberId: mongoose.Types.ObjectId;
     // Personal Information
     fullName: string;
     faculty: string;
@@ -36,6 +38,11 @@ export interface IApplicant {
 
 const applicantSchema = new mongoose.Schema<IApplicant>(
     {
+        memberId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Member',
+            required: true,
+        },
         fullName: {
             type: String,
             required: true,

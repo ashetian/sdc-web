@@ -10,8 +10,12 @@ const schema = z.object({
   date: z.string().min(1).max(100),
   description: z.string().min(1).max(500),
   type: z.string().min(1).max(100),
-  content: z.string().min(1).max(10000),
+  content: z.string().max(10000).optional().default(''),
   eventId: z.string().optional(),
+  image: z.string().optional(),
+  imageOrientation: z.string().optional(),
+  contentBlocks: z.array(z.any()).optional(),
+  isDraft: z.boolean().optional(),
 });
 
 // Tarih ayrıştırma yardımcı fonksiyonu
@@ -58,12 +62,17 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get('active') === 'true';
+    const typeFilter = searchParams.get('type');
 
     // Build query based on parameters
-    const query: { isDraft?: boolean; isArchived?: boolean } = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const query: any = {};
     if (activeOnly) {
-      query.isDraft = false;
-      query.isArchived = false;
+      query.isDraft = { $ne: true };
+      query.isArchived = { $ne: true };
+    }
+    if (typeFilter) {
+      query.type = typeFilter;
     }
 
     // Önce hepsini çekiyoruz, çünkü string tarih alanına göre veritabanı seviyesinde sıralama yapamayız
@@ -98,6 +107,8 @@ export async function POST(request: Request) {
     await connectDB();
     const data = await request.json();
 
+    console.log('Received data:', JSON.stringify(data, null, 2));
+
     // Zod validasyonu
     const parsed = schema.safeParse(data);
     if (!parsed.success) {
@@ -110,9 +121,18 @@ export async function POST(request: Request) {
     }
 
     // Tür kontrolü
-    if (!['event', 'news', 'workshop'].includes(parsed.data.type)) {
+    if (!['event', 'news', 'workshop', 'article'].includes(parsed.data.type)) {
       return NextResponse.json(
         { error: 'Geçersiz duyuru türü' },
+        { status: 400 }
+      );
+    }
+
+    // Slug kontrolü - aynı slug varsa hata ver
+    const existingAnnouncement = await Announcement.findOne({ slug: parsed.data.slug });
+    if (existingAnnouncement) {
+      return NextResponse.json(
+        { error: `"${parsed.data.slug}" slug'ı zaten kullanılıyor. Lütfen farklı bir başlık veya slug kullanın.` },
         { status: 400 }
       );
     }
@@ -152,8 +172,9 @@ export async function POST(request: Request) {
     return NextResponse.json(announcement);
   } catch (error) {
     console.error('Duyuru eklenirken hata oluştu:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
     return NextResponse.json(
-      { error: 'Duyuru eklenirken bir hata oluştu' },
+      { error: `Duyuru eklenirken bir hata oluştu: ${errorMessage}` },
       { status: 500 }
     );
   }

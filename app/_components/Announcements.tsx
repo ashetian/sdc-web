@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
 import ImageLightbox from "./ImageLightbox";
 
+// Robust interface for Announcement
 interface Announcement {
+  _id?: string;
   slug: string;
   title: string;
   titleEn?: string;
@@ -13,7 +14,7 @@ interface Announcement {
   dateEn?: string;
   description: string;
   descriptionEn?: string;
-  type: "event" | "news" | "workshop";
+  type: string; // Using string to handle any type safely
   content: string;
   contentEn?: string;
   image?: string;
@@ -33,11 +34,18 @@ export default function Announcements() {
       try {
         const res = await fetch("/api/announcements?active=true");
         if (!res.ok) throw new Error("Duyurular alınamadı");
+
         const data = await res.json();
-        const activeAnnouncements = data
-          .filter((a: Announcement) => !a.isDraft && !a.isArchived)
-          .slice(0, 10); // Limit to 10 announcements
-        setAnnouncements(activeAnnouncements);
+
+        if (Array.isArray(data)) {
+          const activeAnnouncements = data
+            .filter((a: Announcement) => !a.isDraft && !a.isArchived)
+            .slice(0, 10); // Limit to 10 announcements
+          setAnnouncements(activeAnnouncements);
+          // console.log("Loaded announcements:", activeAnnouncements.length);
+        } else {
+          console.error("API response is not an array:", data);
+        }
       } catch (error) {
         console.error("Duyurular yüklenirken hata:", error);
       }
@@ -45,26 +53,28 @@ export default function Announcements() {
     loadAnnouncements();
   }, []);
 
-  // Auto-swipe: first slide 15s, others 7s
-  // Reset timer when currentIndex changes
+  // Use modulo to safely access current announcement
+  const safeIndex = announcements.length > 0 ? ((currentIndex % announcements.length) + announcements.length) % announcements.length : 0;
+
+  // Auto-swipe logic
   useEffect(() => {
     if (announcements.length <= 1) return;
 
-    const delay = currentIndex === 0 ? 15000 : 7000;
+    const delay = safeIndex === 0 ? 15000 : 7000;
     const timeout = setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % announcements.length);
+      setCurrentIndex((prev) => (prev + 1));
     }, delay);
 
     return () => clearTimeout(timeout);
-  }, [announcements.length, currentIndex]);
+  }, [announcements.length, safeIndex]);
 
   const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % announcements.length);
-  }, [announcements.length]);
+    setCurrentIndex((prev) => (prev + 1));
+  }, []);
 
   const goToPrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + announcements.length) % announcements.length);
-  }, [announcements.length]);
+    setCurrentIndex((prev) => (prev - 1));
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
@@ -76,20 +86,28 @@ export default function Announcements() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goToNext, goToPrev]);
 
-  const getTypeStyles = (type: Announcement["type"]) => {
-    switch (type) {
+  // Safe helper for type styles
+  const getTypeStyles = (type: string) => {
+    const normalizedType = type?.toLowerCase().trim() || 'news';
+    switch (normalizedType) {
       case "event": return "bg-neo-purple text-white";
       case "news": return "bg-neo-blue text-black";
       case "workshop": return "bg-neo-green text-black";
+      case "article": return "bg-neo-peach text-black";
+      default: return "bg-neo-blue text-black"; // Default fallback
     }
   };
 
-  const getTypeText = (type: Announcement["type"]) => {
-    const typeLabels = {
-      tr: { event: "Etkinlik", news: "Duyuru", workshop: "Workshop" },
-      en: { event: "Event", news: "News", workshop: "Workshop" }
+  // Safe helper for type text
+  const getTypeText = (type: string) => {
+    const safeLang = (language === 'en' || language === 'tr') ? language : 'tr';
+    const typeLabels: Record<string, Record<string, string>> = {
+      tr: { event: "Etkinlik", news: "Duyuru", workshop: "Workshop", article: "Makale" },
+      en: { event: "Event", news: "News", workshop: "Workshop", article: "Article" }
     };
-    return typeLabels[language][type];
+
+    const normalizedType = type?.toLowerCase().trim() || 'news';
+    return typeLabels[safeLang][normalizedType] || typeLabels[safeLang]['news'];
   };
 
   const getText = (tr: string | undefined, en: string | undefined, fallback: string) => {
@@ -112,7 +130,38 @@ export default function Announcements() {
     }
   };
 
-  const l = labels[language];
+  const l = labels[language] || labels.tr;
+
+  // Swipe logic
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); // Reset touch end
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      goToNext();
+    }
+    if (isRightSwipe) {
+      goToPrev();
+    }
+  };
 
   if (announcements.length === 0) {
     return (
@@ -122,13 +171,20 @@ export default function Announcements() {
     );
   }
 
-  const current = announcements[currentIndex];
+  const current = announcements[safeIndex];
+
+  // Safe check if current exists (should exist due to length check above)
+  if (!current) return null;
+
   const isVertical = current?.imageOrientation === "vertical";
 
   return (
     <section
       id="announcements"
-      className="relative min-h-[80vh] bg-neo-mint border-b-4 border-black overflow-hidden"
+      className="relative min-h-[80vh] bg-neo-mint border-b-4 border-black overflow-hidden touch-pan-y"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       {/* Announcement Content */}
       <div className={`max-w-7xl mx-auto px-12 sm:px-20 lg:px-24 pt-24 pb-24 flex items-center justify-center min-h-[80vh] ${isVertical ? 'flex-col' : 'flex-row gap-12'}`}>
@@ -154,7 +210,7 @@ export default function Announcements() {
         </div>
 
         {/* Vertical Image Layout - Image Left, Text Right */}
-        {isVertical && current && (
+        {isVertical && (
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full">
             {current.image && (
               <div className="flex-shrink-0 w-full md:w-2/5">
@@ -198,7 +254,7 @@ export default function Announcements() {
         )}
 
         {/* Horizontal Layout */}
-        {!isVertical && current && (
+        {!isVertical && (
           <>
             {current.image && (
               <div className="flex-shrink-0 w-full md:w-1/2 flex justify-center">
@@ -248,7 +304,7 @@ export default function Announcements() {
           {/* Arrow Buttons */}
           <button
             onClick={goToPrev}
-            className="absolute left-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-all z-10"
+            className="absolute left-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-all z-10 hidden sm:flex"
             aria-label="Previous announcement"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -257,7 +313,7 @@ export default function Announcements() {
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-all z-10"
+            className="absolute right-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-all z-10 hidden sm:flex"
             aria-label="Next announcement"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -271,7 +327,7 @@ export default function Announcements() {
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`w-3 h-3 border-2 border-black transition-all ${idx === currentIndex ? 'bg-black scale-125' : 'bg-white hover:bg-gray-300'
+                className={`w-3 h-3 border-2 border-black transition-all ${idx === safeIndex ? 'bg-black scale-125' : 'bg-white hover:bg-gray-300'
                   }`}
                 aria-label={`Go to announcement ${idx + 1}`}
               />
@@ -284,10 +340,10 @@ export default function Announcements() {
       {announcements.length > 1 && (
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
           <div
-            key={currentIndex}
+            key={safeIndex}
             className="h-full bg-black"
             style={{
-              animation: `progress ${currentIndex === 0 ? '15s' : '7s'} linear forwards`,
+              animation: `progress ${safeIndex === 0 ? '15s' : '7s'} linear forwards`,
               width: '0%'
             }}
           />

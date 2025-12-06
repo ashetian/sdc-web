@@ -137,10 +137,10 @@ export default function ProfilePage() {
             <div className="max-w-2xl mx-auto">
                 {/* Header */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-0">
+                        <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-start">
                             <div
-                                className="w-16 h-16 relative rounded-full border-2 border-black overflow-hidden bg-gray-100 cursor-pointer hover:ring-4 hover:ring-yellow-400 transition-all"
+                                className="w-16 h-16 relative rounded-full border-2 border-black overflow-hidden bg-gray-100 cursor-pointer hover:ring-4 hover:ring-yellow-400 transition-all shrink-0"
                                 onClick={() => setShowAvatarPicker(!showAvatarPicker)}
                                 title="Avatar'ı değiştirmek için tıklayın"
                             >
@@ -148,30 +148,31 @@ export default function ProfilePage() {
                                     src={getCurrentAvatar()}
                                     alt="Avatar"
                                     fill
+                                    sizes="64px"
                                     className="object-cover"
                                 />
                             </div>
-                            <div>
+                            <div className="text-left">
                                 <h1 className="text-2xl font-black text-black">{user.nickname}</h1>
                                 <p className="text-gray-500 text-sm">@{user.studentNo}</p>
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap justify-center w-full md:w-auto">
                             <Link
                                 href="/profile/projects"
-                                className="px-4 py-2 bg-neo-purple text-white font-bold border-2 border-black hover:shadow-neo"
+                                className="px-4 py-2 bg-neo-purple text-white font-bold border-2 border-black hover:shadow-neo whitespace-nowrap"
                             >
                                 Projelerim
                             </Link>
                             <Link
                                 href="/"
-                                className="px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300"
+                                className="px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 whitespace-nowrap"
                             >
                                 Ana Sayfa
                             </Link>
                             <button
                                 onClick={handleLogout}
-                                className="px-4 py-2 bg-red-500 text-white font-bold border-2 border-black hover:bg-red-600"
+                                className="px-4 py-2 bg-red-500 text-white font-bold border-2 border-black hover:bg-red-600 whitespace-nowrap"
                             >
                                 Çıkış
                             </button>
@@ -263,55 +264,55 @@ export default function ProfilePage() {
                     </p>
 
                     <div className="space-y-3">
-                        <label className="flex items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer">
+                        <label className="flex items-start sm:items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer bg-gray-50/50 hover:bg-white transition-colors">
                             <input
                                 type="checkbox"
                                 checked={visibility.showFullName}
                                 onChange={(e) => setVisibility(v => ({ ...v, showFullName: e.target.checked }))}
-                                className="w-5 h-5"
+                                className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
-                            <div>
-                                <span className="font-bold">Gerçek İsim</span>
-                                <span className="text-gray-500 ml-2">({user.fullName})</span>
+                            <div className="flex flex-col sm:flex-row sm:items-baseline">
+                                <span className="font-bold whitespace-nowrap">Gerçek İsim</span>
+                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.fullName})</span>
                             </div>
                         </label>
 
-                        <label className="flex items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer">
+                        <label className="flex items-start sm:items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer bg-gray-50/50 hover:bg-white transition-colors">
                             <input
                                 type="checkbox"
                                 checked={visibility.showEmail}
                                 onChange={(e) => setVisibility(v => ({ ...v, showEmail: e.target.checked }))}
-                                className="w-5 h-5"
+                                className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
-                            <div>
-                                <span className="font-bold">E-posta</span>
-                                <span className="text-gray-500 ml-2">({user.email})</span>
+                            <div className="flex flex-col sm:flex-row sm:items-baseline">
+                                <span className="font-bold whitespace-nowrap">E-posta</span>
+                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.email})</span>
                             </div>
                         </label>
 
-                        <label className="flex items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer">
+                        <label className="flex items-start sm:items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer bg-gray-50/50 hover:bg-white transition-colors">
                             <input
                                 type="checkbox"
                                 checked={visibility.showPhone}
                                 onChange={(e) => setVisibility(v => ({ ...v, showPhone: e.target.checked }))}
-                                className="w-5 h-5"
+                                className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
-                            <div>
-                                <span className="font-bold">Telefon</span>
-                                <span className="text-gray-500 ml-2">({user.phone || 'Belirtilmemiş'})</span>
+                            <div className="flex flex-col sm:flex-row sm:items-baseline">
+                                <span className="font-bold whitespace-nowrap">Telefon</span>
+                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.phone || 'Belirtilmemiş'})</span>
                             </div>
                         </label>
 
-                        <label className="flex items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer">
+                        <label className="flex items-start sm:items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer bg-gray-50/50 hover:bg-white transition-colors">
                             <input
                                 type="checkbox"
                                 checked={visibility.showDepartment}
                                 onChange={(e) => setVisibility(v => ({ ...v, showDepartment: e.target.checked }))}
-                                className="w-5 h-5"
+                                className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
-                            <div>
-                                <span className="font-bold">Bölüm</span>
-                                <span className="text-gray-500 ml-2">({user.department || 'Belirtilmemiş'})</span>
+                            <div className="flex flex-col sm:flex-row sm:items-baseline">
+                                <span className="font-bold whitespace-nowrap">Bölüm</span>
+                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.department || 'Belirtilmemiş'})</span>
                             </div>
                         </label>
                     </div>
