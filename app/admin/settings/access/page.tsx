@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import LoadingSpinner from "@/app/_components/LoadingSpinner";
+import GlobalLoading from '@/app/_components/GlobalLoading';
 
 interface AccessRule {
     _id: string;
@@ -124,7 +124,7 @@ export default function AccessControlPage() {
         }
     };
 
-    if (loading) return <div className="p-12 text-center"><LoadingSpinner size="lg" /></div>;
+    if (loading) return <GlobalLoading />;
 
     return (
         <div className="space-y-8">

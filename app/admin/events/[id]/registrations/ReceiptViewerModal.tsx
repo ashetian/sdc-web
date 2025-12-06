@@ -34,7 +34,7 @@ export default function ReceiptViewerModal({ imageUrl, onClose }: ReceiptViewerM
                 <div className="flex items-center justify-end p-4 border-b border-gray-200 bg-gray-50">
                     <a
                         href={imageUrl}
-                        target="_blank"
+
                         rel="noopener noreferrer"
                         className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
                     >

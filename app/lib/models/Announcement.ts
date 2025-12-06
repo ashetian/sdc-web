@@ -69,11 +69,6 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
       type: String,
       required: false,
     },
-    imageOrientation: {
-      type: String,
-      enum: ['horizontal', 'vertical'],
-      default: 'horizontal',
-    },
     isDraft: {
       type: Boolean,
       default: false,

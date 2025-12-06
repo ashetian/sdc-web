@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { downloadICalendar } from '@/app/lib/utils/calendar';
 import Link from 'next/link';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 
 interface Event {
     _id: string;
@@ -99,7 +100,7 @@ export default function RegisterPage() {
 
     const handleRegister = async () => {
         if (!user) {
-            router.push(`/login?redirect=/events/${params.id}/register`);
+            router.push(`/auth/login?returnUrl=${encodeURIComponent(`/events/${params.id}/register`)}`);
             return;
         }
 
@@ -140,11 +141,7 @@ export default function RegisterPage() {
     };
 
     if (loading || checkingAuth) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-neo-yellow">
-                <div className="text-2xl font-black text-black animate-bounce">Yükleniyor...</div>
-            </div>
-        );
+        return <GlobalLoading />;
     }
 
     if (!event) {
@@ -218,7 +215,7 @@ export default function RegisterPage() {
 
                     <div className="space-y-4">
                         <Link
-                            href={`/auth/login?redirect=/events/${params.id}/register`}
+                            href={`/auth/login?returnUrl=${encodeURIComponent(`/events/${params.id}/register`)}`}
                             className="w-full flex justify-center py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-neo-green hover:text-black hover:shadow-none transition-all uppercase"
                         >
                             Giriş Yap

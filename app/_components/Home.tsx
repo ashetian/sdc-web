@@ -123,12 +123,12 @@ export default function Home() {
     <section
       id="home"
       ref={containerRef}
-      className="min-h-screen w-full flex pt-40 pb-20 items-center justify-center overflow-hidden bg-neo-white relative border-b-4 border-black"
+      className="min-h-screen w-full flex pt-40 pb-20 items-center justify-center overflow-hidden bg-white relative border-b-4 border-black"
     >
       <div className="absolute inset-0 opacity-10 pointer-events-none"
         style={{
           backgroundImage: 'radial-gradient(#000 2px, transparent 2px)',
-          backgroundSize: '30px 30px'
+          backgroundSize: '40px 40px'
         }}
       />
 

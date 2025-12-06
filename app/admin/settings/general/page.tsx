@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import GlobalLoading from '@/app/_components/GlobalLoading';
 import Link from 'next/link';
 
 export default function GeneralSettingsPage() {
@@ -57,7 +58,7 @@ export default function GeneralSettingsPage() {
         }
     };
 
-    if (loading) return <div className="p-10 text-center font-bold">Yükleniyor...</div>;
+    if (loading) return <GlobalLoading />;
 
     return (
         <div className="space-y-6">
@@ -99,7 +100,7 @@ export default function GeneralSettingsPage() {
                     </div>
 
                     {message && (
-                        <div className={`p-4 font-bold border-2 border-black ${message.includes('❌') ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'}`}>
+                        <div className={`p - 4 font - bold border - 2 border - black ${message.includes('❌') ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'} `}>
                             {message}
                         </div>
                     )}

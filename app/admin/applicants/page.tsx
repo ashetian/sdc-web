@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 
 interface Applicant {
     _id: string;
@@ -199,7 +199,7 @@ export default function ApplicantsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <LoadingSpinner size="lg" />
+                <GlobalLoading />
             </div>
         );
     }
@@ -344,7 +344,7 @@ export default function ApplicantsPage() {
                                                                 <span className="font-black">GitHub:</span>{" "}
                                                                 <a
                                                                     href={applicant.github}
-                                                                    target="_blank"
+
                                                                     rel="noopener noreferrer"
                                                                     className="text-blue-600 hover:underline font-bold"
                                                                 >
@@ -357,7 +357,7 @@ export default function ApplicantsPage() {
                                                                 <span className="font-black">LinkedIn:</span>{" "}
                                                                 <a
                                                                     href={applicant.linkedin}
-                                                                    target="_blank"
+
                                                                     rel="noopener noreferrer"
                                                                     className="text-blue-600 hover:underline font-bold"
                                                                 >

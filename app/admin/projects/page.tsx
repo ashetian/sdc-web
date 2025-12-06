@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from "next/link";
+import GlobalLoading from '@/app/_components/GlobalLoading';
 import Image from 'next/image';
 
 interface Project {
@@ -58,7 +60,7 @@ export default function AdminProjectsPage() {
             if (filter === 'deleted') {
                 url = '/api/admin/projects?deleted=true';
             } else if (filter !== 'all') {
-                url = `/api/admin/projects?status=${filter}`;
+                url = `/ api / admin / projects ? status = ${filter} `;
             }
 
             const res = await fetch(url, {
@@ -87,7 +89,7 @@ export default function AdminProjectsPage() {
 
     const handleApprove = async (id: string) => {
         try {
-            const res = await fetch(`/api/admin/projects/${id}/approve`, {
+            const res = await fetch(`/ api / admin / projects / ${id}/approve`, {
                 method: 'POST',
                 headers: { 'x-admin-password': password },
             });
@@ -224,17 +226,29 @@ export default function AdminProjectsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 p-6">
-            <div className="max-w-6xl mx-auto">
-                <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-                    <h1 className="text-3xl font-bold text-white">Proje Yönetimi</h1>
-                    <div className="flex gap-2 flex-wrap">
+        <div className="min-h-screen bg-neo-gray text-neo-black p-6 font-sans">
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+                    <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter bg-neo-black text-neo-white px-6 py-2 shadow-neo transform -rotate-1">
+                        Proje Yönetimi
+                    </h1>
+
+                    {/* Filter Tabs */}
+                    <div className="flex flex-wrap justify-center gap-4">
                         {(['pending', 'approved', 'rejected', 'all', 'deleted'] as const).map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
-                                className={`px-4 py-2 font-bold border-2 border-gray-600 ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                                    } ${f === 'deleted' ? 'border-red-600' : ''}`}
+                                className={`
+                                    px-6 py-3 font-bold uppercase tracking-wider border-2 border-neo-black transition-all duration-200
+                                    ${filter === f
+                                        ? 'bg-neo-black text-neo-yellow shadow-neo translate-x-[-2px] translate-y-[-2px]'
+                                        : 'bg-neo-white text-neo-black hover:bg-neo-yellow hover:shadow-neo hover:translate-x-[-2px] hover:translate-y-[-2px]'
+                                    }
+                                    ${f === 'deleted' && filter !== 'deleted' ? 'hover:bg-neo-red hover:text-white' : ''}
+                                    ${f === 'deleted' && filter === 'deleted' ? '!bg-neo-red !text-white' : ''}
+                                `}
                             >
                                 {f === 'all' ? 'Tümü' : f === 'pending' ? 'Bekleyen' : f === 'approved' ? 'Onaylı' : f === 'rejected' ? 'Reddedilen' : 'Silinenler'}
                             </button>
@@ -243,154 +257,208 @@ export default function AdminProjectsPage() {
                 </div>
 
                 {loading ? (
-                    <div className="text-white text-center py-12">Yükleniyor...</div>
+                    <GlobalLoading fullScreen={false} />
                 ) : projects.length === 0 ? (
-                    <div className="text-gray-400 text-center py-12">Proje bulunamadı</div>
+                    <div className="flex flex-col items-center justify-center p-20 border-4 border-neo-black border-dashed bg-neo-white/50">
+                        <div className="text-6xl mb-4">📂</div>
+                        <div className="text-2xl font-black uppercase text-neo-black/50">Proje Bulunamadı</div>
+                    </div>
                 ) : (
-                    <div className="space-y-6">
-                        {projects.map((project) => (
-                            <div key={project._id} className={`bg-gray-800 border-2 ${project.isDeleted ? 'border-red-700' : 'border-gray-700'} overflow-hidden`}>
+                    <div className="grid grid-cols-1 gap-8">
+                        {projects.map((project, index) => (
+                            <div
+                                key={project._id}
+                                className={`
+                                    relative bg-neo-white border-4 border-neo-black shadow-neo hover:shadow-neo-lg transition-all duration-300
+                                    ${project.isDeleted ? 'opacity-75 grayscale' : ''}
+                                `}
+                            >
+                                {/* Status Badge (Absolute) */}
+                                <div className={`
+                                    absolute -top-4 -right-4 px-6 py-2 border-2 border-neo-black font-black uppercase tracking-widest shadow-neo-sm transform rotate-2 z-10
+                                    ${project.status === 'pending' ? 'bg-neo-yellow text-neo-black' :
+                                        project.status === 'approved' ? 'bg-neo-green text-neo-black' :
+                                            'bg-neo-red text-neo-white'}
+                                `}>
+                                    {project.status === 'pending' ? 'Bekliyor' : project.status === 'approved' ? 'Onaylı' : 'Reddedildi'}
+                                </div>
+
                                 <div className="flex flex-col lg:flex-row">
-                                    {/* Preview */}
-                                    <div className="relative w-full lg:w-72 h-48 border-b-2 lg:border-b-0 lg:border-r-2 border-gray-700">
+                                    {/* Preview Section */}
+                                    <div className="relative w-full lg:w-1/3 aspect-video lg:aspect-auto border-b-4 lg:border-b-0 lg:border-r-4 border-neo-black bg-neo-gray-dark group overflow-hidden">
+                                        <div className="absolute inset-0 bg-neo-purple/20 mix-blend-overlay group-hover:bg-transparent transition-all duration-300 z-10" />
                                         <Image
                                             src={getGithubPreview(project.githubUrl)}
                                             alt={project.title}
                                             fill
-                                            className="object-cover"
+                                            className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                                             unoptimized
                                         />
                                     </div>
 
-                                    {/* Content */}
-                                    <div className="flex-1 p-6">
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div>
-                                                <h2 className="text-xl font-bold text-white">{project.title}</h2>
-                                                <div className="flex items-center gap-2 mt-2">
-                                                    <span className={`inline-block px-3 py-1 text-sm font-bold text-black ${getStatusColor(project.status)}`}>
-                                                        {project.status === 'pending' ? 'Bekliyor' : project.status === 'approved' ? 'Onaylı' : 'Reddedildi'}
-                                                    </span>
+                                    {/* Content Section */}
+                                    <div className="flex-1 p-6 lg:p-8 flex flex-col">
+
+                                        <div className="flex-1">
+                                            {/* Header */}
+                                            <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                                                <div>
+                                                    <h2 className="text-3xl font-black uppercase leading-none mb-2">{project.title}</h2>
                                                     {project.isDeleted && project.deletedAt && (
-                                                        <span className="inline-block px-3 py-1 text-sm font-bold bg-red-600 text-white">
-                                                            Kalıcı silmeye {getDaysUntilPermanentDelete(project.deletedAt)} gün kaldı
+                                                        <span className="inline-block px-2 py-1 bg-neo-red text-white text-xs font-bold uppercase border border-neo-black">
+                                                            {getDaysUntilPermanentDelete(project.deletedAt)} gün sonra silinecek
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <p className="text-gray-300 mb-4 line-clamp-2">{project.description}</p>
+                                            {/* Description */}
+                                            <p className="text-neo-black/80 font-bold leading-relaxed mb-6 line-clamp-2 border-l-4 border-neo-yellow pl-4">
+                                                {project.description}
+                                            </p>
 
-                                        {/* Member Info */}
-                                        <div className="text-sm text-gray-400 mb-4">
-                                            <span className="font-bold">Üye:</span> {project.memberId?.fullName || 'Bilinmiyor'}
-                                            {project.memberId?.studentNo && ` (${project.memberId.studentNo})`}
-                                            {project.memberId?.department && ` • ${project.memberId.department}`}
-                                        </div>
+                                            {/* Details Grid */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-8 h-8 bg-neo-blue border-2 border-neo-black flex items-center justify-center font-bold text-white">
+                                                        👤
+                                                    </div>
+                                                    <div>
+                                                        <span className="block font-black uppercase text-xs text-neo-black/60">Geliştirici</span>
+                                                        <span className="font-bold truncate">{project.memberId?.fullName || 'Bilinmiyor'}</span>
+                                                    </div>
+                                                </div>
 
-                                        {/* Technologies */}
-                                        {project.technologies.length > 0 && (
-                                            <div className="flex flex-wrap gap-2 mb-4">
-                                                {project.technologies.map((tech, i) => (
-                                                    <span key={i} className="px-2 py-1 bg-gray-700 text-gray-300 text-xs">
-                                                        {tech}
-                                                    </span>
-                                                ))}
+                                                {project.memberId?.studentNo && (
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-8 h-8 bg-neo-purple border-2 border-neo-black flex items-center justify-center font-bold text-white">
+                                                            🆔
+                                                        </div>
+                                                        <div>
+                                                            <span className="block font-black uppercase text-xs text-neo-black/60">Öğrenci No</span>
+                                                            <span className="font-bold">{project.memberId.studentNo}</span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
 
-                                        {/* Links */}
-                                        <div className="flex gap-4 mb-4 text-sm">
-                                            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-                                                GitHub
-                                            </a>
-                                            {project.demoUrl && (
-                                                <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">
-                                                    Demo
-                                                </a>
+                                            {/* Technologies Chips */}
+                                            {project.technologies.length > 0 && (
+                                                <div className="flex flex-wrap gap-2 mb-6">
+                                                    {project.technologies.map((tech, i) => (
+                                                        <span
+                                                            key={i}
+                                                            className="px-3 py-1 bg-neo-black text-neo-white text-xs font-bold uppercase border border-neo-black hover:bg-neo-white hover:text-neo-black transition-colors"
+                                                        >
+                                                            {tech}
+                                                        </span>
+                                                    ))}
+                                                </div>
                                             )}
                                         </div>
 
-                                        {/* Rejection Reason */}
+                                        {/* Rejection Notice */}
                                         {project.status === 'rejected' && project.rejectionReason && (
-                                            <div className="bg-red-900/30 border border-red-700 p-3 mb-4">
-                                                <p className="text-sm text-red-400">
-                                                    <span className="font-bold">Red sebebi:</span> {project.rejectionReason}
+                                            <div className="bg-neo-red/10 border-2 border-neo-red p-4 mb-6">
+                                                <p className="text-neo-red font-bold">
+                                                    <span className="uppercase text-xs block opacity-70 mb-1">Red Sebebi:</span>
+                                                    {project.rejectionReason}
                                                 </p>
                                             </div>
                                         )}
 
-                                        {/* Actions for active projects */}
-                                        {!project.isDeleted && (
-                                            <div className="flex gap-3 flex-wrap">
-                                                {project.status === 'pending' && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleApprove(project._id)}
-                                                            className="px-4 py-2 bg-green-600 text-white font-bold hover:bg-green-700"
-                                                        >
-                                                            Onayla
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setRejectingId(project._id)}
-                                                            className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
-                                                        >
-                                                            Reddet
-                                                        </button>
-                                                    </>
+                                        {/* Actions Footer */}
+                                        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mt-auto pt-6 border-t-2 border-neo-black/10">
+                                            {/* Links */}
+                                            <div className="flex gap-4">
+                                                <a href={project.githubUrl}
+                                                    className="flex items-center gap-2 font-bold hover:text-neo-purple underline decoration-2 underline-offset-4">
+                                                    <span className="text-xl">⌨️</span> GitHub
+                                                </a>
+                                                {project.demoUrl && (
+                                                    <a href={project.demoUrl}
+                                                        className="flex items-center gap-2 font-bold hover:text-neo-green underline decoration-2 underline-offset-4">
+                                                        <span className="text-xl">🚀</span> Demo
+                                                    </a>
                                                 )}
-                                                {project.status === 'approved' && (
-                                                    <button
-                                                        onClick={() => setDeleteModalId(project._id)}
-                                                        className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
+                                            </div>
+
+                                            {/* Action Buttons */}
+                                            {!project.isDeleted ? (
+                                                <div className="flex flex-wrap gap-3">
+                                                    <Link
+                                                        href={`/admin/projects/${project._id}/edit`}
+                                                        className="px-6 py-2 bg-neo-white border-2 border-neo-black text-neo-black font-black uppercase hover:bg-neo-black hover:text-neo-white transition-all shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
                                                     >
-                                                        Sil
+                                                        Düzenle
+                                                    </Link>
+
+                                                    {project.status === 'pending' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleApprove(project._id)}
+                                                                className="px-6 py-2 bg-neo-green border-2 border-neo-black text-neo-black font-black uppercase hover:brightness-110 shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                            >
+                                                                Onayla
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setRejectingId(project._id)}
+                                                                className="px-6 py-2 bg-neo-red border-2 border-neo-black text-white font-black uppercase hover:brightness-110 shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                            >
+                                                                Reddet
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {(project.status === 'approved' || project.status === 'rejected') && (
+                                                        <button
+                                                            onClick={() => setDeleteModalId(project._id)}
+                                                            className="px-6 py-2 bg-neo-gray-dark border-2 border-neo-black text-white font-black uppercase hover:bg-neo-red shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                        >
+                                                            Sil
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-wrap gap-3">
+                                                    <button
+                                                        onClick={() => handleRestore(project._id)}
+                                                        className="px-6 py-2 bg-neo-blue border-2 border-neo-black text-white font-black uppercase hover:brightness-110 shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                    >
+                                                        Geri Yükle
                                                     </button>
-                                                )}
-                                            </div>
-                                        )}
+                                                    <button
+                                                        onClick={() => setPermanentDeleteModalId(project._id)}
+                                                        className="px-6 py-2 bg-neo-red border-2 border-neo-black text-white font-black uppercase hover:brightness-110 shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                    >
+                                                        Kalıcı Sil
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
 
-                                        {/* Actions for deleted projects */}
-                                        {project.isDeleted && (
-                                            <div className="flex gap-3">
-                                                <button
-                                                    onClick={() => handleRestore(project._id)}
-                                                    className="px-4 py-2 bg-green-600 text-white font-bold hover:bg-green-700"
-                                                >
-                                                    Geri Yükle
-                                                </button>
-                                                <button
-                                                    onClick={() => setPermanentDeleteModalId(project._id)}
-                                                    className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
-                                                >
-                                                    Kalıcı Sil
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        {/* Reject Form */}
+                                        {/* Reject Form Layout Update */}
                                         {rejectingId === project._id && (
-                                            <div className="mt-4 p-4 bg-gray-700 border border-gray-600">
+                                            <div className="mt-6 p-6 bg-neo-black text-neo-white border-4 border-neo-red animate-pulse-slow">
+                                                <h4 className="font-bold uppercase text-neo-red mb-2">Red Nedeni Belirtin</h4>
                                                 <textarea
                                                     value={rejectReason}
                                                     onChange={(e) => setRejectReason(e.target.value)}
-                                                    placeholder="Red sebebi (opsiyonel)"
-                                                    className="w-full p-2 bg-gray-800 text-white border border-gray-600 mb-3"
-                                                    rows={2}
+                                                    placeholder="Geliştiriciye neyin eksik olduğunu açıklayın..."
+                                                    className="w-full p-3 bg-neo-gray-dark text-white border-2 border-neo-white/20 focus:border-neo-red outline-none mb-4 font-mono text-sm"
+                                                    rows={3}
                                                 />
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => handleReject(project._id)}
-                                                        className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
-                                                    >
-                                                        Reddet
-                                                    </button>
+                                                <div className="flex justify-end gap-3">
                                                     <button
                                                         onClick={() => { setRejectingId(null); setRejectReason(''); }}
-                                                        className="px-4 py-2 bg-gray-600 text-white font-bold hover:bg-gray-500"
+                                                        className="px-4 py-2 border-2 border-white text-white font-bold uppercase hover:bg-white hover:text-black transition-all"
                                                     >
                                                         İptal
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleReject(project._id)}
+                                                        className="px-4 py-2 bg-neo-red border-2 border-neo-red text-white font-bold uppercase hover:brightness-125 transition-all"
+                                                    >
+                                                        Reddet
                                                     </button>
                                                 </div>
                                             </div>
@@ -403,52 +471,54 @@ export default function AdminProjectsPage() {
                 )}
             </div>
 
-            {/* Soft Delete Confirmation Modal */}
+            {/* Modals with Neo Style */}
             {deleteModalId && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-gray-800 border-2 border-gray-700 p-6 max-w-md w-full">
-                        <h3 className="text-xl font-bold text-white mb-4">Projeyi Sil</h3>
-                        <p className="text-gray-300 mb-6">
-                            Bu projeyi silmek istediğinizden emin misiniz? Proje 30 gün boyunca Silinenler sekmesinde tutulacak ve sonra kalıcı olarak silinecek.
+                <div className="fixed inset-0 bg-neo-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                    <div className="bg-neo-white border-4 border-neo-black shadow-neo-lg p-8 max-w-md w-full relative">
+                        <div className="absolute -top-6 -left-6 bg-neo-red text-white px-4 py-2 font-black border-2 border-neo-black shadow-neo transform -rotate-2">
+                            DİKKAT!
+                        </div>
+                        <h3 className="text-2xl font-black uppercase mb-4 text-neo-black">Projeyi Sil?</h3>
+                        <p className="font-bold text-neo-black/70 mb-8 leading-relaxed">
+                            Bu proje "Silinenler" kutusuna taşınacak. 30 gün içinde geri yükleyebilirsiniz.
                         </p>
-                        <div className="flex gap-3 justify-end">
+                        <div className="flex gap-4 justify-end">
                             <button
                                 onClick={() => setDeleteModalId(null)}
-                                className="px-4 py-2 bg-gray-600 text-white font-bold hover:bg-gray-500"
+                                className="px-6 py-3 border-2 border-neo-black font-black uppercase hover:bg-neo-gray transition-all"
                             >
-                                İptal
+                                Vazgeç
                             </button>
                             <button
                                 onClick={() => handleSoftDelete(deleteModalId)}
-                                className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
+                                className="px-6 py-3 bg-neo-black text-white border-2 border-neo-black font-black uppercase hover:bg-neo-red hover:shadow-neo transition-all"
                             >
-                                Sil
+                                Evet, Sil
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Permanent Delete Confirmation Modal */}
             {permanentDeleteModalId && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-gray-800 border-2 border-red-700 p-6 max-w-md w-full">
-                        <h3 className="text-xl font-bold text-red-400 mb-4">Kalıcı Olarak Sil</h3>
-                        <p className="text-gray-300 mb-6">
-                            Bu projeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!
+                <div className="fixed inset-0 bg-neo-red/90 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                    <div className="bg-neo-black border-4 border-white shadow-neo-lg p-8 max-w-md w-full text-white">
+                        <h3 className="text-2xl font-black uppercase mb-4 text-neo-red">⚠️ SON UYARI</h3>
+                        <p className="font-bold mb-8 leading-relaxed">
+                            Bu işlem geri alınamaz! Proje veritabanından tamamen silinecek.
                         </p>
-                        <div className="flex gap-3 justify-end">
+                        <div className="flex gap-4 justify-end">
                             <button
                                 onClick={() => setPermanentDeleteModalId(null)}
-                                className="px-4 py-2 bg-gray-600 text-white font-bold hover:bg-gray-500"
+                                className="px-6 py-3 border-2 border-white font-black uppercase hover:bg-white hover:text-black transition-all"
                             >
-                                İptal
+                                İptal Et
                             </button>
                             <button
                                 onClick={() => handlePermanentDelete(permanentDeleteModalId)}
-                                className="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700"
+                                className="px-6 py-3 bg-neo-red text-white border-2 border-neo-red font-black uppercase hover:brightness-125 hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all"
                             >
-                                Kalıcı Olarak Sil
+                                Yok Et
                             </button>
                         </div>
                     </div>

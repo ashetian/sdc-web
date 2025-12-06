@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import LoadingSpinner from "@/app/_components/LoadingSpinner";
+import GlobalLoading from '@/app/_components/GlobalLoading';
 import ContentBlockEditor, { ContentBlock } from "@/app/admin/_components/ContentBlockEditor";
 
 interface Announcement {
@@ -94,12 +94,8 @@ export default function EditAnnouncementPage({
     setIsSubmitting(true);
 
     try {
-      const newSlug = formData.title
-        .toLocaleLowerCase('tr-TR')
-        .replace(/[^a-z0-9çğıöşü\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
+      // Slug generation removed - using manual input
+
 
       // Generate content from blocks for search/summary purposes (all types)
       const finalContent = contentBlocks
@@ -109,7 +105,8 @@ export default function EditAnnouncementPage({
 
       const updatedData = {
         ...formData,
-        slug: newSlug,
+        slug: formData.slug,
+        imageOrientation: 'vertical',
         content: finalContent,
         contentBlocks: contentBlocks,
       };
@@ -123,7 +120,8 @@ export default function EditAnnouncementPage({
       });
 
       if (!res.ok) {
-        throw new Error("Duyuru güncellenirken bir hata oluştu");
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Duyuru güncellenirken bir hata oluştu");
       }
 
       router.push("/admin");
@@ -179,7 +177,7 @@ export default function EditAnnouncementPage({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner size="lg" />
+        <GlobalLoading />
       </div>
     );
   }
@@ -212,6 +210,42 @@ export default function EditAnnouncementPage({
             onChange={handleChange}
             className="block w-full rounded border-2 border-black p-3 text-gray-900 bg-white focus:ring-2 focus:ring-neo-blue"
           />
+        </div>
+
+        <div>
+          <label
+            htmlFor="slug"
+            className="block text-sm font-bold text-gray-700 mb-1"
+          >
+            URL (Slug)
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              name="slug"
+              id="slug"
+              required
+              value={formData.slug}
+              onChange={handleChange}
+              className="block w-full rounded border-2 border-black p-3 text-gray-900 bg-white focus:ring-2 focus:ring-neo-blue bg-gray-50"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const newSlug = formData.title
+                  .toLocaleLowerCase('tr-TR')
+                  .replace(/[^a-z0-9çğıöşü\s-]/g, "")
+                  .replace(/\s+/g, "-")
+                  .replace(/-+/g, "-")
+                  .replace(/^-|-$/g, "");
+                setFormData(prev => ({ ...prev, slug: newSlug }));
+              }}
+              className="px-4 py-2 bg-gray-200 border-2 border-black font-bold hover:bg-gray-300 text-sm whitespace-nowrap"
+            >
+              Başlıktan Oluştur
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">Örn: hello-web-3 (Benzersiz olmalıdır)</p>
         </div>
 
         <div>
@@ -305,7 +339,7 @@ export default function EditAnnouncementPage({
             htmlFor="image"
             className="block text-sm font-bold text-gray-700 mb-1"
           >
-            Görsel Yükle (İsteğe Bağlı)
+            Görsel Yükle (Dikey 4:5)
           </label>
           <div className="flex items-center space-x-4">
             <input
@@ -329,35 +363,7 @@ export default function EditAnnouncementPage({
                 Görseli Kaldır
               </button>
 
-              <div className="mt-4">
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Görsel Yönü
-                </label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="imageOrientation"
-                      value="horizontal"
-                      checked={formData.imageOrientation === 'horizontal' || !formData.imageOrientation}
-                      onChange={handleChange}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm text-gray-700">Yatay (5:4)</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="imageOrientation"
-                      value="vertical"
-                      checked={formData.imageOrientation === 'vertical'}
-                      onChange={handleChange}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm text-gray-700">Dikey (4:5)</span>
-                  </label>
-                </div>
-              </div>
+
             </div>
           )}
         </div>

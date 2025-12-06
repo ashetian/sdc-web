@@ -2,16 +2,26 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Announcement } from '@/app/lib/models/Announcement';
 import z from 'zod';
+import { deleteFromCloudinary } from '@/app/lib/cloudinaryHelper';
 
 //validasyon şeması
 const schema = z.object({
+  slug: z.string().optional(),
   title: z.string().min(1).max(100),
   date: z.string().min(1).max(100),
   description: z.string().min(1).max(500),
   type: z.string().min(1).max(100),
-  content: z.string().min(1).max(10000),
+  content: z.string().max(10000).optional().default(''),
   eventId: z.string().optional(),
-  imageOrientation: z.enum(['horizontal', 'vertical']).optional(),
+  image: z.string().optional(),
+  imageOrientation: z.string().optional(),
+  contentBlocks: z.array(z.any()).optional(),
+  isDraft: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
+  isInGallery: z.boolean().optional(),
+  galleryLinks: z.array(z.string()).optional(),
+  galleryCover: z.string().optional(),
+  galleryDescription: z.string().optional(),
 });
 
 export async function GET(
@@ -52,14 +62,16 @@ export async function PUT(
     // Gerekli alanların kontrolü ama zodla
     const parsed = schema.safeParse(data);
     if (!parsed.success) {
+      const errorDetails = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ');
+      console.error('Validation failed:', errorDetails);
       return NextResponse.json(
-        { error: parsed.error.issues.map((i) => i.message).join(', ') },
+        { error: errorDetails },
         { status: 400 }
       );
     }
 
     // Tür kontrolü
-    if (!['event', 'news', 'workshop'].includes(parsed.data.type)) {
+    if (!['event', 'news', 'workshop', 'article'].includes(parsed.data.type)) {
       return NextResponse.json(
         { error: 'Geçersiz duyuru türü' },
         { status: 400 }
@@ -75,23 +87,23 @@ export async function PUT(
     // Check for removed images and delete them from Cloudinary
 
     // 1. Main Image
-    if (existingAnnouncement.image && data.image && existingAnnouncement.image !== data.image) {
+    if (existingAnnouncement.image && parsed.data.image && existingAnnouncement.image !== parsed.data.image) {
       await deleteFromCloudinary(existingAnnouncement.image);
-    } else if (existingAnnouncement.image && !data.image) {
+    } else if (existingAnnouncement.image && !parsed.data.image) {
       // If image is removed (set to null/empty)
       await deleteFromCloudinary(existingAnnouncement.image);
     }
 
     // 2. Gallery Cover
-    if (existingAnnouncement.galleryCover && data.galleryCover && existingAnnouncement.galleryCover !== data.galleryCover) {
+    if (existingAnnouncement.galleryCover && parsed.data.galleryCover && existingAnnouncement.galleryCover !== parsed.data.galleryCover) {
       await deleteFromCloudinary(existingAnnouncement.galleryCover);
-    } else if (existingAnnouncement.galleryCover && !data.galleryCover) {
+    } else if (existingAnnouncement.galleryCover && !parsed.data.galleryCover) {
       await deleteFromCloudinary(existingAnnouncement.galleryCover);
     }
 
     // 3. Gallery Links
     if (existingAnnouncement.galleryLinks && existingAnnouncement.galleryLinks.length > 0) {
-      const newLinks = data.galleryLinks || [];
+      const newLinks = parsed.data.galleryLinks || [];
       const removedLinks = existingAnnouncement.galleryLinks.filter((link: string) => !newLinks.includes(link));
 
       for (const link of removedLinks) {
@@ -100,16 +112,16 @@ export async function PUT(
     }
 
     // Auto-translate content if DeepL API is available
-    let updateData = { ...data };
+    let updateData: any = { ...parsed.data };
     if (process.env.DEEPL_API_KEY) {
       try {
         const { translateContent, translateFields, translateDate } = await import('@/app/lib/translate');
 
         // Translate main fields: title, description, content
         const mainTranslations = await translateFields({
-          title: data.title,
-          description: data.description,
-          content: data.content,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          content: parsed.data.content,
         }, 'tr');
 
         updateData.titleEn = mainTranslations.title?.en || '';
@@ -117,13 +129,14 @@ export async function PUT(
         updateData.contentEn = mainTranslations.content?.en || '';
 
         // Translate date
-        if (data.date) {
-          updateData.dateEn = translateDate(data.date);
+        if (parsed.data.date) {
+          // @ts-ignore
+          updateData.dateEn = translateDate(parsed.data.date);
         }
 
         // Translate gallery description if present
-        if (data.galleryDescription) {
-          const galleryDescResult = await translateContent(data.galleryDescription, 'tr');
+        if (parsed.data.galleryDescription) {
+          const galleryDescResult = await translateContent(parsed.data.galleryDescription, 'tr');
           updateData.galleryDescriptionEn = galleryDescResult.en;
         }
 
@@ -144,13 +157,11 @@ export async function PUT(
   } catch (error) {
     console.error('Duyuru güncellenirken hata oluştu:', error);
     return NextResponse.json(
-      { error: 'Duyuru güncellenirken bir hata oluştu' },
+      { error: `Duyuru güncellenirken bir hata oluştu: ${error instanceof Error ? error.message : String(error)}` },
       { status: 500 }
     );
   }
 }
-
-import { deleteFromCloudinary } from '@/app/lib/cloudinaryHelper';
 
 export async function DELETE(
   request: Request,

@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 
 interface Election {
     _id: string;
@@ -330,7 +330,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <LoadingSpinner size="lg" />
+                <GlobalLoading />
             </div>
         );
     }

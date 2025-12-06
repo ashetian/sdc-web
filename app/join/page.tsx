@@ -148,7 +148,7 @@ export default function JoinPage() {
                     </p>
                     <a
                         href={whatsappGroupLink}
-                        target="_blank"
+
                         rel="noopener noreferrer"
                         className="inline-flex items-center px-12 py-6 bg-[#25D366] text-white border-4 border-black shadow-neo text-2xl font-black hover:bg-white hover:text-[#25D366] hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-2"
                     >

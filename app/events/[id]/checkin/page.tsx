@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 
 interface Event {
     _id: string;
@@ -115,11 +116,7 @@ export default function CheckinPage() {
     };
 
     if (loading || checkingAuth) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-neo-purple">
-                <div className="text-2xl font-black text-white animate-bounce">Yükleniyor...</div>
-            </div>
-        );
+        return <GlobalLoading />;
     }
 
     if (error) {
@@ -148,7 +145,7 @@ export default function CheckinPage() {
                     </div>
 
                     <Link
-                        href={`/login?redirect=/events/${params.id}/checkin?code=${code}`}
+                        href={`/auth/login?returnUrl=/events/${params.id}/checkin?code=${code}`}
                         className="w-full flex justify-center py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-neo-green hover:text-black transition-all uppercase"
                     >
                         Giriş Yap

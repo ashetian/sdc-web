@@ -32,41 +32,57 @@ export default function AdminNavbar() {
     if (loading) return null; // Or a small skeleton
 
     return (
-        <nav className="fixed top-0 left-0 right-0 bg-white border-b-4 border-black z-50 flex items-center justify-between px-6 py-4 shadow-neo-sm h-20">
-            {/* Logo Area - REMOVED per user request for empty navbar with single button */}
-            <div className="hidden md:block w-32">
-                {/* Spacer to balance flex layout if needed, or just empty */}
-            </div>
-
-            {/* Menu Items - Just the Main Dashboard Link */}
-            <div className="hidden md:flex flex-1 justify-center px-8">
-                <Link
-                    href="/admin"
-                    className={`
-                        inline-flex items-center px-8 py-2 font-black text-lg uppercase transition-all border-4 border-black shadow-neo-sm
-                        ${isDashboardActive
-                            ? 'bg-neo-blue text-white translate-x-1 translate-y-1 shadow-none'
-                            : 'bg-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none hover:bg-gray-50'
-                        }
-                    `}
-                >
-                    {userInfo?.isSuperAdmin ? 'SÜPERADMİN PANELİ' : 'ADMİN PANELİ'}
-                </Link>
-            </div>
-
-            {/* Footer / User Info */}
-            <div className="flex items-center gap-4">
-                <div className="text-right hidden sm:block">
-                    <div className="text-sm font-bold truncate">
-                        {userInfo?.name || 'Kullanıcı'}
+        <nav className="bg-neo-yellow border-b-4 border-black fixed w-full top-0 z-50">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="flex h-20 items-center justify-between">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <Link href="/admin" className="text-2xl font-black text-black tracking-tighter hover:text-gray-700 transition-colors uppercase">
+                                SDC Admin
+                            </Link>
+                        </div>
+                        <div className="hidden md:block">
+                            <div className="ml-10 flex items-baseline space-x-4">
+                                {/* Assuming 'navigation' and 'handleLogout' are defined elsewhere or will be added */}
+                                {/* For now, using a placeholder for navigation items */}
+                                <Link
+                                    href="/admin"
+                                    className={`px-4 py-2 text-sm font-bold border-2 transition-all uppercase ${isDashboardActive
+                                            ? "bg-black text-white border-black shadow-neo"
+                                            : "bg-white text-black border-black hover:bg-black hover:text-white"
+                                        }`}
+                                >
+                                    {userInfo?.isSuperAdmin ? 'SÜPERADMİN PANELİ' : 'ADMİN PANELİ'}
+                                </Link>
+                            </div>
+                        </div>
                     </div>
-                    <div className="text-xs text-gray-500 font-bold uppercase">
-                        {userInfo?.isSuperAdmin ? 'Süper Admin' : (userInfo?.role || 'Üye')}
+                    <div className="hidden md:block">
+                        <div className="ml-4 flex items-center md:ml-6">
+                            {/* Placeholder for logout button, assuming handleLogout will be defined */}
+                            <button
+                                onClick={() => console.log("Logout clicked")} // Replace with actual handleLogout
+                                className="px-4 py-2 bg-red-600 text-white font-bold border-2 border-black hover:bg-red-700 hover:shadow-neo transition-all uppercase text-sm"
+                            >
+                                Çıkış Yap
+                            </button>
+                        </div>
+                    </div>
+                    {/* User Info and Siteye Dön link, adapted from original structure */}
+                    <div className="flex items-center gap-4 md:hidden"> {/* Show on small screens if needed */}
+                        <div className="text-right">
+                            <div className="text-sm font-bold truncate">
+                                {userInfo?.name || 'Kullanıcı'}
+                            </div>
+                            <div className="text-xs text-gray-500 font-bold uppercase">
+                                {userInfo?.isSuperAdmin ? 'Süper Admin' : (userInfo?.role || 'Üye')}
+                            </div>
+                        </div>
+                        <Link href="/" className="px-4 py-2 bg-red-500 text-white border-2 border-black font-black text-xs uppercase hover:bg-red-600 hover:shadow-neo transition-all">
+                            SİTEYE DÖN
+                        </Link>
                     </div>
                 </div>
-                <Link href="/" className="px-4 py-2 bg-red-500 text-white border-2 border-black font-black text-xs uppercase hover:bg-red-600 hover:shadow-neo transition-all">
-                    SİTEYE DÖN
-                </Link>
             </div>
         </nav>
     );

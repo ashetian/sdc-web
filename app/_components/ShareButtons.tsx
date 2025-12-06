@@ -52,7 +52,7 @@ export default function ShareButtons({ url, title, description }: ShareButtonsPr
             {/* WhatsApp */}
             <a
                 href={shareLinks.whatsapp}
-                target="_blank"
+
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-[#25D366] border-2 border-black shadow-neo-sm flex items-center justify-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                 aria-label="Share on WhatsApp"
@@ -65,7 +65,7 @@ export default function ShareButtons({ url, title, description }: ShareButtonsPr
             {/* LinkedIn */}
             <a
                 href={shareLinks.linkedin}
-                target="_blank"
+
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-[#0A66C2] border-2 border-black shadow-neo-sm flex items-center justify-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                 aria-label="Share on LinkedIn"
@@ -78,7 +78,7 @@ export default function ShareButtons({ url, title, description }: ShareButtonsPr
             {/* Twitter/X */}
             <a
                 href={shareLinks.twitter}
-                target="_blank"
+
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-black border-2 border-black shadow-neo-sm flex items-center justify-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                 aria-label="Share on X"

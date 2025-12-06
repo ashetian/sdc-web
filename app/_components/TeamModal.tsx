@@ -165,7 +165,6 @@ export default function TeamModal({
               {member.website && (
                 <a
                   href={member.website}
-                  target="_blank"
                   rel="noreferrer"
                   className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
@@ -175,7 +174,6 @@ export default function TeamModal({
               {member.linkedin && (
                 <a
                   href={member.linkedin}
-                  target="_blank"
                   rel="noreferrer"
                   className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
@@ -185,7 +183,6 @@ export default function TeamModal({
               {member.github && (
                 <a
                   href={member.github}
-                  target="_blank"
                   rel="noreferrer"
                   className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
@@ -195,7 +192,6 @@ export default function TeamModal({
               {member.x && (
                 <a
                   href={member.x}
-                  target="_blank"
                   rel="noreferrer"
                   className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
@@ -205,7 +201,6 @@ export default function TeamModal({
               {member.instagram && (
                 <a
                   href={member.instagram}
-                  target="_blank"
                   rel="noreferrer"
                   className="p-1.5 sm:p-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black hover:shadow-neo transition-all"
                 >
@@ -215,7 +210,6 @@ export default function TeamModal({
               {member.freelance && (
                 <a
                   href={member.freelance}
-                  target="_blank"
                   rel="noreferrer"
                   className="px-4 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base bg-neo-green text-black font-bold border-2 border-black hover:shadow-neo transition-all inline-flex items-center gap-2"
                 >

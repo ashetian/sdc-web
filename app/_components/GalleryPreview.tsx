@@ -76,7 +76,7 @@ export default function GalleryPreview() {
 
   return (
     <section
-      className="py-20 bg-neo-purple border-b-4 border-black scroll-mt-20"
+      className="py-20 bg-neo-cyan border-b-4 border-black scroll-mt-20"
       id="gallery-preview"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

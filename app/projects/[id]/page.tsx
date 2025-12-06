@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 import Image from 'next/image';
 import { useLanguage } from '../../_context/LanguageContext';
 
@@ -202,7 +203,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center pt-24">
-                <div className="text-xl font-bold">Yükleniyor...</div>
+                <GlobalLoading />
             </div>
         );
     }
@@ -280,7 +281,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         <div className="flex flex-wrap gap-4">
                             <a
                                 href={project.githubUrl}
-                                target="_blank"
+
                                 rel="noopener noreferrer"
                                 className="px-6 py-3 bg-black text-white font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all uppercase"
                             >
@@ -289,7 +290,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                             {project.demoUrl && (
                                 <a
                                     href={project.demoUrl}
-                                    target="_blank"
+
                                     rel="noopener noreferrer"
                                     className="px-6 py-3 bg-neo-green text-black font-bold border-2 border-black hover:shadow-neo transition-all uppercase"
                                 >

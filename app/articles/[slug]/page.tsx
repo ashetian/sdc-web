@@ -28,6 +28,7 @@ interface Article {
     content: string;
     contentEn?: string;
     image?: string;
+    type: 'event' | 'news' | 'workshop' | 'article';
     isDraft: boolean;
     contentBlocks?: ContentBlock[];
     contentBlocksEn?: ContentBlock[];
@@ -144,7 +145,7 @@ export default function ArticlePage({
                 <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform -rotate-1">
                     <div className="mb-6">
                         <div className="flex items-center justify-between mb-4">
-                            <span className="px-4 py-1 text-sm font-black uppercase border-2 border-black shadow-neo-sm bg-neo-peach text-black">
+                            <span className="px-4 py-2 bg-neo-cyan text-neo-black font-black uppercase border-2 border-neo-black shadow-neo">
                                 {l.article}
                             </span>
                             <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">

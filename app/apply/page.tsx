@@ -176,7 +176,7 @@ export default function ApplyPage() {
                 }
             } catch (error) {
                 console.error("Auth check failed", error);
-                router.push('/auth/login?redirect=/apply');
+                router.push('/auth/login?returnUrl=/apply');
                 return;
             }
 
@@ -674,7 +674,7 @@ export default function ApplyPage() {
                                     <span className="text-sm text-gray-700">
                                         <a
                                             href="/kvkk"
-                                            target="_blank"
+
                                             rel="noopener noreferrer"
                                             className="text-blue-600 hover:text-blue-800 underline font-bold"
                                         >

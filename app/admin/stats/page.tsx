@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 
 interface Stat {
     _id: string;
@@ -152,7 +152,7 @@ export default function StatsPage() {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <LoadingSpinner size="lg" />
+                <GlobalLoading />
             </div>
         );
     }

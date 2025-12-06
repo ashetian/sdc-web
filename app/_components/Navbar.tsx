@@ -116,7 +116,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav ref={navRef} className="fixed w-full z-50 bg-neo-peach border-b-4 border-black">
+      <nav ref={navRef} className="fixed w-full z-50 bg-neo-yellow border-b-4 border-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-20 items-center relative z-50 bg-transparent">
             {/* Left Side: Logo + Links */}
@@ -125,7 +125,7 @@ export default function Navbar() {
                 onClick={() => scrollToSection("home")}
                 className="flex items-center group"
               >
-                <div className="relative w-14 h-14 bg-white border-2 border-black shadow-neo-sm transition-all hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] p-1">
+                <div className="relative w-14 h-14 bg-neo-white border-2 border-neo-black shadow-neo-sm transition-all hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] p-1">
                   <Image
                     src="/logopng.png"
                     alt="KTÜ SDC Logo"
@@ -140,11 +140,11 @@ export default function Navbar() {
               <div className="hidden md:flex items-center space-x-6">
                 <NavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
                 <NavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
-                <NavLink onClick={() => window.open("/events", "_blank")} text={t('nav.events')} />
+                <NavLink onClick={() => router.push("/events")} text={t('nav.events')} />
                 {user && (
                   <>
-                    <NavLink onClick={() => window.open("/articles", "_blank")} text={language === 'tr' ? 'Makaleler' : 'Articles'} />
-                    <NavLink onClick={() => window.open("/projects", "_blank")} text={language === 'tr' ? 'Projeler' : 'Projects'} />
+                    <NavLink onClick={() => router.push("/articles")} text={language === 'tr' ? 'Makaleler' : 'Articles'} />
+                    <NavLink onClick={() => router.push("/projects")} text={language === 'tr' ? 'Projeler' : 'Projects'} />
                   </>
                 )}
                 <NavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
@@ -267,15 +267,15 @@ export default function Navbar() {
                   <MobileNavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
                 </motion.div>
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => window.open("/events", "_blank")} text={t('nav.events')} />
+                  <MobileNavLink onClick={() => { router.push("/events"); setIsMenuOpen(false); }} text={t('nav.events')} />
                 </motion.div>
                 {user && (
                   <>
                     <motion.div variants={itemVariants}>
-                      <MobileNavLink onClick={() => window.open("/articles", "_blank")} text={language === 'tr' ? 'Makaleler' : 'Articles'} />
+                      <MobileNavLink onClick={() => { router.push("/articles"); setIsMenuOpen(false); }} text={language === 'tr' ? 'Makaleler' : 'Articles'} />
                     </motion.div>
                     <motion.div variants={itemVariants}>
-                      <MobileNavLink onClick={() => window.open("/projects", "_blank")} text={language === 'tr' ? 'Projeler' : 'Projects'} />
+                      <MobileNavLink onClick={() => { router.push("/projects"); setIsMenuOpen(false); }} text={language === 'tr' ? 'Projeler' : 'Projects'} />
                     </motion.div>
                   </>
                 )}

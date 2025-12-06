@@ -196,11 +196,11 @@ export default function Team() {
         <section
             ref={sectionRef}
             id="team"
-            className="relative py-20 bg-white border-b-4 border-black"
+            className="relative py-20 bg-neo-green border-b-4 border-black"
         >
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
-                    <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-neo-green border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
+                    <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
                         {t('team.title')}
                     </h2>
                     <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-4">

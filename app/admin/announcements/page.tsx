@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import GlobalLoading from '@/app/_components/GlobalLoading';
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
@@ -58,7 +59,7 @@ export default function AnnouncementsIndexPage() {
             case "event": return "bg-neo-purple text-white";
             case "news": return "bg-neo-blue text-black";
             case "workshop": return "bg-neo-green text-black";
-            case "article": return "bg-neo-peach text-black";
+            case "article": return "bg-neo-yellow text-black";
             default: return "bg-gray-200 text-black";
         }
     };
@@ -73,7 +74,7 @@ export default function AnnouncementsIndexPage() {
         }
     };
 
-    if (loading) return <div className="p-12 text-center font-bold">Yükleniyor...</div>;
+    if (loading) return <GlobalLoading />;
 
     return (
         <div className="space-y-6">
@@ -100,7 +101,7 @@ export default function AnnouncementsIndexPage() {
                 ) : (
                     <ul className="divide-y-4 divide-black">
                         {announcements.map((announcement) => (
-                            <li key={announcement._id} className="p-6 hover:bg-gray-50 transition-colors">
+                            <li key={announcement._id} className="p-6 hover:bg-gray-50 transition-colors relative">
                                 <div className="flex items-start space-x-4">
                                     {/* Image */}
                                     {announcement.image && (
@@ -136,9 +137,9 @@ export default function AnnouncementsIndexPage() {
                                             <span className="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-1 border border-black">
                                                 {announcement.date}
                                             </span>
-                                            <span className={`text-xs font-black px-2 py-1 border-2 border-black uppercase ${getTypeColor(announcement.type)}`}>
+                                            <div className={`absolute top-4 right-4 bg-neo-yellow text-neo-black font-black px-4 py-2 border-2 border-neo-black shadow-neo z-10 ${getTypeColor(announcement.type)}`}>
                                                 {getTypeLabel(announcement.type)}
-                                            </span>
+                                            </div>
                                         </div>
                                     </div>
 

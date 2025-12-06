@@ -165,7 +165,7 @@ export default function Announcements() {
 
   if (announcements.length === 0) {
     return (
-      <section id="announcements" className="min-h-[60vh] bg-neo-mint flex items-center justify-center border-b-4 border-black">
+      <section id="announcements" className="min-h-[60vh] bg-neo-green flex items-center justify-center border-b-4 border-black">
         <p className="text-2xl font-bold text-black">{l.noAnnouncements}</p>
       </section>
     );
@@ -181,121 +181,63 @@ export default function Announcements() {
   return (
     <section
       id="announcements"
-      className="relative min-h-[80vh] bg-neo-mint border-b-4 border-black overflow-hidden touch-pan-y"
+      className="relative min-h-[80vh] bg-neo-blue border-b-4 border-black overflow-hidden touch-pan-y"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
       {/* Announcement Content */}
-      <div className={`max-w-7xl mx-auto px-12 sm:px-20 lg:px-24 pt-24 pb-24 flex items-center justify-center min-h-[80vh] ${isVertical ? 'flex-col' : 'flex-row gap-12'}`}>
-
-        {/* Date & Type - Absolute Top Left */}
-        <div className="absolute top-6 left-8 flex items-center gap-3 z-20 hidden sm:flex">
-          <span className={`px-4 py-2 text-sm font-black uppercase border-2 border-black shadow-neo-sm ${getTypeStyles(current.type)}`}>
-            {getTypeText(current.type)}
-          </span>
-          <time className="text-sm font-bold text-black bg-white px-3 py-2 border-2 border-black shadow-neo-sm">
-            {getText(current.date, current.dateEn, '')}
-          </time>
-        </div>
-
-        {/* Mobile Date & Type - Absolute Top Left (Smaller) */}
-        <div className="absolute top-4 left-4 flex flex-col gap-2 z-20 sm:hidden">
-          <span className={`px-3 py-1 text-xs font-black uppercase border-2 border-black shadow-neo-sm w-fit ${getTypeStyles(current.type)}`}>
-            {getTypeText(current.type)}
-          </span>
-          <time className="text-xs font-bold text-black bg-white px-2 py-1 border-2 border-black shadow-neo-sm w-fit">
-            {getText(current.date, current.dateEn, '')}
-          </time>
-        </div>
-
-        {/* Vertical Image Layout - Image Left, Text Right */}
-        {isVertical && (
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full">
-            {current.image && (
-              <div className="flex-shrink-0 w-full md:w-2/5">
-                <div className="relative aspect-[4/5] max-h-[60vh] border-4 border-black shadow-neo overflow-hidden mx-auto md:mx-0">
-                  <ImageLightbox
-                    src={current.image}
-                    alt={getText(current.title, current.titleEn, '')}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+      {/* Standard Vertical Layout - Image Left, Text Right (Desktop) / Stacked (Mobile) */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center py-20">
+        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full">
+          {current.image && (
+            <div className="flex-shrink-0 w-full md:w-2/5">
+              <div className="relative aspect-[4/5] max-h-[60vh] border-4 border-black shadow-neo overflow-hidden mx-auto md:mx-0">
+                <ImageLightbox
+                  src={current.image}
+                  alt={getText(current.title, current.titleEn, '')}
+                  fill
+                  className="object-cover"
+                />
               </div>
-            )}
-            <div className={`flex-1 flex flex-col ${current.image ? 'items-start text-left' : 'items-center text-center'}`}>
-              <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase" lang={language}>
-                {getText(current.title, current.titleEn, '')}
-              </h2>
-              <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
-                {getText(current.description, current.descriptionEn, '')}
-              </p>
-              <div className={`flex gap-4 flex-wrap ${current.image ? '' : 'justify-center'}`}>
+            </div>
+          )}
+          <div className={`flex-1 flex flex-col ${current.image ? 'items-start text-left' : 'items-center text-center'}`}>
+            <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase" lang={language}>
+              {getText(current.title, current.titleEn, '')}
+            </h2>
+            <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
+              {getText(current.description, current.descriptionEn, '')}
+            </p>
+            <div className={`flex gap-4 flex-wrap ${current.image ? '' : 'justify-center'}`}>
+              <Link
+                href={`/announcements/${current.slug}`}
+                className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
+                lang={language}
+              >
+                {l.details}
+              </Link>
+              {current.eventId && (
                 <Link
-                  href={`/announcements/${current.slug}`}
-                  className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
+                  href={`/events/${current.eventId}/register`}
+                  className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
                   lang={language}
                 >
-                  {l.details}
+                  {l.register}
                 </Link>
-                {current.eventId && (
-                  <Link
-                    href={`/events/${current.eventId}/register`}
-                    className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
-                    lang={language}
-                  >
-                    {l.register}
-                  </Link>
-                )}
-              </div>
+              )}
+            </div>
+            {/* Mobile View All Button - In Flow */}
+            <div className="mt-6 sm:hidden w-full flex justify-center">
+              <Link
+                href="/announcements"
+                className="px-6 py-2 bg-white border-2 border-black font-bold text-sm hover:bg-black hover:text-white transition-all shadow-neo-sm"
+              >
+                {l.viewAll} →
+              </Link>
             </div>
           </div>
-        )}
-
-        {/* Horizontal Layout */}
-        {!isVertical && (
-          <>
-            {current.image && (
-              <div className="flex-shrink-0 w-full md:w-1/2 flex justify-center">
-                <div className="relative aspect-[5/4] w-full border-4 border-black shadow-neo overflow-hidden">
-                  <ImageLightbox
-                    src={current.image}
-                    alt={getText(current.title, current.titleEn, '')}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            )}
-            <div className={`flex-1 py-8 flex flex-col ${current.image ? 'items-start text-left' : 'items-center text-center'}`}>
-              <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase" lang={language}>
-                {getText(current.title, current.titleEn, '')}
-              </h2>
-              <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
-                {getText(current.description, current.descriptionEn, '')}
-              </p>
-              <div className={`flex gap-4 flex-wrap ${current.image ? '' : 'justify-center'}`}>
-                <Link
-                  href={`/announcements/${current.slug}`}
-                  className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
-                  lang={language}
-                >
-                  {l.details}
-                </Link>
-                {current.eventId && (
-                  <Link
-                    href={`/events/${current.eventId}/register`}
-                    className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
-                    lang={language}
-                  >
-                    {l.register}
-                  </Link>
-                )}
-              </div>
-            </div>
-          </>
-        )}
+        </div>
       </div>
 
       {/* Navigation Controls */}
@@ -304,7 +246,7 @@ export default function Announcements() {
           {/* Arrow Buttons */}
           <button
             onClick={goToPrev}
-            className="absolute left-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-all z-10 hidden sm:flex"
+            className="absolute left-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10 hidden sm:flex !transform-none"
             aria-label="Previous announcement"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -313,7 +255,7 @@ export default function Announcements() {
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-all z-10 hidden sm:flex"
+            className="absolute right-4 top-[40%] -translate-y-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10 hidden sm:flex !transform-none"
             aria-label="Next announcement"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -322,7 +264,7 @@ export default function Announcements() {
           </button>
 
           {/* Dot Indicators */}
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-3 z-10">
             {announcements.map((_, idx) => (
               <button
                 key={idx}
@@ -349,21 +291,19 @@ export default function Announcements() {
           />
         </div>
       )}
-      {/* View All Announcements Button - Bottom Right */}
-      <Link
-        href="/announcements"
-        className="absolute bottom-8 right-8 px-6 py-2 bg-white border-2 border-black font-bold text-sm hover:bg-black hover:text-white transition-all z-20 shadow-neo-sm hidden sm:block"
-      >
-        {l.viewAll} →
-      </Link>
 
-      {/* Mobile View All Button */}
-      <Link
-        href="/announcements"
-        className="absolute bottom-4 right-4 px-4 py-2 bg-white border-2 border-black font-bold text-xs hover:bg-black hover:text-white transition-all z-20 shadow-neo-sm sm:hidden"
-      >
-        {l.viewAll} →
-      </Link>
+      {/* Desktop View All Button - Centered Bottom */}
+      <div className="absolute bottom-4 w-full flex justify-center z-20 hidden sm:flex">
+        <Link
+          href="/announcements"
+          className="px-6 py-2 bg-white border-2 border-black font-bold text-sm hover:bg-black hover:text-white transition-all shadow-neo-sm"
+        >
+          {l.viewAll} →
+        </Link>
+      </div>
+
+
+
 
       <style jsx>{`
         @keyframes progress {

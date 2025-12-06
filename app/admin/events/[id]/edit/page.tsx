@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 import Link from 'next/link';
 
 interface EventData {
@@ -142,7 +142,7 @@ export default function EditEventPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <LoadingSpinner size="lg" />
+                <GlobalLoading />
             </div>
         );
     }

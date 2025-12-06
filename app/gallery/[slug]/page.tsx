@@ -176,7 +176,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
                       className="w-full bg-black"
                     />
                   ) : (
-                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-white font-bold underline p-4 block text-center hover:text-neo-yellow">
+                    <a href={link} className="text-white font-bold underline p-4 block text-center hover:text-neo-yellow">
                       {l.viewFile}
                     </a>
                   )}

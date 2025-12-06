@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
-import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 import Link from 'next/link';
 
 interface Member {
@@ -126,7 +126,7 @@ export default function EventRegistrationsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center p-8">
-                <LoadingSpinner size="lg" />
+                <GlobalLoading />
             </div>
         );
     }

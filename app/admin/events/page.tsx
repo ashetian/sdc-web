@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 
 interface Event {
     _id: string;
@@ -11,6 +11,7 @@ interface Event {
     isPaid: boolean;
     price?: number;
     createdAt: string;
+    eventDate?: string;
     isEnded?: boolean;
     attendanceCode?: string;
     actualDuration?: number;
@@ -142,7 +143,7 @@ export default function AdminEventsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <LoadingSpinner size="lg" />
+                <GlobalLoading />
             </div>
         );
     }
@@ -222,7 +223,9 @@ export default function AdminEventsPage() {
                                         )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-600">
-                                        {new Date(event.createdAt).toLocaleDateString('tr-TR')}
+                                        {event.eventDate
+                                            ? new Date(event.eventDate).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                            : '-'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                                         <Link

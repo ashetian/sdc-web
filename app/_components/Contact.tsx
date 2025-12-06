@@ -111,7 +111,7 @@ export default function Contact() {
     const l = labels[language];
 
     return (
-        <section ref={sectionRef} id="contact" className="relative py-20 bg-neo-blue border-b-4 border-black">
+        <section ref={sectionRef} id="contact" className="relative py-20 bg-neo-purple border-b-4 border-black">
             <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                     <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-6 py-2 transform rotate-1">

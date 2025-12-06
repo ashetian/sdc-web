@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 import { useLanguage } from '../../_context/LanguageContext';
 
 interface Project {
@@ -116,7 +117,7 @@ export default function MyProjectsPage() {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center pt-24">
-                <div className="text-xl font-bold">Yükleniyor...</div>
+                <GlobalLoading fullScreen={false} />
             </div>
         );
     }
@@ -205,11 +206,11 @@ export default function MyProjectsPage() {
                                 )}
 
                                 <div className="flex gap-4 mt-4 text-sm">
-                                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-bold">
+                                    <a href={project.githubUrl} className="text-blue-600 hover:underline font-bold">
                                         GitHub
                                     </a>
                                     {project.demoUrl && (
-                                        <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline font-bold">
+                                        <a href={project.demoUrl} className="text-green-600 hover:underline font-bold">
                                             Demo
                                         </a>
                                     )}

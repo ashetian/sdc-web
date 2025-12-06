@@ -25,7 +25,7 @@ export default function NewAnnouncementPage() {
     type: "event",
     content: "",
     image: "",
-    imageOrientation: "horizontal" as "horizontal" | "vertical",
+    imageOrientation: "vertical" as "horizontal" | "vertical",
     isDraft: false,
     eventId: "",
   });
@@ -281,7 +281,7 @@ export default function NewAnnouncementPage() {
             htmlFor="image"
             className="block text-sm font-bold text-gray-700 mb-1"
           >
-            Görsel Yükle (İsteğe Bağlı)
+            Görsel Yükle (Dikey 4:5)
           </label>
           <div className="flex items-center space-x-4">
             <input
@@ -317,41 +317,7 @@ export default function NewAnnouncementPage() {
           )}
         </div>
 
-        {formData.image && (
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
-              Görsel Yönü (Ana sayfa carousel için)
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="imageOrientation"
-                  value="horizontal"
-                  checked={formData.imageOrientation === "horizontal"}
-                  onChange={handleChange}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm text-gray-700">
-                  Yatay (Görsel solda)
-                </span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="imageOrientation"
-                  value="vertical"
-                  checked={formData.imageOrientation === "vertical"}
-                  onChange={handleChange}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm text-gray-700">
-                  Dikey (Görsel üstte)
-                </span>
-              </label>
-            </div>
-          </div>
-        )}
+
 
 
         <div>

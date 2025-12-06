@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import GlobalLoading from '@/app/_components/GlobalLoading';
 
 interface Department {
     _id: string;
@@ -117,7 +117,7 @@ export default function DepartmentsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <LoadingSpinner size="lg" />
+                <GlobalLoading />
             </div>
         );
     }

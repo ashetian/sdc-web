@@ -65,10 +65,10 @@ export default function SocialConnect() {
   ];
 
   return (
-    <section className="relative py-16 bg-neo-white border-b-4 border-black">
+    <section className="relative py-16 bg-neo-lime border-b-4 border-black">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="inline-block text-4xl sm:text-5xl font-black text-black mb-4 bg-neo-orange border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
+          <h2 className="inline-block text-4xl sm:text-5xl font-black text-black mb-4 bg-white border-4 border-black shadow-neo px-6 py-2 transform -rotate-1">
             {t[language].title}
           </h2>
           <p className="text-xl font-bold text-black max-w-2xl mx-auto mt-4">
@@ -81,7 +81,7 @@ export default function SocialConnect() {
             <a
               key={link.name}
               href={link.url}
-              target="_blank"
+
               rel="noopener noreferrer"
               className={`flex flex-col items-center justify-center p-8 border-4 border-black shadow-neo 
                 transform transition-all duration-200 hover:-translate-y-2 hover:shadow-neo-lg ${link.color}`}
