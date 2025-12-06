@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import GlobalLoading from '@/app/_components/GlobalLoading';
+import { Trash2, AlertTriangle } from 'lucide-react';
 
 interface Election {
     _id: string;
@@ -326,7 +327,7 @@ export default function ElectionsPage() {
             {deleteModalId && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4">🗑️ Seçimi Sil</h3>
+                        <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2"><Trash2 size={20} /> Seçimi Sil</h3>
                         <p className="text-gray-700 mb-6">
                             Bu seçimi silmek istediğinize emin misiniz? Tüm adaylar, üyeler ve oylar da silinecektir. Bu işlem geri alınamaz!
                         </p>
@@ -354,7 +355,7 @@ export default function ElectionsPage() {
             {suspendModalId && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-lg w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4">⚠️ Seçimi Askıya Al</h3>
+                        <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2"><AlertTriangle size={20} /> Seçimi Askıya Al</h3>
                         <p className="text-gray-700 mb-4">
                             Olağanüstü durumlarda seçimi askıya alabilirsiniz. Kullanıcılara gösterilecek bir neden girmeniz gerekmektedir.
                         </p>

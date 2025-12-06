@@ -3,6 +3,21 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "@/app/_components/LoadingSpinner";
+import {
+  Megaphone,
+  CalendarDays,
+  FileText,
+  Building2,
+  Users,
+  Rocket,
+  MessageSquare,
+  Vote,
+  BarChart3,
+  ClipboardList,
+  Settings,
+  LucideIcon,
+  ChevronRight
+} from "lucide-react";
 
 interface DashboardButton {
   key: string;
@@ -10,20 +25,21 @@ interface DashboardButton {
   href: string;
   color: string;
   description: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
 const DASHBOARD_BUTTONS: DashboardButton[] = [
-  { key: 'announcements', label: 'Duyurular', href: '/admin/announcements', color: 'bg-white', description: 'Haber, Etkinlik, Atölye ve Makaleler', icon: '📢' },
-  { key: 'events', label: 'Etkinlikler', href: '/admin/events', color: 'bg-neo-green', description: 'Etkinlik oluşturma ve yönetim', icon: '📅' },
-  { key: 'applicants', label: 'Başvurular', href: '/admin/applicants', color: 'bg-neo-blue', description: 'Gelen başvuruları incele', icon: '📝' },
-  { key: 'departments', label: 'Departmanlar', href: '/admin/departments', color: 'bg-neo-pink', description: 'Departman bilgileri düzenle', icon: '🏢' },
-  { key: 'team', label: 'Ekip', href: '/admin/team', color: 'bg-neo-orange', description: 'Ekip üyelerini yönet', icon: '👥' },
-  { key: 'projects', label: 'Projeler', href: '/admin/projects', color: 'bg-neo-blue', description: 'Proje portfolyosu', icon: '🚀' },
-  { key: 'comments', label: 'Yorumlar', href: '/admin/comments', color: 'bg-neo-purple text-white', description: 'Kullanıcı yorumları', icon: '💬' },
-  { key: 'elections', label: 'Seçimler', href: '/admin/elections', color: 'bg-neo-yellow', description: 'Seçim ve anketler', icon: '🗳️' },
-  { key: 'stats', label: 'İstatistikler', href: '/admin/stats', color: 'bg-neo-purple text-white', description: 'Site istatistikleri', icon: '📊' },
-  { key: 'settings', label: 'Ayarlar', href: '/admin/settings', color: 'bg-gray-700 text-white', description: 'Genel ayarlar ve yapılandırma', icon: '⚙️' },
+  { key: 'announcements', label: 'Duyurular', href: '/admin/announcements', color: 'bg-white', description: 'Haber, Etkinlik, Atölye ve Makaleler', icon: Megaphone },
+  { key: 'events', label: 'Etkinlikler', href: '/admin/events', color: 'bg-neo-green', description: 'Etkinlik oluşturma ve yönetim', icon: CalendarDays },
+  { key: 'applicants', label: 'Başvurular', href: '/admin/applicants', color: 'bg-neo-blue', description: 'Gelen başvuruları incele', icon: FileText },
+  { key: 'departments', label: 'Departmanlar', href: '/admin/departments', color: 'bg-neo-pink', description: 'Departman bilgileri düzenle', icon: Building2 },
+  { key: 'team', label: 'Ekip', href: '/admin/team', color: 'bg-neo-orange', description: 'Ekip üyelerini yönet', icon: Users },
+  { key: 'projects', label: 'Projeler', href: '/admin/projects', color: 'bg-neo-blue', description: 'Proje portfolyosu', icon: Rocket },
+  { key: 'comments', label: 'Yorumlar', href: '/admin/comments', color: 'bg-neo-purple text-white', description: 'Kullanıcı yorumları', icon: MessageSquare },
+  { key: 'elections', label: 'Seçimler', href: '/admin/elections', color: 'bg-neo-yellow', description: 'Seçim ve anketler', icon: Vote },
+  { key: 'stats', label: 'İstatistikler', href: '/admin/stats', color: 'bg-neo-purple text-white', description: 'Site istatistikleri', icon: BarChart3 },
+  { key: 'audit-log', label: 'İşlem Geçmişi', href: '/admin/audit-log', color: 'bg-neo-pink', description: 'Admin işlem kayıtları', icon: ClipboardList },
+  { key: 'settings', label: 'Ayarlar', href: '/admin/settings', color: 'bg-gray-700 text-white', description: 'Genel ayarlar ve yapılandırma', icon: Settings },
 ];
 
 export default function AdminDashboard() {
@@ -83,8 +99,8 @@ export default function AdminDashboard() {
                 flex items-center gap-6 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all
                 group
             `}>
-            <div className="text-4xl group-hover:scale-110 transition-transform duration-300 w-16 text-center">
-              {btn.icon}
+            <div className="group-hover:scale-110 transition-transform duration-300 w-16 flex items-center justify-center">
+              <btn.icon size={32} strokeWidth={2.5} />
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-black uppercase mb-1">{btn.label}</h2>
@@ -93,7 +109,7 @@ export default function AdminDashboard() {
               </p>
             </div>
             <div className="text-2xl font-black opacity-50">
-              →
+              <ChevronRight size={24} />
             </div>
           </Link>
         ))}

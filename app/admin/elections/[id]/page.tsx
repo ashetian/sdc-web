@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import GlobalLoading from '@/app/_components/GlobalLoading';
+import { ChevronLeft, ChevronRight, ClipboardList, AlertTriangle, Check, Flag, Trophy } from 'lucide-react';
 
 interface Election {
     _id: string;
@@ -340,7 +341,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
             <div className="text-center py-12">
                 <p className="text-xl font-black text-red-500">Seçim bulunamadı</p>
                 <Link href="/admin/elections" className="text-neo-blue font-bold mt-4 inline-block">
-                    ← Seçimlere Dön
+                    <ChevronLeft size={14} className="inline" /> Seçimlere Dön
                 </Link>
             </div>
         );
@@ -353,7 +354,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                 <div className="flex justify-between items-start flex-wrap gap-4">
                     <div>
                         <Link href="/admin/elections" className="text-neo-blue font-bold text-sm mb-2 inline-block">
-                            ← Seçimlere Dön
+                            <ChevronLeft size={14} className="inline" /> Seçimlere Dön
                         </Link>
                         <h1 className="text-2xl font-black text-black uppercase">{election.title}</h1>
                         <div className="flex items-center gap-3 mt-2 flex-wrap">
@@ -582,7 +583,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                         <div className="mb-6 p-4 bg-neo-yellow border-2 border-black">
                             <h3 className="font-black mb-2">Üye Listesi Yükle (Excel veya CSV)</h3>
                             <div className="bg-white border-2 border-black p-3 mb-3">
-                                <p className="text-sm font-bold mb-2">📋 Dosya formatı (sırasıyla bu 5 sütun olmalı):</p>
+                                <p className="text-sm font-bold mb-2 flex items-center gap-1"><ClipboardList size={14} /> Dosya formatı (sırasıyla bu 5 sütun olmalı):</p>
                                 <table className="text-sm w-full">
                                     <thead>
                                         <tr className="border-b border-black">
@@ -603,7 +604,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                                         </tr>
                                     </tbody>
                                 </table>
-                                <p className="text-xs text-gray-500 mt-2">⚠️ Başlık satırı varsa ilk satır atlanır. Sadece bu 5 sütun olmalı, başka sütun olmamalı.</p>
+                                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1"><AlertTriangle size={12} /> Başlık satırı varsa ilk satır atlanır. Sadece bu 5 sütun olmalı, başka sütun olmamalı.</p>
                             </div>
                             <div className="flex gap-3 flex-wrap">
                                 <input
@@ -670,7 +671,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                                         disabled={memberPage === 1}
                                         className="px-3 py-2 border-2 border-black font-bold disabled:opacity-50 hover:bg-gray-100"
                                     >
-                                        ←
+                                        <ChevronLeft size={16} />
                                     </button>
                                     {Array.from({ length: Math.ceil(members.length / membersPerPage) }, (_, i) => i + 1).map(page => (
                                         <button
@@ -686,7 +687,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                                         disabled={memberPage === Math.ceil(members.length / membersPerPage)}
                                         className="px-3 py-2 border-2 border-black font-bold disabled:opacity-50 hover:bg-gray-100"
                                     >
-                                        →
+                                        <ChevronRight size={16} />
                                     </button>
                                     <span className="ml-4 text-sm font-bold text-gray-600">
                                         Toplam: {members.length} üye
@@ -710,7 +711,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                             {/* Winner Banner */}
                             {results.winner && election.status === 'completed' && (
                                 <div className="bg-neo-green border-4 border-black p-6 text-center">
-                                    <h2 className="text-2xl font-black uppercase mb-2">🏆 Kazanan 🏆</h2>
+                                    <h2 className="text-2xl font-black uppercase mb-2 flex items-center justify-center gap-2"><Trophy size={24} /> Kazanan <Trophy size={24} /></h2>
                                     <p className="text-3xl font-black">
                                         {results.rounds[results.rounds.length - 1]?.results.find(r => r.candidateId === results.winner)?.name}
                                     </p>
@@ -742,7 +743,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                                 <div key={round.round} className="border-2 border-black">
                                     <div className="bg-black text-white p-3 font-black">
                                         Tur {round.round}
-                                        {round.winner && <span className="ml-2 text-neo-green">✓ Kazanan Belirlendi</span>}
+                                        {round.winner && <span className="ml-2 text-neo-green flex items-center gap-1"><Check size={14} /> Kazanan Belirlendi</span>}
                                     </div>
                                     <div className="p-4 space-y-3">
                                         {round.results.map((result, idx) => (
@@ -786,7 +787,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                                                     <span className="text-xs font-bold text-red-500">ELENDİ</span>
                                                 )}
                                                 {result.candidateId === round.winner && (
-                                                    <span className="text-xs font-bold text-green-600">🏆</span>
+                                                    <Trophy size={16} className="text-green-600" />
                                                 )}
                                             </div>
                                         ))}
@@ -802,10 +803,10 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
             {showEndModal && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4">🏁 Seçimi Bitir</h3>
+                        <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2"><Flag size={20} /> Seçimi Bitir</h3>
                         <div className="bg-red-100 border-2 border-red-500 p-4 mb-4">
                             <p className="text-red-700 font-bold text-sm">
-                                ⚠️ Bu işlem geri alınamaz!
+                                <AlertTriangle size={14} className="inline" /> Bu işlem geri alınamaz!
                             </p>
                         </div>
                         <p className="text-gray-700 mb-4">
@@ -844,7 +845,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
             {showSuspendModal && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-lg w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4">⚠️ Seçimi Askıya Al</h3>
+                        <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2"><AlertTriangle size={20} /> Seçimi Askıya Al</h3>
                         <p className="text-gray-700 mb-4">
                             Olağanüstü durumlarda seçimi askıya alabilirsiniz. Kullanıcılara gösterilecek bir neden girmeniz gerekmektedir.
                         </p>

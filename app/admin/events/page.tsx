@@ -3,6 +3,20 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import GlobalLoading from '@/app/_components/GlobalLoading';
+import {
+    Settings,
+    X,
+    Pencil,
+    QrCode,
+    Lock,
+    Unlock,
+    Flag,
+    Users,
+    Trash2,
+    ClipboardCopy,
+    Download,
+    Save
+} from 'lucide-react';
 
 interface Event {
     _id: string;
@@ -20,6 +34,9 @@ interface Event {
 export default function AdminEventsPage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Manage Modal
+    const [manageModal, setManageModal] = useState<Event | null>(null);
 
     // QR Modal
     const [qrModal, setQrModal] = useState<{ eventId: string; eventTitle: string; qrUrl: string } | null>(null);
@@ -162,7 +179,7 @@ export default function AdminEventsPage() {
             </div>
 
             {/* Events List */}
-            <div className="bg-white border-4 border-black shadow-neo overflow-hidden">
+            <div className="bg-white border-4 border-black shadow-neo overflow-x-auto">
                 {events.length === 0 ? (
                     <div className="p-12 text-center">
                         <p className="text-gray-500 font-bold">Henüz etkinlik bulunmuyor.</p>
@@ -227,50 +244,12 @@ export default function AdminEventsPage() {
                                             ? new Date(event.eventDate).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
                                             : '-'}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                        <Link
-                                            href={`/admin/events/${event._id}/edit`}
-                                            className="inline-block px-3 py-1 text-xs font-black bg-neo-yellow text-black border-2 border-black hover:bg-yellow-300 transition-all"
-                                        >
-                                            ✏️ Düzenle
-                                        </Link>
-                                        {!event.isEnded && (
-                                            <>
-                                                <button
-                                                    onClick={() => generateQR(event._id, event.title)}
-                                                    disabled={generatingQR}
-                                                    className="px-3 py-1 text-xs font-black bg-neo-purple text-white border-2 border-black hover:bg-purple-400 transition-all"
-                                                >
-                                                    📱 QR
-                                                </button>
-                                                <button
-                                                    onClick={() => toggleStatus(event._id, event.isOpen)}
-                                                    className={`px-3 py-1 text-xs font-black border-2 border-black transition-all ${event.isOpen
-                                                        ? 'bg-yellow-400 text-black hover:bg-yellow-500'
-                                                        : 'bg-neo-green text-black hover:bg-green-400'
-                                                        }`}
-                                                >
-                                                    {event.isOpen ? 'Kapat' : 'Aç'}
-                                                </button>
-                                                <button
-                                                    onClick={() => setEndModal({ eventId: event._id, eventTitle: event.title })}
-                                                    className="px-3 py-1 text-xs font-black bg-orange-500 text-white border-2 border-black hover:bg-orange-600 transition-all"
-                                                >
-                                                    🏁 Sonlandır
-                                                </button>
-                                            </>
-                                        )}
-                                        <Link
-                                            href={`/admin/events/${event._id}/registrations`}
-                                            className="inline-block px-3 py-1 text-xs font-black bg-neo-blue text-black border-2 border-black hover:bg-blue-300 transition-all"
-                                        >
-                                            Katılımcılar
-                                        </Link>
+                                    <td className="px-6 py-4 text-right">
                                         <button
-                                            onClick={() => deleteEvent(event._id)}
-                                            className="px-3 py-1 text-xs font-black bg-red-500 text-white border-2 border-black hover:bg-red-600 transition-all"
+                                            onClick={() => setManageModal(event)}
+                                            className="inline-flex items-center px-4 py-2 text-sm font-black bg-white text-black border-4 border-black shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all uppercase"
                                         >
-                                            Sil
+                                            <Settings size={16} /> Yönet
                                         </button>
                                     </td>
                                 </tr>
@@ -280,10 +259,93 @@ export default function AdminEventsPage() {
                 )}
             </div>
 
+            {/* Manage Modal */}
+            {manageModal && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4" onClick={() => setManageModal(null)}>
+                    <div className="bg-white border-4 border-black shadow-neo-lg max-w-sm w-full p-6 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-start mb-6">
+                            <h3 className="text-xl font-black uppercase text-left leading-tight">
+                                {manageModal.title}
+                            </h3>
+                            <button onClick={() => setManageModal(null)} className="text-2xl font-black hover:scale-110 transition-transform">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <Link
+                                href={`/admin/events/${manageModal._id}/edit`}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black bg-neo-yellow text-black border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase"
+                            >
+                                <Pencil size={16} /> Düzenle
+                            </Link>
+
+                            {!manageModal.isEnded && (
+                                <>
+                                    <button
+                                        onClick={() => {
+                                            setManageModal(null);
+                                            generateQR(manageModal._id, manageModal.title);
+                                        }}
+                                        disabled={generatingQR}
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black bg-neo-purple text-white border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase"
+                                    >
+                                        <QrCode size={16} /> QR Oluştur
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            // No need to close modal, just toggle and update local state if needed or fetch
+                                            toggleStatus(manageModal._id, manageModal.isOpen);
+                                            setManageModal(prev => prev ? { ...prev, isOpen: !prev.isOpen } : null);
+                                        }}
+                                        className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase ${manageModal.isOpen
+                                            ? 'bg-orange-400 text-black'
+                                            : 'bg-neo-green text-black'
+                                            }`}
+                                    >
+                                        {manageModal.isOpen ? <><Lock size={16} /> Başvuruları Kapat</> : <><Unlock size={16} /> Başvuruları Aç</>}
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            setManageModal(null);
+                                            setEndModal({ eventId: manageModal._id, eventTitle: manageModal.title });
+                                        }}
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black bg-gray-800 text-white border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase"
+                                    >
+                                        <Flag size={16} /> Etkinliği Sonlandır
+                                    </button>
+                                </>
+                            )}
+
+                            <Link
+                                href={`/admin/events/${manageModal._id}/registrations`}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black bg-neo-blue text-black border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase"
+                            >
+                                <Users size={16} /> Katılımcılar
+                            </Link>
+
+                            <hr className="border-2 border-black my-2" />
+
+                            <button
+                                onClick={() => {
+                                    setManageModal(null);
+                                    deleteEvent(manageModal._id);
+                                }}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black bg-red-500 text-white border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase"
+                            >
+                                <Trash2 size={16} /> Etkinliği Sil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* QR Modal */}
             {qrModal && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4" onClick={() => setQrModal(null)}>
-                    <div className="bg-white border-4 border-black shadow-neo-lg max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+                    <div className="bg-white border-4 border-black shadow-neo-lg max-w-md w-full p-6 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
                         <h3 className="text-xl font-black uppercase mb-4 text-center">{qrModal.eventTitle}</h3>
                         <p className="text-center font-bold mb-4">Yoklama QR Kodu</p>
 
@@ -304,22 +366,22 @@ export default function AdminEventsPage() {
                         <div className="flex gap-2">
                             <button
                                 onClick={() => copyToClipboard(qrModal.qrUrl)}
-                                className="flex-1 py-2 bg-neo-blue border-2 border-black font-black text-sm hover:bg-blue-300 transition-all"
+                                className="flex-1 py-2 bg-neo-blue border-2 border-black font-black text-sm hover:bg-blue-300 transition-all shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                             >
-                                📋 Kopyala
+                                <ClipboardCopy size={14} className="inline" /> Kopyala
                             </button>
                             <a
                                 href={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&format=png&data=${encodeURIComponent(qrModal.qrUrl)}`}
                                 download={`yoklama-${qrModal.eventTitle}.png`}
-                                className="flex-1 py-2 bg-neo-green border-2 border-black font-black text-sm hover:bg-green-300 transition-all text-center"
+                                className="flex-1 py-2 bg-neo-green border-2 border-black font-black text-sm hover:bg-green-300 transition-all text-center shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                             >
-                                💾 İndir
+                                <Download size={14} className="inline" /> İndir
                             </a>
                         </div>
 
                         <button
                             onClick={() => setQrModal(null)}
-                            className="w-full mt-4 py-2 bg-gray-200 border-2 border-black font-black text-sm hover:bg-gray-300 transition-all"
+                            className="w-full mt-4 py-2 bg-gray-200 border-2 border-black font-black text-sm hover:bg-gray-300 transition-all shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                         >
                             Kapat
                         </button>
@@ -330,7 +392,7 @@ export default function AdminEventsPage() {
             {/* End Event Modal */}
             {endModal && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4" onClick={() => setEndModal(null)}>
-                    <div className="bg-white border-4 border-black shadow-neo-lg max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+                    <div className="bg-white border-4 border-black shadow-neo-lg max-w-md w-full p-6 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
                         <h3 className="text-xl font-black uppercase mb-4 text-center">Etkinliği Sonlandır</h3>
                         <p className="text-center font-bold mb-2">{endModal.eventTitle}</p>
                         <p className="text-center text-sm text-gray-600 mb-6">
@@ -347,7 +409,7 @@ export default function AdminEventsPage() {
                                 onChange={(e) => setDuration(e.target.value)}
                                 placeholder="örn: 120"
                                 min="1"
-                                className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                                className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo transition-all"
                             />
                         </div>
 
@@ -355,13 +417,13 @@ export default function AdminEventsPage() {
                             <button
                                 onClick={handleEndEvent}
                                 disabled={endingEvent}
-                                className="flex-1 py-3 bg-orange-500 text-white border-2 border-black font-black uppercase hover:bg-orange-600 transition-all disabled:opacity-50"
+                                className="flex-1 py-3 bg-orange-500 text-white border-2 border-black font-black uppercase hover:bg-orange-600 transition-all disabled:opacity-50 shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                             >
-                                {endingEvent ? 'İşleniyor...' : '🏁 Sonlandır'}
+                                {endingEvent ? 'İşleniyor...' : <><Flag size={14} className="inline" /> Sonlandır</>}
                             </button>
                             <button
                                 onClick={() => setEndModal(null)}
-                                className="flex-1 py-3 bg-gray-200 border-2 border-black font-black uppercase hover:bg-gray-300 transition-all"
+                                className="flex-1 py-3 bg-gray-200 border-2 border-black font-black uppercase hover:bg-gray-300 transition-all shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                             >
                                 İptal
                             </button>

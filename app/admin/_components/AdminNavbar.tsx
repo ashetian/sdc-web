@@ -48,11 +48,20 @@ export default function AdminNavbar() {
                                 <Link
                                     href="/admin"
                                     className={`px-4 py-2 text-sm font-bold border-2 transition-all uppercase ${isDashboardActive
-                                            ? "bg-black text-white border-black shadow-neo"
-                                            : "bg-white text-black border-black hover:bg-black hover:text-white"
+                                        ? "bg-black text-white border-black shadow-neo"
+                                        : "bg-white text-black border-black hover:bg-black hover:text-white"
                                         }`}
                                 >
                                     {userInfo?.isSuperAdmin ? 'SÜPERADMİN PANELİ' : 'ADMİN PANELİ'}
+                                </Link>
+                                <Link
+                                    href="/admin/audit-log"
+                                    className={`px-4 py-2 text-sm font-bold border-2 transition-all uppercase ${pathname === '/admin/audit-log'
+                                        ? "bg-black text-white border-black shadow-neo"
+                                        : "bg-white text-black border-black hover:bg-black hover:text-white"
+                                        }`}
+                                >
+                                    İşlem Geçmişi
                                 </Link>
                             </div>
                         </div>
@@ -74,9 +83,12 @@ export default function AdminNavbar() {
                             <div className="text-sm font-bold truncate">
                                 {userInfo?.name || 'Kullanıcı'}
                             </div>
-                            <div className="text-xs text-gray-500 font-bold uppercase">
+                            <div className="text-xs text-gray-500 font-bold uppercase mb-2">
                                 {userInfo?.isSuperAdmin ? 'Süper Admin' : (userInfo?.role || 'Üye')}
                             </div>
+                            <Link href="/admin/audit-log" className="block text-xs font-bold underline mb-2">
+                                İŞLEM GEÇMİŞİ
+                            </Link>
                         </div>
                         <Link href="/" className="px-4 py-2 bg-red-500 text-white border-2 border-black font-black text-xs uppercase hover:bg-red-600 hover:shadow-neo transition-all">
                             SİTEYE DÖN

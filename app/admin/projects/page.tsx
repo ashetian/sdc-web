@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from "next/link";
 import GlobalLoading from '@/app/_components/GlobalLoading';
 import Image from 'next/image';
+import { FolderOpen, User, Hash, Github, ExternalLink, AlertTriangle } from 'lucide-react';
 
 interface Project {
     _id: string;
@@ -260,7 +261,7 @@ export default function AdminProjectsPage() {
                     <GlobalLoading fullScreen={false} />
                 ) : projects.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-20 border-4 border-neo-black border-dashed bg-neo-white/50">
-                        <div className="text-6xl mb-4">📂</div>
+                        <div className="text-6xl mb-4"><FolderOpen size={48} /></div>
                         <div className="text-2xl font-black uppercase text-neo-black/50">Proje Bulunamadı</div>
                     </div>
                 ) : (
@@ -321,7 +322,7 @@ export default function AdminProjectsPage() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-sm">
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-8 h-8 bg-neo-blue border-2 border-neo-black flex items-center justify-center font-bold text-white">
-                                                        👤
+                                                        <User size={16} />
                                                     </div>
                                                     <div>
                                                         <span className="block font-black uppercase text-xs text-neo-black/60">Geliştirici</span>
@@ -332,7 +333,7 @@ export default function AdminProjectsPage() {
                                                 {project.memberId?.studentNo && (
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-8 h-8 bg-neo-purple border-2 border-neo-black flex items-center justify-center font-bold text-white">
-                                                            🆔
+                                                            <Hash size={16} />
                                                         </div>
                                                         <div>
                                                             <span className="block font-black uppercase text-xs text-neo-black/60">Öğrenci No</span>
@@ -373,12 +374,12 @@ export default function AdminProjectsPage() {
                                             <div className="flex gap-4">
                                                 <a href={project.githubUrl}
                                                     className="flex items-center gap-2 font-bold hover:text-neo-purple underline decoration-2 underline-offset-4">
-                                                    <span className="text-xl">⌨️</span> GitHub
+                                                    <Github size={18} /> GitHub
                                                 </a>
                                                 {project.demoUrl && (
                                                     <a href={project.demoUrl}
                                                         className="flex items-center gap-2 font-bold hover:text-neo-green underline decoration-2 underline-offset-4">
-                                                        <span className="text-xl">🚀</span> Demo
+                                                        <ExternalLink size={18} /> Demo
                                                     </a>
                                                 )}
                                             </div>
@@ -503,7 +504,7 @@ export default function AdminProjectsPage() {
             {permanentDeleteModalId && (
                 <div className="fixed inset-0 bg-neo-red/90 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
                     <div className="bg-neo-black border-4 border-white shadow-neo-lg p-8 max-w-md w-full text-white">
-                        <h3 className="text-2xl font-black uppercase mb-4 text-neo-red">⚠️ SON UYARI</h3>
+                        <h3 className="text-2xl font-black uppercase mb-4 text-neo-red flex items-center gap-2"><AlertTriangle size={24} /> SON UYARI</h3>
                         <p className="font-bold mb-8 leading-relaxed">
                             Bu işlem geri alınamaz! Proje veritabanından tamamen silinecek.
                         </p>

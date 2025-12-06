@@ -1,11 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { Settings, Users, Lock, LucideIcon } from "lucide-react";
 
-const SETTINGS_MODULES = [
-    { key: 'general', label: 'Genel Ayarlar', href: '/admin/settings/general', color: 'bg-white', icon: '⚙️', desc: 'WhatsApp Linki vb.' },
-    { key: 'members', label: 'Üye Yönetimi', href: '/admin/settings/members', color: 'bg-neo-blue', icon: '👥', desc: 'Excel yükle, üye listesini yönet' },
-    { key: 'access', label: 'Panel Yetkileri', href: '/admin/settings/access', color: 'bg-neo-pink', icon: '🔒', desc: 'Yönetici erişim izinleri' },
+interface SettingsModule {
+    key: string;
+    label: string;
+    href: string;
+    color: string;
+    icon: LucideIcon;
+    desc: string;
+}
+
+const SETTINGS_MODULES: SettingsModule[] = [
+    { key: 'general', label: 'Genel Ayarlar', href: '/admin/settings/general', color: 'bg-white', icon: Settings, desc: 'WhatsApp Linki vb.' },
+    { key: 'members', label: 'Üye Yönetimi', href: '/admin/settings/members', color: 'bg-neo-blue', icon: Users, desc: 'Excel yükle, üye listesini yönet' },
+    { key: 'access', label: 'Panel Yetkileri', href: '/admin/settings/access', color: 'bg-neo-pink', icon: Lock, desc: 'Yönetici erişim izinleri' },
 ];
 
 export default function SettingsDashboard() {
@@ -24,7 +34,9 @@ export default function SettingsDashboard() {
                 ${mod.color} border-4 border-black shadow-neo p-6 
                 flex flex-col gap-4 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all
             `}>
-                        <div className="text-4xl">{mod.icon}</div>
+                        <div className="w-10 h-10">
+                            <mod.icon size={40} strokeWidth={2} />
+                        </div>
                         <div>
                             <h2 className="text-xl font-black uppercase mb-1">{mod.label}</h2>
                             <p className="text-sm font-bold text-gray-600">{mod.desc}</p>

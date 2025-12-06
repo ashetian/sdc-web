@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
 import GlobalLoading from '@/app/_components/GlobalLoading';
 import Link from 'next/link';
+import { ChevronLeft, Check, Download } from 'lucide-react';
 
 interface Member {
     _id: string;
@@ -138,7 +139,7 @@ export default function EventRegistrationsPage() {
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <Link href="/admin/events" className="text-sm font-bold text-gray-500 hover:text-black mb-2 inline-block">
-                            ← Etkinliklere Dön
+                            <ChevronLeft size={14} className="inline" /> Etkinliklere Dön
                         </Link>
                         <h1 className="text-2xl font-black text-black uppercase">
                             {event?.title || 'Etkinlik'} - Katılımcılar
@@ -149,7 +150,7 @@ export default function EventRegistrationsPage() {
                         className="px-6 py-3 bg-neo-green text-black border-4 border-black shadow-neo font-black uppercase hover:shadow-none transition-all"
                         disabled={registrations.length === 0}
                     >
-                        📥 Excel İndir
+                        <Download size={16} className="inline" /> Excel İndir
                     </button>
                 </div>
 
@@ -220,13 +221,13 @@ export default function EventRegistrationsPage() {
                                     </td>
                                     <td className="px-4 py-3 text-center">
                                         <span className="px-2 py-1 text-xs font-black bg-neo-green border border-black">
-                                            ✓
+                                            <Check size={12} />
                                         </span>
                                     </td>
                                     <td className="px-4 py-3 text-center">
                                         {reg.attendedAt ? (
                                             <span className="px-2 py-1 text-xs font-black bg-neo-blue border border-black">
-                                                ✓
+                                                <Check size={12} />
                                             </span>
                                         ) : (
                                             <span className="px-2 py-1 text-xs font-black bg-gray-200 border border-black text-gray-500">

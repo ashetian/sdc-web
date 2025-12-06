@@ -38,9 +38,9 @@ export default function Home() {
       .catch(err => {
         console.error('Stats yüklenirken hata:', err);
         setStats([
-          { _id: '1', label: 'Üye', labelEn: 'Members', value: '220+', color: 'bg-neo-green', order: 0 },
-          { _id: '2', label: 'Proje', labelEn: 'Projects', value: '2', color: 'bg-neo-purple', order: 1 },
-          { _id: '3', label: 'Etkinlik', labelEn: 'Events', value: '12', color: 'bg-neo-orange', order: 2 },
+          { _id: '1', label: 'Üye', labelEn: 'Members', value: '220+', color: 'bg-neo-yellow', order: 0 },
+          { _id: '2', label: 'Proje', labelEn: 'Projects', value: '2', color: 'bg-neo-cyan', order: 1 },
+          { _id: '3', label: 'Etkinlik', labelEn: 'Events', value: '12', color: 'bg-neo-pink', order: 2 },
         ]);
       });
 

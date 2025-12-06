@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { X, ArrowUp, ArrowDown } from "lucide-react";
 
 export interface ContentBlock {
     id: string;
@@ -132,7 +133,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Yukarı Taşı"
                     >
-                        ↑
+                        <ArrowUp size={16} />
                     </button>
                     <button
                         type="button"
@@ -141,7 +142,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Aşağı Taşı"
                     >
-                        ↓
+                        <ArrowDown size={16} />
                     </button>
                     <button
                         type="button"
@@ -149,7 +150,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-red-500 text-white hover:bg-red-600"
                         title="Sil"
                     >
-                        ✕
+                        <X size={16} />
                     </button>
                 </div>
             </div>
@@ -175,7 +176,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Yukarı Taşı"
                     >
-                        ↑
+                        <ArrowUp size={16} />
                     </button>
                     <button
                         type="button"
@@ -184,7 +185,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Aşağı Taşı"
                     >
-                        ↓
+                        <ArrowDown size={16} />
                     </button>
                     <button
                         type="button"
@@ -192,7 +193,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-red-500 text-white hover:bg-red-600"
                         title="Sil"
                     >
-                        ✕
+                        <X size={16} />
                     </button>
                 </div>
             </div>
@@ -247,7 +248,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Yukarı Taşı"
                     >
-                        ↑
+                        <ArrowUp size={16} />
                     </button>
                     <button
                         type="button"
@@ -256,7 +257,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Aşağı Taşı"
                     >
-                        ↓
+                        <ArrowDown size={16} />
                     </button>
                     <button
                         type="button"
@@ -264,7 +265,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                         className="p-1 border-2 border-black bg-red-500 text-white hover:bg-red-600"
                         title="Sil"
                     >
-                        ✕
+                        <X size={16} />
                     </button>
                 </div>
             </div>
@@ -287,7 +288,7 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                                     onClick={() => removeImageFromGrid(block.id, imgIndex)}
                                     className="absolute top-1 right-1 p-1 bg-red-500 text-white border-2 border-black text-xs font-bold"
                                 >
-                                    ✕
+                                    <X size={12} />
                                 </button>
                             </div>
                         ) : (

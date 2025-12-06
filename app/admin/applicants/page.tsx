@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import GlobalLoading from '@/app/_components/GlobalLoading';
+import { Check, X, AlertTriangle, XCircle } from 'lucide-react';
 
 interface Applicant {
     _id: string;
@@ -153,8 +154,8 @@ export default function ApplicantsPage() {
 
         if (!verification.isMember) {
             return (
-                <span className="px-2 py-1 text-xs font-black bg-red-100 text-red-800 border-2 border-red-300">
-                    ❌ Kulüp Üyesi Değil
+                <span className="px-2 py-1 text-xs font-black bg-red-100 text-red-800 border-2 border-red-300 flex items-center gap-1">
+                    <XCircle size={12} /> Kulüp Üyesi Değil
                 </span>
             );
         }
@@ -166,8 +167,8 @@ export default function ApplicantsPage() {
 
         return (
             <div className="flex flex-col gap-1">
-                <span className="px-2 py-1 text-xs font-black bg-green-100 text-green-800 border-2 border-green-300">
-                    ✅ Kulüp Üyesi
+                <span className="px-2 py-1 text-xs font-black bg-green-100 text-green-800 border-2 border-green-300 flex items-center gap-1">
+                    <Check size={12} /> Kulüp Üyesi
                 </span>
                 <div className="text-xs flex flex-wrap gap-1">
                     <span
@@ -190,7 +191,7 @@ export default function ApplicantsPage() {
                     </span>
                 </div>
                 {!allImportantMatch && (
-                    <span className="text-xs text-orange-600 font-bold">⚠️ Bilgi uyumsuzluğu var</span>
+                    <span className="text-xs text-orange-600 font-bold flex items-center gap-1"><AlertTriangle size={12} /> Bilgi uyumsuzluğu var</span>
                 )}
             </div>
         );

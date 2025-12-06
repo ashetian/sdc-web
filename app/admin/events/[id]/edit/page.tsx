@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import GlobalLoading from '@/app/_components/GlobalLoading';
 import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 
 interface EventData {
     _id: string;
@@ -155,7 +156,7 @@ export default function EditEventPage() {
                     href="/admin/events"
                     className="text-sm font-bold text-gray-500 hover:text-black"
                 >
-                    ← Geri Dön
+                    <ChevronLeft size={14} className="inline" /> Geri Dön
                 </Link>
             </div>
 

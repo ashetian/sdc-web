@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { AlertTriangle, Trash2, RotateCcw } from 'lucide-react';
 
 interface Comment {
     _id: string;
@@ -318,7 +319,7 @@ export default function AdminCommentsPage() {
             {deleteModalId && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4">⚠️ Yorumu Sil</h3>
+                        <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2"><AlertTriangle size={20} /> Yorumu Sil</h3>
                         <p className="text-gray-700 mb-6">
                             Bu yorumu silmek istediğinize emin misiniz? Silinen yorumlar 30 gün boyunca geri alınabilir.
                         </p>
@@ -345,7 +346,7 @@ export default function AdminCommentsPage() {
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
                         <h3 className="text-xl font-black text-black mb-4">
-                            {actionType === 'restore' ? '🔄 Yorumu Geri Yükle' : '🗑️ Kalıcı Silme'}
+                            {actionType === 'restore' ? <><RotateCcw size={16} className="inline" /> Yorumu Geri Yükle</> : <><Trash2 size={16} className="inline" /> Kalıcı Silme</>}
                         </h3>
                         <p className="text-gray-700 mb-6">
                             {actionType === 'restore'
@@ -356,8 +357,8 @@ export default function AdminCommentsPage() {
                             <button
                                 onClick={() => handleAction(actionModalId, actionType)}
                                 className={`flex-1 py-3 font-bold border-2 border-black transition-all ${actionType === 'restore'
-                                        ? 'bg-green-500 text-white hover:bg-green-600'
-                                        : 'bg-red-600 text-white hover:bg-red-700'
+                                    ? 'bg-green-500 text-white hover:bg-green-600'
+                                    : 'bg-red-600 text-white hover:bg-red-700'
                                     }`}
                             >
                                 {actionType === 'restore' ? 'Geri Yükle' : 'Kalıcı Sil'}

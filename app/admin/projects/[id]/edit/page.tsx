@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import GlobalLoading from '@/app/_components/GlobalLoading';
 import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 
 interface ProjectData {
     _id: string;
@@ -160,7 +161,7 @@ export default function EditProjectPage() {
             <div className="max-w-3xl mx-auto">
                 <div className="flex items-center justify-between mb-8">
                     <h1 className="text-3xl font-bold text-white">Projeyi Düzenle</h1>
-                    <Link href="/admin/projects" className="text-gray-400 hover:text-white">← Geri Dön</Link>
+                    <Link href="/admin/projects" className="text-gray-400 hover:text-white flex items-center gap-1"><ChevronLeft size={14} /> Geri Dön</Link>
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-gray-800 border-2 border-gray-700 p-6 space-y-6">

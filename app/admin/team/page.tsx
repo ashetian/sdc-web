@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import GlobalLoading from '@/app/_components/GlobalLoading';
+import { X, Check } from 'lucide-react';
 
 interface Department {
     _id: string;
@@ -349,7 +350,7 @@ export default function TeamPage() {
                             </div>
                             {formData.memberId && (
                                 <div className="mt-2 text-sm text-green-600 font-black">
-                                    ✓ Bağlı Üye ID: {formData.memberId}
+                                    <Check size={14} className="inline" /> Bağlı Üye ID: {formData.memberId}
                                     <button type="button" onClick={() => setFormData(p => ({ ...p, memberId: '' }))} className="ml-2 text-red-500 underline">Bağlantıyı Kaldır</button>
                                 </div>
                             )}
@@ -544,7 +545,7 @@ export default function TeamPage() {
                                 onClick={() => setShowApplicantModal(false)}
                                 className="text-2xl font-black hover:text-red-500"
                             >
-                                ✕
+                                <X size={24} />
                             </button>
                         </div>
                         <div className="p-6 space-y-4">

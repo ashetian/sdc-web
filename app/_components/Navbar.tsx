@@ -244,12 +244,14 @@ export default function Navbar() {
               animate="open"
               exit="closed"
               variants={menuVariants}
-              className="fixed inset-0 bg-neo-peach z-[60] flex flex-col items-center justify-center md:hidden touch-none"
-              onClick={() => setIsMenuOpen(false)}
+              className="fixed inset-0 bg-white z-[60] flex flex-col items-center md:hidden overflow-y-auto pt-24 pb-12"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setIsMenuOpen(false);
+              }}
             >
               {/* Logo in Mobile Menu */}
-              <motion.div variants={itemVariants} className="mb-12">
-                <div className="relative w-32 h-32 mx-auto bg-white border-4 border-black shadow-neo p-2">
+              <motion.div variants={itemVariants} className="mb-8">
+                <div className="relative w-24 h-24 mx-auto bg-white border-4 border-black shadow-neo p-2">
                   <Image
                     src="/logopng.png"
                     alt="KTÜ SDC Logo"
@@ -259,28 +261,28 @@ export default function Navbar() {
                 </div>
               </motion.div>
 
-              <div className="flex flex-col items-center space-y-6">
+              <div className="flex flex-col items-center space-y-3 w-full px-6">
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
+                  <MobileNavLink onClick={() => scrollToSection("home")} text={t('nav.home')} color="bg-neo-yellow" />
                 </motion.div>
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
+                  <MobileNavLink onClick={() => scrollToSection("about")} text={t('nav.about')} color="bg-neo-pink" />
                 </motion.div>
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => { router.push("/events"); setIsMenuOpen(false); }} text={t('nav.events')} />
+                  <MobileNavLink onClick={() => { router.push("/events"); setIsMenuOpen(false); }} text={t('nav.events')} color="bg-neo-green" />
                 </motion.div>
                 {user && (
                   <>
                     <motion.div variants={itemVariants}>
-                      <MobileNavLink onClick={() => { router.push("/articles"); setIsMenuOpen(false); }} text={language === 'tr' ? 'Makaleler' : 'Articles'} />
+                      <MobileNavLink onClick={() => { router.push("/articles"); setIsMenuOpen(false); }} text={language === 'tr' ? 'Makaleler' : 'Articles'} color="bg-neo-blue" />
                     </motion.div>
                     <motion.div variants={itemVariants}>
-                      <MobileNavLink onClick={() => { router.push("/projects"); setIsMenuOpen(false); }} text={language === 'tr' ? 'Projeler' : 'Projects'} />
+                      <MobileNavLink onClick={() => { router.push("/projects"); setIsMenuOpen(false); }} text={language === 'tr' ? 'Projeler' : 'Projects'} color="bg-neo-cyan" />
                     </motion.div>
                   </>
                 )}
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
+                  <MobileNavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} color="bg-neo-purple" />
                 </motion.div>
 
                 {/* Language Switcher Mobile */}
@@ -360,11 +362,11 @@ function NavLink({ onClick, text }: { onClick: () => void; text: string }) {
   );
 }
 
-function MobileNavLink({ onClick, text }: { onClick: () => void; text: string }) {
+function MobileNavLink({ onClick, text, color = "bg-white" }: { onClick: () => void; text: string; color?: string }) {
   return (
     <button
       onClick={onClick}
-      className="text-4xl font-black text-black hover:text-white hover:bg-black px-6 py-3 transition-all uppercase tracking-tighter text-center"
+      className={`text-2xl font-black text-black px-8 py-4 transition-all uppercase tracking-tighter text-center border-4 border-black shadow-neo active:shadow-none active:translate-x-1 active:translate-y-1 ${color}`}
     >
       {text}
     </button>
