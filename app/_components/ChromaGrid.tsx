@@ -66,7 +66,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({ items, className = "" }) => {
     <>
       <div
         className={[
-          "grid gap-8 mx-6 justify-center",
+          "grid gap-6 px-4 sm:gap-8 justify-center",
           "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
           className,
         ].join(" ")}

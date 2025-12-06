@@ -123,7 +123,7 @@ export default function Home() {
     <section
       id="home"
       ref={containerRef}
-      className="min-h-screen w-full flex pt-40 pb-20 items-center justify-center overflow-hidden bg-white relative border-b-4 border-black"
+      className="min-h-screen w-full flex pt-40 pb-20 items-center justify-center overflow-x-clip overflow-y-visible bg-white relative border-b-4 border-black"
     >
       <div className="absolute inset-0 opacity-10 pointer-events-none"
         style={{
@@ -145,7 +145,7 @@ export default function Home() {
           </div>
 
           <div ref={titleRef} className="bg-neo-yellow border-4 border-black shadow-neo-lg p-6 transform rotate-1 lg:-rotate-2">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-black uppercase tracking-tighter text-left">
+            <h1 className="text-3xl md:text-6xl lg:text-7xl font-black text-black uppercase tracking-tight text-left">
               {language === 'tr' ? (
                 <>
                   KTÜ Yazılım

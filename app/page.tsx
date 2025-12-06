@@ -31,7 +31,7 @@ const GalleryPreview = dynamic(() => import("./_components/GalleryPreview"), {
 
 export default function HomePage() {
   return (
-    <div>
+    <div className="overflow-x-hidden w-full max-w-[100vw]">
       <section id="home">
         <Home />
       </section>
