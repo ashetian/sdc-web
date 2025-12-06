@@ -123,8 +123,17 @@ function NewTopicForm() {
       });
 
       if (res.ok) {
-        const topic = await res.json();
-        router.push(`/forum/topic/${topic._id}`);
+        const data = await res.json();
+        // If there's a pending message, show it; otherwise redirect
+        if (data.message) {
+          alert(language === "tr" 
+            ? "Konunuz admin onayına gönderildi. Onaylandıktan sonra yayınlanacak." 
+            : "Your topic has been submitted for admin approval."
+          );
+          router.push("/forum");
+        } else {
+          router.push(`/forum/topic/${data._id}`);
+        }
       } else {
         const data = await res.json();
         if (res.status === 401) {
@@ -182,7 +191,7 @@ function NewTopicForm() {
               <option value="">{l.selectCategory}</option>
               {categories.map((cat) => (
                 <option key={cat._id} value={cat.slug}>
-                  {cat.icon} {getTitle(cat)}
+                  {getTitle(cat)}
                 </option>
               ))}
             </select>

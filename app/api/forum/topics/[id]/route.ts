@@ -140,7 +140,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
 
         const body = await request.json();
-        const { title, content, tags, isPinned, isLocked } = body;
+        const { title, content, tags, isPinned, isLocked, isApproved } = body;
 
         const updateData: Record<string, unknown> = {};
         if (title) updateData.title = title.trim();
@@ -151,6 +151,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         if (admin) {
             if (typeof isPinned === 'boolean') updateData.isPinned = isPinned;
             if (typeof isLocked === 'boolean') updateData.isLocked = isLocked;
+            if (typeof isApproved === 'boolean') {
+                updateData.isApproved = isApproved;
+                // Update category count when approving
+                if (isApproved && !topic.isApproved) {
+                    await ForumCategory.findByIdAndUpdate(topic.categoryId, {
+                        $inc: { topicCount: 1 },
+                        lastTopicAt: new Date(),
+                    });
+                }
+            }
         }
 
         const updatedTopic = await ForumTopic.findByIdAndUpdate(

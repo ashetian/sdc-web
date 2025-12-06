@@ -21,8 +21,13 @@ export async function GET(request: NextRequest) {
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
         const sort = searchParams.get('sort') || 'latest';
+        const showPending = searchParams.get('pending') === 'true'; // Admin only
 
-        const query: Record<string, unknown> = { isDeleted: { $ne: true } };
+        // Base query - only show approved topics for public, unless admin requests pending
+        const query: Record<string, unknown> = { 
+            isDeleted: { $ne: true },
+            isApproved: showPending ? false : true
+        };
 
         // Filter by category
         if (categorySlug) {
@@ -87,9 +92,11 @@ export async function POST(request: NextRequest) {
         }
 
         let memberId: string;
+        let isAdmin = false;
         try {
             const { payload } = await jwtVerify(token, JWT_SECRET);
             memberId = payload.memberId as string;
+            isAdmin = payload.isAdmin === true;
         } catch {
             return NextResponse.json({ error: 'Oturum geçersiz' }, { status: 401 });
         }
@@ -137,19 +144,25 @@ export async function POST(request: NextRequest) {
             title: title.trim(),
             content: content.trim(),
             tags: tags?.map((t: string) => t.toLowerCase().trim()) || [],
+            isApproved: isAdmin, // Auto-approve if admin creates the topic
         });
 
-        // Update category topic count
-        await ForumCategory.findByIdAndUpdate(category._id, {
-            $inc: { topicCount: 1 },
-            lastTopicAt: new Date(),
-        });
+        // Only update category count if approved
+        if (isAdmin) {
+            await ForumCategory.findByIdAndUpdate(category._id, {
+                $inc: { topicCount: 1 },
+                lastTopicAt: new Date(),
+            });
+        }
 
         const populatedTopic = await ForumTopic.findById(topic._id)
             .populate('categoryId', 'name nameEn slug icon color')
             .populate('authorId', 'fullName nickname avatar');
 
-        return NextResponse.json(populatedTopic, { status: 201 });
+        return NextResponse.json({
+            ...populatedTopic?.toObject(),
+            message: isAdmin ? undefined : 'Konunuz admin onayına gönderildi'
+        }, { status: 201 });
     } catch (error) {
         console.error('Forum topic create error:', error);
         return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });

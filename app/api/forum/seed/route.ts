@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import ForumCategory from '@/app/lib/models/ForumCategory';
+import ForumTopic from '@/app/lib/models/ForumTopic';
 
 const defaultCategories = [
     {
@@ -118,6 +119,26 @@ export async function POST() {
         });
     } catch (error) {
         console.error('Update icons error:', error);
+        return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
+    }
+}
+
+// PUT - Approve all existing topics (one-time migration)
+export async function PUT() {
+    try {
+        await connectDB();
+
+        const result = await ForumTopic.updateMany(
+            { isApproved: { $ne: true } },
+            { $set: { isApproved: true } }
+        );
+
+        return NextResponse.json({
+            message: 'Mevcut konular onaylandı',
+            modified: result.modifiedCount,
+        });
+    } catch (error) {
+        console.error('Approve all error:', error);
         return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
     }
 }

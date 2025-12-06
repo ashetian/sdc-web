@@ -15,6 +15,7 @@ export interface IForumTopic extends Document {
     isPinned: boolean;
     isLocked: boolean;
     isDeleted: boolean;
+    isApproved: boolean;
     lastReplyAt?: Date;
     lastReplyById?: mongoose.Types.ObjectId;
     createdAt: Date;
@@ -85,6 +86,11 @@ const ForumTopicSchema = new Schema<IForumTopic>(
             default: false,
         },
         isDeleted: {
+            type: Boolean,
+            default: false,
+            index: true,
+        },
+        isApproved: {
             type: Boolean,
             default: false,
             index: true,
