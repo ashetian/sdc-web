@@ -48,18 +48,38 @@ body {
   }
 }
 
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #5492de transparent;
+/* Custom Neo-Brutalist Scrollbar */
+::-webkit-scrollbar {
+  width: 48px;
+  height: 48px;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  height: 8px;
-  border-radius: 8px;
-  background: transparent;
+::-webkit-scrollbar-track {
+  background: #ffffff;
+  border-left: 4px solid #000000;
+  border-top: 4px solid #000000;
+  border-radius: 0 !important;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #5492de;
-  border-radius: 8px;
+::-webkit-scrollbar-thumb {
+  background: #8B5CF6;
+  /* Neo Purple */
+  border: 4px solid #000000;
+  border-radius: 0 !important;
+  box-shadow: inset -2px -2px 0px rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FACC15;
+  /* Neo Yellow */
+}
+
+::-webkit-scrollbar-corner {
+  background: #000000;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #8B5CF6 #ffffff;
 }

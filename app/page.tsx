@@ -13,6 +13,10 @@ const Team = dynamic(() => import("./_components/Team"), {
   loading: () => <div className="min-h-[400px]" />,
 });
 
+const Sponsors = dynamic(() => import("./_components/Sponsors"), {
+  loading: () => <div className="min-h-[100px]" />,
+});
+
 const Contact = dynamic(() => import("./_components/Contact"), {
   loading: () => <div className="min-h-[400px]" />,
 });
@@ -42,6 +46,9 @@ export default function HomePage() {
       </section>
       <section id="team">
         <Team />
+      </section>
+      <section id="sponsors">
+        <Sponsors />
       </section>
       <section id="contact">
         <Contact />

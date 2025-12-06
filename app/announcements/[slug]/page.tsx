@@ -7,6 +7,7 @@ import ShareButtons from "../../_components/ShareButtons";
 import ImageLightbox from "../../_components/ImageLightbox";
 import CommentSection from "../../_components/CommentSection";
 import BookmarkButton from "../../_components/BookmarkButton";
+import LikeButton from "../../_components/LikeButton";
 
 interface Announcement {
   _id: string;
@@ -162,6 +163,7 @@ export default function AnnouncementPage({
               </span>
               <div className="flex items-center gap-3">
                 <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{language === 'en' && announcement.dateEn ? announcement.dateEn : announcement.date}</time>
+                <LikeButton contentType="announcement" contentId={announcement._id} />
                 <BookmarkButton contentType="announcement" contentId={announcement._id} />
               </div>
             </div>

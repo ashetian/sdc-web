@@ -15,6 +15,7 @@ import {
   BarChart3,
   ClipboardList,
   Settings,
+  Heart,
   LucideIcon,
   ChevronRight
 } from "lucide-react";
@@ -34,6 +35,7 @@ const DASHBOARD_BUTTONS: DashboardButton[] = [
   { key: 'applicants', label: 'Başvurular', href: '/admin/applicants', color: 'bg-neo-blue', description: 'Gelen başvuruları incele', icon: FileText },
   { key: 'departments', label: 'Departmanlar', href: '/admin/departments', color: 'bg-neo-pink', description: 'Departman bilgileri düzenle', icon: Building2 },
   { key: 'team', label: 'Ekip', href: '/admin/team', color: 'bg-neo-orange', description: 'Ekip üyelerini yönet', icon: Users },
+  { key: 'sponsors', label: 'Sponsorlar', href: '/admin/sponsors', color: 'bg-neo-peach', description: 'Sponsor ve partner yönetimi', icon: Heart },
   { key: 'projects', label: 'Projeler', href: '/admin/projects', color: 'bg-neo-blue', description: 'Proje portfolyosu', icon: Rocket },
   { key: 'comments', label: 'Yorumlar', href: '/admin/comments', color: 'bg-neo-purple text-white', description: 'Kullanıcı yorumları', icon: MessageSquare },
   { key: 'elections', label: 'Seçimler', href: '/admin/elections', color: 'bg-neo-yellow', description: 'Seçim ve anketler', icon: Vote },

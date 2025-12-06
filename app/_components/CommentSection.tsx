@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '../_context/LanguageContext';
+import LikeButton from './LikeButton';
 
 interface Comment {
     _id: string;
@@ -295,9 +296,12 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                                             )}
                                         </div>
                                         <p className="text-gray-800 mb-2 break-words">{comment.content}</p>
-                                        <div className="text-xs text-gray-500">
-                                            {formatDate(comment.createdAt)}
-                                            {comment.isEdited && ` (${l.edited})`}
+                                        <div className="flex items-center justify-between mt-2">
+                                            <div className="text-xs text-gray-500">
+                                                {formatDate(comment.createdAt)}
+                                                {comment.isEdited && ` (${l.edited})`}
+                                            </div>
+                                            <LikeButton contentType="comment" contentId={comment._id} size="sm" />
                                         </div>
                                     </div>
                                 </div>
