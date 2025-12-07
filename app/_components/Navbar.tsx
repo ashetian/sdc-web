@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import { useLanguage } from "../_context/LanguageContext";
 import Link from "next/link";
 import NotificationBell from "./NotificationBell";
+import BugReportButton from "./BugReportButton";
 
 interface AuthUser {
   nickname: string;
@@ -184,6 +185,7 @@ export default function Navbar() {
               {user ? (
                 <div className="flex items-center gap-3">
                   <NotificationBell />
+                  <BugReportButton />
                   <Link
                     href="/profile"
                     className="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-white border-2 border-black hover:shadow-neo transition-all group"
@@ -219,15 +221,23 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 border-2 border-black bg-white shadow-neo-sm active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all z-[70] relative"
-            >
-              <div className={`w-6 h-0.5 mb-1.5 bg-black transition-all ${isMenuOpen ? "transform rotate-45 translate-y-2" : ""}`} />
-              <div className={`w-6 h-0.5 mb-1.5 bg-black transition-all ${isMenuOpen ? "opacity-0" : ""}`} />
-              <div className={`w-6 h-0.5 bg-black transition-all ${isMenuOpen ? "transform -rotate-45 -translate-y-2" : ""}`} />
-            </button>
+            {/* Mobile Right Side: Notification + Bug Report + Menu Button */}
+            <div className="md:hidden flex items-center gap-2">
+              {user && (
+                <>
+                  <NotificationBell />
+                  <BugReportButton />
+                </>
+              )}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 border-2 border-black bg-white shadow-neo-sm active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all z-[70] relative"
+              >
+                <div className={`w-6 h-0.5 mb-1.5 bg-black transition-all ${isMenuOpen ? "transform rotate-45 translate-y-2" : ""}`} />
+                <div className={`w-6 h-0.5 mb-1.5 bg-black transition-all ${isMenuOpen ? "opacity-0" : ""}`} />
+                <div className={`w-6 h-0.5 bg-black transition-all ${isMenuOpen ? "transform -rotate-45 -translate-y-2" : ""}`} />
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -288,24 +298,26 @@ export default function Navbar() {
                 {/* Auth Buttons Mobile */}
                 <motion.div variants={itemVariants} className="flex flex-col gap-4 mt-6">
                   {user ? (
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-4 px-8 py-4 bg-white border-4 border-black shadow-neo active:shadow-none transition-all"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-gray-100 border-2 border-black overflow-hidden relative">
-                        <Image
-                          src={user.avatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
-                          alt="Avatar"
-                          fill
-                          className="object-cover"
-                          sizes="40px"
-                        />
-                      </div>
-                      <span className="font-black text-xl text-black">
-                        {user.nickname || (language === 'tr' ? 'Profil' : 'Profile')}
-                      </span>
-                    </Link>
+                    <>
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-4 px-8 py-4 bg-white border-4 border-black shadow-neo active:shadow-none transition-all"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gray-100 border-2 border-black overflow-hidden relative">
+                          <Image
+                            src={user.avatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
+                            alt="Avatar"
+                            fill
+                            className="object-cover"
+                            sizes="40px"
+                          />
+                        </div>
+                        <span className="font-black text-xl text-black">
+                          {user.nickname || (language === 'tr' ? 'Profil' : 'Profile')}
+                        </span>
+                      </Link>
+                    </>
                   ) : (
                     <>
                       <Link

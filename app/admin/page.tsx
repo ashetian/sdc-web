@@ -21,7 +21,8 @@ import {
   ChevronRight,
   MessagesSquare,
   Code2,
-  Mail
+  Mail,
+  Bug
 } from "lucide-react";
 import AdminNotificationBadge from "@/app/_components/AdminNotificationBadge";
 
@@ -49,6 +50,7 @@ const DASHBOARD_BUTTONS: DashboardButton[] = [
   { key: 'forum', label: 'Forum', href: '/admin/forum', color: 'bg-neo-green', description: 'Forum konuları ve mesajlar', icon: MessagesSquare, notificationType: 'forum_topic' },
   { key: 'code', label: 'Kod Atölyesi', href: '/admin/code', color: 'bg-gray-800 text-white', description: 'Kod örnekleri yönetimi', icon: Code2 },
   { key: 'elections', label: 'Seçimler', href: '/admin/elections', color: 'bg-neo-yellow', description: 'Seçim ve anketler', icon: Vote },
+  { key: 'bug-reports', label: 'Hata Bildirimleri', href: '/admin/bug-reports', color: 'bg-red-500 text-white', description: 'Kullanıcı hata bildirimleri', icon: Bug },
   { key: 'stats', label: 'İstatistikler', href: '/admin/stats', color: 'bg-neo-purple text-white', description: 'Site istatistikleri', icon: BarChart3 },
   { key: 'audit-log', label: 'İşlem Geçmişi', href: '/admin/audit-log', color: 'bg-neo-pink', description: 'Admin işlem kayıtları', icon: ClipboardList },
   { key: 'settings', label: 'Ayarlar', href: '/admin/settings', color: 'bg-gray-700 text-white', description: 'Genel ayarlar ve yapılandırma', icon: Settings },

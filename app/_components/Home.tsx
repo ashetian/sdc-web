@@ -169,7 +169,7 @@ export default function Home() {
           </h2>
         </div>
 
-        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-8 cursor-default min-h-[80px]">
+        <div ref={buttonsRef} className="grid grid-cols-2 sm:flex gap-3 sm:gap-6 justify-center items-center mt-8 cursor-default min-h-[80px] max-w-lg sm:max-w-none mx-auto">
           {!loadingUser && (
             <>
               {!user ? (
@@ -177,25 +177,25 @@ export default function Home() {
                 <>
                   <button
                     onClick={() => router.push("/join")}
-                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-pink text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                    className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-pink text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Kulübe Üye Ol' : 'Join the Club'}
                   </button>
                   <button
                     onClick={() => router.push("/auth/signup")}
-                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-blue text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                    className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-blue text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Kayıt Ol' : 'Sign Up'}
                   </button>
                   <button
                     onClick={() => router.push("/auth/login")}
-                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-white text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                    className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-white text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Giriş Yap' : 'Login'}
                   </button>
                   <button
                     onClick={() => router.push("/team")}
-                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-cyan text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                    className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-cyan text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Ekip' : 'Team'}
                   </button>
@@ -205,25 +205,25 @@ export default function Home() {
                 <>
                   <button
                     onClick={() => router.push("/articles")}
-                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-purple text-white border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                    className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-purple text-white border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Makaleler' : 'Articles'}
                   </button>
                   <button
                     onClick={() => router.push("/projects")}
-                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-orange text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                    className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-orange text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Projeler' : 'Projects'}
                   </button>
                   <button
                     onClick={() => router.push("/events")}
-                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-green text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                    className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-green text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Etkinlikler' : 'Events'}
                   </button>
                   <button
                     onClick={() => router.push("/team")}
-                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-cyan text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                    className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-cyan text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Ekip' : 'Team'}
                   </button>

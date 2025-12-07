@@ -166,8 +166,8 @@ export default function Announcements() {
         >
           {announcements.map((current, idx) => (
             <SwiperSlide key={current.slug || idx}>
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center py-8 min-h-[60vh]">
-                <div className={`flex flex-col md:flex-row items-center gap-12 ${current.image ? 'w-full' : 'max-w-4xl'}`}>
+              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center py-4 sm:py-8 min-h-[50vh] sm:min-h-[60vh]">
+                <div className={`flex flex-col md:flex-row items-center gap-6 sm:gap-12 ${current.image ? 'w-full' : 'max-w-4xl'}`}>
                   {current.image && (
                     <div className="flex-shrink-0 w-full md:w-auto">
                       <div className="relative aspect-[4/5] max-h-[65vh] w-auto md:w-[55vh] border-4 border-black shadow-neo overflow-hidden mx-auto md:mx-0">
@@ -220,21 +220,21 @@ export default function Announcements() {
           <>
             <button
               onClick={goToPrev}
-              className="absolute left-4 top-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo items-center justify-center hover:bg-black hover:text-white transition-colors z-10 hidden sm:flex"
+              className="absolute left-1 sm:left-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
               style={{ transform: 'translateY(-50%)' }}
               aria-label="Previous announcement"
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <button
               onClick={goToNext}
-              className="absolute right-4 top-1/2 w-12 h-12 bg-white border-4 border-black shadow-neo items-center justify-center hover:bg-black hover:text-white transition-colors z-10 hidden sm:flex"
+              className="absolute right-1 sm:right-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
               style={{ transform: 'translateY(-50%)' }}
               aria-label="Next announcement"
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>

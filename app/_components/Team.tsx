@@ -126,14 +126,14 @@ export default function Team() {
     return (
         <section ref={sectionRef} id="team" className="relative py-20 bg-white border-b-4 border-black min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-                {/* Join Us Button */}
-                <div className="absolute top-0 right-4 lg:right-8 z-50">
+                {/* Join Us Button - Hidden on mobile, shown on larger screens */}
+                <div className="absolute top-0 right-4 lg:right-8 z-50 hidden sm:block">
                     <Link
                         href="/apply"
-                        className="bg-neo-yellow border-4 border-black px-6 py-3 font-black text-lg shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center gap-2"
+                        className="bg-neo-yellow border-4 border-black px-4 py-2 md:px-6 md:py-3 font-black text-sm md:text-lg shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center gap-2"
                     >
                         <span>{language === 'tr' ? 'BİZE KATILIN' : 'JOIN US'}</span>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                     </Link>
@@ -141,26 +141,26 @@ export default function Team() {
 
                 {/* 1. Root Node: Management */}
                 <div className="flex flex-col items-center relative z-10">
-                    <div className={`${standardCardClass} bg-white p-6 md:p-8 max-w-2xl w-full text-center relative z-10`}>
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-1 font-black uppercase text-sm -rotate-2 shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
+                    <div className={`${standardCardClass} bg-white p-4 sm:p-6 md:p-8 max-w-2xl w-full text-center relative z-10`}>
+                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white px-3 py-1 sm:px-4 font-black uppercase text-xs sm:text-sm -rotate-2 shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
                             {language === 'tr' ? 'YÖNETİM' : 'MANAGEMENT'}
                         </div>
-                        <div className="flex justify-center gap-8 md:gap-16">
+                        <div className="flex justify-center gap-4 sm:gap-8 md:gap-16">
                             {management.map(m => (
                                 <div key={m._id} className="flex flex-col items-center cursor-pointer group" onClick={() => handleMemberClick(m)}>
-                                    <div className="relative w-24 h-24 md:w-32 md:h-32 mb-3">
+                                    <div className="relative w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 mb-2 sm:mb-3">
                                         <div className="absolute inset-0 bg-black rounded-full translate-x-1 translate-y-1"></div>
                                         {m.photo ? (
                                             <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover relative bg-white group-hover:-translate-y-1 transition-transform" />
                                         ) : (
-                                            <div className="w-full h-full rounded-full border-2 border-black bg-gray-200 flex items-center justify-center relative font-black text-2xl">
+                                            <div className="w-full h-full rounded-full border-2 border-black bg-gray-200 flex items-center justify-center relative font-black text-xl sm:text-2xl">
                                                 {m.name[0]}
                                             </div>
                                         )}
-                                        {m.role === 'president' && <Crown size={24} className="absolute -top-4 -right-2 text-neo-yellow drop-shadow-md rotate-12" fill="currentColor" />}
+                                        {m.role === 'president' && <Crown size={20} className="absolute -top-3 -right-1 sm:-top-4 sm:-right-2 text-neo-yellow drop-shadow-md rotate-12 sm:w-6 sm:h-6" fill="currentColor" />}
                                     </div>
-                                    <h3 className="font-black text-lg leading-tight">{m.name}</h3>
-                                    <p className="text-sm font-bold text-gray-500 uppercase">{m.title}</p>
+                                    <h3 className="font-black text-sm sm:text-lg leading-tight">{m.name}</h3>
+                                    <p className="text-xs sm:text-sm font-bold text-gray-500 uppercase">{m.title}</p>
                                 </div>
                             ))}
                         </div>

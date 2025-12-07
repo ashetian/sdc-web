@@ -186,7 +186,7 @@ export default function ForumPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-8">
           {/* Categories */}
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-black text-black mb-6 uppercase flex items-center gap-2">
