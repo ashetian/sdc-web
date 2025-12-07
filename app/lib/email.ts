@@ -1,6 +1,68 @@
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
+import connectDB from './db';
+import { Setting } from './models/Setting';
 
+// Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Email settings cache
+interface EmailSettings {
+    emailProvider: 'resend' | 'nodemailer-gmail';
+}
+
+let cachedSettings: EmailSettings | null = null;
+let lastSettingsFetch: number = 0;
+const CACHE_DURATION = 60000; // 1 minute cache
+
+// Fetch email settings from database (only provider, credentials from env)
+async function getEmailSettings(): Promise<EmailSettings> {
+    const now = Date.now();
+
+    // Return cached settings if still valid
+    if (cachedSettings && (now - lastSettingsFetch) < CACHE_DURATION) {
+        return cachedSettings;
+    }
+
+    try {
+        await connectDB();
+        const setting = await Setting.findOne({ key: 'emailProvider' });
+
+        cachedSettings = {
+            emailProvider: (setting?.value as 'resend' | 'nodemailer-gmail') || 'resend',
+        };
+        lastSettingsFetch = now;
+
+        return cachedSettings;
+    } catch (error) {
+        console.error('Failed to fetch email settings:', error);
+        return { emailProvider: 'resend' };
+    }
+}
+
+// Create Gmail transporter (credentials from env only - secure)
+function createGmailTransporter() {
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+
+    if (!gmailUser || !gmailAppPassword) {
+        throw new Error('Gmail credentials not configured in environment variables');
+    }
+
+    return nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: gmailUser,
+            pass: gmailAppPassword,
+        },
+    });
+}
+
+// Clear settings cache (useful after settings update)
+export function clearEmailSettingsCache(): void {
+    cachedSettings = null;
+    lastSettingsFetch = 0;
+}
 
 interface EmailOptions {
     to: string;
@@ -10,28 +72,46 @@ interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<void> {
     const { to, subject, html } = options;
+    const settings = await getEmailSettings();
 
-    try {
-        const data = await resend.emails.send({
-            from: 'SDC <noreply@ktusdc.com>', // User must verify this domain in Resend
-            to: [to],
-            // reply_to: 'iletisim@ktusdc.com', // Optional: Good practice
-            subject: subject,
-            html: html,
-            headers: {
-                'List-Unsubscribe': `<${process.env.NEXT_PUBLIC_BASE_URL}/profile>`,
-                'X-Entity-ID': 'KTUSDC-Web',
-            }
-        });
+    if (settings.emailProvider === 'nodemailer-gmail') {
+        // Use Nodemailer with Gmail SMTP (credentials from env)
+        const transporter = createGmailTransporter();
+        const gmailUser = process.env.GMAIL_USER;
 
-        if (data.error) {
-            console.error('Resend Error:', data.error);
-            throw new Error(data.error.message);
+        try {
+            await transporter.sendMail({
+                from: `SDC <${gmailUser}>`,
+                to: to,
+                subject: subject,
+                html: html,
+            });
+        } catch (error) {
+            console.error('Nodemailer Gmail error:', error);
+            throw error;
         }
-    } catch (error) {
-        console.error('Email sending failed:', error);
-        // Fallback or re-throw depending on importance. For now re-throw.
-        throw error;
+    } else {
+        // Use Resend (default)
+        try {
+            const data = await resend.emails.send({
+                from: 'SDC <noreply@ktusdc.com>',
+                to: [to],
+                subject: subject,
+                html: html,
+                headers: {
+                    'List-Unsubscribe': `<${process.env.NEXT_PUBLIC_BASE_URL}/profile>`,
+                    'X-Entity-ID': 'KTUSDC-Web',
+                }
+            });
+
+            if (data.error) {
+                console.error('Resend Error:', data.error);
+                throw new Error(data.error.message);
+            }
+        } catch (error) {
+            console.error('Email sending failed:', error);
+            throw error;
+        }
     }
 }
 

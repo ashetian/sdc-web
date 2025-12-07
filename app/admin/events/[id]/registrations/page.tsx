@@ -220,17 +220,17 @@ export default function EventRegistrationsPage() {
                                         {member?.email || reg.email || '-'}
                                     </td>
                                     <td className="px-4 py-3 text-center">
-                                        <span className="px-2 py-1 text-xs font-black bg-neo-green border border-black">
+                                        <span className="px-2 py-1 text-xs font-black bg-neo-green border border-black inline-flex items-center justify-center">
                                             <Check size={12} />
                                         </span>
                                     </td>
                                     <td className="px-4 py-3 text-center">
                                         {reg.attendedAt ? (
-                                            <span className="px-2 py-1 text-xs font-black bg-neo-blue border border-black">
+                                            <span className="px-2 py-1 text-xs font-black bg-neo-blue border border-black inline-flex items-center justify-center">
                                                 <Check size={12} />
                                             </span>
                                         ) : (
-                                            <span className="px-2 py-1 text-xs font-black bg-gray-200 border border-black text-gray-500">
+                                            <span className="px-2 py-1 text-xs font-black bg-gray-200 border border-black text-gray-500 inline-flex items-center justify-center">
                                                 -
                                             </span>
                                         )}
@@ -242,7 +242,7 @@ export default function EventRegistrationsPage() {
                                     </td>
                                     {event?.isPaid && (
                                         <td className="px-4 py-3 text-center">
-                                            <span className={`px-2 py-1 text-xs font-black border border-black
+                                            <span className={`px-2 py-1 text-xs font-black border border-black inline-flex items-center justify-center
                                                 ${reg.paymentStatus === 'verified' ? 'bg-green-200 text-green-800' :
                                                     reg.paymentStatus === 'rejected' ? 'bg-red-200 text-red-800' :
                                                         'bg-yellow-200 text-yellow-800'}`}>

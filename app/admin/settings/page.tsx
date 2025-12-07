@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Settings, Users, Lock, LucideIcon } from "lucide-react";
+import { Settings, Users, Lock, Mail, LucideIcon } from "lucide-react";
 
 interface SettingsModule {
     key: string;
@@ -14,9 +14,11 @@ interface SettingsModule {
 
 const SETTINGS_MODULES: SettingsModule[] = [
     { key: 'general', label: 'Genel Ayarlar', href: '/admin/settings/general', color: 'bg-white', icon: Settings, desc: 'WhatsApp Linki vb.' },
+    { key: 'email', label: 'E-posta Ayarları', href: '/admin/settings/email', color: 'bg-neo-yellow', icon: Mail, desc: 'E-posta sağlayıcısı ve SMTP ayarları' },
     { key: 'members', label: 'Üye Yönetimi', href: '/admin/settings/members', color: 'bg-neo-blue', icon: Users, desc: 'Excel yükle, üye listesini yönet' },
     { key: 'access', label: 'Panel Yetkileri', href: '/admin/settings/access', color: 'bg-neo-pink', icon: Lock, desc: 'Yönetici erişim izinleri' },
 ];
+
 
 export default function SettingsDashboard() {
     return (
