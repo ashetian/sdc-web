@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { downloadICalendar } from '@/app/lib/utils/calendar';
+import { downloadICalendar, generateGoogleCalendarUrl, generateOutlookCalendarUrl } from '@/app/lib/utils/calendar';
 import Link from 'next/link';
 import GlobalLoading from '@/app/_components/GlobalLoading';
 import BookmarkButton from '@/app/_components/BookmarkButton';
@@ -50,6 +50,9 @@ export default function RegisterPage() {
             registrationSuccess: 'Kayıt Başarılı!',
             registrationComplete: 'Etkinliğe kaydınız tamamlandı.',
             addToCalendar: '📅 Takvime Ekle',
+            googleCalendar: 'Google Takvim',
+            outlookCalendar: 'Outlook',
+            appleCalendar: 'Diğer (.ics)',
             loginRequired: 'Bu etkinliğe kayıt olmak için giriş yapmalısınız.',
             login: 'Giriş Yap',
             registrationInfo: 'Kayıt Bilgileriniz',
@@ -72,6 +75,9 @@ export default function RegisterPage() {
             registrationSuccess: 'Registration Successful!',
             registrationComplete: 'Your registration for the event is complete.',
             addToCalendar: '📅 Add to Calendar',
+            googleCalendar: 'Google Calendar',
+            outlookCalendar: 'Outlook',
+            appleCalendar: 'Other (.ics)',
             loginRequired: 'You must log in to register for this event.',
             login: 'Login',
             registrationInfo: 'Registration Details',
@@ -236,12 +242,47 @@ export default function RegisterPage() {
 
                     <div className="space-y-4">
                         {event.eventDate && (
-                            <button
-                                onClick={handleAddToCalendar}
-                                className="w-full flex items-center justify-center gap-2 py-3 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-neo-blue hover:bg-white hover:text-black hover:shadow-none transition-all uppercase"
-                            >
-                                {l.addToCalendar}
-                            </button>
+                            <div className="space-y-2">
+                                <div className="text-center font-bold text-black border-2 border-black bg-neo-yellow py-1 text-sm uppercase mb-2">
+                                    {l.addToCalendar}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <a
+                                        href={generateGoogleCalendarUrl({
+                                            title: event.title,
+                                            description: event.description,
+                                            eventDate: event.eventDate,
+                                            eventEndDate: event.eventEndDate,
+                                            location: event.location,
+                                        })}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 py-2 px-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all text-sm font-bold uppercase"
+                                    >
+                                        G. Calendar
+                                    </a>
+                                    <a
+                                        href={generateOutlookCalendarUrl({
+                                            title: event.title,
+                                            description: event.description,
+                                            eventDate: event.eventDate,
+                                            eventEndDate: event.eventEndDate,
+                                            location: event.location,
+                                        })}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 py-2 px-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all text-sm font-bold uppercase"
+                                    >
+                                        Outlook
+                                    </a>
+                                </div>
+                                <button
+                                    onClick={handleAddToCalendar}
+                                    className="w-full flex items-center justify-center gap-2 py-2 px-4 border-2 border-black bg-gray-100 hover:bg-black hover:text-white transition-all text-sm font-bold uppercase"
+                                >
+                                    {l.appleCalendar}
+                                </button>
+                            </div>
                         )}
                         <Link
                             href="/events"

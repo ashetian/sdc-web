@@ -94,3 +94,45 @@ export function downloadICalendar(event: EventData, filename: string = 'event.ic
 
     URL.revokeObjectURL(url);
 }
+
+/**
+ * Generate Google Calendar URL
+ */
+export function generateGoogleCalendarUrl(event: EventData): string {
+    const startDate = formatICalDate(event.eventDate).replace('Z', 'Z'); // Ensure UTC
+    const endDate = event.eventEndDate
+        ? formatICalDate(event.eventEndDate).replace('Z', 'Z')
+        : formatICalDate(new Date(new Date(event.eventDate).getTime() + 2 * 60 * 60 * 1000)).replace('Z', 'Z');
+
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: event.title,
+        details: event.description,
+        location: event.location || '',
+        dates: `${startDate}/${endDate}`,
+    });
+
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+/**
+ * Generate Outlook Calendar URL
+ */
+export function generateOutlookCalendarUrl(event: EventData): string {
+    const startDate = new Date(event.eventDate).toISOString();
+    const endDate = event.eventEndDate
+        ? new Date(event.eventEndDate).toISOString()
+        : new Date(new Date(event.eventDate).getTime() + 2 * 60 * 60 * 1000).toISOString();
+
+    const params = new URLSearchParams({
+        path: '/calendar/action/compose',
+        rru: 'addevent',
+        startdt: startDate,
+        enddt: endDate,
+        subject: event.title,
+        body: event.description,
+        location: event.location || '',
+    });
+
+    return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+}
