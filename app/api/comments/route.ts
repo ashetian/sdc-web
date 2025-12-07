@@ -288,15 +288,40 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: 'Yorum bulunamadı' }, { status: 404 });
         }
 
-        if (comment.memberId.toString() !== memberId) {
+        // Check if user is admin
+        const { default: TeamMember } = await import('@/app/lib/models/TeamMember');
+        const { default: AdminAccess } = await import('@/app/lib/models/AdminAccess');
+
+        const teamMember = await TeamMember.findOne({ memberId, isActive: true });
+        const adminAccess = await AdminAccess.findOne({ memberId });
+        const isAdmin = (teamMember && ['president', 'vice_president'].includes(teamMember.role)) || adminAccess;
+
+        // Allow if owner OR admin
+        if (comment.memberId.toString() !== memberId && !isAdmin) {
             return NextResponse.json({ error: 'Bu yorumu silme yetkiniz yok' }, { status: 403 });
         }
 
-        // User soft delete
-        await Comment.findByIdAndUpdate(commentId, {
-            isDeleted: true,
-            deletedAt: new Date()
-        });
+        // Soft delete logic (same for owner or admin)
+        const updatedComment = await Comment.findByIdAndUpdate(
+            commentId,
+            { isDeleted: true, deletedAt: new Date() },
+            { new: true }
+        );
+
+        // If it was an admin action (and not their own comment), log it
+        if (isAdmin && comment.memberId.toString() !== memberId) {
+            const { logAdminAction, AUDIT_ACTIONS } = await import('@/app/lib/utils/logAdminAction');
+            await logAdminAction({
+                adminId: memberId,
+                adminName: 'Admin (Session)',
+                action: AUDIT_ACTIONS.DELETE_COMMENT,
+                targetType: 'Comment',
+                targetId: commentId,
+                targetName: comment.content.substring(0, 50),
+                details: `Yorum soft-delete: ${comment.contentType}`,
+            });
+        }
+
         return NextResponse.json({ message: 'Yorum silindi' });
     } catch (error) {
         console.error('Comment delete error:', error);

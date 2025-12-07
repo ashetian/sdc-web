@@ -3,6 +3,26 @@ import connectDB from '@/app/lib/db';
 import { Setting } from '@/app/lib/models/Setting';
 import { verifyAuth } from '@/app/lib/auth';
 import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
+import TeamMember from '@/app/lib/models/TeamMember';
+import AdminAccess from '@/app/lib/models/AdminAccess';
+
+// Shared verifyAdmin helper (same as calendar routes)
+async function verifyAdmin() {
+    const auth = await verifyAuth();
+    if (!auth?.userId) return null;
+
+    await connectDB();
+
+    // Check TeamMember role first (president/VP are auto-admins)
+    const teamMember = await TeamMember.findOne({ memberId: auth.userId, isActive: true });
+    if (teamMember && ['president', 'vice_president'].includes(teamMember.role)) {
+        return { userId: auth.userId, nickname: auth.nickname };
+    }
+
+    // Then check AdminAccess table
+    const access = await AdminAccess.findOne({ memberId: auth.userId });
+    return access ? { userId: auth.userId, nickname: auth.nickname } : null;
+}
 
 export async function GET() {
     try {
@@ -25,10 +45,10 @@ export async function POST(request: NextRequest) {
     try {
         await connectDB();
 
-        // Auth check
-        const user = await verifyAuth(request);
-        if (!user) {
-            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        // Auth check - STRICT ADMIN ONLY
+        const admin = await verifyAdmin();
+        if (!admin) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli (Admin)' }, { status: 401 });
         }
 
         const body = await request.json();
@@ -46,8 +66,8 @@ export async function POST(request: NextRequest) {
 
         // Audit log
         await logAdminAction({
-            adminId: user.userId,
-            adminName: user.nickname || user.studentNo,
+            adminId: admin.userId,
+            adminName: admin.nickname || admin.userId,
             action: AUDIT_ACTIONS.UPDATE_SETTINGS,
             targetType: 'Setting',
             targetId: key,

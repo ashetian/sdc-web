@@ -143,6 +143,9 @@ export default function Navbar() {
                 <NavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
                 <NavLink onClick={() => router.push("/forum")} text="Forum" />
                 <NavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
+
+                {/* Club Room Status Indicator */}
+                <ClubRoomStatus />
               </div>
             </div>
 
@@ -279,6 +282,9 @@ export default function Navbar() {
                   <MobileNavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} color="bg-neo-purple" />
                 </motion.div>
 
+                {/* Mobile Room Status */}
+                <ClubRoomStatusMobile />
+
                 {/* Language Switcher Mobile */}
                 <motion.div variants={itemVariants} className="flex gap-4 mt-8">
                   <button
@@ -366,5 +372,86 @@ function MobileNavLink({ onClick, text, color = "bg-white" }: { onClick: () => v
     >
       {text}
     </button>
+  );
+}
+
+function ClubRoomStatus() {
+  const [status, setStatus] = useState<{ exists: boolean; isOpen: boolean } | null>(null);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          // Only set status if room exists
+          if (data.club_room_exists === 'true') {
+            setStatus({
+              exists: true,
+              isOpen: data.club_room_is_open === 'true'
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching room status:', error);
+      }
+    };
+
+    fetchStatus();
+    // Poll every 60 seconds
+    const interval = setInterval(fetchStatus, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!status || !status.exists) return null;
+
+  return (
+    <div className={`
+      hidden lg:flex items-center gap-2 px-3 py-1.5 border-2 border-black font-bold text-xs shadow-neo-sm
+      ${status.isOpen ? 'bg-neo-green text-black' : 'bg-red-500 text-white'}
+    `}>
+      <span className={`w-2 h-2 rounded-full border border-black ${status.isOpen ? 'bg-green-300 animate-pulse' : 'bg-red-200'}`} />
+      <span>{status.isOpen ? 'KULÜP ODASI AÇIK' : 'KULÜP ODASI KAPALI'}</span>
+    </div>
+  );
+}
+
+function ClubRoomStatusMobile() {
+  const [status, setStatus] = useState<{ exists: boolean; isOpen: boolean } | null>(null);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.club_room_exists === 'true') {
+            setStatus({
+              exists: true,
+              isOpen: data.club_room_is_open === 'true'
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Mobile status error:', error);
+      }
+    };
+    fetchStatus();
+  }, []);
+
+  if (!status || !status.exists) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`
+          flex items-center gap-3 px-6 py-3 border-4 border-black font-black text-lg shadow-neo mt-4 w-full justify-center
+          ${status.isOpen ? 'bg-neo-green text-black' : 'bg-red-500 text-white'}
+        `}
+    >
+      <span className={`w-4 h-4 rounded-full border-2 border-black ${status.isOpen ? 'bg-green-300 animate-pulse' : 'bg-red-200'}`} />
+      <span>{status.isOpen ? 'KULÜP ODASI AÇIK' : 'KULÜP ODASI KAPALI'}</span>
+    </motion.div>
   );
 }

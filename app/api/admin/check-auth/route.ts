@@ -3,6 +3,8 @@ import { verifyAuth } from "../../../lib/auth";
 import connectDB from "@/app/lib/db";
 import TeamMember from "@/app/lib/models/TeamMember";
 import AdminAccess from "@/app/lib/models/AdminAccess";
+import Department from "@/app/lib/models/Department";
+import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {
     try {
@@ -12,15 +14,20 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        if (!mongoose.Types.ObjectId.isValid(payload.userId)) {
+            console.error('Invalid ObjectId for userId:', payload.userId);
+            return NextResponse.json({ error: "Invalid User ID" }, { status: 401 });
+        }
+
+        const userId = new mongoose.Types.ObjectId(payload.userId);
+
         // Check for individual permissions in AdminAccess table for this Member
-        // payload.userId corresponds to the Member ID (User ID)
         const accessRule = await AdminAccess.findOne({
-            memberId: payload.userId
+            memberId: userId
         });
 
         // Find the TeamMember linked to this user (optional)
-        const teamMember = await TeamMember.findOne({ memberId: payload.userId, isActive: true })
-            .populate("departmentId");
+        const teamMember = await TeamMember.findOne({ memberId: userId, isActive: true });
 
         let isSuperAdmin = false;
         let allowedKeys: string[] = [];
@@ -67,8 +74,12 @@ export async function GET(req: NextRequest) {
             name
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Auth check error:", error);
-        return NextResponse.json({ error: "Internal Error" }, { status: 500 });
+        return NextResponse.json({
+            error: "Internal Error",
+            message: error?.message || String(error),
+            stack: error?.stack
+        }, { status: 500 });
     }
 }

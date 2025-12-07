@@ -32,6 +32,9 @@ const ALL_KEYS = [
     { key: 'elections', label: 'Seçimler' },
     { key: 'stats', label: 'İstatistikler' },
     { key: 'audit-log', label: 'İşlem Geçmişi' },
+    { key: 'calendar', label: 'Takvim Yönetimi' },
+    { key: 'room', label: 'Kulüp Odası (IoT)' },
+    { key: 'inventory', label: 'Envanter/Demirbaş' },
     { key: 'settings', label: 'Ayarlar (Genel)' },
 ];
 

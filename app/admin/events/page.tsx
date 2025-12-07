@@ -50,6 +50,12 @@ export default function AdminEventsPage() {
 
     useEffect(() => {
         fetchEvents();
+        // Clear registration notifications
+        fetch('/api/notifications/admin/clear', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'admin_new_registration' }),
+        }).catch(err => console.error('Failed to clear notifications:', err));
     }, []);
 
     const fetchEvents = async () => {

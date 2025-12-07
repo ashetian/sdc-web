@@ -47,15 +47,29 @@ export async function createNotification(params: CreateNotificationParams) {
  */
 export async function createAdminNotification(params: Omit<CreateNotificationParams, 'recipientId' | 'isAdminNotification'>) {
     const AdminAccess = (await import('@/app/lib/models/AdminAccess')).default;
+    const TeamMember = (await import('@/app/lib/models/TeamMember')).default;
 
-    // Get all admin IDs
-    const admins = await AdminAccess.find({}).select('memberId');
+    // Get all admin IDs from AdminAccess
+    const accessAdmins = await AdminAccess.find({}).select('memberId');
+    const adminIds = new Set(accessAdmins.map(a => a.memberId.toString()));
+
+    // Get President/VP IDs
+    const teamAdmins = await TeamMember.find({
+        role: { $in: ['president', 'vice_president'] },
+        isActive: true
+    }).select('memberId');
+
+    teamAdmins.forEach(t => {
+        if (t.memberId) {
+            adminIds.add(t.memberId.toString());
+        }
+    });
 
     const notifications = await Promise.all(
-        admins.map(admin =>
+        Array.from(adminIds).map(memberId =>
             createNotification({
                 ...params,
-                recipientId: admin.memberId,
+                recipientId: memberId,
                 isAdminNotification: true,
             })
         )

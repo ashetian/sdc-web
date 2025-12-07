@@ -1,31 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import AuditLog from '@/app/lib/models/AuditLog';
-import { cookies } from 'next/headers';
-import { jwtVerify } from 'jose';
 import AdminAccess from '@/app/lib/models/AdminAccess';
+import TeamMember from '@/app/lib/models/TeamMember';
+import { verifyAuth } from '@/app/lib/auth';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
-
+// Shared verifyAdmin helper
 async function verifyAdmin() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
+    const auth = await verifyAuth();
+    if (!auth?.userId) return null;
 
-    if (!token) return null;
+    await connectDB();
 
-    try {
-        const { payload } = await jwtVerify(token, JWT_SECRET);
-        const memberId = payload.memberId as string;
-
-        await connectDB();
-        const access = await AdminAccess.findOne({ memberId, isActive: true });
-
-        if (!access) return null;
-
-        return { memberId };
-    } catch {
-        return null;
+    // Check TeamMember role (President/VP)
+    const teamMember = await TeamMember.findOne({ memberId: auth.userId, isActive: true });
+    if (teamMember && ['president', 'vice_president'].includes(teamMember.role)) {
+        return { memberId: auth.userId };
     }
+
+    // Check AdminAccess
+    const access = await AdminAccess.findOne({ memberId: auth.userId });
+    return access ? { memberId: auth.userId } : null;
 }
 
 export async function GET(request: NextRequest) {

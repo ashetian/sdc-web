@@ -32,6 +32,22 @@ export default function AdminCommentsPage() {
         fetchComments();
     }, [filter, showDeleted]);
 
+    // Clear admin notifications on mount
+    useEffect(() => {
+        const clearNotifications = async () => {
+            try {
+                await fetch('/api/notifications/admin/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'admin_new_comment' }),
+                });
+            } catch (err) {
+                console.error('Failed to clear notifications:', err);
+            }
+        };
+        clearNotifications();
+    }, []);
+
     const fetchComments = async () => {
         setLoading(true);
         try {

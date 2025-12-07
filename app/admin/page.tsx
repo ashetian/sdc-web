@@ -22,7 +22,9 @@ import {
   MessagesSquare,
   Code2,
   Mail,
-  Bug
+  Bug,
+  MapPin,
+  Package
 } from "lucide-react";
 import AdminNotificationBadge from "@/app/_components/AdminNotificationBadge";
 
@@ -40,6 +42,8 @@ const DASHBOARD_BUTTONS: DashboardButton[] = [
   { key: 'announcements', label: 'Duyurular', href: '/admin/announcements', color: 'bg-white', description: 'Haber, Etkinlik, Atölye ve Makaleler', icon: Megaphone },
   { key: 'events', label: 'Etkinlikler', href: '/admin/events', color: 'bg-neo-green', description: 'Etkinlik oluşturma ve yönetim', icon: CalendarDays, notificationType: 'registration' },
   { key: 'calendar', label: 'Takvim', href: '/admin/calendar', color: 'bg-neo-orange', description: 'Sınav haftaları, tatiller ve özel günler', icon: CalendarClock },
+  { key: 'room', label: 'Kulüp Odası', href: '/admin/room', color: 'bg-neo-purple text-white', description: 'Oda durumu (Açık/Kapalı)', icon: MapPin },
+  { key: 'inventory', label: 'Envanter', href: '/admin/inventory', color: 'bg-black text-white', description: 'Demirbaş ve zimmet takibi', icon: Package },
   { key: 'emails', label: 'E-postalar', href: '/admin/emails', color: 'bg-neo-yellow', description: 'Toplu veya özel e-posta gönderimi', icon: Mail },
   { key: 'applicants', label: 'Başvurular', href: '/admin/applicants', color: 'bg-neo-blue', description: 'Gelen başvuruları incele', icon: FileText, notificationType: 'applicant' },
   { key: 'departments', label: 'Departmanlar', href: '/admin/departments', color: 'bg-neo-pink', description: 'Departman bilgileri düzenle', icon: Building2 },
