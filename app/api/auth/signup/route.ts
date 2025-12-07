@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     try {
         await connectDB();
 
-        const { studentNo, kvkkAccepted, emailConsent } = await request.json();
+        const { studentNo, kvkkAccepted, emailConsent, nativeLanguage } = await request.json();
 
         if (!studentNo) {
             return NextResponse.json({ error: 'Öğrenci numarası gerekli' }, { status: 400 });
@@ -45,10 +45,9 @@ export async function POST(request: NextRequest) {
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
         // Update member with consent info
-        // Update member with consent info
         member.kvkkAccepted = true;
         member.emailConsent = emailConsent || false;
-        member.nativeLanguage = (await request.json()).nativeLanguage || 'tr';
+        member.nativeLanguage = nativeLanguage || 'tr';
         await member.save();
 
         // Save token (invalidate any existing tokens)
