@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { KVKK_CONTENT } from '@/app/lib/constants/kvkk';
 
 export default function SignupPage() {
     const [studentNo, setStudentNo] = useState('');
@@ -150,39 +151,45 @@ export default function SignupPage() {
                             </div>
                         )}
 
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="kvkk"
-                                    checked={kvkkAccepted}
-                                    onChange={(e) => setKvkkAccepted(e.target.checked)}
-                                    className="mt-1 w-4 h-4 text-black border-2 border-black rounded focus:ring-0 cursor-pointer"
-                                />
-                                <label htmlFor="kvkk" className="text-sm text-gray-700">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowKvkkModal(true)}
-                                        className="text-blue-600 font-bold hover:underline"
-                                    >
-                                        KVKK ve Aydınlatma Metnini
-                                    </button>{' '}
-                                    okudum ve kabul ediyorum. *
-                                </label>
-                            </div>
+                        <div className="flex items-start gap-2">
+                            <input
+                                type="checkbox"
+                                id="kvkk"
+                                checked={kvkkAccepted}
+                                onChange={(e) => setKvkkAccepted(e.target.checked)}
+                                className="mt-1 w-4 h-4 text-black border-2 border-black rounded focus:ring-0 cursor-pointer"
+                            />
+                            <label htmlFor="kvkk" className="text-sm text-gray-700">
+                                <Link href="/kvkk" target="_blank" className="font-bold text-blue-600 hover:underline">
+                                    KVKK Aydınlatma Metni
+                                </Link>
+                                'ni okudum,{' '}
+                                <Link href="/gizlilik" target="_blank" className="font-bold text-blue-600 hover:underline">
+                                    Gizlilik Politikası
+                                </Link>{' '}
+                                ve{' '}
+                                <Link href="/uyelik-sozlesmesi" target="_blank" className="font-bold text-blue-600 hover:underline">
+                                    Üyelik Sözleşmesi
+                                </Link>
+                                'ni kabul ediyorum. *
+                            </label>
+                        </div>
 
-                            <div className="flex items-start gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="emailConsent"
-                                    checked={emailConsent}
-                                    onChange={(e) => setEmailConsent(e.target.checked)}
-                                    className="mt-1 w-4 h-4 text-black border-2 border-black rounded focus:ring-0 cursor-pointer"
-                                />
-                                <label htmlFor="emailConsent" className="text-sm text-gray-700">
-                                    Kulüp etkinlikleri ve duyuruları hakkında e-posta almak istiyorum.
-                                </label>
-                            </div>
+                        <div className="flex items-start gap-2">
+                            <input
+                                type="checkbox"
+                                id="emailConsent"
+                                checked={emailConsent}
+                                onChange={(e) => setEmailConsent(e.target.checked)}
+                                className="mt-1 w-4 h-4 text-black border-2 border-black rounded focus:ring-0 cursor-pointer"
+                            />
+                            <label htmlFor="emailConsent" className="text-sm text-gray-700">
+                                Kulüp tarafından e-posta/SMS yoluyla etkinlik ve duyuru bilgilendirmeleri yapılmasına açık rıza veriyorum. ({' '}
+                                <Link href="/acik-riza" target="_blank" className="font-bold text-blue-600 hover:underline">
+                                    Açık Rıza Metni
+                                </Link>
+                                )
+                            </label>
                         </div>
 
                         <button
@@ -208,16 +215,45 @@ export default function SignupPage() {
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-lg w-full max-h-[80vh] flex flex-col">
                         <div className="p-4 border-b-2 border-gray-200 flex justify-between items-center">
-                            <h3 className="font-bold text-lg">KVKK Aydınlatma Metni</h3>
+                            <h3 className="font-bold text-lg">{KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].title}</h3>
                             <button onClick={() => setShowKvkkModal(false)} className="text-xl font-bold">&times;</button>
                         </div>
                         <div className="p-4 overflow-y-auto text-sm text-gray-700 space-y-2">
-                            <p>İstanbul Üniversitesi Süleymaniye Veri Kulübü (SDC) olarak kişisel verilerinizin güvenliğine önem veriyoruz.</p>
-                            <p><strong>1. Veri Sorumlusu:</strong> İstanbul Üniversitesi Rektörlüğü</p>
-                            <p><strong>2. İşlenen Verileriniz:</strong> Ad soyad, öğrenci numarası, e-posta, telefon, bölüm bilgileri.</p>
-                            <p><strong>3. İşleme Amacı:</strong> Kulüp faaliyetlerinin yürütülmesi, üye kaydı, iletişim ve etkinlik yönetimi.</p>
-                            <p><strong>4. Veri Aktarımı:</strong> Verileriniz yasal zorunluluklar dışında üçüncü kişilerle paylaşılmamaktadır.</p>
-                            <p>Detaylı bilgi için üniversitemiz KVKK yönergesini inceleyebilirsiniz.</p>
+                            <p className="font-bold mb-2">
+                                {KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].controller} {KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].controllerName}
+                            </p>
+                            <p>{KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].intro}</p>
+
+                            <h4 className="font-bold mt-2">{KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section1}</h4>
+                            <ul className="list-disc list-inside">
+                                {KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section1List.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+
+                            <h4 className="font-bold mt-2">{KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section2}</h4>
+                            <ul className="list-disc list-inside">
+                                {KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section2List.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+
+                            <h4 className="font-bold mt-2">{KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section3}</h4>
+                            <ul className="list-disc list-inside">
+                                {KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section3List.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+
+                            <h4 className="font-bold mt-2">{KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section4}</h4>
+                            <p>{KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section4Text}</p>
+
+                            <h4 className="font-bold mt-2">{KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section5}</h4>
+                            <ul className="list-disc list-inside">
+                                {KVKK_CONTENT[nativeLanguage as 'tr' | 'en'].section5List.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
                         </div>
                         <div className="p-4 border-t-2 border-gray-200 text-right">
                             <button
@@ -227,7 +263,7 @@ export default function SignupPage() {
                                 }}
                                 className="bg-black text-white px-4 py-2 font-bold hover:bg-gray-800"
                             >
-                                Okudum ve Anladım
+                                Okudum ve Anladım / I have read and understood
                             </button>
                         </div>
                     </div>

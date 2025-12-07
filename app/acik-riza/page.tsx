@@ -4,13 +4,13 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { LEGAL_CONTENT } from "../lib/constants/legal";
 
-export default function KVKKPage() {
-    const content = LEGAL_CONTENT.tr.kvkk;
+export default function ExplicitConsentPage() {
+    const content = LEGAL_CONTENT.tr.consent;
 
     return (
-        <div className="min-h-screen bg-neo-yellow py-20 pt-40">
+        <div className="min-h-screen bg-neo-purple py-20 pt-40">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform -rotate-1">
+                <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform rotate-1">
                     <h1 className="text-3xl sm:text-4xl font-black text-black mb-8 border-b-4 border-black pb-4">
                         {content.title}
                     </h1>
@@ -24,7 +24,7 @@ export default function KVKKPage() {
                     <div className="mt-12 border-t-4 border-black pt-8">
                         <Link
                             href="/"
-                            className="inline-flex items-center text-black font-black uppercase hover:underline decoration-4 decoration-neo-purple underline-offset-4 transition-all"
+                            className="inline-flex items-center text-black font-black uppercase hover:underline decoration-4 decoration-neo-green underline-offset-4 transition-all"
                         >
                             <svg
                                 className="w-6 h-6 mr-2"

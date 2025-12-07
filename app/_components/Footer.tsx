@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
 
 import { usePathname } from "next/navigation";
@@ -45,7 +46,7 @@ export default function Footer() {
           {/* Quick Links */}
           <div className="flex flex-col items-center md:items-end">
             <h4 className="text-lg font-black text-neo-green mb-3">{t('footer.quickLinks')}</h4>
-            <div className="flex flex-wrap gap-2 justify-center md:justify-end">
+            <div className="flex flex-wrap gap-2 justify-center md:justify-end mb-6">
               <a href="/events" className="text-sm font-bold bg-neo-purple text-white px-3 py-1 border-2 border-white hover:bg-white hover:text-black transition-all">
                 {t('nav.events')}
               </a>
@@ -55,6 +56,22 @@ export default function Footer() {
               <a href="/apply" className="text-sm font-bold bg-neo-pink text-black px-3 py-1 border-2 border-white hover:bg-white transition-all">
                 {t('nav.apply')}
               </a>
+            </div>
+
+            <h4 className="text-lg font-black text-neo-yellow mb-2">{language === 'tr' ? 'Yasal' : 'Legal'}</h4>
+            <div className="flex flex-wrap gap-3 justify-center md:justify-end">
+              <Link href="/kvkk" className="text-xs font-bold text-white hover:text-neo-yellow hover:underline transition-all">
+                KVKK
+              </Link>
+              <Link href="/gizlilik" className="text-xs font-bold text-white hover:text-neo-yellow hover:underline transition-all">
+                {language === 'tr' ? 'Gizlilik' : 'Privacy'}
+              </Link>
+              <Link href="/uyelik-sozlesmesi" className="text-xs font-bold text-white hover:text-neo-yellow hover:underline transition-all">
+                {language === 'tr' ? 'Üyelik Sözleşmesi' : 'Membership Agreement'}
+              </Link>
+              <Link href="/acik-riza" className="text-xs font-bold text-white hover:text-neo-yellow hover:underline transition-all">
+                {language === 'tr' ? 'Açık Rıza' : 'Consent'}
+              </Link>
             </div>
           </div>
         </div>
@@ -70,7 +87,7 @@ export default function Footer() {
 
           <div className="flex flex-row gap-2 items-center">
             <span className="text-sm font-bold bg-neo-pink text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-              {language === 'tr' ? 'Geliştiriciler:' : 'Developed by:'}
+              {language === 'tr' ? 'Cooked by' : 'Cooked by'}
             </span>
             <span className="text-sm font-bold bg-neo-blue text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
               Caner
