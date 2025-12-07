@@ -1,6 +1,10 @@
 "use client";
-import GlobalLoading from "./_components/GlobalLoading";
+import { SkeletonPage } from "./_components/Skeleton";
 
 export default function Loading() {
-    return <GlobalLoading />;
+    return (
+        <div className="min-h-screen bg-neo-yellow p-8">
+            <SkeletonPage type="cards" />
+        </div>
+    );
 }

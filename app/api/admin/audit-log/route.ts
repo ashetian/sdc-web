@@ -9,20 +9,20 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-
 
 async function verifyAdmin() {
     const cookieStore = await cookies();
-    const token = cookieStore.get('auth_token')?.value;
+    const token = cookieStore.get('auth-token')?.value;
 
     if (!token) return null;
 
     try {
         const { payload } = await jwtVerify(token, JWT_SECRET);
-        const studentNo = payload.studentNo as string;
+        const memberId = payload.memberId as string;
 
         await connectDB();
-        const access = await AdminAccess.findOne({ studentNo, isActive: true });
+        const access = await AdminAccess.findOne({ memberId, isActive: true });
 
         if (!access) return null;
 
-        return { studentNo };
+        return { memberId };
     } catch {
         return null;
     }

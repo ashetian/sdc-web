@@ -4,7 +4,6 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { TeamMember } from "./Team";
 import {
   Github,
   Instagram,
@@ -16,10 +15,32 @@ import {
   Briefcase,
 } from "lucide-react";
 
+// Flexible member type that works with both TeamMember and ChromaItem
+interface ModalMember {
+  _id?: string;
+  name: string;
+  image?: string;
+  photo?: string;
+  role?: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  handle?: string;
+  email?: string;
+  location?: string;
+  website?: string;
+  linkedin?: string;
+  github?: string;
+  x?: string;
+  instagram?: string;
+  freelance?: string;
+  gradient?: string;
+}
+
 interface TeamModalProps {
   open: boolean;
   onClose: () => void;
-  member: TeamMember;
+  member: ModalMember;
   color?: string;
 }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import LoadingSpinner from "@/app/_components/LoadingSpinner";
+import { SkeletonPage } from "@/app/_components/Skeleton";
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -40,9 +40,8 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
     if (checking) {
         return (
-            <div className="flex h-screen items-center justify-center bg-gray-100">
-                <LoadingSpinner size="lg" />
-                <span className="ml-4 font-bold text-gray-500">Yetki Kontrolü...</span>
+            <div className="p-8">
+                <SkeletonPage type="menu" />
             </div>
         );
     }

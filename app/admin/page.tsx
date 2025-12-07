@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import LoadingSpinner from "@/app/_components/LoadingSpinner";
+import { SkeletonAdminMenu, SkeletonPageHeader } from "@/app/_components/Skeleton";
 import {
   Megaphone,
   CalendarDays,
@@ -76,7 +76,12 @@ export default function AdminDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center p-20"><LoadingSpinner size="lg" /></div>;
+    return (
+      <div className="space-y-8">
+        <SkeletonPageHeader />
+        <SkeletonAdminMenu items={8} />
+      </div>
+    );
   }
 
   if (!userInfo) return <div className="p-10 text-center text-red-500 font-bold">Yetkisiz Erişim</div>;

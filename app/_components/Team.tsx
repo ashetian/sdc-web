@@ -18,7 +18,7 @@ interface Department {
     order?: number;
 }
 
-interface TeamMember {
+export interface TeamMember {
     _id: string;
     name: string;
     photo?: string;
