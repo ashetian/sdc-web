@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { verifyAuth } from '@/app/lib/auth';
 import connectDB from '@/app/lib/db';
 import BugReport from '@/app/lib/models/BugReport';
@@ -9,15 +10,15 @@ import AdminAccess from '@/app/lib/models/AdminAccess';
 async function checkAdminAccess(payload: { userId: string }) {
     const accessRule = await AdminAccess.findOne({ memberId: payload.userId });
     const teamMember = await TeamMember.findOne({ memberId: payload.userId, isActive: true });
-    
+
     if (teamMember && ['president', 'vice_president'].includes(teamMember.role)) {
         return { userId: payload.userId, isSuperAdmin: true };
     }
-    
+
     if (accessRule) {
         return { userId: payload.userId, isSuperAdmin: accessRule.allowedKeys.includes('ALL') };
     }
-    
+
     return null;
 }
 
@@ -28,7 +29,7 @@ export async function PATCH(
 ) {
     try {
         await connectDB();
-        
+
         const payload = await verifyAuth(request);
         if (!payload || !payload.userId) {
             return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
@@ -51,7 +52,7 @@ export async function PATCH(
         // Update fields
         if (status && ['pending', 'reviewed', 'resolved', 'dismissed'].includes(status)) {
             report.status = status;
-            report.reviewedById = admin.userId;
+            report.reviewedById = new mongoose.Types.ObjectId(admin.userId);
         }
         if (adminNote !== undefined) {
             report.adminNote = adminNote;
@@ -73,7 +74,7 @@ export async function DELETE(
 ) {
     try {
         await connectDB();
-        
+
         const payload = await verifyAuth(request);
         if (!payload || !payload.userId) {
             return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
