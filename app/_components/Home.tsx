@@ -193,6 +193,12 @@ export default function Home() {
                   >
                     {language === 'tr' ? 'Giriş Yap' : 'Login'}
                   </button>
+                  <button
+                    onClick={() => router.push("/team")}
+                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-cyan text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  >
+                    {language === 'tr' ? 'Ekip' : 'Team'}
+                  </button>
                 </>
               ) : (
                 // LOGGED IN USER BUTTONS
@@ -214,6 +220,12 @@ export default function Home() {
                     className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-green text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {language === 'tr' ? 'Etkinlikler' : 'Events'}
+                  </button>
+                  <button
+                    onClick={() => router.push("/team")}
+                    className="w-64 sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-neo-cyan text-black border-4 border-black shadow-neo font-black text-lg sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  >
+                    {language === 'tr' ? 'Ekip' : 'Team'}
                   </button>
                 </>
               )}

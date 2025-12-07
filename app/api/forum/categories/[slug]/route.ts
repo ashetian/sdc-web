@@ -4,6 +4,7 @@ import ForumCategory from '@/app/lib/models/ForumCategory';
 import ForumTopic from '@/app/lib/models/ForumTopic';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
 
@@ -11,22 +12,28 @@ interface RouteParams {
     params: Promise<{ slug: string }>;
 }
 
-async function isAdmin(request: NextRequest): Promise<boolean> {
+async function isAdmin(request: NextRequest): Promise<{ isAdmin: boolean; userId?: string; name?: string }> {
     const adminPassword = request.headers.get('x-admin-password');
     if (adminPassword === process.env.ADMIN_PASSWORD) {
-        return true;
+        return { isAdmin: true };
     }
     const cookieStore = await cookies();
     const token = cookieStore.get('auth-token')?.value;
     if (token) {
         try {
             const { payload } = await jwtVerify(token, JWT_SECRET);
-            return payload.isAdmin === true;
+            if (payload.isAdmin === true) {
+                return {
+                    isAdmin: true,
+                    userId: payload.memberId as string,
+                    name: (payload.nickname || payload.studentNo) as string,
+                };
+            }
         } catch {
-            return false;
+            return { isAdmin: false };
         }
     }
-    return false;
+    return { isAdmin: false };
 }
 
 // GET - Get category details with topics
@@ -90,7 +97,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT - Update category (admin only)
 export async function PUT(request: NextRequest, { params }: RouteParams) {
     try {
-        if (!(await isAdmin(request))) {
+        const adminInfo = await isAdmin(request);
+        if (!adminInfo.isAdmin) {
             return NextResponse.json({ error: 'Yetki gerekli' }, { status: 403 });
         }
 
@@ -110,6 +118,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: 'Kategori bulunamadı' }, { status: 404 });
         }
 
+        // Audit log
+        if (adminInfo.userId) {
+            await logAdminAction({
+                adminId: adminInfo.userId,
+                adminName: adminInfo.name || 'Admin',
+                action: AUDIT_ACTIONS.UPDATE_FORUM_CATEGORY,
+                targetType: 'ForumCategory',
+                targetId: category._id.toString(),
+                targetName: category.name,
+            });
+        }
+
         return NextResponse.json(category);
     } catch (error) {
         console.error('Forum category update error:', error);
@@ -120,7 +140,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE - Delete category (admin only)
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
-        if (!(await isAdmin(request))) {
+        const adminInfo = await isAdmin(request);
+        if (!adminInfo.isAdmin) {
             return NextResponse.json({ error: 'Yetki gerekli' }, { status: 403 });
         }
 
@@ -136,6 +157,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
         if (!category) {
             return NextResponse.json({ error: 'Kategori bulunamadı' }, { status: 404 });
+        }
+
+        // Audit log
+        if (adminInfo.userId) {
+            await logAdminAction({
+                adminId: adminInfo.userId,
+                adminName: adminInfo.name || 'Admin',
+                action: AUDIT_ACTIONS.DELETE_FORUM_CATEGORY,
+                targetType: 'ForumCategory',
+                targetId: category._id.toString(),
+                targetName: category.name,
+            });
         }
 
         return NextResponse.json({ message: 'Kategori silindi' });

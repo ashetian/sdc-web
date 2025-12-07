@@ -150,6 +150,67 @@ export async function POST(request: NextRequest) {
             parentId: parentId || null,
         });
 
+        // --- Notification Triggers ---
+        try {
+            const { createNotification, createAdminNotification } = await import('@/app/lib/notifications');
+
+            // 1. If this is a reply, notify the parent comment author
+            if (parentId) {
+                const parentComment = await Comment.findById(parentId).populate('memberId', '_id');
+                if (parentComment && parentComment.memberId._id.toString() !== memberId) {
+                    await createNotification({
+                        recipientId: parentComment.memberId._id,
+                        type: 'comment_reply',
+                        title: 'Yorumunuza yanıt geldi',
+                        titleEn: 'New reply to your comment',
+                        message: `${member.nickname || 'Bir kullanıcı'}: "${content.trim().slice(0, 50)}..."`,
+                        messageEn: `${member.nickname || 'A user'}: "${content.trim().slice(0, 50)}..."`,
+                        link: `/${contentType}s/${contentId}`,
+                        relatedContentType: 'comment',
+                        relatedContentId: comment._id,
+                        actorId: memberId,
+                    });
+                }
+            }
+
+            // 2. If comment is on a project, notify project owner
+            if (contentType === 'project') {
+                const Project = (await import('@/app/lib/models/Project')).default;
+                const project = await Project.findById(contentId);
+                if (project && project.memberId && project.memberId.toString() !== memberId) {
+                    await createNotification({
+                        recipientId: project.memberId,
+                        type: 'project_comment',
+                        title: 'Projenize yorum yapıldı',
+                        titleEn: 'New comment on your project',
+                        message: `${member.nickname || 'Bir kullanıcı'} "${project.title}" projenize yorum yaptı`,
+                        messageEn: `${member.nickname || 'A user'} commented on your project "${project.title}"`,
+                        link: `/projects/${contentId}`,
+                        relatedContentType: 'comment',
+                        relatedContentId: comment._id,
+                        actorId: memberId,
+                    });
+                }
+            }
+
+            // 3. Notify admins about new comment
+            await createAdminNotification({
+                type: 'admin_new_comment',
+                title: 'Yeni yorum',
+                titleEn: 'New comment',
+                message: `${member.nickname || 'Bir kullanıcı'} yeni bir yorum yaptı`,
+                messageEn: `${member.nickname || 'A user'} posted a new comment`,
+                link: '/admin/comments',
+                relatedContentType: 'comment',
+                relatedContentId: comment._id,
+                actorId: memberId,
+            });
+        } catch (notifError) {
+            console.error('Notification error:', notifError);
+            // Don't fail the request if notification fails
+        }
+        // --- End Notification Triggers ---
+
         return NextResponse.json({
             message: 'Yorum eklendi',
             comment: {
@@ -190,6 +251,19 @@ export async function DELETE(request: NextRequest) {
             if (!comment) {
                 return NextResponse.json({ error: 'Yorum bulunamadı' }, { status: 404 });
             }
+
+            // Log the action
+            const { logAdminAction, AUDIT_ACTIONS } = await import('@/app/lib/utils/logAdminAction');
+            await logAdminAction({
+                adminId: 'system',
+                adminName: 'Admin',
+                action: AUDIT_ACTIONS.DELETE_COMMENT,
+                targetType: 'Comment',
+                targetId: commentId,
+                targetName: comment.content.substring(0, 50),
+                details: `Yorum soft-delete: ${comment.contentType}`,
+            });
+
             return NextResponse.json({ message: 'Yorum silindi (30 gün boyunca geri alınabilir)' });
         }
 

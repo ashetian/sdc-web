@@ -17,8 +17,12 @@ import {
   Settings,
   Heart,
   LucideIcon,
-  ChevronRight
+  ChevronRight,
+  MessagesSquare,
+  Code2,
+  Mail
 } from "lucide-react";
+import AdminNotificationBadge from "@/app/_components/AdminNotificationBadge";
 
 interface DashboardButton {
   key: string;
@@ -27,19 +31,22 @@ interface DashboardButton {
   color: string;
   description: string;
   icon: LucideIcon;
+  notificationType?: 'comment' | 'project' | 'forum_topic' | 'registration' | 'applicant';
 }
 
 const DASHBOARD_BUTTONS: DashboardButton[] = [
   { key: 'announcements', label: 'Duyurular', href: '/admin/announcements', color: 'bg-white', description: 'Haber, Etkinlik, Atölye ve Makaleler', icon: Megaphone },
-  { key: 'events', label: 'Etkinlikler', href: '/admin/events', color: 'bg-neo-green', description: 'Etkinlik oluşturma ve yönetim', icon: CalendarDays },
-  { key: 'emails', label: 'E-postalar', href: '/admin/emails', color: 'bg-neo-yellow', description: 'Toplu veya özel e-posta gönderimi', icon: MessageSquare },
-  { key: 'applicants', label: 'Başvurular', href: '/admin/applicants', color: 'bg-neo-blue', description: 'Gelen başvuruları incele', icon: FileText },
+  { key: 'events', label: 'Etkinlikler', href: '/admin/events', color: 'bg-neo-green', description: 'Etkinlik oluşturma ve yönetim', icon: CalendarDays, notificationType: 'registration' },
+  { key: 'emails', label: 'E-postalar', href: '/admin/emails', color: 'bg-neo-yellow', description: 'Toplu veya özel e-posta gönderimi', icon: Mail },
+  { key: 'applicants', label: 'Başvurular', href: '/admin/applicants', color: 'bg-neo-blue', description: 'Gelen başvuruları incele', icon: FileText, notificationType: 'applicant' },
   { key: 'departments', label: 'Departmanlar', href: '/admin/departments', color: 'bg-neo-pink', description: 'Departman bilgileri düzenle', icon: Building2 },
   { key: 'team', label: 'Ekip', href: '/admin/team', color: 'bg-neo-orange', description: 'Ekip üyelerini yönet', icon: Users },
   { key: 'sponsors', label: 'Sponsorlar', href: '/admin/sponsors', color: 'bg-white', description: 'Sponsor ve partner yönetimi', icon: Heart },
-  { key: 'projects', label: 'Projeler', href: '/admin/projects', color: 'bg-neo-blue', description: 'Proje portfolyosu', icon: Rocket },
-  { key: 'comments', label: 'Yorumlar', href: '/admin/comments', color: 'bg-neo-purple text-white', description: 'Kullanıcı yorumları', icon: MessageSquare },
-  { key: 'elections', label: 'Seçimler', href: '/admin/elections', color: 'bg-neo-green', description: 'Seçim ve anketler', icon: Vote },
+  { key: 'projects', label: 'Projeler', href: '/admin/projects', color: 'bg-neo-blue', description: 'Proje portfolyosu', icon: Rocket, notificationType: 'project' },
+  { key: 'comments', label: 'Yorumlar', href: '/admin/comments', color: 'bg-neo-purple text-white', description: 'Kullanıcı yorumları', icon: MessageSquare, notificationType: 'comment' },
+  { key: 'forum', label: 'Forum', href: '/admin/forum', color: 'bg-neo-green', description: 'Forum konuları ve mesajlar', icon: MessagesSquare, notificationType: 'forum_topic' },
+  { key: 'code', label: 'Kod Atölyesi', href: '/admin/code', color: 'bg-gray-800 text-white', description: 'Kod örnekleri yönetimi', icon: Code2 },
+  { key: 'elections', label: 'Seçimler', href: '/admin/elections', color: 'bg-neo-yellow', description: 'Seçim ve anketler', icon: Vote },
   { key: 'stats', label: 'İstatistikler', href: '/admin/stats', color: 'bg-neo-purple text-white', description: 'Site istatistikleri', icon: BarChart3 },
   { key: 'audit-log', label: 'İşlem Geçmişi', href: '/admin/audit-log', color: 'bg-neo-pink', description: 'Admin işlem kayıtları', icon: ClipboardList },
   { key: 'settings', label: 'Ayarlar', href: '/admin/settings', color: 'bg-gray-700 text-white', description: 'Genel ayarlar ve yapılandırma', icon: Settings },
@@ -111,6 +118,9 @@ export default function AdminDashboard() {
                 {btn.description}
               </p>
             </div>
+            {btn.notificationType && (
+              <AdminNotificationBadge type={btn.notificationType} />
+            )}
             <div className="text-2xl font-black opacity-50">
               <ChevronRight size={24} />
             </div>

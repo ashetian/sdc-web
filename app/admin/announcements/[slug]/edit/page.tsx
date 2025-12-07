@@ -12,7 +12,7 @@ interface Announcement {
   title: string;
   date: string;
   description: string;
-  type: "event" | "news" | "workshop" | "article";
+  type: "event" | "news" | "article";
   content: string;
   image?: string;
   imageOrientation?: "horizontal" | "vertical";
@@ -284,7 +284,6 @@ export default function EditAnnouncementPage({
           >
             <option value="event">Etkinlik</option>
             <option value="news">Haber</option>
-            <option value="workshop">Atölye</option>
             <option value="article">Makale</option>
           </select>
         </div>

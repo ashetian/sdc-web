@@ -6,6 +6,7 @@ import ForumVote from '@/app/lib/models/ForumVote';
 import ForumCategory from '@/app/lib/models/ForumCategory';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
 
@@ -13,34 +14,52 @@ interface RouteParams {
     params: Promise<{ id: string }>;
 }
 
-async function getMemberId(): Promise<string | null> {
+interface UserPayload {
+    memberId: string;
+    nickname?: string;
+    studentNo?: string;
+    isAdmin?: boolean;
+}
+
+async function getMemberInfo(): Promise<UserPayload | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth-token')?.value;
     if (!token) return null;
     try {
         const { payload } = await jwtVerify(token, JWT_SECRET);
-        return payload.memberId as string;
+        return {
+            memberId: payload.memberId as string,
+            nickname: payload.nickname as string,
+            studentNo: payload.studentNo as string,
+            isAdmin: payload.isAdmin as boolean,
+        };
     } catch {
         return null;
     }
 }
 
-async function isAdmin(request: NextRequest): Promise<boolean> {
+async function isAdmin(request: NextRequest): Promise<{ isAdmin: boolean; userId?: string; name?: string }> {
     const adminPassword = request.headers.get('x-admin-password');
     if (adminPassword === process.env.ADMIN_PASSWORD) {
-        return true;
+        return { isAdmin: true };
     }
     const cookieStore = await cookies();
     const token = cookieStore.get('auth-token')?.value;
     if (token) {
         try {
             const { payload } = await jwtVerify(token, JWT_SECRET);
-            return payload.isAdmin === true;
+            if (payload.isAdmin === true) {
+                return {
+                    isAdmin: true,
+                    userId: payload.memberId as string,
+                    name: (payload.nickname || payload.studentNo) as string,
+                };
+            }
         } catch {
-            return false;
+            return { isAdmin: false };
         }
     }
-    return false;
+    return { isAdmin: false };
 }
 
 // GET - Get topic with replies
@@ -60,7 +79,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         // Get query params
         const { searchParams } = new URL(request.url);
         const incrementView = searchParams.get('view') === 'true';
-        
+
         // Increment view count only when explicitly requested
         if (incrementView) {
             await ForumTopic.findByIdAndUpdate(id, { $inc: { viewCount: 1 } });
@@ -85,11 +104,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         });
 
         // Check if current user voted
-        const memberId = await getMemberId();
+        const userInfo = await getMemberInfo();
         let userVote = null;
-        if (memberId) {
+        if (userInfo?.memberId) {
             const vote = await ForumVote.findOne({
-                memberId,
+                memberId: userInfo.memberId,
                 contentType: 'topic',
                 contentId: id,
             });
@@ -118,10 +137,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         await connectDB();
         const { id } = await params;
 
-        const memberId = await getMemberId();
-        const admin = await isAdmin(request);
+        const userInfo = await getMemberInfo();
+        const adminInfo = await isAdmin(request);
 
-        if (!memberId && !admin) {
+        if (!userInfo && !adminInfo.isAdmin) {
             return NextResponse.json({ error: 'Giriş yapmalısınız' }, { status: 401 });
         }
 
@@ -131,11 +150,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
 
         // Check permission
-        if (!admin && topic.authorId.toString() !== memberId) {
+        if (!adminInfo.isAdmin && topic.authorId.toString() !== userInfo?.memberId) {
             return NextResponse.json({ error: 'Bu konuyu düzenleme yetkiniz yok' }, { status: 403 });
         }
 
-        if (topic.isLocked && !admin) {
+        if (topic.isLocked && !adminInfo.isAdmin) {
             return NextResponse.json({ error: 'Bu konu kilitli' }, { status: 403 });
         }
 
@@ -146,9 +165,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         if (title) updateData.title = title.trim();
         if (content) updateData.content = content.trim();
         if (tags) updateData.tags = tags.map((t: string) => t.toLowerCase().trim());
-        
+
         // Admin-only fields
-        if (admin) {
+        if (adminInfo.isAdmin) {
             if (typeof isPinned === 'boolean') updateData.isPinned = isPinned;
             if (typeof isLocked === 'boolean') updateData.isLocked = isLocked;
             if (typeof isApproved === 'boolean') {
@@ -159,6 +178,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                         $inc: { topicCount: 1 },
                         lastTopicAt: new Date(),
                     });
+
+                    // Audit log for approve
+                    if (adminInfo.userId) {
+                        await logAdminAction({
+                            adminId: adminInfo.userId,
+                            adminName: adminInfo.name || 'Admin',
+                            action: AUDIT_ACTIONS.APPROVE_TOPIC,
+                            targetType: 'ForumTopic',
+                            targetId: id,
+                            targetName: topic.title,
+                        });
+                    }
                 }
             }
         }
@@ -168,7 +199,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             updateData,
             { new: true }
         ).populate('categoryId', 'name nameEn slug icon color')
-         .populate('authorId', 'fullName nickname avatar');
+            .populate('authorId', 'fullName nickname avatar');
 
         return NextResponse.json(updatedTopic);
     } catch (error) {
@@ -183,10 +214,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         await connectDB();
         const { id } = await params;
 
-        const memberId = await getMemberId();
-        const admin = await isAdmin(request);
+        const userInfo = await getMemberInfo();
+        const adminInfo = await isAdmin(request);
 
-        if (!memberId && !admin) {
+        if (!userInfo && !adminInfo.isAdmin) {
             return NextResponse.json({ error: 'Giriş yapmalısınız' }, { status: 401 });
         }
 
@@ -196,9 +227,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         }
 
         // Check permission
-        if (!admin && topic.authorId.toString() !== memberId) {
+        if (!adminInfo.isAdmin && topic.authorId.toString() !== userInfo?.memberId) {
             return NextResponse.json({ error: 'Bu konuyu silme yetkiniz yok' }, { status: 403 });
         }
+
+        const topicTitle = topic.title;
 
         // Soft delete
         await ForumTopic.findByIdAndUpdate(id, { isDeleted: true });
@@ -207,6 +240,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         await ForumCategory.findByIdAndUpdate(topic.categoryId, {
             $inc: { topicCount: -1 },
         });
+
+        // Audit log for admin delete
+        if (adminInfo.isAdmin && adminInfo.userId) {
+            await logAdminAction({
+                adminId: adminInfo.userId,
+                adminName: adminInfo.name || 'Admin',
+                action: AUDIT_ACTIONS.DELETE_TOPIC,
+                targetType: 'ForumTopic',
+                targetId: id,
+                targetName: topicTitle,
+            });
+        }
 
         return NextResponse.json({ message: 'Konu silindi' });
     } catch (error) {

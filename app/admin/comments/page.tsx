@@ -22,8 +22,6 @@ interface Comment {
 export default function AdminCommentsPage() {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
-    const [password, setPassword] = useState('');
-    const [authenticated, setAuthenticated] = useState(false);
     const [filter, setFilter] = useState<'all' | 'project' | 'gallery' | 'announcement'>('all');
     const [showDeleted, setShowDeleted] = useState(false);
     const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
@@ -31,18 +29,8 @@ export default function AdminCommentsPage() {
     const [actionType, setActionType] = useState<'restore' | 'permanentDelete' | null>(null);
 
     useEffect(() => {
-        const savedPassword = localStorage.getItem('adminPassword');
-        if (savedPassword) {
-            setPassword(savedPassword);
-            setAuthenticated(true);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (authenticated) {
-            fetchComments();
-        }
-    }, [authenticated, filter, showDeleted]);
+        fetchComments();
+    }, [filter, showDeleted]);
 
     const fetchComments = async () => {
         setLoading(true);
@@ -53,13 +41,13 @@ export default function AdminCommentsPage() {
             if (showDeleted) params.append('deleted', 'true');
             if (params.toString()) url += '?' + params.toString();
 
-            const res = await fetch(url, {
-                headers: { 'x-admin-password': password },
-            });
+            const res = await fetch(url);
 
             if (res.ok) {
                 const data = await res.json();
                 setComments(data);
+            } else {
+                console.error('Fetch failed:', res.status);
             }
         } catch (err) {
             console.error('Fetch error:', err);
@@ -68,17 +56,10 @@ export default function AdminCommentsPage() {
         }
     };
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        localStorage.setItem('adminPassword', password);
-        setAuthenticated(true);
-    };
-
     const handleDelete = async (id: string) => {
         try {
             const res = await fetch(`/api/comments?id=${id}`, {
                 method: 'DELETE',
-                headers: { 'x-admin-password': password },
             });
 
             if (res.ok) {
@@ -97,7 +78,6 @@ export default function AdminCommentsPage() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-admin-password': password,
                 },
                 body: JSON.stringify({ commentId: id, action }),
             });
@@ -119,7 +99,6 @@ export default function AdminCommentsPage() {
         try {
             const res = await fetch('/api/admin/comments', {
                 method: 'DELETE',
-                headers: { 'x-admin-password': password },
             });
 
             if (res.ok) {
@@ -169,28 +148,6 @@ export default function AdminCommentsPage() {
         return Math.max(0, days);
     };
 
-    if (!authenticated) {
-        return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-                <form onSubmit={handleLogin} className="bg-gray-800 border-2 border-gray-700 p-8 w-full max-w-md">
-                    <h1 className="text-2xl font-bold text-white mb-6">Yorum Yönetimi</h1>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Admin Şifresi"
-                        className="w-full p-3 bg-gray-700 text-white border border-gray-600 mb-4"
-                    />
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-600 text-white py-3 font-bold hover:bg-blue-700"
-                    >
-                        Giriş
-                    </button>
-                </form>
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-6">

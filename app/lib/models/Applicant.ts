@@ -5,7 +5,6 @@ export interface IApplicant {
     memberId: mongoose.Types.ObjectId;
     // Personal Information
     fullName: string;
-    faculty: string;
     department: string;
     classYear: string;
     phone: string;
@@ -44,10 +43,6 @@ const applicantSchema = new mongoose.Schema<IApplicant>(
             required: true,
         },
         fullName: {
-            type: String,
-            required: true,
-        },
-        faculty: {
             type: String,
             required: true,
         },

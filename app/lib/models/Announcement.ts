@@ -14,7 +14,7 @@ export interface IAnnouncement {
   title: string;
   date: string;
   description: string;
-  type: 'event' | 'news' | 'workshop' | 'article';
+  type: 'event' | 'news' | 'article';
   content: string;
   image?: string;
   imageOrientation?: 'horizontal' | 'vertical';
@@ -57,7 +57,7 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
     },
     type: {
       type: String,
-      enum: ['event', 'news', 'workshop', 'article'],
+      enum: ['event', 'news', 'article'],
       required: true,
     },
     content: {

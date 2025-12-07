@@ -17,15 +17,21 @@ interface AccessRule {
 }
 
 const ALL_KEYS = [
+    { key: 'ALL', label: 'Tam Yetki (Hepsi)' },
     { key: 'announcements', label: 'Duyurular' },
     { key: 'events', label: 'Etkinlikler' },
+    { key: 'emails', label: 'E-postalar' },
     { key: 'applicants', label: 'Başvurular' },
     { key: 'departments', label: 'Departmanlar' },
     { key: 'team', label: 'Ekip Yönetimi' },
+    { key: 'sponsors', label: 'Sponsorlar' },
     { key: 'projects', label: 'Projeler' },
     { key: 'comments', label: 'Yorumlar' },
+    { key: 'forum', label: 'Forum Yönetimi' },
+    { key: 'code', label: 'Kod Atölyesi' },
     { key: 'elections', label: 'Seçimler' },
     { key: 'stats', label: 'İstatistikler' },
+    { key: 'audit-log', label: 'İşlem Geçmişi' },
     { key: 'settings', label: 'Ayarlar (Genel)' },
 ];
 

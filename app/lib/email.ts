@@ -81,7 +81,7 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
 
         try {
             await transporter.sendMail({
-                from: `SDC <${gmailUser}>`,
+                from: `KTUDSC Yazılım Geliştirme Kulübü <${gmailUser}>`,
                 to: to,
                 subject: subject,
                 html: html,
@@ -94,7 +94,7 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
         // Use Resend (default)
         try {
             const data = await resend.emails.send({
-                from: 'SDC <noreply@ktusdc.com>',
+                from: 'KTUSDC Yazılım Geliştirme Kulübü <noreply@ktusdc.com>',
                 to: [to],
                 subject: subject,
                 html: html,
@@ -128,12 +128,35 @@ export function maskEmail(email: string): string {
     return `${maskedLocal}@${domain}`;
 }
 
-export function generatePasswordSetupEmail(name: string, token: string, isReset: boolean = false): string {
+export function generatePasswordSetupEmail(name: string, token: string, isReset: boolean = false, lang: 'tr' | 'en' = 'tr'): string {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ktusdc.com';
     const actionUrl = `${baseUrl}/auth/set-password/${token}`;
-    const title = isReset ? 'Şifre Sıfırlama' : 'Hesap Oluşturma';
-    const action = isReset ? 'şifrenizi sıfırlamak' : 'hesabınızı oluşturmak';
     const logoUrl = `${baseUrl}/sdclogo.png`;
+
+    const texts = {
+        tr: {
+            title: isReset ? 'Şifre Sıfırlama' : 'Hesap Oluşturma',
+            greeting: `Merhaba <strong>${name}</strong>,`,
+            instruction: isReset ? 'şifrenizi sıfırlamak için aşağıdaki butona tıklayın:' : 'hesabınızı oluşturmak için aşağıdaki butona tıklayın:',
+            button: isReset ? 'Şifremi Sıfırla' : 'Hesabımı Oluştur',
+            expiry: 'Bu link 24 saat içinde geçerliliğini yitirecektir.',
+            fallback: 'Buton çalışmazsa bu linki tarayıcınıza yapıştırın:',
+            ignore: 'Bu e-postayı siz talep etmediyseniz lütfen dikkate almayın.',
+            copyright: `© ${new Date().getFullYear()} Software Development Club`
+        },
+        en: {
+            title: isReset ? 'Password Reset' : 'Account Verification',
+            greeting: `Hello <strong>${name}</strong>,`,
+            instruction: isReset ? 'click the button below to reset your password:' : 'click the button below to verify your account:',
+            button: isReset ? 'Reset Password' : 'Verify Account',
+            expiry: 'This link will expire in 24 hours.',
+            fallback: 'If the button does not work, paste this link into your browser:',
+            ignore: 'If you did not request this email, please ignore it.',
+            copyright: `© ${new Date().getFullYear()} Software Development Club`
+        }
+    };
+
+    const t = texts[lang] || texts.tr;
 
     return `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #fff;">
@@ -141,30 +164,30 @@ export function generatePasswordSetupEmail(name: string, token: string, isReset:
                 <img src="${logoUrl}" alt="SDC Logo" style="height: 80px; width: auto;" />
             </div>
             <h2 style="color: #000; border-bottom: 3px solid #000; padding-bottom: 10px; text-align: center;">
-                ${title}
+                ${t.title}
             </h2>
-            <p>Merhaba <strong>${name}</strong>,</p>
-            <p>${action} için aşağıdaki butona tıklayın:</p>
+            <p>${t.greeting}</p>
+            <p>${t.instruction}</p>
             <div style="text-align: center; margin: 30px 0;">
                 <a href="${actionUrl}" 
                    style="background: #FFDE00; color: #000; padding: 15px 30px; text-decoration: none; 
                           font-weight: bold; border: 3px solid #000; display: inline-block;">
-                    ${isReset ? 'Şifremi Sıfırla' : 'Hesabımı Oluştur'}
+                    ${t.button}
                 </a>
             </div>
             <p style="color: #666; font-size: 14px;">
-                Bu link 24 saat içinde geçerliliğini yitirecektir.
+                ${t.expiry}
             </p>
             <p style="color: #666; font-size: 14px;">
-                Buton çalışmazsa bu linki tarayıcınıza yapıştırın:<br>
+                ${t.fallback}<br>
                 <a href="${actionUrl}" style="color: #0066cc; word-break: break-all;">${actionUrl}</a>
             </p>
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
                 <p style="color: #999; font-size: 12px;">
-                    Bu e-postayı siz talep etmediyseniz lütfen dikkate almayın.
+                    ${t.ignore}
                 </p>
                 <p style="color: #999; font-size: 12px;">
-                    © ${new Date().getFullYear()} Software Development Club
+                    ${t.copyright}
                 </p>
             </div>
         </div>

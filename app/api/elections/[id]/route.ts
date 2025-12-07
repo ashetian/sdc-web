@@ -4,6 +4,8 @@ import Election from '@/app/lib/models/Election';
 import ElectionCandidate from '@/app/lib/models/ElectionCandidate';
 import ClubMember from '@/app/lib/models/ClubMember';
 import Vote from '@/app/lib/models/Vote';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 // GET - Get single election with stats
 export async function GET(
@@ -51,6 +53,13 @@ export async function PUT(
     try {
         await connectDB();
         const { id } = await params;
+
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const data = await request.json();
 
         const election = await Election.findByIdAndUpdate(id, data, { new: true });
@@ -58,6 +67,16 @@ export async function PUT(
         if (!election) {
             return NextResponse.json({ error: 'Seçim bulunamadı' }, { status: 404 });
         }
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.UPDATE_ELECTION,
+            targetType: 'Election',
+            targetId: id,
+            targetName: election.title,
+        });
 
         return NextResponse.json(election);
     } catch (error) {
@@ -75,16 +94,36 @@ export async function DELETE(
         await connectDB();
         const { id } = await params;
 
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
+        // Get election first for logging
+        const electionToDelete = await Election.findById(id);
+        if (!electionToDelete) {
+            return NextResponse.json({ error: 'Seçim bulunamadı' }, { status: 404 });
+        }
+
+        const electionTitle = electionToDelete.title;
+
         // Delete related data
         await ElectionCandidate.deleteMany({ electionId: id });
         await ClubMember.deleteMany({ electionId: id });
         await Vote.deleteMany({ electionId: id });
 
-        const election = await Election.findByIdAndDelete(id);
+        await Election.findByIdAndDelete(id);
 
-        if (!election) {
-            return NextResponse.json({ error: 'Seçim bulunamadı' }, { status: 404 });
-        }
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.DELETE_ELECTION,
+            targetType: 'Election',
+            targetId: id,
+            targetName: electionTitle,
+        });
 
         return NextResponse.json({ message: 'Seçim silindi' });
     } catch (error) {

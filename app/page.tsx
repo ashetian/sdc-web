@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 
 // Ana bileşeni statik olarak import edelim
 import Home from "./_components/Home";
-import About from "./_components/About";
+
 
 // Diğer bileşenleri dinamik olarak yükleyelim
 const Announcements = dynamic(() => import("./_components/Announcements"), {
@@ -38,14 +38,9 @@ export default function HomePage() {
       <section id="announcements">
         <Announcements />
       </section>
-      <section id="about">
-        <About />
-      </section>
+
       <section id="gallery-preview">
         <GalleryPreview />
-      </section>
-      <section id="team">
-        <Team />
       </section>
       <section id="sponsors">
         <Sponsors />

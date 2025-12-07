@@ -15,7 +15,6 @@ interface DepartmentData {
 
 interface FormData {
     fullName: string;
-    faculty: string;
     department: string;
     classYear: string;
     phone: string;
@@ -40,7 +39,6 @@ export default function ApplyPage() {
     const { language } = useLanguage();
     const [formData, setFormData] = useState<FormData>({
         fullName: "",
-        faculty: "",
         department: "",
         classYear: "",
         phone: "",
@@ -62,7 +60,6 @@ export default function ApplyPage() {
             title: 'KTÜ SDC – Departman Başvuru Formu',
             personalInfo: '1. Kişisel Bilgiler',
             fullName: 'Ad Soyad',
-            faculty: 'Fakülte',
             department: 'Bölüm',
             classYear: 'Sınıf',
             classYearPlaceholder: 'Örn: 2. Sınıf, 3. Sınıf',
@@ -107,7 +104,6 @@ export default function ApplyPage() {
             title: 'KTU SDC – Department Application Form',
             personalInfo: '1. Personal Information',
             fullName: 'Full Name',
-            faculty: 'Faculty',
             department: 'Department',
             classYear: 'Class Year',
             classYearPlaceholder: 'Ex: 2nd Year, 3rd Year',
@@ -437,19 +433,7 @@ export default function ApplyPage() {
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.faculty} <span className="text-red-600">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="faculty"
-                                        value={formData.faculty}
-                                        onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        required
-                                    />
-                                </div>
+
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">

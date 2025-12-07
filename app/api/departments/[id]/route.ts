@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import Department from '@/app/lib/models/Department';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 // GET - Get single department
 export async function GET(
@@ -10,7 +12,7 @@ export async function GET(
     try {
         await connectDB();
         const { id } = await params;
-        const department = await Department.findById(id);
+        const department = await Department.findById(id).populate('leadId', 'fullName email studentNo avatar bio socialLinks');
 
         if (!department) {
             return NextResponse.json({ error: 'Departman bulunamadı' }, { status: 404 });
@@ -31,6 +33,13 @@ export async function PUT(
     try {
         await connectDB();
         const { id } = await params;
+
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const data = await request.json();
 
         // If name changed, regenerate slug
@@ -50,11 +59,10 @@ export async function PUT(
         // Auto-translate if DeepL API key is available
         if (process.env.DEEPL_API_KEY && (data.name || data.description)) {
             try {
-                // Check if English fields are missing in the update
                 if ((data.name && !data.nameEn) || (data.description && !data.descriptionEn)) {
                     const { translateFields } = await import('@/app/lib/translate');
 
-                    const fieldsToTranslate: any = {};
+                    const fieldsToTranslate: Record<string, string> = {};
                     if (data.name) fieldsToTranslate.name = data.name;
                     if (data.description) fieldsToTranslate.description = data.description;
 
@@ -63,7 +71,6 @@ export async function PUT(
                     if (data.name && !data.nameEn) data.nameEn = translations.name?.en;
                     if (data.description && !data.descriptionEn) data.descriptionEn = translations.description?.en;
                 }
-
             } catch (translateError) {
                 console.error('Auto-translation failed:', translateError);
             }
@@ -74,6 +81,16 @@ export async function PUT(
         if (!department) {
             return NextResponse.json({ error: 'Departman bulunamadı' }, { status: 404 });
         }
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.UPDATE_DEPARTMENT,
+            targetType: 'Department',
+            targetId: id,
+            targetName: department.name,
+        });
 
         return NextResponse.json(department);
     } catch (error) {
@@ -91,11 +108,30 @@ export async function DELETE(
         await connectDB();
         const { id } = await params;
 
-        const department = await Department.findByIdAndDelete(id);
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
+        const department = await Department.findById(id);
 
         if (!department) {
             return NextResponse.json({ error: 'Departman bulunamadı' }, { status: 404 });
         }
+
+        const deptName = department.name;
+        await Department.findByIdAndDelete(id);
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.DELETE_DEPARTMENT,
+            targetType: 'Department',
+            targetId: id,
+            targetName: deptName,
+        });
 
         return NextResponse.json({ message: 'Departman silindi' });
     } catch (error) {

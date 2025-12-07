@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import TeamMember from '@/app/lib/models/TeamMember';
 import { deleteFromCloudinary } from '@/app/lib/cloudinaryHelper';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 // GET - Get single team member
 export async function GET(
@@ -32,12 +34,18 @@ export async function PUT(
     try {
         await connectDB();
         const { id } = await params;
+
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const data = await request.json();
 
         // Get old member to check if photo changed
         const oldMember = await TeamMember.findById(id);
         if (oldMember && oldMember.photo && data.photo && oldMember.photo !== data.photo) {
-            // Delete old photo from Cloudinary
             await deleteFromCloudinary(oldMember.photo);
         }
 
@@ -47,6 +55,16 @@ export async function PUT(
         if (!member) {
             return NextResponse.json({ error: 'Ekip üyesi bulunamadı' }, { status: 404 });
         }
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.UPDATE_TEAM_MEMBER,
+            targetType: 'TeamMember',
+            targetId: id,
+            targetName: member.name,
+        });
 
         return NextResponse.json(member);
     } catch (error) {
@@ -64,17 +82,34 @@ export async function DELETE(
         await connectDB();
         const { id } = await params;
 
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const member = await TeamMember.findById(id);
         if (!member) {
             return NextResponse.json({ error: 'Ekip üyesi bulunamadı' }, { status: 404 });
         }
 
-        // Delete photo from Cloudinary if exists
+        const memberName = member.name;
+
         if (member.photo) {
             await deleteFromCloudinary(member.photo);
         }
 
         await TeamMember.findByIdAndDelete(id);
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.DELETE_TEAM_MEMBER,
+            targetType: 'TeamMember',
+            targetId: id,
+            targetName: memberName,
+        });
 
         return NextResponse.json({ message: 'Ekip üyesi silindi' });
     } catch (error) {

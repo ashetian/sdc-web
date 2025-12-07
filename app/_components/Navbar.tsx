@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useLanguage } from "../_context/LanguageContext";
 import Link from "next/link";
+import NotificationBell from "./NotificationBell";
 
 interface AuthUser {
   nickname: string;
@@ -139,14 +140,7 @@ export default function Navbar() {
               {/* Desktop Menu Links */}
               <div className="hidden md:flex items-center space-x-6">
                 <NavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
-                <NavLink onClick={() => scrollToSection("about")} text={t('nav.about')} />
-                <NavLink onClick={() => router.push("/events")} text={t('nav.events')} />
-                {user && (
-                  <>
-                    <NavLink onClick={() => router.push("/articles")} text={language === 'tr' ? 'Makaleler' : 'Articles'} />
-                    <NavLink onClick={() => router.push("/projects")} text={language === 'tr' ? 'Projeler' : 'Projects'} />
-                  </>
-                )}
+                <NavLink onClick={() => router.push("/forum")} text="Forum" />
                 <NavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
               </div>
             </div>
@@ -188,22 +182,25 @@ export default function Navbar() {
 
               {/* Auth Buttons */}
               {user ? (
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-white border-2 border-black hover:shadow-neo transition-all group"
-                >
-                  <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-black overflow-hidden relative">
-                    <Image
-                      src={user.avatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
-                      alt="Avatar"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <span className="font-bold text-black">
-                    {user.nickname || (language === 'tr' ? 'Profil' : 'Profile')}
-                  </span>
-                </Link>
+                <div className="flex items-center gap-3">
+                  <NotificationBell />
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-white border-2 border-black hover:shadow-neo transition-all group"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-black overflow-hidden relative">
+                      <Image
+                        src={user.avatar || `https://api.dicebear.com/9.x/avataaars/svg?seed=${user.nickname}`}
+                        alt="Avatar"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <span className="font-bold text-black">
+                      {user.nickname || (language === 'tr' ? 'Profil' : 'Profile')}
+                    </span>
+                  </Link>
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <Link
@@ -266,21 +263,8 @@ export default function Navbar() {
                   <MobileNavLink onClick={() => scrollToSection("home")} text={t('nav.home')} color="bg-neo-yellow" />
                 </motion.div>
                 <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => scrollToSection("about")} text={t('nav.about')} color="bg-neo-pink" />
+                  <MobileNavLink onClick={() => { router.push("/forum"); setIsMenuOpen(false); }} text="Forum" color="bg-neo-green" />
                 </motion.div>
-                <motion.div variants={itemVariants}>
-                  <MobileNavLink onClick={() => { router.push("/events"); setIsMenuOpen(false); }} text={t('nav.events')} color="bg-neo-green" />
-                </motion.div>
-                {user && (
-                  <>
-                    <motion.div variants={itemVariants}>
-                      <MobileNavLink onClick={() => { router.push("/articles"); setIsMenuOpen(false); }} text={language === 'tr' ? 'Makaleler' : 'Articles'} color="bg-neo-blue" />
-                    </motion.div>
-                    <motion.div variants={itemVariants}>
-                      <MobileNavLink onClick={() => { router.push("/projects"); setIsMenuOpen(false); }} text={language === 'tr' ? 'Projeler' : 'Projects'} color="bg-neo-cyan" />
-                    </motion.div>
-                  </>
-                )}
                 <motion.div variants={itemVariants}>
                   <MobileNavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} color="bg-neo-purple" />
                 </motion.div>

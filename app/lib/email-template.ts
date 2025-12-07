@@ -2,9 +2,24 @@
 // Can be used in both Backend (fetching) and Frontend (preview)
 
 // Use environment variable for base URL, fallback to production domain
-export const wrapEmailHtml = (content: string, title: string = 'SDC Duyuru') => {
+export const wrapEmailHtml = (content: string, title: string = 'SDC', lang: 'tr' | 'en' = 'tr') => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ktusdc.com';
     const logoUrl = `${baseUrl}/sdclogo.png`;
+
+    const texts = {
+        tr: {
+            whatsapp: 'WhatsApp Topluluğuna Katıl',
+            footer: 'Bu e-posta Karadeniz Teknik Üniversitesi Yazılım Geliştirme Kulübü (KTUSDC) tarafından gönderilmiştir.',
+            settings: 'E-posta alım ayarlarınızı profil sayfanızdan değiştirebilirsiniz.'
+        },
+        en: {
+            whatsapp: 'Join WhatsApp Community',
+            footer: 'This email was sent by Karadeniz Technical University Software Development Club (KTUSDC).',
+            settings: 'You can change your email preferences from your profile page.'
+        }
+    };
+
+    const t = texts[lang] || texts.tr;
 
     return `
     <!DOCTYPE html>
@@ -14,7 +29,6 @@ export const wrapEmailHtml = (content: string, title: string = 'SDC Duyuru') => 
         <style>
             body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
             .container { max-width: 600px; margin: 0 auto; background: #ffffff; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-            /* Header removed in favor of modular banner, but we keep container structure */
             .content { padding: 30px; }
             .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #eee; }
             .btn { display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 10px 0; }
@@ -38,7 +52,7 @@ export const wrapEmailHtml = (content: string, title: string = 'SDC Duyuru') => 
                 <div style="margin-bottom: 25px;">
                     <a href="https://chat.whatsapp.com/FH8knELNs0E5ZMd7XxH5YB" style="background-color: #25D366; color: #fff; text-decoration: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" alt="WhatsApp" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 8px;">
-                        WhatsApp Topluluğuna Katıl
+                        ${t.whatsapp}
                     </a>
                 </div>
 
@@ -58,8 +72,8 @@ export const wrapEmailHtml = (content: string, title: string = 'SDC Duyuru') => 
             </div>
 
             <div class="footer">
-                <p>Bu e-posta Karadeniz Teknik Üniversitesi Yazılım Geliştirme Kulübü (KTUSDC) tarafından gönderilmiştir.</p>
-                <p>E-posta alım ayarlarınızı profil sayfanızdan değiştirebilirsiniz.</p>
+                <p>${t.footer}</p>
+                <p>${t.settings}</p>
             </div>
         </div>
     </body>

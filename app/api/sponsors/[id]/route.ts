@@ -4,6 +4,7 @@ import Sponsor from '@/app/lib/models/Sponsor';
 import { verifyAuth } from '@/app/lib/auth';
 import AdminAccess from '@/app/lib/models/AdminAccess';
 import { deleteFromCloudinary } from '@/app/lib/cloudinaryHelper';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -62,6 +63,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             { new: true }
         );
 
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.UPDATE_SPONSOR,
+            targetType: 'Sponsor',
+            targetId: id,
+            targetName: updatedSponsor?.name || name,
+        });
+
         return NextResponse.json(updatedSponsor);
     } catch (error) {
         console.error('Sponsor update error:', error);
@@ -90,12 +101,24 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: 'Sponsor bulunamadı' }, { status: 404 });
         }
 
+        const sponsorName = sponsor.name;
+
         // Delete logo from Cloudinary
         if (sponsor.logo) {
             await deleteFromCloudinary(sponsor.logo);
         }
 
         await Sponsor.findByIdAndDelete(id);
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.DELETE_SPONSOR,
+            targetType: 'Sponsor',
+            targetId: id,
+            targetName: sponsorName,
+        });
 
         return NextResponse.json({ message: 'Sponsor silindi' });
     } catch (error) {

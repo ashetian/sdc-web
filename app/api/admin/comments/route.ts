@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import Comment from '@/app/lib/models/Comment';
+import { verifyAuth } from '@/app/lib/auth';
 
 // GET - All comments for admin (with optional deleted filter)
 export async function GET(request: NextRequest) {
     try {
         await connectDB();
 
-        // Check admin password
-        const adminPassword = request.headers.get('x-admin-password');
-        if (adminPassword !== process.env.ADMIN_PASSWORD) {
+        // Check JWT auth (admin access controlled by frontend AdminGuard)
+        const user = await verifyAuth(request);
+        if (!user) {
             return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
         }
 
@@ -92,8 +93,9 @@ export async function PUT(request: NextRequest) {
     try {
         await connectDB();
 
-        const adminPassword = request.headers.get('x-admin-password');
-        if (adminPassword !== process.env.ADMIN_PASSWORD) {
+        // Check JWT auth
+        const user = await verifyAuth(request);
+        if (!user) {
             return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
         }
 
@@ -103,6 +105,9 @@ export async function PUT(request: NextRequest) {
         if (!commentId || !action) {
             return NextResponse.json({ error: 'commentId ve action gerekli' }, { status: 400 });
         }
+
+        // Import logAdminAction
+        const { logAdminAction, AUDIT_ACTIONS } = await import('@/app/lib/utils/logAdminAction');
 
         if (action === 'restore') {
             // Restore deleted comment
@@ -114,6 +119,18 @@ export async function PUT(request: NextRequest) {
             if (!comment) {
                 return NextResponse.json({ error: 'Yorum bulunamadı' }, { status: 404 });
             }
+
+            // Log the action
+            await logAdminAction({
+                adminId: user.userId,
+                adminName: user.nickname || user.studentNo,
+                action: AUDIT_ACTIONS.RESTORE_COMMENT,
+                targetType: 'Comment',
+                targetId: commentId,
+                targetName: comment.content.substring(0, 50),
+                details: `Yorum geri yüklendi: ${comment.contentType}`,
+            });
+
             return NextResponse.json({ message: 'Yorum geri yüklendi' });
         } else if (action === 'permanentDelete') {
             // Permanently delete
@@ -121,6 +138,18 @@ export async function PUT(request: NextRequest) {
             if (!comment) {
                 return NextResponse.json({ error: 'Yorum bulunamadı' }, { status: 404 });
             }
+
+            // Log the action
+            await logAdminAction({
+                adminId: user.userId,
+                adminName: user.nickname || user.studentNo,
+                action: AUDIT_ACTIONS.DELETE_COMMENT,
+                targetType: 'Comment',
+                targetId: commentId,
+                targetName: comment.content.substring(0, 50),
+                details: `Yorum kalıcı olarak silindi: ${comment.contentType}`,
+            });
+
             return NextResponse.json({ message: 'Yorum kalıcı olarak silindi' });
         }
 
@@ -136,8 +165,9 @@ export async function DELETE(request: NextRequest) {
     try {
         await connectDB();
 
-        const adminPassword = request.headers.get('x-admin-password');
-        if (adminPassword !== process.env.ADMIN_PASSWORD) {
+        // Check JWT auth
+        const user = await verifyAuth(request);
+        if (!user) {
             return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
         }
 

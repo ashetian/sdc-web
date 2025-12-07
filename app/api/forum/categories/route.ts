@@ -3,27 +3,34 @@ import connectDB from '@/app/lib/db';
 import ForumCategory from '@/app/lib/models/ForumCategory';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
 
 // Helper to check if user is admin
-async function isAdmin(request: NextRequest): Promise<boolean> {
+// Helper to check if user is admin
+async function isAdmin(request: NextRequest): Promise<{ isAdmin: boolean; userId?: string; name?: string }> {
     const adminPassword = request.headers.get('x-admin-password');
     if (adminPassword === process.env.ADMIN_PASSWORD) {
-        return true;
+        return { isAdmin: true };
     }
-    // Check JWT for admin role
     const cookieStore = await cookies();
     const token = cookieStore.get('auth-token')?.value;
     if (token) {
         try {
             const { payload } = await jwtVerify(token, JWT_SECRET);
-            return payload.isAdmin === true;
+            if (payload.isAdmin === true) {
+                return {
+                    isAdmin: true,
+                    userId: payload.memberId as string,
+                    name: (payload.nickname || payload.studentNo) as string,
+                };
+            }
         } catch {
-            return false;
+            return { isAdmin: false };
         }
     }
-    return false;
+    return { isAdmin: false };
 }
 
 // GET - List all active forum categories
@@ -45,7 +52,8 @@ export async function GET() {
 // POST - Create new category (admin only)
 export async function POST(request: NextRequest) {
     try {
-        if (!(await isAdmin(request))) {
+        const adminInfo = await isAdmin(request);
+        if (!adminInfo.isAdmin) {
             return NextResponse.json({ error: 'Yetki gerekli' }, { status: 403 });
         }
 
@@ -74,6 +82,18 @@ export async function POST(request: NextRequest) {
             color: color || 'bg-neo-blue',
             order: order || 0,
         });
+
+        // Audit log
+        if (adminInfo.userId) {
+            await logAdminAction({
+                adminId: adminInfo.userId,
+                adminName: adminInfo.name || 'Admin',
+                action: AUDIT_ACTIONS.CREATE_FORUM_CATEGORY,
+                targetType: 'ForumCategory',
+                targetId: category._id.toString(),
+                targetName: category.name,
+            });
+        }
 
         return NextResponse.json(category, { status: 201 });
     } catch (error) {

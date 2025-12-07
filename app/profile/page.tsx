@@ -23,6 +23,15 @@ interface User {
         showFullName: boolean;
     };
     lastLogin?: string;
+    bio?: string;
+    socialLinks?: {
+        github?: string;
+        linkedin?: string;
+        twitter?: string;
+        website?: string;
+        instagram?: string;
+    };
+    nativeLanguage?: 'tr' | 'en';
 }
 
 // Pre-defined avatar options using DiceBear API
@@ -72,6 +81,10 @@ export default function ProfilePage() {
             notificationSettings: 'Bildirim Ayarları',
             notificationDesc: 'Hangi konularda e-posta almak istediğinizi seçin:',
             allowEmails: 'Kulüp etkinlikleri ve gelişmeleri hakkında e-posta almak istiyorum.',
+            bio: 'Hakkımda',
+            bioDesc: 'Kendinizden kısaca bahsedin (max 500 karakter)',
+            social: 'Sosyal Medya',
+            socialDesc: 'Profilinizde görünecek bağlantılar:',
         },
         en: {
             projects: 'My Projects',
@@ -102,6 +115,10 @@ export default function ProfilePage() {
             notificationSettings: 'Notification Settings',
             notificationDesc: 'Choose what emails you want to receive:',
             allowEmails: 'I want to receive emails about club events and news.',
+            bio: 'Bio',
+            bioDesc: 'Briefly describe yourself (max 500 characters)',
+            social: 'Social Media',
+            socialDesc: 'Links to appear on your profile:',
         }
     };
 
@@ -118,6 +135,14 @@ export default function ProfilePage() {
     });
     const [emailConsent, setEmailConsent] = useState(false);
     const [nativeLanguage, setNativeLanguage] = useState('tr');
+    const [bio, setBio] = useState('');
+    const [socialLinks, setSocialLinks] = useState({
+        github: '',
+        linkedin: '',
+        twitter: '',
+        website: '',
+        instagram: ''
+    });
 
     useEffect(() => {
         fetchProfile();
@@ -139,6 +164,14 @@ export default function ProfilePage() {
                 });
                 setEmailConsent(data.user.emailConsent || false);
                 setNativeLanguage(data.user.nativeLanguage || 'tr');
+                setBio(data.user.bio || '');
+                setSocialLinks({
+                    github: data.user.socialLinks?.github || '',
+                    linkedin: data.user.socialLinks?.linkedin || '',
+                    twitter: data.user.socialLinks?.twitter || '',
+                    website: data.user.socialLinks?.website || '',
+                    instagram: data.user.socialLinks?.instagram || '',
+                });
             } else {
                 router.push('/auth/login');
             }
@@ -164,6 +197,8 @@ export default function ProfilePage() {
                     profileVisibility: visibility,
                     emailConsent,
                     nativeLanguage,
+                    bio,
+                    socialLinks
                 }),
             });
 
@@ -171,7 +206,7 @@ export default function ProfilePage() {
 
             if (res.ok) {
                 setMessage(l.profileUpdated);
-                setUser(prev => prev ? { ...prev, nickname, avatar, profileVisibility: visibility } : null);
+                setUser(prev => prev ? { ...prev, nickname, avatar, profileVisibility: visibility, bio, socialLinks } : null);
             } else {
                 setError(data.error || l.error);
             }
@@ -418,6 +453,80 @@ export default function ProfilePage() {
                         <option value="tr">Türkçe</option>
                         <option value="en">English</option>
                     </select>
+                </div>
+
+                {/* Bio & Social */}
+                <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
+                    <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
+                        {l.bio} & {l.social}
+                    </h2>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-black text-black mb-2">{l.bio}</label>
+                            <textarea
+                                value={bio}
+                                onChange={(e) => setBio(e.target.value)}
+                                maxLength={500}
+                                rows={3}
+                                className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                            />
+                            <p className="text-xs text-gray-500 mt-1 text-right">{bio.length}/500</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-black text-black mb-1">GitHub</label>
+                                <input
+                                    type="url"
+                                    value={socialLinks.github}
+                                    onChange={(e) => setSocialLinks({ ...socialLinks, github: e.target.value })}
+                                    placeholder="https://github.com/..."
+                                    className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-black text-black mb-1">LinkedIn</label>
+                                <input
+                                    type="url"
+                                    value={socialLinks.linkedin}
+                                    onChange={(e) => setSocialLinks({ ...socialLinks, linkedin: e.target.value })}
+                                    placeholder="https://linkedin.com/in/..."
+                                    className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-black text-black mb-1">Twitter / X</label>
+                                <input
+                                    type="url"
+                                    value={socialLinks.twitter}
+                                    onChange={(e) => setSocialLinks({ ...socialLinks, twitter: e.target.value })}
+                                    placeholder="https://x.com/..."
+                                    className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-black text-black mb-1">Website</label>
+                                <input
+                                    type="url"
+                                    value={socialLinks.website}
+                                    onChange={(e) => setSocialLinks({ ...socialLinks, website: e.target.value })}
+                                    placeholder="https://..."
+                                    className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-black text-black mb-1">Instagram</label>
+                                <input
+                                    type="url"
+                                    value={socialLinks.instagram}
+                                    onChange={(e) => setSocialLinks({ ...socialLinks, instagram: e.target.value })}
+                                    placeholder="https://instagram.com/..."
+                                    className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Notification Settings */}

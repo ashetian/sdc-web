@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLanguage } from '../_context/LanguageContext';
 import LikeButton from './LikeButton';
 import { Reply, CornerDownRight } from 'lucide-react';
+import UserProfileModal from './UserProfileModal';
 
 interface Comment {
     _id: string;
@@ -41,7 +42,9 @@ interface CommentItemProps {
     isLoggedIn: boolean;
     l: any;
     formatDate: (dateStr: string) => string;
+
     submitting: boolean;
+    onUserClick: (userId: string) => void;
 }
 
 const CommentItem = ({
@@ -57,28 +60,39 @@ const CommentItem = ({
     isLoggedIn,
     l,
     formatDate,
-    submitting
+    submitting,
+    onUserClick
 }: CommentItemProps) => {
     const isReplying = replyingTo === comment._id;
 
     return (
         <div className={`mt-4 ${depth > 0 ? 'ml-8 sm:ml-12 border-l-4 border-black pl-4' : ''}`}>
             <div className="flex items-start gap-3">
-                {comment.author.avatar ? (
-                    <img
-                        src={comment.author.avatar}
-                        alt={comment.author.nickname}
-                        className={`${depth > 0 ? 'w-8 h-8' : 'w-10 h-10'} rounded-full border-2 border-black flex-shrink-0 object-cover`}
-                    />
-                ) : (
-                    <div className={`${depth > 0 ? 'w-8 h-8 text-xs' : 'w-10 h-10'} bg-neo-purple text-white font-bold rounded-full flex items-center justify-center border-2 border-black flex-shrink-0`}>
-                        {comment.author.nickname.charAt(0).toUpperCase()}
-                    </div>
-                )}
+                <button
+                    onClick={() => onUserClick(comment.author._id)}
+                    className="flex-shrink-0 bg-transparent border-none p-0 cursor-pointer hover:opacity-80 transition-opacity"
+                >
+                    {comment.author.avatar ? (
+                        <img
+                            src={comment.author.avatar}
+                            alt={comment.author.nickname}
+                            className={`${depth > 0 ? 'w-8 h-8' : 'w-10 h-10'} rounded-full border-2 border-black object-cover`}
+                        />
+                    ) : (
+                        <div className={`${depth > 0 ? 'w-8 h-8 text-xs' : 'w-10 h-10'} bg-neo-purple text-white font-bold rounded-full flex items-center justify-center border-2 border-black`}>
+                            {comment.author.nickname.charAt(0).toUpperCase()}
+                        </div>
+                    )}
+                </button>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-black">{comment.author.nickname}</span>
+                            <button
+                                onClick={() => onUserClick(comment.author._id)}
+                                className="font-bold text-black hover:underline text-left pointer-events-auto bg-transparent border-none p-0 m-0 shadow-none"
+                            >
+                                {comment.author.nickname}
+                            </button>
                             {comment.author.department && (
                                 <span className="text-gray-500 text-xs sm:text-sm">• {comment.author.department}</span>
                             )}
@@ -179,7 +193,9 @@ const CommentItem = ({
                             isLoggedIn={isLoggedIn}
                             l={l}
                             formatDate={formatDate}
+
                             submitting={submitting}
+                            onUserClick={onUserClick}
                         />
                     ))}
                 </div>
@@ -199,6 +215,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
     const [showDisclaimer, setShowDisclaimer] = useState(false);
     const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
     const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
     // Reply logic
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -477,7 +494,9 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                                     isLoggedIn={isLoggedIn}
                                     l={l}
                                     formatDate={formatDate}
+
                                     submitting={submitting}
+                                    onUserClick={setSelectedUserId}
                                 />
                             </div>
                         ))}
@@ -508,6 +527,13 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                         </div>
                     </div>
                 </div>
+            )}
+
+            {selectedUserId && (
+                <UserProfileModal
+                    userId={selectedUserId}
+                    onClose={() => setSelectedUserId(null)}
+                />
             )}
         </>
     );

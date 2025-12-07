@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Announcement } from '@/app/lib/models/Announcement';
 import { z } from 'zod';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 //validasyon şeması
 const schema = z.object({
@@ -102,9 +104,16 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await connectDB();
+
+    // Auth check
+    const user = await verifyAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+    }
+
     const data = await request.json();
 
     console.log('Received data:', JSON.stringify(data, null, 2));
@@ -121,7 +130,7 @@ export async function POST(request: Request) {
     }
 
     // Tür kontrolü
-    if (!['event', 'news', 'workshop', 'article'].includes(parsed.data.type)) {
+    if (!['event', 'news', 'article'].includes(parsed.data.type)) {
       return NextResponse.json(
         { error: 'Geçersiz duyuru türü' },
         { status: 400 }
@@ -181,23 +190,36 @@ export async function POST(request: Request) {
           const members = await Member.find({
             isActive: true,
             emailConsent: true
-          }).select('email');
+          }).select('email nativeLanguage');
 
           if (members.length > 0) {
-            const html = wrapEmailHtml(`
+            // Prepare content for both languages
+            const htmlTr = wrapEmailHtml(`
                         <h2 style="margin-bottom: 20px;">${announcement.title}</h2>
                         <div style="margin-bottom: 20px;">
                             ${announcement.description}
                         </div>
                         <p>Detaylar için web sitemizi ziyaret edin.</p>
                         <a href="${process.env.NEXT_PUBLIC_BASE_URL}/announcements" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Duyuruya Git</a>
-                    `, 'Yeni Duyuru');
+                    `, 'Yeni Duyuru', 'tr');
+
+            const htmlEn = wrapEmailHtml(`
+                        <h2 style="margin-bottom: 20px;">${announcement.titleEn || announcement.title}</h2>
+                        <div style="margin-bottom: 20px;">
+                            ${announcement.descriptionEn || announcement.description}
+                        </div>
+                        <p>Visit our website for details.</p>
+                        <a href="${process.env.NEXT_PUBLIC_BASE_URL}/announcements" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Go to Announcement</a>
+                    `, 'New Announcement', 'en');
 
             for (const member of members) {
+              const isEn = member.nativeLanguage === 'en';
               await sendEmail({
                 to: member.email,
-                subject: `Yeni Duyuru: ${announcement.title}`,
-                html
+                subject: isEn
+                  ? `New Announcement: ${announcement.titleEn || announcement.title}`
+                  : `Yeni Duyuru: ${announcement.title}`,
+                html: isEn ? htmlEn : htmlTr
               }).catch(e => console.error(`Failed to send to ${member.email}`, e));
             }
           }
@@ -206,6 +228,16 @@ export async function POST(request: Request) {
         }
       })();
     }
+
+    // Audit log
+    await logAdminAction({
+      adminId: user.userId,
+      adminName: user.nickname || user.studentNo,
+      action: AUDIT_ACTIONS.CREATE_ANNOUNCEMENT,
+      targetType: 'Announcement',
+      targetId: announcement._id.toString(),
+      targetName: announcement.title,
+    });
 
     return NextResponse.json(announcement);
   } catch (error) {

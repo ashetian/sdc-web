@@ -105,6 +105,7 @@ export default function TeamPage() {
         order: 0,
         showInTeam: true,
     });
+    const [showSearchModal, setShowSearchModal] = useState(false);
 
     useEffect(() => {
         if (memberQuery.length < 2) { setFoundMembers([]); return; }
@@ -199,7 +200,20 @@ export default function TeamPage() {
 
             if (res.ok) {
                 fetchData();
-                resetForm();
+                if (!editingId) {
+                    setShowSearchModal(false);
+                    // Reset form but keep showForm false as we use modal for new members
+                    setFormData({
+                        memberId: '',
+                        name: '', email: '', phone: '', photo: '', role: 'member', departmentId: '',
+                        title: '', description: '', location: '', github: '', linkedin: '',
+                        instagram: '', x: '', website: '', order: 0, showInTeam: true,
+                    });
+                } else {
+                    setShowForm(false);
+                    setEditingId(null);
+                }
+                alert('İşlem başarılı!');
             }
         } catch (error) {
             console.error('Ekip üyesi kaydedilemedi:', error);
@@ -250,6 +264,7 @@ export default function TeamPage() {
         });
         setEditingId(member._id);
         setShowForm(true);
+        setShowSearchModal(false);
     };
 
     const handleDelete = async (id: string) => {
@@ -274,6 +289,34 @@ export default function TeamPage() {
         });
         setEditingId(null);
         setShowForm(false);
+        setShowSearchModal(false);
+    };
+
+    const handleStartNewMember = () => {
+        setFormData({
+            memberId: '',
+            name: '', email: '', phone: '', photo: '', role: 'member', departmentId: '',
+            title: '', description: '', location: '', github: '', linkedin: '',
+            instagram: '', x: '', website: '', order: 0, showInTeam: true,
+        });
+        setEditingId(null);
+        setShowSearchModal(true);
+    };
+
+    const handleMemberSelectedForCreate = (m: Member) => {
+        setFormData(prev => ({
+            ...prev,
+            memberId: m._id,
+            name: m.fullName,
+            email: m.email,
+            photo: m.avatar || '',
+        }));
+        setMemberQuery('');
+        setFoundMembers([]);
+        setShowForm(true); // Open edit form with pre-filled data
+        // Don't close search modal yet, or close it if we want to transition to form
+        // Let's transition:
+        setShowSearchModal(false);
     };
 
     if (loading) {
@@ -306,274 +349,289 @@ export default function TeamPage() {
                         Başvurudan Ekle
                     </button>
                     <button
-                        onClick={() => setShowForm(!showForm)}
+                        onClick={handleStartNewMember}
                         className="bg-neo-green text-black border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-white hover:shadow-none transition-all"
                     >
-                        {showForm ? 'İptal' : '+ Yeni Üye'}
+                        + Yeni Ekip Üyesi
                     </button>
                 </div>
             </div>
 
-            {/* Form */}
-            {showForm && (
-                <div className="bg-white border-4 border-black shadow-neo p-6">
-                    <h2 className="text-xl font-black text-black mb-4">
-                        {editingId ? 'Üye Düzenle' : 'Yeni Üye Ekle'}
-                    </h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Member Linking */}
-                        <div className="bg-gray-50 p-4 border-2 border-dashed border-gray-400 mb-4">
-                            <label className="block text-sm font-black text-black uppercase mb-1">Site Üyesi Bağla (Opsiyonel)</label>
-                            <p className="text-xs text-gray-500 mb-2">Mevcut bir üyeyi seçerseniz bilgiler otomatik doldurulur.</p>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Üye adı veya öğrenci no ara..."
-                                    value={memberQuery}
-                                    onChange={(e) => setMemberQuery(e.target.value)}
-                                    className="w-full px-3 py-2 border-2 border-black"
-                                />
-                                {foundMembers.length > 0 && (
-                                    <div className="absolute top-full left-0 right-0 bg-white border-2 border-black border-t-0 max-h-40 overflow-y-auto z-10">
-                                        {foundMembers.map(m => (
-                                            <button
-                                                key={m._id}
-                                                type="button"
-                                                onClick={() => handleSelectMember(m)}
-                                                className="w-full text-left px-3 py-2 hover:bg-neo-yellow border-b border-gray-200 last:border-0 font-bold"
-                                            >
-                                                {m.fullName} ({m.studentNo})
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            {formData.memberId && (
-                                <div className="mt-2 text-sm text-green-600 font-black">
-                                    <Check size={14} className="inline" /> Bağlı Üye ID: {formData.memberId}
-                                    <button type="button" onClick={() => setFormData(p => ({ ...p, memberId: '' }))} className="ml-2 text-red-500 underline">Bağlantıyı Kaldır</button>
-                                </div>
-                            )}
-                        </div>
+            <h2 className="text-xl font-black text-black mb-4">
+                {editingId ? 'Üye Düzenle' : 'Yeni Üye Detayları'}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Member Linking Info (Read Only in Form) */}
+                {formData.memberId && (
+                    <div className="bg-green-50 p-4 border-2 border-green-500 mb-4 flex items-center gap-2">
+                        <Check className="text-green-600" />
+                        <span className="font-bold text-green-800">Site Üyesi Bağlı: {formData.name}</span>
+                    </div>
+                )}
 
-                        {/* Photo Upload */}
-                        <div>
-                            <label className="block text-sm font-black text-black uppercase mb-2">Fotoğraf</label>
-                            <div className="flex items-center gap-4">
-                                {formData.photo && (
-                                    <div className="relative w-20 h-20 border-2 border-black">
-                                        <Image src={formData.photo} alt="Preview" fill className="object-cover" />
-                                    </div>
-                                )}
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handlePhotoUpload}
-                                    className="border-2 border-black p-2 font-bold"
-                                />
-                                {uploading && <span className="text-sm font-bold">Yükleniyor...</span>}
+                {/* Photo Upload */}
+                <div>
+                    <label className="block text-sm font-black text-black uppercase mb-2">Fotoğraf</label>
+                    <div className="flex items-center gap-4">
+                        {formData.photo && (
+                            <div className="relative w-20 h-20 border-2 border-black">
+                                <Image src={formData.photo} alt="Preview" fill className="object-cover" />
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">İsim *</label>
-                                <input
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">E-posta</label>
-                                <input
-                                    type="email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">Rol</label>
-                                <select
-                                    value={formData.role}
-                                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                >
-                                    {roleOptions.map((r) => (
-                                        <option key={r.value} value={r.value}>{r.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">Departman</label>
-                                <select
-                                    value={formData.departmentId}
-                                    onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                >
-                                    <option value="">Seçiniz</option>
-                                    {departments.map((d) => (
-                                        <option key={d._id} value={d._id}>{d.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">Ünvan</label>
-                                <input
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-black text-black uppercase mb-1">Açıklama</label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                rows={3}
-                                className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">Telefon</label>
-                                <input
-                                    type="text"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">Konum</label>
-                                <input
-                                    type="text"
-                                    value={formData.location}
-                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">Sıra</label>
-                                <input
-                                    type="number"
-                                    value={formData.order}
-                                    onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">GitHub</label>
-                                <input
-                                    type="url"
-                                    value={formData.github}
-                                    onChange={(e) => setFormData({ ...formData, github: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">LinkedIn</label>
-                                <input
-                                    type="url"
-                                    value={formData.linkedin}
-                                    onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-black text-black uppercase mb-1">Instagram</label>
-                                <input
-                                    type="url"
-                                    value={formData.instagram}
-                                    onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-                                    className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.showInTeam}
-                                    onChange={(e) => setFormData({ ...formData, showInTeam: e.target.checked })}
-                                    className="w-5 h-5 border-2 border-black"
-                                />
-                                <span className="font-bold">Ekibimiz sayfasında göster</span>
-                            </label>
-                        </div>
-
-                        <div className="flex gap-3">
-                            <button
-                                type="submit"
-                                className="bg-black text-white border-4 border-black px-6 py-3 font-black uppercase hover:bg-white hover:text-black transition-all"
-                            >
-                                {editingId ? 'Güncelle' : 'Oluştur'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={resetForm}
-                                className="bg-gray-200 text-black border-4 border-black px-6 py-3 font-black uppercase hover:bg-gray-300 transition-all"
-                            >
-                                İptal
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            )}
-
-            {/* Applicant Modal */}
-            {showApplicantModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white border-4 border-black shadow-neo max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-                        <div className="p-6 border-b-4 border-black flex justify-between items-center">
-                            <h2 className="text-xl font-black">Başvurudan Ekle</h2>
-                            <button
-                                onClick={() => setShowApplicantModal(false)}
-                                className="text-2xl font-black hover:text-red-500"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            {applicants.length === 0 ? (
-                                <p className="text-gray-500 font-bold text-center">Başvuru bulunamadı</p>
-                            ) : (
-                                applicants.map((applicant) => (
-                                    <div key={applicant._id} className="flex items-center justify-between p-4 border-2 border-black hover:bg-gray-50">
-                                        <div>
-                                            <p className="font-black">{applicant.fullName}</p>
-                                            <p className="text-sm text-gray-600">{applicant.email}</p>
-                                            <span className="text-xs bg-neo-purple text-white px-2 py-1 font-bold">
-                                                {applicant.selectedDepartment}
-                                            </span>
-                                        </div>
-                                        <button
-                                            onClick={() => handleAddFromApplicant(applicant)}
-                                            className="bg-neo-green text-black border-2 border-black px-4 py-2 font-black text-sm hover:bg-green-400"
-                                        >
-                                            Ekle
-                                        </button>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                        )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoUpload}
+                            className="border-2 border-black p-2 font-bold"
+                        />
+                        {uploading && <span className="text-sm font-bold">Yükleniyor...</span>}
                     </div>
                 </div>
-            )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">İsim *</label>
+                        <input
+                            type="text"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">E-posta</label>
+                        <input
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">Rol</label>
+                        <select
+                            value={formData.role}
+                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        >
+                            {roleOptions.map((r) => (
+                                <option key={r.value} value={r.value}>{r.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">Departman</label>
+                        <select
+                            value={formData.departmentId}
+                            onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        >
+                            <option value="">Seçiniz</option>
+                            {departments.map((d) => (
+                                <option key={d._id} value={d._id}>{d.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">Ünvan</label>
+                        <input
+                            type="text"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-black text-black uppercase mb-1">Açıklama</label>
+                    <textarea
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        rows={3}
+                        className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">Telefon</label>
+                        <input
+                            type="text"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">Konum</label>
+                        <input
+                            type="text"
+                            value={formData.location}
+                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">Sıra</label>
+                        <input
+                            type="number"
+                            value={formData.order}
+                            onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">GitHub</label>
+                        <input
+                            type="url"
+                            value={formData.github}
+                            onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">LinkedIn</label>
+                        <input
+                            type="url"
+                            value={formData.linkedin}
+                            onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-black text-black uppercase mb-1">Instagram</label>
+                        <input
+                            type="url"
+                            value={formData.instagram}
+                            onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                            className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={formData.showInTeam}
+                            onChange={(e) => setFormData({ ...formData, showInTeam: e.target.checked })}
+                            className="w-5 h-5 border-2 border-black"
+                        />
+                        <span className="font-bold">Ekibimiz sayfasında göster</span>
+                    </label>
+                </div>
+
+                <div className="flex gap-3">
+                    <button
+                        type="submit"
+                        className="bg-black text-white border-4 border-black px-6 py-3 font-black uppercase hover:bg-white hover:text-black transition-all"
+                    >
+                        {editingId ? 'Güncelle' : 'Oluştur'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={resetForm}
+                        className="bg-gray-200 text-black border-4 border-black px-6 py-3 font-black uppercase hover:bg-gray-300 transition-all"
+                    >
+                        İptal
+                    </button>
+                </div>
+            </form>
+
+
+
+            {/* Applicant Modal */}
+            {
+                showApplicantModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white border-4 border-black shadow-neo max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                            <div className="p-6 border-b-4 border-black flex justify-between items-center">
+                                <h2 className="text-xl font-black">Başvurudan Ekle</h2>
+                                <button
+                                    onClick={() => setShowApplicantModal(false)}
+                                    className="text-2xl font-black hover:text-red-500"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                {applicants.length === 0 ? (
+                                    <p className="text-gray-500 font-bold text-center">Başvuru bulunamadı</p>
+                                ) : (
+                                    applicants.map((applicant) => (
+                                        <div key={applicant._id} className="flex items-center justify-between p-4 border-2 border-black hover:bg-gray-50">
+                                            <div>
+                                                <p className="font-black">{applicant.fullName}</p>
+                                                <p className="text-sm text-gray-600">{applicant.email}</p>
+                                                <span className="text-xs bg-neo-purple text-white px-2 py-1 font-bold">
+                                                    {applicant.selectedDepartment}
+                                                </span>
+                                            </div>
+                                            <button
+                                                onClick={() => handleAddFromApplicant(applicant)}
+                                                className="bg-neo-green text-black border-2 border-black px-4 py-2 font-black text-sm hover:bg-green-400"
+                                            >
+                                                Ekle
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Member Search Modal */}
+            {
+                showSearchModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white border-4 border-black shadow-neo max-w-xl w-full">
+                            <div className="p-6 border-b-4 border-black flex justify-between items-center">
+                                <h2 className="text-xl font-black">Üye Seçimi</h2>
+                                <button onClick={() => setShowSearchModal(false)}><X size={24} /></button>
+                            </div>
+                            <div className="p-6">
+                                <p className="mb-4 text-sm font-bold">Yeni ekip üyesi eklemek için önce kayıtlı bir üye seçmelisiniz:</p>
+                                <input
+                                    type="text"
+                                    placeholder="İsim veya öğrenci no ile ara..."
+                                    value={memberQuery}
+                                    onChange={(e) => setMemberQuery(e.target.value)}
+                                    className="w-full px-4 py-3 border-4 border-black font-bold mb-4"
+                                    autoFocus
+                                />
+                                <div className="max-h-60 overflow-y-auto border-2 border-gray-200">
+                                    {memberQuery.length < 2 && foundMembers.length === 0 && (
+                                        <p className="p-4 text-gray-500 text-center">Aramak için yazmaya başlayın...</p>
+                                    )}
+                                    {foundMembers.map(m => (
+                                        <button
+                                            key={m._id}
+                                            onClick={() => handleMemberSelectedForCreate(m)}
+                                            className="w-full text-left p-3 hover:bg-neo-yellow border-b border-gray-100 last:border-0 flex justify-between items-center"
+                                        >
+                                            <span className="font-bold">{m.fullName}</span>
+                                            <span className="text-xs bg-gray-200 px-2 py-1 rounded">{m.studentNo}</span>
+                                        </button>
+                                    ))}
+                                    {memberQuery.length >= 2 && foundMembers.length === 0 && (
+                                        <p className="p-4 text-gray-500 text-center">Üye bulunamadı.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
 
             {/* Member List */}
             <div className="bg-white border-4 border-black shadow-neo">

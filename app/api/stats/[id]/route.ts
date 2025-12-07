@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Stat } from '@/app/lib/models/Stat';
 import { z } from 'zod';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 const statUpdateSchema = z.object({
     label: z.string().min(1).max(100).optional(),
@@ -12,12 +14,19 @@ const statUpdateSchema = z.object({
 });
 
 export async function PATCH(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
         const { id } = await params;
+
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const data = await request.json();
 
         // Zod validation
@@ -42,6 +51,16 @@ export async function PATCH(
             );
         }
 
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.UPDATE_STAT,
+            targetType: 'Stat',
+            targetId: id,
+            targetName: stat.label,
+        });
+
         return NextResponse.json(stat);
     } catch (error) {
         console.error('İstatistik güncellenirken hata oluştu:', error);
@@ -53,14 +72,20 @@ export async function PATCH(
 }
 
 export async function DELETE(
-    request: Request,
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
         const { id } = await params;
 
-        const stat = await Stat.findByIdAndDelete(id);
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
+        const stat = await Stat.findById(id);
 
         if (!stat) {
             return NextResponse.json(
@@ -68,6 +93,19 @@ export async function DELETE(
                 { status: 404 }
             );
         }
+
+        const statLabel = stat.label;
+        await Stat.findByIdAndDelete(id);
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.DELETE_STAT,
+            targetType: 'Stat',
+            targetId: id,
+            targetName: statLabel,
+        });
 
         return NextResponse.json({ message: 'İstatistik silindi' });
     } catch (error) {

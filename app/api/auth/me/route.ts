@@ -41,6 +41,9 @@ export async function GET() {
                 profileVisibility: member.profileVisibility,
                 lastLogin: member.lastLogin,
                 emailConsent: member.emailConsent,
+                bio: member.bio,
+                socialLinks: member.socialLinks,
+                nativeLanguage: member.nativeLanguage,
             },
         });
     } catch (error) {
@@ -95,6 +98,22 @@ export async function PUT(request: NextRequest) {
                 showPhone: Boolean(profileVisibility.showPhone),
                 showDepartment: Boolean(profileVisibility.showDepartment),
                 showFullName: Boolean(profileVisibility.showFullName),
+            };
+        }
+
+        const { bio, socialLinks } = body;
+
+        if (bio !== undefined) {
+            updateData.bio = bio.trim().slice(0, 500);
+        }
+
+        if (socialLinks !== undefined) {
+            updateData.socialLinks = {
+                github: socialLinks.github?.trim(),
+                linkedin: socialLinks.linkedin?.trim(),
+                twitter: socialLinks.twitter?.trim(),
+                website: socialLinks.website?.trim(),
+                instagram: socialLinks.instagram?.trim(),
             };
         }
 

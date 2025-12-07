@@ -60,10 +60,10 @@ export async function POST(request: NextRequest) {
         });
 
         // Send email
-        const emailHtml = generatePasswordSetupEmail(member.fullName, token, false);
+        const emailHtml = generatePasswordSetupEmail(member.fullName, token, false, member.nativeLanguage as 'tr' | 'en');
         await sendEmail({
             to: member.email,
-            subject: 'SDC - Hesap Oluşturma',
+            subject: member.nativeLanguage === 'en' ? 'SDC - Account Verification' : 'SDC - Hesap Oluşturma',
             html: emailHtml,
         });
 

@@ -50,10 +50,10 @@ export async function POST(request: NextRequest) {
         });
 
         // Send email
-        const emailHtml = generatePasswordSetupEmail(member.fullName, token, true);
+        const emailHtml = generatePasswordSetupEmail(member.fullName, token, true, member.nativeLanguage as 'tr' | 'en');
         await sendEmail({
             to: member.email,
-            subject: 'SDC - Şifre Sıfırlama',
+            subject: member.nativeLanguage === 'en' ? 'SDC - Password Reset' : 'SDC - Şifre Sıfırlama',
             html: emailHtml,
         });
 

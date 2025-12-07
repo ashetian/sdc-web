@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Announcement } from '@/app/lib/models/Announcement';
 import z from 'zod';
 import { deleteFromCloudinary } from '@/app/lib/cloudinaryHelper';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 //validasyon şeması
 const schema = z.object({
@@ -51,12 +53,19 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
     const { slug } = await params;
+
+    // Auth check
+    const user = await verifyAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+    }
+
     const data = await request.json();
 
     // Gerekli alanların kontrolü ama zodla
@@ -71,7 +80,7 @@ export async function PUT(
     }
 
     // Tür kontrolü
-    if (!['event', 'news', 'workshop', 'article'].includes(parsed.data.type)) {
+    if (!['event', 'news', 'article'].includes(parsed.data.type)) {
       return NextResponse.json(
         { error: 'Geçersiz duyuru türü' },
         { status: 400 }
@@ -153,6 +162,16 @@ export async function PUT(
       { new: true, runValidators: true }
     );
 
+    // Audit log
+    await logAdminAction({
+      adminId: user.userId,
+      adminName: user.nickname || user.studentNo,
+      action: AUDIT_ACTIONS.UPDATE_ANNOUNCEMENT,
+      targetType: 'Announcement',
+      targetId: announcement?._id?.toString() || slug,
+      targetName: announcement?.title || slug,
+    });
+
     return NextResponse.json(announcement);
   } catch (error) {
     console.error('Duyuru güncellenirken hata oluştu:', error);
@@ -164,12 +183,19 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
     const { slug } = await params;
+
+    // Auth check
+    const user = await verifyAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+    }
+
     const announcement = await Announcement.findOne({ slug });
 
     if (!announcement) {
@@ -178,6 +204,8 @@ export async function DELETE(
         { status: 404 }
       );
     }
+
+    const announcementTitle = announcement.title;
 
     // Delete associated images
     if (announcement.image) await deleteFromCloudinary(announcement.image);
@@ -189,6 +217,16 @@ export async function DELETE(
     }
 
     await Announcement.findOneAndDelete({ slug });
+
+    // Audit log
+    await logAdminAction({
+      adminId: user.userId,
+      adminName: user.nickname || user.studentNo,
+      action: AUDIT_ACTIONS.DELETE_ANNOUNCEMENT,
+      targetType: 'Announcement',
+      targetId: slug,
+      targetName: announcementTitle,
+    });
 
     return NextResponse.json({ message: 'Duyuru başarıyla silindi' });
   } catch (error) {

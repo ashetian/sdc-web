@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Setting } from '@/app/lib/models/Setting';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 export async function GET() {
     try {
@@ -19,9 +21,16 @@ export async function GET() {
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         await connectDB();
+
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const body = await request.json();
         const { key, value } = body;
 
@@ -35,9 +44,21 @@ export async function POST(request: Request) {
             { upsert: true, new: true }
         );
 
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.UPDATE_SETTINGS,
+            targetType: 'Setting',
+            targetId: key,
+            targetName: key,
+            details: `Değer: ${value}`,
+        });
+
         return NextResponse.json(setting);
     } catch (error) {
         console.error('Ayar güncellenirken hata:', error);
         return NextResponse.json({ error: 'Ayar güncellenemedi.' }, { status: 500 });
     }
 }
+

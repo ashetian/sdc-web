@@ -10,7 +10,6 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secre
 // Validation schema
 const applicantSchema = z.object({
     fullName: z.string().min(1, 'Ad Soyad gereklidir').max(100),
-    faculty: z.string().min(1, 'Fakülte gereklidir').max(100),
     department: z.string().min(1, 'Bölüm gereklidir').max(100),
     classYear: z.string().min(1, 'Sınıf gereklidir').max(20),
     phone: z.string().min(1, 'Telefon gereklidir').max(20),
@@ -87,6 +86,25 @@ export async function POST(request: Request) {
             ...parsed.data,
             memberId, // Link to member
         });
+
+        // --- Notification Trigger ---
+        try {
+            const { createAdminNotification } = await import('@/app/lib/notifications');
+            await createAdminNotification({
+                type: 'admin_new_applicant',
+                title: 'Yeni ekip başvurusu',
+                titleEn: 'New team application',
+                message: `${parsed.data.fullName} - ${parsed.data.selectedDepartment}`,
+                messageEn: `${parsed.data.fullName} - ${parsed.data.selectedDepartment}`,
+                link: '/admin/applicants',
+                relatedContentType: 'applicant',
+                relatedContentId: applicant._id,
+            });
+        } catch (notifError) {
+            console.error('Notification error:', notifError);
+        }
+        // --- End Notification Trigger ---
+
         return NextResponse.json(applicant, { status: 201 });
     } catch (error) {
         console.error('Başvuru eklenirken hata oluştu:', error);

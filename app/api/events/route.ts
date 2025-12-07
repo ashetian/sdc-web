@@ -1,8 +1,10 @@
 import { Types } from 'mongoose';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Event, IEvent } from '@/app/lib/models/Event';
 import { Announcement, IAnnouncement } from '@/app/lib/models/Announcement';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 export async function GET(request: Request) {
     try {
@@ -42,9 +44,16 @@ export async function GET(request: Request) {
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         await connectDB();
+
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const body = await request.json();
 
         // Auto-translate if DeepL API key is available
@@ -64,11 +73,21 @@ export async function POST(request: Request) {
                 };
             } catch (translateError) {
                 console.error('Auto-translation failed:', translateError);
-                // Continue without translation
             }
         }
 
         const event = await Event.create(eventData);
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.CREATE_EVENT,
+            targetType: 'Event',
+            targetId: event._id.toString(),
+            targetName: event.title,
+        });
+
         return NextResponse.json(event, { status: 201 });
     } catch {
         return NextResponse.json({ error: 'Etkinlik oluşturulamadı.' }, { status: 500 });

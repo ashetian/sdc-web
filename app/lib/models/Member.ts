@@ -25,6 +25,14 @@ export interface IMember extends Document {
     // Profile fields
     nickname?: string;
     avatar?: string;
+    bio?: string;
+    socialLinks?: {
+        github?: string;
+        linkedin?: string;
+        twitter?: string;
+        website?: string;
+        instagram?: string;
+    };
     profileVisibility: IProfileVisibility;
 
     // Permissions
@@ -100,6 +108,18 @@ const MemberSchema = new Schema<IMember>(
         avatar: {
             type: String,
             trim: true,
+        },
+        bio: {
+            type: String,
+            trim: true,
+            maxlength: 500,
+        },
+        socialLinks: {
+            github: { type: String, trim: true },
+            linkedin: { type: String, trim: true },
+            twitter: { type: String, trim: true },
+            website: { type: String, trim: true },
+            instagram: { type: String, trim: true },
         },
         profileVisibility: {
             type: ProfileVisibilitySchema,

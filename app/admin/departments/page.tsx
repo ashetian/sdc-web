@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import GlobalLoading from '@/app/_components/GlobalLoading';
+import { Check } from 'lucide-react';
+import Image from 'next/image';
 
 interface Department {
     _id: string;
@@ -13,6 +15,15 @@ interface Department {
     color: string;
     order: number;
     isActive: boolean;
+    leadId?: string | { _id: string, fullName: string, studentNo: string };
+}
+
+interface Member {
+    _id: string;
+    fullName: string;
+    email: string;
+    studentNo: string;
+    avatar?: string;
 }
 
 const colorOptions = [
@@ -36,13 +47,40 @@ export default function DepartmentsPage() {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [memberQuery, setMemberQuery] = useState('');
+    const [foundMembers, setFoundMembers] = useState<Member[]>([]);
+
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         icon: 'code',
         color: 'bg-neo-blue',
         order: 0,
+        leadId: '',
     });
+
+    useEffect(() => {
+        if (memberQuery.length < 2) { setFoundMembers([]); return; }
+        const timer = setTimeout(async () => {
+            try {
+                const res = await fetch(`/api/members?search=${memberQuery}&limit=5`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setFoundMembers(data.members || []);
+                }
+            } catch (e) { console.error(e); }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [memberQuery]);
+
+    const handleSelectMember = (m: Member) => {
+        setFormData(prev => ({
+            ...prev,
+            leadId: m._id,
+        }));
+        setMemberQuery('');
+        setFoundMembers([]);
+    };
 
     useEffect(() => {
         fetchDepartments();
@@ -90,6 +128,7 @@ export default function DepartmentsPage() {
             icon: dept.icon,
             color: dept.color,
             order: dept.order,
+            leadId: typeof dept.leadId === 'object' ? dept.leadId._id : (dept.leadId || ''),
         });
         setEditingId(dept._id);
         setShowForm(true);
@@ -109,7 +148,7 @@ export default function DepartmentsPage() {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', description: '', icon: 'code', color: 'bg-neo-blue', order: 0 });
+        setFormData({ name: '', description: '', icon: 'code', color: 'bg-neo-blue', order: 0, leadId: '' });
         setEditingId(null);
         setShowForm(false);
     };
@@ -153,6 +192,41 @@ export default function DepartmentsPage() {
                         {editingId ? 'Departman Düzenle' : 'Yeni Departman'}
                     </h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Lead Selection */}
+                        <div className="bg-gray-50 p-4 border-2 border-dashed border-gray-400 mb-4">
+                            <label className="block text-sm font-black text-black uppercase mb-1">Departman Sorumlusu (Opsiyonel)</label>
+                            <p className="text-xs text-gray-500 mb-2">Departman başkanını veya sorumlusunu seçin.</p>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Üye adı veya öğrenci no ara..."
+                                    value={memberQuery}
+                                    onChange={(e) => setMemberQuery(e.target.value)}
+                                    className="w-full px-3 py-2 border-2 border-black"
+                                />
+                                {foundMembers.length > 0 && (
+                                    <div className="absolute top-full left-0 right-0 bg-white border-2 border-black border-t-0 max-h-40 overflow-y-auto z-10">
+                                        {foundMembers.map(m => (
+                                            <button
+                                                key={m._id}
+                                                type="button"
+                                                onClick={() => handleSelectMember(m)}
+                                                className="w-full text-left px-3 py-2 hover:bg-neo-yellow border-b border-gray-200 last:border-0 font-bold"
+                                            >
+                                                {m.fullName} ({m.studentNo})
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            {formData.leadId && (
+                                <div className="mt-2 text-sm text-green-600 font-black">
+                                    <Check size={14} className="inline" /> Seçilen Üye ID: {formData.leadId}
+                                    <button type="button" onClick={() => setFormData(p => ({ ...p, leadId: '' }))} className="ml-2 text-red-500 underline">Kaldır</button>
+                                </div>
+                            )}
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-black text-black uppercase mb-1">İsim</label>
@@ -249,6 +323,12 @@ export default function DepartmentsPage() {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
+                                    <Link
+                                        href={`/admin/departments/${dept._id}/members`}
+                                        className="px-4 py-2 bg-neo-yellow text-black border-2 border-black font-black text-sm hover:bg-yellow-400 transition-all flex items-center"
+                                    >
+                                        Üyeler
+                                    </Link>
                                     <button
                                         onClick={() => handleEdit(dept)}
                                         className="px-4 py-2 bg-neo-blue text-black border-2 border-black font-black text-sm hover:bg-blue-300 transition-all"

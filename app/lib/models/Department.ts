@@ -10,6 +10,7 @@ export interface IDepartment extends Document {
     color: string;
     order: number;
     isActive: boolean;
+    leadId?: mongoose.Types.ObjectId; // Reference to Member
     createdAt: Date;
     updatedAt: Date;
 }
@@ -53,6 +54,10 @@ const DepartmentSchema = new Schema<IDepartment>(
         isActive: {
             type: Boolean,
             default: true,
+        },
+        leadId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Member',
         },
     },
     {

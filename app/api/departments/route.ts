@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import Department from '@/app/lib/models/Department';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 // GET - List all departments
 export async function GET() {
@@ -18,9 +20,15 @@ export async function GET() {
 export async function POST(request: NextRequest) {
     try {
         await connectDB();
+
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const data = await request.json();
 
-        // Generate slug from name
         // Generate slug from name
         const slug = data.name
             .toLowerCase()
@@ -53,6 +61,16 @@ export async function POST(request: NextRequest) {
         }
 
         const department = await Department.create(departmentData);
+
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.CREATE_DEPARTMENT,
+            targetType: 'Department',
+            targetId: department._id.toString(),
+            targetName: department.name,
+        });
 
         return NextResponse.json(department, { status: 201 });
     } catch (error) {

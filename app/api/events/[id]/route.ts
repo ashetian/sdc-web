@@ -1,6 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Event } from '@/app/lib/models/Event';
+import { verifyAuth } from '@/app/lib/auth';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
+import { deleteFromCloudinary, deleteFolder, sanitizeFolderName } from '@/app/lib/cloudinaryHelper';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -19,23 +22,26 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 }
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDB();
-        const body = await request.json();
         const { id } = await params;
+
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
+        const body = await request.json();
 
         // Auto-translate if DeepL API key is available
         let updateData = { ...body };
         if (process.env.DEEPL_API_KEY && (body.title || body.description)) {
             try {
-                // If English fields are not provided in the update, try to translate
                 if (!body.titleEn || !body.descriptionEn) {
                     const { translateFields } = await import('@/app/lib/translate');
-                    // We need the full object for translation context, but mainly the fields being updated
-                    // If only one field is updated, we might need to fetch the other from DB? 
-                    // For simplicity, let's just translate what is provided.
-                    const fieldsToTranslate: any = {};
+                    const fieldsToTranslate: Record<string, string> = {};
                     if (body.title) fieldsToTranslate.title = body.title;
                     if (body.description) fieldsToTranslate.description = body.description;
 
@@ -46,7 +52,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
                 }
             } catch (translateError) {
                 console.error('Auto-translation failed:', translateError);
-                // Continue without translation
             }
         }
 
@@ -56,6 +61,16 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             return NextResponse.json({ error: 'Etkinlik bulunamadı.' }, { status: 404 });
         }
 
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.UPDATE_EVENT,
+            targetType: 'Event',
+            targetId: id,
+            targetName: event.title,
+        });
+
         return NextResponse.json(event);
     } catch (error) {
         console.error(error);
@@ -63,19 +78,24 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 }
 
-import { deleteFromCloudinary, deleteFolder, sanitizeFolderName } from '@/app/lib/cloudinaryHelper';
-
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDB();
         const { id } = await params;
 
-        // Find event first to get posterUrl
+        // Auth check
+        const user = await verifyAuth(request);
+        if (!user) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        }
+
         const event = await Event.findById(id);
 
         if (!event) {
             return NextResponse.json({ error: 'Etkinlik bulunamadı.' }, { status: 404 });
         }
+
+        const eventTitle = event.title;
 
         // Delete poster if exists
         if (event.posterUrl) {
@@ -83,7 +103,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         }
 
         // Clean up receipts folder
-        // We prefer title-based folder, but fallback to ID if needed (though new uploads use title)
         if (event.title) {
             await deleteFolder(`sdc-web-receipts/${sanitizeFolderName(event.title)}`);
         } else {
@@ -93,9 +112,20 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         // Delete event from DB
         await Event.findByIdAndDelete(id);
 
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.DELETE_EVENT,
+            targetType: 'Event',
+            targetId: id,
+            targetName: eventTitle,
+        });
+
         return NextResponse.json({ message: 'Etkinlik silindi.' });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: 'Etkinlik silinemedi.' }, { status: 500 });
     }
 }
+

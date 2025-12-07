@@ -3,6 +3,7 @@ import connectDB from '@/app/lib/db';
 import Sponsor from '@/app/lib/models/Sponsor';
 import { verifyAuth } from '@/app/lib/auth';
 import AdminAccess from '@/app/lib/models/AdminAccess';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 // GET: Fetch all sponsors
 export async function GET(request: NextRequest) {
@@ -54,9 +55,20 @@ export async function POST(request: NextRequest) {
             isActive: isActive !== false,
         });
 
+        // Audit log
+        await logAdminAction({
+            adminId: user.userId,
+            adminName: user.nickname || user.studentNo,
+            action: AUDIT_ACTIONS.CREATE_SPONSOR,
+            targetType: 'Sponsor',
+            targetId: sponsor._id.toString(),
+            targetName: sponsor.name,
+        });
+
         return NextResponse.json(sponsor, { status: 201 });
     } catch (error) {
         console.error('Sponsor create error:', error);
         return NextResponse.json({ error: 'Sponsor oluşturulamadı' }, { status: 500 });
     }
 }
+

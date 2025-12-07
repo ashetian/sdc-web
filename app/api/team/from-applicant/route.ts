@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
 
         // Create team member from applicant data
         const member = await TeamMember.create({
+            memberId: applicant.memberId, // Link to Member
             name: applicant.fullName,
             email: applicant.email,
             phone: applicant.phone,

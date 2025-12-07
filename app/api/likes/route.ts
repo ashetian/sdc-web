@@ -75,6 +75,50 @@ export async function POST(request: NextRequest) {
                 contentId,
             });
             action = 'liked';
+
+            // --- Notification Trigger ---
+            try {
+                const { createNotification } = await import('@/app/lib/notifications');
+
+                if (contentType === 'comment') {
+                    const Comment = (await import('@/app/lib/models/Comment')).default;
+                    const comment = await Comment.findById(contentId);
+                    if (comment && comment.memberId.toString() !== auth.userId) {
+                        await createNotification({
+                            recipientId: comment.memberId,
+                            type: 'comment_like',
+                            title: 'Yorumunuz beğenildi',
+                            titleEn: 'Your comment was liked',
+                            message: 'Birisi yorumunuzu beğendi',
+                            messageEn: 'Someone liked your comment',
+                            link: `/${comment.contentType}s/${comment.contentId}`,
+                            relatedContentType: 'like',
+                            relatedContentId: contentId,
+                            actorId: auth.userId,
+                        });
+                    }
+                } else if (contentType === 'project') {
+                    const Project = (await import('@/app/lib/models/Project')).default;
+                    const project = await Project.findById(contentId);
+                    if (project && project.memberId && project.memberId.toString() !== auth.userId) {
+                        await createNotification({
+                            recipientId: project.memberId,
+                            type: 'project_like',
+                            title: 'Projeniz beğenildi',
+                            titleEn: 'Your project was liked',
+                            message: `"${project.title}" projeniz beğenildi`,
+                            messageEn: `Your project "${project.title}" was liked`,
+                            link: `/projects/${contentId}`,
+                            relatedContentType: 'like',
+                            relatedContentId: contentId,
+                            actorId: auth.userId,
+                        });
+                    }
+                }
+            } catch (notifError) {
+                console.error('Notification error:', notifError);
+            }
+            // --- End Notification Trigger ---
         }
 
         // Get updated count

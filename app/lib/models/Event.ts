@@ -1,5 +1,25 @@
 import mongoose from 'mongoose';
 
+// Content block interface for completion reports
+export interface IReportContentBlock {
+  id: string;
+  type: 'text' | 'image' | 'image-grid';
+  content?: string;
+  contentEn?: string;
+  image?: string;
+  images?: string[];
+}
+
+// Completion report interface
+export interface ICompletionReport {
+  contentBlocks: IReportContentBlock[];
+  participantCount: number;
+  duration: number; // in minutes
+  summary: string;
+  summaryEn?: string;
+  reportedAt?: Date;
+}
+
 export interface IEvent {
   title: string;
   description: string;
@@ -20,6 +40,8 @@ export interface IEvent {
   isEnded: boolean;
   remindersSent?: boolean;
   actualDuration?: number; // in minutes, admin-entered
+  // Completion report
+  completionReport?: ICompletionReport;
 }
 
 const eventSchema = new mongoose.Schema<IEvent>(
@@ -87,6 +109,25 @@ const eventSchema = new mongoose.Schema<IEvent>(
       type: Number,
       required: false,
     },
+    // Completion report
+    completionReport: {
+      type: {
+        contentBlocks: [{
+          id: String,
+          type: { type: String, enum: ['text', 'image', 'image-grid'] },
+          content: String,
+          contentEn: String,
+          image: String,
+          images: [String],
+        }],
+        participantCount: Number,
+        duration: Number,
+        summary: String,
+        summaryEn: String,
+        reportedAt: Date,
+      },
+      required: false,
+    },
   },
   {
     timestamps: true,
@@ -94,3 +135,4 @@ const eventSchema = new mongoose.Schema<IEvent>(
 );
 
 export const Event = mongoose.models.Event || mongoose.model<IEvent>('Event', eventSchema);
+

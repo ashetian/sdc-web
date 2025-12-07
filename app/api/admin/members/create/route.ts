@@ -4,6 +4,7 @@ import Member from '@/app/lib/models/Member';
 import { verifyAuth } from '@/app/lib/auth';
 import TeamMember from '@/app/lib/models/TeamMember';
 import bcrypt from 'bcryptjs';
+import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 // Helper to check Superadmin status
 async function isSuperAdmin(userId: string) {
@@ -18,12 +19,7 @@ export async function POST(req: NextRequest) {
         if (!payload || !payload.userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         // Check if Superadmin
-        // Note: We might also want to check AdminAccess 'ALL' key if we want other admins to do this, 
-        // but user specifically said "Superadmin... test member". Sticking to Superadmin for safety.
-        // Actually, let's reuse the check-auth logic or just strict Superadmin. 
-        // User said "superadmin üye listesinde test üyesi oluşturabilsin".
         if (!await isSuperAdmin(payload.userId)) {
-            // Also check AdminAccess for 'ALL' just in case an assigned superadmin needs this
             const AdminAccess = (await import('@/app/lib/models/AdminAccess')).default;
             const access = await AdminAccess.findOne({ memberId: payload.userId });
             if (!access || !access.allowedKeys.includes('ALL')) {
@@ -60,16 +56,29 @@ export async function POST(req: NextRequest) {
             nickname,
             phone,
             isTestAccount: true,
-            isRegistered: true, // Auto-register
+            isRegistered: true,
             isActive: true,
             createdAt: new Date(),
             updatedAt: new Date()
         });
 
+        // Audit log
+        await logAdminAction({
+            adminId: payload.userId,
+            adminName: payload.nickname || payload.studentNo,
+            action: AUDIT_ACTIONS.CREATE_MEMBER,
+            targetType: 'Member',
+            targetId: newMember._id.toString(),
+            targetName: `${fullName} (${studentNo})`,
+            details: 'Test üyesi oluşturuldu',
+        });
+
         return NextResponse.json({ message: "Test üyesi başarıyla oluşturuldu.", member: newMember }, { status: 201 });
 
-    } catch (e: any) {
+    } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen hata';
         console.error("Create member error:", e);
-        return NextResponse.json({ error: "Bir hata oluştu: " + e.message }, { status: 500 });
+        return NextResponse.json({ error: "Bir hata oluştu: " + errorMessage }, { status: 500 });
     }
 }
+

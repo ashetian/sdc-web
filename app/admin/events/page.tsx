@@ -15,7 +15,8 @@ import {
     Trash2,
     ClipboardCopy,
     Download,
-    Save
+    Save,
+    FileText
 } from 'lucide-react';
 
 interface Event {
@@ -121,27 +122,28 @@ export default function AdminEventsPage() {
 
     const handleEndEvent = async () => {
         if (!endModal) return;
-        const mins = parseInt(duration);
-        if (isNaN(mins) || mins <= 0) {
-            alert('Geçerli bir süre girin (dakika).');
-            return;
-        }
 
         setEndingEvent(true);
         try {
             const res = await fetch(`/api/events/${endModal.eventId}/end`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ actualDuration: mins }),
+                body: JSON.stringify({}),
             });
+
+            const data = await res.json();
 
             if (res.ok) {
                 setEndModal(null);
                 setDuration('');
                 fetchEvents();
-                alert('Etkinlik sonlandırıldı!');
+                alert('Etkinlik sonlandırıldı ve duyuru oluşturuldu!');
+            } else if (data.needsReport) {
+                setEndModal(null);
+                alert('Önce sonuç raporu eklemelisiniz.');
+                // Redirect to report page
+                window.location.href = `/admin/events/${endModal.eventId}/report`;
             } else {
-                const data = await res.json();
                 alert(data.error || 'Sonlandırılamadı.');
             }
         } catch (error) {
@@ -319,6 +321,14 @@ export default function AdminEventsPage() {
                                 </>
                             )}
 
+                            {/* Report Button - Always visible */}
+                            <Link
+                                href={`/admin/events/${manageModal._id}/report`}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black bg-neo-pink text-black border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase"
+                            >
+                                <FileText size={16} /> {manageModal.isEnded ? 'Raporu Görüntüle' : 'Sonuç Raporu'}
+                            </Link>
+
                             <Link
                                 href={`/admin/events/${manageModal._id}/registrations`}
                                 className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black bg-neo-blue text-black border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase"
@@ -396,21 +406,13 @@ export default function AdminEventsPage() {
                         <h3 className="text-xl font-black uppercase mb-4 text-center">Etkinliği Sonlandır</h3>
                         <p className="text-center font-bold mb-2">{endModal.eventTitle}</p>
                         <p className="text-center text-sm text-gray-600 mb-6">
-                            Bu işlem geri alınamaz. Etkinlik kayıtlara kapanacak ve yoklama kapatılacaktır.
+                            Bu işlem geri alınamaz. Etkinlik sonlandırılacak ve otomatik olarak duyuru oluşturulacaktır.
                         </p>
 
-                        <div className="mb-6">
-                            <label className="block text-sm font-black uppercase mb-2">
-                                Etkinlik Süresi (Dakika)
-                            </label>
-                            <input
-                                type="number"
-                                value={duration}
-                                onChange={(e) => setDuration(e.target.value)}
-                                placeholder="örn: 120"
-                                min="1"
-                                className="w-full px-4 py-3 border-4 border-black font-bold focus:outline-none focus:shadow-neo transition-all"
-                            />
+                        <div className="bg-neo-yellow/30 border-2 border-black p-4 mb-6">
+                            <p className="text-sm font-bold text-center">
+                                ⚠️ Sonlandırmadan önce "Sonuç Raporu" sayfasından rapor eklemelisiniz.
+                            </p>
                         </div>
 
                         <div className="flex gap-2">
