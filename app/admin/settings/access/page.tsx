@@ -20,6 +20,9 @@ const ALL_KEYS = [
     { key: 'ALL', label: 'Tam Yetki (Hepsi)' },
     { key: 'announcements', label: 'Duyurular' },
     { key: 'events', label: 'Etkinlikler' },
+    { key: 'calendar', label: 'Takvim Yönetimi' },
+    { key: 'room', label: 'Kulüp Odası (IoT)' },
+    { key: 'inventory', label: 'Envanter/Demirbaş' },
     { key: 'emails', label: 'E-postalar' },
     { key: 'applicants', label: 'Başvurular' },
     { key: 'departments', label: 'Departmanlar' },
@@ -30,11 +33,9 @@ const ALL_KEYS = [
     { key: 'forum', label: 'Forum Yönetimi' },
     { key: 'code', label: 'Kod Atölyesi' },
     { key: 'elections', label: 'Seçimler' },
+    { key: 'bug-reports', label: 'Hata Bildirimleri' },
     { key: 'stats', label: 'İstatistikler' },
     { key: 'audit-log', label: 'İşlem Geçmişi' },
-    { key: 'calendar', label: 'Takvim Yönetimi' },
-    { key: 'room', label: 'Kulüp Odası (IoT)' },
-    { key: 'inventory', label: 'Envanter/Demirbaş' },
     { key: 'settings', label: 'Ayarlar (Genel)' },
 ];
 

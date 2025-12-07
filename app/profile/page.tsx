@@ -539,16 +539,14 @@ export default function ProfilePage() {
                     </p>
 
                     <div className="space-y-3">
-                        <label className="flex items-start sm:items-center gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer bg-gray-50/50 hover:bg-white transition-colors">
+                        <label className="flex items-start gap-3 p-3 border-2 border-gray-200 hover:border-black cursor-pointer bg-gray-50/50 hover:bg-white transition-colors">
                             <input
                                 type="checkbox"
                                 checked={emailConsent}
                                 onChange={(e) => setEmailConsent(e.target.checked)}
-                                className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
+                                className="w-5 h-5 shrink-0 mt-0.5"
                             />
-                            <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">{l.allowEmails}</span>
-                            </div>
+                            <span className="font-medium text-sm leading-relaxed">{l.allowEmails}</span>
                         </label>
                     </div>
                 </div>

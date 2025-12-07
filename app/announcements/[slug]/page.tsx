@@ -150,7 +150,7 @@ export default function AnnouncementPage({
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform -rotate-1">
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap items-center gap-4 mb-4">
               <span
                 className={`px-4 py-1 text-sm font-black uppercase border-2 border-black shadow-neo-sm ${announcement.type === "event"
                   ? "bg-neo-purple text-white"
@@ -161,8 +161,8 @@ export default function AnnouncementPage({
               >
                 {getTypeLabel(announcement.type)}
               </span>
-              <div className="flex items-center gap-3">
-                <time className="text-sm font-bold text-black bg-gray-100 px-2 py-1 border-2 border-black shadow-neo-sm">{language === 'en' && announcement.dateEn ? announcement.dateEn : announcement.date}</time>
+              <time className="text-sm font-bold text-black bg-gray-100 px-3 py-1 border-2 border-black shadow-neo-sm">{language === 'en' && announcement.dateEn ? announcement.dateEn : announcement.date}</time>
+              <div className="flex items-center gap-2 ml-auto">
                 <LikeButton contentType="announcement" contentId={announcement._id} />
                 <BookmarkButton contentType="announcement" contentId={announcement._id} />
               </div>

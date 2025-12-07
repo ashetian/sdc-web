@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '../_context/LanguageContext';
-import { AlertCircle, BookOpen, Calendar, Gift, Clock } from 'lucide-react';
+import { AlertCircle, BookOpen, Calendar, Gift, Clock, X } from 'lucide-react';
 
 interface Event {
     _id: string;
@@ -42,7 +42,15 @@ export default function EventsPage() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedEvents, setSelectedEvents] = useState<Event[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedMarker, setSelectedMarker] = useState<CalendarMarker | null>(null);
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
     const { language, t } = useLanguage();
+
+    const getEventDescription = (event: Event) => {
+        if (language === 'en' && event.descriptionEn) return event.descriptionEn;
+        return event.description;
+    };
 
     useEffect(() => {
         fetchData();
@@ -106,6 +114,15 @@ export default function EventsPage() {
     const getMarkerTitle = (marker: CalendarMarker) => {
         if (language === 'en' && marker.titleEn) return marker.titleEn;
         return marker.title;
+    };
+
+    const formatDate = (dateStr: string) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
     };
 
     // Helper: Get weeks for the current month view
@@ -313,15 +330,18 @@ export default function EventsPage() {
                                     }}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        if (!isMarker) {
-                                            // Handle event click
-                                            const event = item.data;
-                                            // You can use a router push here or open modal
-                                            if (event.announcementSlug) {
-                                                window.location.href = `/announcements/${event.announcementSlug}`;
-                                            } else {
-                                                window.location.href = `/events/${event._id}/register`;
-                                            }
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        // Add scroll offset for absolute positioning
+                                        setTooltipPosition({
+                                            x: rect.left + rect.width / 2 + window.scrollX,
+                                            y: rect.bottom + 8 + window.scrollY
+                                        });
+                                        if (isMarker) {
+                                            setSelectedMarker(item.data);
+                                            setSelectedEvent(null);
+                                        } else {
+                                            setSelectedEvent(item.data);
+                                            setSelectedMarker(null);
                                         }
                                     }}
                                     title={isMarker ? getMarkerTitle(item.data) : getEventTitle(item.data)}
@@ -404,6 +424,79 @@ export default function EventsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Marker Info Tooltip */}
+            {selectedMarker && tooltipPosition && (
+                <>
+                    <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => { setSelectedMarker(null); setTooltipPosition(null); }}
+                    />
+                    <div
+                        className="absolute bg-white border-2 border-black shadow-neo px-4 py-3 max-w-xs z-50"
+                        style={{
+                            left: `${tooltipPosition.x}px`,
+                            top: `${tooltipPosition.y}px`,
+                            transform: 'translateX(-50%)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center gap-2">
+                            <span className={`${markerConfig[selectedMarker.type]?.text}`}>
+                                {markerConfig[selectedMarker.type]?.icon}
+                            </span>
+                            <span className="font-bold text-sm">{getMarkerTitle(selectedMarker)}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                            {formatDate(selectedMarker.startDate)}
+                            {selectedMarker.startDate !== selectedMarker.endDate && ` - ${formatDate(selectedMarker.endDate)}`}
+                        </p>
+                    </div>
+                </>
+            )}
+
+            {/* Event Info Tooltip */}
+            {selectedEvent && tooltipPosition && (
+                <>
+                    <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => { setSelectedEvent(null); setTooltipPosition(null); }}
+                    />
+                    <div
+                        className="absolute bg-white border-2 border-black shadow-neo px-4 py-3 max-w-sm cursor-pointer hover:shadow-neo-lg transition-shadow z-50"
+                        style={{
+                            left: `${tooltipPosition.x}px`,
+                            top: `${tooltipPosition.y}px`,
+                            transform: 'translateX(-50%)'
+                        }}
+                        onClick={() => {
+                            if (selectedEvent.announcementSlug) {
+                                window.location.href = `/announcements/${selectedEvent.announcementSlug}`;
+                            } else {
+                                window.location.href = `/events/${selectedEvent._id}/register`;
+                            }
+                        }}
+                    >
+                        <div className="flex items-center gap-2 mb-1">
+                            <Calendar size={14} className="text-neo-purple" />
+                            <span className="font-black text-sm">{getEventTitle(selectedEvent)}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mb-2">
+                            {formatDate(selectedEvent.eventDate)}
+                        </p>
+                        {selectedEvent.description && (
+                            <p className="text-xs text-gray-600 line-clamp-2">
+                                {getEventDescription(selectedEvent)}
+                            </p>
+                        )}
+                        <p className="text-xs text-neo-purple font-bold mt-2">
+                            {language === 'tr' ? 'Detaylar için tıklayın →' : 'Click for details →'}
+                        </p>
+                    </div>
+                </>
+            )}
         </div>
     );
 }
+
+

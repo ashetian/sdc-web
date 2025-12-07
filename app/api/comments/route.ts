@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
                         titleEn: 'New reply to your comment',
                         message: `${member.nickname || 'Bir kullanıcı'}: "${content.trim().slice(0, 50)}..."`,
                         messageEn: `${member.nickname || 'A user'}: "${content.trim().slice(0, 50)}..."`,
-                        link: `/${contentType}s/${contentId}`,
+                        link: contentType === 'gallery' ? `/gallery/${contentId}` : `/${contentType}s/${contentId}`,
                         relatedContentType: 'comment',
                         relatedContentId: comment._id,
                         actorId: memberId,

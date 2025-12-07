@@ -259,6 +259,17 @@ export default function Navbar() {
                 if (e.target === e.currentTarget) setIsMenuOpen(false);
               }}
             >
+              {/* Close Button - Fixed at top right */}
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="absolute top-6 right-4 p-3 bg-white border-4 border-black shadow-neo active:shadow-none active:translate-x-1 active:translate-y-1 transition-all z-[70]"
+                aria-label="Menüyü Kapat"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
               {/* Logo in Mobile Menu */}
               <motion.div variants={itemVariants} className="mb-8">
                 <div className="relative w-24 h-24 mx-auto bg-white border-4 border-black shadow-neo p-2">

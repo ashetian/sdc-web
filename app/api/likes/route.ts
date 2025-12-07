@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
                             titleEn: 'Your comment was liked',
                             message: 'Birisi yorumunuzu beğendi',
                             messageEn: 'Someone liked your comment',
-                            link: `/${comment.contentType}s/${comment.contentId}`,
+                            link: comment.contentType === 'gallery' ? `/gallery/${comment.contentId}` : `/${comment.contentType}s/${comment.contentId}`,
                             relatedContentType: 'like',
                             relatedContentId: contentId,
                             actorId: auth.userId,

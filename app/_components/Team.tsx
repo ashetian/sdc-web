@@ -3,7 +3,7 @@ import { useRef, useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
-import { Crown, Star } from "lucide-react";
+import { Crown, ChevronDown, ChevronUp } from "lucide-react";
 import UserProfileModal from "./UserProfileModal";
 
 interface Department {
@@ -63,6 +63,7 @@ export default function Team() {
     const [loading, setLoading] = useState(true);
     const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
     const [activeDeptId, setActiveDeptId] = useState<string | null>(null);
+    const [expandedDepts, setExpandedDepts] = useState<Set<string>>(new Set());
 
     // Fetch Data
     useEffect(() => {
@@ -77,7 +78,10 @@ export default function Team() {
                     const data = await deptRes.json();
                     setDepartments(data);
                     // Set first department as active by default if available
-                    if (data.length > 0) setActiveDeptId(data[0]._id);
+                    if (data.length > 0) {
+                        setActiveDeptId(data[0]._id);
+                        setExpandedDepts(new Set([data[0]._id]));
+                    }
                 }
                 if (teamRes.ok) {
                     const data = await teamRes.json();
@@ -99,18 +103,21 @@ export default function Team() {
 
     const activeDept = useMemo(() => departments.find(d => d._id === activeDeptId), [departments, activeDeptId]);
 
-    const activeDeptMembers = useMemo(() => {
-        if (!activeDeptId) return [];
+    const getDeptMembers = (deptId: string) => {
         return members.filter(m => {
             const mDeptId = typeof m.departmentId === 'object' ? m.departmentId?._id : m.departmentId;
-            // Exclude management
             if (m.role === 'president' || m.role === 'vice_president') return false;
-            return mDeptId === activeDeptId;
+            return mDeptId === deptId;
         }).sort((a, b) => {
             if (a.role === 'head' && b.role !== 'head') return -1;
             if (a.role !== 'head' && b.role === 'head') return 1;
             return (a.order || 0) - (b.order || 0);
         });
+    };
+
+    const activeDeptMembers = useMemo(() => {
+        if (!activeDeptId) return [];
+        return getDeptMembers(activeDeptId);
     }, [members, activeDeptId]);
 
     const lead = activeDeptMembers.find(m => m.role === 'head');
@@ -121,7 +128,47 @@ export default function Team() {
         if (linkedId) setSelectedMemberId(linkedId);
     };
 
+    const toggleDept = (deptId: string) => {
+        setExpandedDepts(prev => {
+            const next = new Set(prev);
+            if (next.has(deptId)) {
+                next.delete(deptId);
+            } else {
+                next.add(deptId);
+            }
+            return next;
+        });
+    };
+
     if (loading) return null;
+
+    // Member card component for reuse
+    const MemberCard = ({ member, size = 'normal', showCrown = false, bgColor = 'bg-white' }: { member: TeamMember, size?: 'small' | 'normal' | 'large', showCrown?: boolean, bgColor?: string }) => {
+        const sizeClasses = {
+            small: 'w-10 h-10',
+            normal: 'w-12 h-12',
+            large: 'w-16 h-16'
+        };
+        return (
+            <div
+                onClick={() => handleMemberClick(member)}
+                className={`${standardCardClass} ${bgColor} hover:bg-gray-50 p-3 cursor-pointer hover:-translate-y-1 transition-transform flex items-center gap-3`}
+            >
+                <div className={`relative ${sizeClasses[size]} shrink-0`}>
+                    {member.photo ? (
+                        <Image src={member.photo} alt={member.name} fill className="rounded-full border-2 border-black object-cover" />
+                    ) : (
+                        <div className="w-full h-full rounded-full border-2 border-black bg-gray-100 flex items-center justify-center font-black text-sm">{member.name[0]}</div>
+                    )}
+                    {showCrown && <Crown size={14} className="absolute -top-2 -right-1 text-black fill-yellow-400" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                    <h4 className="font-black text-sm leading-tight truncate">{member.name}</h4>
+                    <p className="text-xs font-bold text-gray-500 uppercase truncate">{member.title}</p>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <section ref={sectionRef} id="team" className="relative py-20 bg-white border-b-4 border-black min-h-screen">
@@ -139,160 +186,258 @@ export default function Team() {
                     </Link>
                 </div>
 
-                {/* 1. Root Node: Management */}
-                <div className="flex flex-col items-center relative z-10">
-                    <div className={`${standardCardClass} bg-white p-4 sm:p-6 md:p-8 max-w-2xl w-full text-center relative z-10`}>
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white px-3 py-1 sm:px-4 font-black uppercase text-xs sm:text-sm -rotate-2 shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
+                {/* ==================== MOBILE VIEW ==================== */}
+                <div className="lg:hidden">
+                    {/* Management Section */}
+                    <div className={`${standardCardClass} p-4 mb-4`}>
+                        <div className="bg-black text-white px-3 py-1 font-black uppercase text-xs inline-block mb-4">
                             {language === 'tr' ? 'YÖNETİM' : 'MANAGEMENT'}
                         </div>
-                        <div className="flex justify-center gap-4 sm:gap-8 md:gap-16">
+                        <div className="space-y-3">
                             {management.map(m => (
-                                <div key={m._id} className="flex flex-col items-center cursor-pointer group" onClick={() => handleMemberClick(m)}>
-                                    <div className="relative w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 mb-2 sm:mb-3">
-                                        <div className="absolute inset-0 bg-black rounded-full translate-x-1 translate-y-1"></div>
+                                <div key={m._id} onClick={() => handleMemberClick(m)} className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer rounded transition-colors">
+                                    <div className="relative w-14 h-14 shrink-0">
+                                        <div className="absolute inset-0 bg-black rounded-full translate-x-0.5 translate-y-0.5"></div>
                                         {m.photo ? (
-                                            <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover relative bg-white group-hover:-translate-y-1 transition-transform" />
+                                            <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover relative bg-white" />
                                         ) : (
-                                            <div className="w-full h-full rounded-full border-2 border-black bg-gray-200 flex items-center justify-center relative font-black text-xl sm:text-2xl">
-                                                {m.name[0]}
-                                            </div>
+                                            <div className="w-full h-full rounded-full border-2 border-black bg-gray-200 flex items-center justify-center relative font-black text-lg">{m.name[0]}</div>
                                         )}
-                                        {m.role === 'president' && <Crown size={20} className="absolute -top-3 -right-1 sm:-top-4 sm:-right-2 text-neo-yellow drop-shadow-md rotate-12 sm:w-6 sm:h-6" fill="currentColor" />}
+                                        {m.role === 'president' && <Crown size={16} className="absolute -top-2 -right-1 text-neo-yellow drop-shadow-md rotate-12" fill="currentColor" />}
                                     </div>
-                                    <h3 className="font-black text-sm sm:text-lg leading-tight">{m.name}</h3>
-                                    <p className="text-xs sm:text-sm font-bold text-gray-500 uppercase">{m.title}</p>
+                                    <div className="min-w-0 flex-1">
+                                        <h3 className="font-black text-base leading-tight">{m.name}</h3>
+                                        <p className="text-xs font-bold text-gray-500 uppercase">{m.title}</p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    {/* Vertical Line Down - Extends to reach the horizontal bar below */}
-                    <div className="w-2 h-16 bg-black mt-[-4px] relative z-0"></div>
-                </div>
 
-                {/* 2. Branches: Tabs */}
-                {/* Wrapper padding-top must match the Vertical Line height to ensure overlap */}
-                <div className="relative mb-0">
-                    {/* Horizontal Connector Line - Visible only on LG (Desktop) where we force single row */}
-                    <div className="absolute top-0 left-0 right-0 h-2 bg-black hidden lg:block mx-auto max-w-6xl"></div>
+                    {/* Departments Accordion */}
+                    <div className="space-y-3">
+                        {departments.map(dept => {
+                            const isExpanded = expandedDepts.has(dept._id);
+                            const deptMembers = getDeptMembers(dept._id);
+                            const deptLead = deptMembers.find(m => m.role === 'head');
+                            const deptOthers = deptMembers.filter(m => m.role !== 'head');
 
-                    {/* Tabs Container - Grid for better control. Tree lines enabled only for LG+. */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 pt-8 md:pt-12 relative w-full max-w-7xl mx-auto">
-                        {departments.map((dept, idx) => {
-                            const isActive = activeDeptId === dept._id;
                             return (
-                                <div key={dept._id} className="flex flex-col items-center relative group w-full">
-                                    {/* Vertical Line Up to Connector */}
-                                    <div className="w-2 bg-black absolute -top-[48px] bottom-[100%] hidden lg:block" style={{ height: '48px' }}></div>
-
+                                <div key={dept._id} className={`${standardCardClass} overflow-hidden`}>
+                                    {/* Department Header */}
                                     <button
-                                        onClick={() => setActiveDeptId(dept._id)}
-                                        className={`
-                                             ${standardCardClass} w-full px-4 py-3 font-black uppercase text-xs sm:text-sm lg:text-base transition-all duration-200 relative flex items-center justify-center
-                                             ${isActive ? `${dept.color} -translate-y-1 shadow-[5px_6px_0px_black] z-30` : 'bg-white hover:bg-gray-50 z-10'}
-                                         `}
+                                        onClick={() => toggleDept(dept._id)}
+                                        className={`w-full px-4 py-3 font-black uppercase text-sm flex items-center justify-between ${isExpanded ? dept.color : 'bg-white'} transition-colors`}
                                     >
-                                        <span className="flex items-center gap-2 text-center">
+                                        <span className="flex items-center gap-2">
                                             {iconMap[dept.icon]}
                                             <span>{language === 'en' && dept.nameEn ? dept.nameEn : dept.name}</span>
                                         </span>
+                                        <span className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-gray-500">({deptMembers.length})</span>
+                                            {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                                        </span>
                                     </button>
-                                    {/* Vertical Line Down if Active - Absolute positioning with Z-Index sandwich */}
-                                    {isActive && (
-                                        <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-16 bg-black -mt-4 z-0"></div>
+
+                                    {/* Department Content */}
+                                    {isExpanded && (
+                                        <div className="p-4 border-t-2 border-black bg-gray-50">
+                                            {/* Description */}
+                                            <p className="text-sm text-gray-600 mb-4">
+                                                {language === 'en' && dept.descriptionEn ? dept.descriptionEn : dept.description}
+                                            </p>
+
+                                            {/* Members List */}
+                                            <div className="space-y-2">
+                                                {deptLead && (
+                                                    <MemberCard member={deptLead} size="normal" showCrown bgColor={dept.color} />
+                                                )}
+                                                {deptOthers.map(m => (
+                                                    <MemberCard key={m._id} member={m} size="small" />
+                                                ))}
+                                                {deptMembers.length === 0 && (
+                                                    <p className="text-center text-gray-400 italic text-sm py-4">
+                                                        {language === 'tr' ? 'Ekip arkadaşları yakında eklenecek.' : 'Team members joining soon.'}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             );
                         })}
                     </div>
+
+                    {/* Join Button for Mobile */}
+                    <div className="mt-6">
+                        <Link
+                            href="/apply"
+                            className="w-full bg-neo-yellow border-4 border-black px-6 py-4 font-black text-lg shadow-neo hover:shadow-none transition-all flex items-center justify-center gap-2"
+                        >
+                            <span>{language === 'tr' ? 'BİZE KATILIN' : 'JOIN US'}</span>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </Link>
+                    </div>
                 </div>
 
-                {/* 3. Leaves: Content Area */}
-                {activeDept && (
-                    <div className="relative animate-in fade-in slide-in-from-bottom-4 duration-500 mt-4">
-                        <div className={`${standardCardClass} bg-white p-8 md:p-12 relative z-10 min-h-[400px]`}>
-                            {/* Dept Info */}
-                            <div className="text-center mb-0">
-                                <h2 className="text-3xl font-black uppercase mb-3 flex items-center justify-center gap-3">
-                                    {iconMap[activeDept.icon]}
-                                    {language === 'en' && activeDept.nameEn ? activeDept.nameEn : activeDept.name}
-                                </h2>
-                                <p className="text-lg font-bold text-gray-600 max-w-2xl mx-auto">
-                                    {language === 'en' && activeDept.descriptionEn ? activeDept.descriptionEn : activeDept.description}
-                                </p>
+                {/* ==================== DESKTOP VIEW (Tree Hierarchy) ==================== */}
+                <div className="hidden lg:block">
+                    {/* 1. Root Node: Management */}
+                    <div className="flex flex-col items-center relative z-10">
+                        <div className={`${standardCardClass} bg-white p-8 max-w-2xl w-full text-center relative z-10`}>
+                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white px-4 font-black uppercase text-sm -rotate-2 shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
+                                {language === 'tr' ? 'YÖNETİM' : 'MANAGEMENT'}
                             </div>
-
-                            {/* Tree Layout Inside Dept */}
-                            <div className="flex flex-col items-center">
-                                {/* Lead Node */}
-                                {lead ? (
-                                    <div className="mb-0 flex flex-col items-center relative">
-                                        {/* Connector from Header to Lead */}
-                                        <div className="w-1 h-8 bg-black"></div>
-
-                                        <div
-                                            onClick={() => handleMemberClick(lead)}
-                                            className={`${standardCardClass} ${activeDept.color} p-4 w-64 flex items-center gap-4 cursor-pointer hover:-translate-y-1 transition-transform bg-opacity-20 relative z-10`}
-                                        >
-                                            <div className="relative w-16 h-16 shrink-0">
-                                                {lead.photo ? (
-                                                    <Image src={lead.photo} alt={lead.name} fill className="rounded-full border-2 border-black object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full rounded-full border-2 border-black bg-white flex items-center justify-center font-black">{lead.name[0]}</div>
-                                                )}
-                                                <Crown size={16} className="absolute -top-2 -right-1 text-black fill-yellow-400" />
-                                            </div>
-                                            <div className="min-w-0">
-                                                <h3 className="font-black text-black leading-tight truncate">{lead.name}</h3>
-                                                <p className="text-xs font-bold text-black/70 uppercase break-words">{lead.title}</p>
-                                            </div>
-                                        </div>
-                                        {otherMembers.length > 0 && <div className="w-1 h-8 bg-black mt-[-4px] relative z-0"></div>}
-                                    </div>
-                                ) : (
-                                    // No Lead - Connect Header to Grid directly
-                                    otherMembers.length > 0 && <div className="w-1 h-12 bg-black"></div>
-                                )}
-
-                                {/* Members Grid */}
-                                {otherMembers.length > 0 ? (
-                                    <div className="relative w-full">
-                                        {/* Horizontal Line for Members */}
-                                        <div className="absolute top-0 left-10 right-10 h-1 bg-black hidden md:block"></div>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 pt-6">
-                                            {otherMembers.map((m, idx) => (
-                                                <div key={m._id} className="flex flex-col items-center relative group">
-                                                    {/* Connection Line */}
-                                                    <div className="w-1 h-6 bg-black absolute -top-6 hidden md:block"></div>
-
-                                                    <div
-                                                        onClick={() => handleMemberClick(m)}
-                                                        className={`${standardCardClass} bg-white hover:bg-gray-50 p-3 w-full cursor-pointer hover:-translate-y-1 transition-transform flex flex-col items-center text-center h-full`}
-                                                    >
-                                                        <div className="relative w-12 h-12 mb-2">
-                                                            {m.photo ? (
-                                                                <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover" />
-                                                            ) : (
-                                                                <div className="w-full h-full rounded-full border-2 border-black bg-gray-100 flex items-center justify-center font-bold text-sm">{m.name[0]}</div>
-                                                            )}
-                                                        </div>
-                                                        <h4 className="font-black text-sm leading-tight mb-1">{m.name}</h4>
-                                                        <p className="text-[10px] font-bold text-gray-500 uppercase leading-tight line-clamp-2">{m.title}</p>
-                                                    </div>
+                            <div className="flex justify-center gap-16">
+                                {management.map(m => (
+                                    <div key={m._id} className="flex flex-col items-center cursor-pointer group" onClick={() => handleMemberClick(m)}>
+                                        <div className="relative w-32 h-32 mb-3">
+                                            <div className="absolute inset-0 bg-black rounded-full translate-x-1 translate-y-1"></div>
+                                            {m.photo ? (
+                                                <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover relative bg-white group-hover:-translate-y-1 transition-transform" />
+                                            ) : (
+                                                <div className="w-full h-full rounded-full border-2 border-black bg-gray-200 flex items-center justify-center relative font-black text-2xl">
+                                                    {m.name[0]}
                                                 </div>
-                                            ))}
+                                            )}
+                                            {m.role === 'president' && <Crown size={20} className="absolute -top-4 -right-2 text-neo-yellow drop-shadow-md rotate-12 w-6 h-6" fill="currentColor" />}
                                         </div>
+                                        <h3 className="font-black text-lg leading-tight">{m.name}</h3>
+                                        <p className="text-sm font-bold text-gray-500 uppercase">{m.title}</p>
                                     </div>
-                                ) : (
-                                    <div className="text-center py-8">
-                                        <span className="font-bold text-gray-400 italic">
-                                            {language === 'tr' ? 'Ekip arkadaşları yakında eklenecek.' : 'Team members joining soon.'}
-                                        </span>
-                                    </div>
-                                )}
+                                ))}
                             </div>
                         </div>
+                        {/* Vertical Line Down */}
+                        <div className="w-2 h-16 bg-black mt-[-4px] relative z-0"></div>
                     </div>
-                )}
+
+                    {/* 2. Branches: Tabs */}
+                    <div className="relative mb-0">
+                        {/* Horizontal Connector Line */}
+                        <div className="absolute top-0 left-0 right-0 h-2 bg-black mx-auto max-w-6xl"></div>
+
+                        {/* Tabs Container */}
+                        <div className="grid grid-cols-4 gap-8 pt-12 relative w-full max-w-7xl mx-auto">
+                            {departments.map((dept) => {
+                                const isActive = activeDeptId === dept._id;
+                                return (
+                                    <div key={dept._id} className="flex flex-col items-center relative group w-full">
+                                        {/* Vertical Line Up to Connector */}
+                                        <div className="w-2 bg-black absolute -top-[48px] bottom-[100%]" style={{ height: '48px' }}></div>
+
+                                        <button
+                                            onClick={() => setActiveDeptId(dept._id)}
+                                            className={`
+                                                 ${standardCardClass} w-full px-4 py-3 font-black uppercase text-base transition-all duration-200 relative flex items-center justify-center
+                                                 ${isActive ? `${dept.color} -translate-y-1 shadow-[5px_6px_0px_black] z-30` : 'bg-white hover:bg-gray-50 z-10'}
+                                             `}
+                                        >
+                                            <span className="flex items-center gap-2 text-center">
+                                                {iconMap[dept.icon]}
+                                                <span>{language === 'en' && dept.nameEn ? dept.nameEn : dept.name}</span>
+                                            </span>
+                                        </button>
+                                        {/* Vertical Line Down if Active */}
+                                        {isActive && (
+                                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-16 bg-black -mt-4 z-0"></div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* 3. Leaves: Content Area */}
+                    {activeDept && (
+                        <div className="relative animate-in fade-in slide-in-from-bottom-4 duration-500 mt-4">
+                            <div className={`${standardCardClass} bg-white p-12 relative z-10 min-h-[400px]`}>
+                                {/* Dept Info */}
+                                <div className="text-center mb-0">
+                                    <h2 className="text-3xl font-black uppercase mb-3 flex items-center justify-center gap-3">
+                                        {iconMap[activeDept.icon]}
+                                        {language === 'en' && activeDept.nameEn ? activeDept.nameEn : activeDept.name}
+                                    </h2>
+                                    <p className="text-lg font-bold text-gray-600 max-w-2xl mx-auto">
+                                        {language === 'en' && activeDept.descriptionEn ? activeDept.descriptionEn : activeDept.description}
+                                    </p>
+                                </div>
+
+                                {/* Tree Layout Inside Dept */}
+                                <div className="flex flex-col items-center">
+                                    {/* Lead Node */}
+                                    {lead ? (
+                                        <div className="mb-0 flex flex-col items-center relative">
+                                            {/* Connector from Header to Lead */}
+                                            <div className="w-1 h-8 bg-black"></div>
+
+                                            <div
+                                                onClick={() => handleMemberClick(lead)}
+                                                className={`${standardCardClass} ${activeDept.color} p-4 w-64 flex items-center gap-4 cursor-pointer hover:-translate-y-1 transition-transform bg-opacity-20 relative z-10`}
+                                            >
+                                                <div className="relative w-16 h-16 shrink-0">
+                                                    {lead.photo ? (
+                                                        <Image src={lead.photo} alt={lead.name} fill className="rounded-full border-2 border-black object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full rounded-full border-2 border-black bg-white flex items-center justify-center font-black">{lead.name[0]}</div>
+                                                    )}
+                                                    <Crown size={16} className="absolute -top-2 -right-1 text-black fill-yellow-400" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h3 className="font-black text-black leading-tight truncate">{lead.name}</h3>
+                                                    <p className="text-xs font-bold text-black/70 uppercase break-words">{lead.title}</p>
+                                                </div>
+                                            </div>
+                                            {otherMembers.length > 0 && <div className="w-1 h-8 bg-black mt-[-4px] relative z-0"></div>}
+                                        </div>
+                                    ) : (
+                                        // No Lead - Connect Header to Grid directly
+                                        otherMembers.length > 0 && <div className="w-1 h-12 bg-black"></div>
+                                    )}
+
+                                    {/* Members Grid */}
+                                    {otherMembers.length > 0 ? (
+                                        <div className="relative w-full">
+                                            {/* Horizontal Line for Members */}
+                                            <div className="absolute top-0 left-10 right-10 h-1 bg-black"></div>
+                                            <div className="grid grid-cols-5 gap-6 pt-6">
+                                                {otherMembers.map((m) => (
+                                                    <div key={m._id} className="flex flex-col items-center relative group">
+                                                        {/* Connection Line */}
+                                                        <div className="w-1 h-6 bg-black absolute -top-6"></div>
+
+                                                        <div
+                                                            onClick={() => handleMemberClick(m)}
+                                                            className={`${standardCardClass} bg-white hover:bg-gray-50 p-3 w-full cursor-pointer hover:-translate-y-1 transition-transform flex flex-col items-center text-center h-full`}
+                                                        >
+                                                            <div className="relative w-12 h-12 mb-2">
+                                                                {m.photo ? (
+                                                                    <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover" />
+                                                                ) : (
+                                                                    <div className="w-full h-full rounded-full border-2 border-black bg-gray-100 flex items-center justify-center font-bold text-sm">{m.name[0]}</div>
+                                                                )}
+                                                            </div>
+                                                            <h4 className="font-black text-sm leading-tight mb-1">{m.name}</h4>
+                                                            <p className="text-[10px] font-bold text-gray-500 uppercase leading-tight line-clamp-2">{m.title}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <span className="font-bold text-gray-400 italic">
+                                                {language === 'tr' ? 'Ekip arkadaşları yakında eklenecek.' : 'Team members joining soon.'}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {selectedMemberId && (
@@ -301,3 +446,4 @@ export default function Team() {
         </section>
     );
 }
+
