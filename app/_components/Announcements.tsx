@@ -220,7 +220,7 @@ export default function Announcements() {
           <>
             <button
               onClick={goToPrev}
-              className="absolute left-1 sm:left-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
+              className="hidden md:absolute left-1 sm:left-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
               style={{ transform: 'translateY(-50%)' }}
               aria-label="Previous announcement"
             >
@@ -230,7 +230,7 @@ export default function Announcements() {
             </button>
             <button
               onClick={goToNext}
-              className="absolute right-1 sm:right-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
+              className="hidden md:absolute right-1 sm:right-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
               style={{ transform: 'translateY(-50%)' }}
               aria-label="Next announcement"
             >
