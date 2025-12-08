@@ -57,6 +57,9 @@ export default function MembersSettingsPage() {
         nickname: '',
         phone: ''
     });
+    // Multi-select state
+    const [selectedMemberIds, setSelectedMemberIds] = useState<Set<string>>(new Set());
+    const [batchDeleting, setBatchDeleting] = useState(false);
 
     useEffect(() => {
         fetchMemberCount();
@@ -130,7 +133,7 @@ export default function MembersSettingsPage() {
     };
 
     const handleClearMembers = async () => {
-        if (!confirm('Tüm üye listesini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+        if (!confirm('Tüm kayıtsız üyeleri silmek istediğinizden emin misiniz? Kayıtlı üyeler korunacak.')) {
             return;
         }
 
@@ -146,8 +149,10 @@ export default function MembersSettingsPage() {
 
             if (res.ok) {
                 setMemberMessage(`✅ ${data.message}`);
-                setMemberCount(0);
-                setMembers([]);
+                fetchMemberCount();
+                if (showMembers) {
+                    fetchMembers(memberSearch, 1);
+                }
             } else {
                 setMemberMessage(`❌ ${data.error || 'Silme başarısız'}`);
             }
@@ -156,6 +161,68 @@ export default function MembersSettingsPage() {
             setMemberMessage('❌ Silme sırasında bir hata oluştu.');
         } finally {
             setClearingMembers(false);
+        }
+    };
+
+    const handleBatchDelete = async () => {
+        if (selectedMemberIds.size === 0) return;
+
+        if (!confirm(`Seçili ${selectedMemberIds.size} üyeyi silmek istediğinizden emin misiniz? Kayıtlı üyeler korunacak.`)) {
+            return;
+        }
+
+        setBatchDeleting(true);
+        setMemberMessage('');
+
+        try {
+            const res = await fetch('/api/members/batch', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memberIds: Array.from(selectedMemberIds) })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setMemberMessage(`✅ ${data.message}`);
+                setSelectedMemberIds(new Set());
+                fetchMemberCount();
+                fetchMembers(memberSearch, currentPage);
+            } else {
+                setMemberMessage(`❌ ${data.error || 'Silme başarısız'}`);
+            }
+        } catch (error) {
+            console.error('Hata:', error);
+            setMemberMessage('❌ Silme sırasında bir hata oluştu.');
+        } finally {
+            setBatchDeleting(false);
+        }
+    };
+
+    const toggleMemberSelection = (memberId: string, isRegistered: boolean) => {
+        if (isRegistered) return; // Kayıtlı üyeler seçilemez
+
+        setSelectedMemberIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(memberId)) {
+                newSet.delete(memberId);
+            } else {
+                newSet.add(memberId);
+            }
+            return newSet;
+        });
+    };
+
+    const toggleSelectAll = () => {
+        const selectableMembers = members.filter(m => !m.isRegistered);
+        const allSelected = selectableMembers.every(m => selectedMemberIds.has(m._id));
+
+        if (allSelected) {
+            // Deselect all
+            setSelectedMemberIds(new Set());
+        } else {
+            // Select all non-registered
+            setSelectedMemberIds(new Set(selectableMembers.map(m => m._id)));
         }
     };
 
@@ -255,13 +322,22 @@ export default function MembersSettingsPage() {
                         {showMembers ? 'Listeyi Gizle' : 'Üye Listesi'}
                     </button>
 
+                    {selectedMemberIds.size > 0 && (
+                        <button
+                            onClick={handleBatchDelete}
+                            disabled={batchDeleting}
+                            className="inline-flex items-center px-4 py-3 border-2 border-black shadow-neo text-sm font-black uppercase text-white bg-orange-600 hover:bg-orange-700 hover:shadow-none disabled:opacity-50"
+                        >
+                            {batchDeleting ? 'Siliniyor...' : `🗑️ Seçilenleri Sil (${selectedMemberIds.size})`}
+                        </button>
+                    )}
                     {memberCount > 0 && (
                         <button
                             onClick={handleClearMembers}
                             disabled={clearingMembers}
                             className="inline-flex items-center px-4 py-3 border-2 border-black shadow-neo text-sm font-black uppercase text-white bg-red-600 hover:bg-red-700 hover:shadow-none disabled:opacity-50 ml-auto"
                         >
-                            {clearingMembers ? 'Siliniyor...' : '🗑️ Tümünü Sil'}
+                            {clearingMembers ? 'Siliniyor...' : '🗑️ Kayıtsızları Sil'}
                         </button>
                     )}
                 </div>
@@ -326,6 +402,16 @@ export default function MembersSettingsPage() {
                                     <table className="min-w-full divide-y-2 divide-black">
                                         <thead className="bg-gray-100">
                                             <tr>
+                                                <th className="px-3 py-3 text-center text-xs font-black text-black uppercase w-10">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={members.filter(m => !m.isRegistered).length > 0 &&
+                                                            members.filter(m => !m.isRegistered).every(m => selectedMemberIds.has(m._id))}
+                                                        onChange={toggleSelectAll}
+                                                        className="w-4 h-4 accent-orange-600 cursor-pointer"
+                                                        title="Tüm kayıtsız üyeleri seç"
+                                                    />
+                                                </th>
                                                 <th className="px-4 py-3 text-left text-xs font-black text-black uppercase">Öğrenci No</th>
                                                 <th className="px-4 py-3 text-left text-xs font-black text-black uppercase">Ad Soyad</th>
                                                 <th className="px-4 py-3 text-left text-xs font-black text-black uppercase">Takma Ad</th>
@@ -339,19 +425,32 @@ export default function MembersSettingsPage() {
                                             {members.map((member) => (
                                                 <tr
                                                     key={member._id}
-                                                    onClick={() => {
-                                                        setSelectedMember(member);
-                                                        setEditingMember(member);
-                                                    }}
-                                                    className={`cursor-pointer transition-colors ${member.isTestAccount ? 'bg-yellow-50 hover:bg-yellow-100 border-l-4 border-l-yellow-400' : 'hover:bg-blue-50'}`}
+                                                    className={`transition-colors ${member.isTestAccount ? 'bg-yellow-50 hover:bg-yellow-100 border-l-4 border-l-yellow-400' : 'hover:bg-blue-50'} ${selectedMemberIds.has(member._id) ? 'bg-orange-100' : ''}`}
                                                 >
-                                                    <td className="px-4 py-3 text-sm font-bold">
+                                                    <td className="px-3 py-3 text-center">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedMemberIds.has(member._id)}
+                                                            onChange={() => toggleMemberSelection(member._id, member.isRegistered || false)}
+                                                            disabled={member.isRegistered}
+                                                            className="w-4 h-4 accent-orange-600 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            title={member.isRegistered ? 'Kayıtlı üyeler silinemez' : 'Silmek için seç'}
+                                                        />
+                                                    </td>
+                                                    <td
+                                                        className="px-4 py-3 text-sm font-bold cursor-pointer"
+                                                        onClick={() => {
+                                                            setSelectedMember(member);
+                                                            setEditingMember(member);
+                                                        }}
+                                                    >
                                                         {member.isTestAccount && (
                                                             <span className="mr-2 text-xs bg-yellow-400 text-black px-1.5 py-0.5 font-black uppercase rounded-sm border border-black">TEST</span>
                                                         )}
                                                         {member.studentNo}
                                                     </td>
-                                                    <td className="px-4 py-3 text-sm font-bold">{member.fullName}</td>
+                                                    <td className="px-4 py-3 text-sm font-bold cursor-pointer" onClick={() => { setSelectedMember(member); setEditingMember(member); }}>{member.fullName}</td>
                                                     <td className="px-4 py-3 text-sm text-gray-600 font-medium">{member.nickname || '-'}</td>
                                                     <td className="px-4 py-3 text-sm text-gray-600">{member.department || '-'}</td>
                                                     <td className="px-4 py-3 text-sm text-gray-600 font-mono">{member.phone || '-'}</td>

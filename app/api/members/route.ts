@@ -191,16 +191,25 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// DELETE - Clear all members
+// DELETE - Clear all non-registered members (registered members are protected)
 export async function DELETE() {
     try {
         await connectDB();
 
-        const result = await Member.deleteMany({});
+        // Count protected members (registered users)
+        const protectedCount = await Member.countDocuments({ isRegistered: true });
+
+        // Only delete non-registered members
+        const result = await Member.deleteMany({ isRegistered: { $ne: true } });
+
+        const message = protectedCount > 0
+            ? `Kayıtsız üyeler silindi. ${protectedCount} kayıtlı üye korundu.`
+            : 'Tüm kayıtsız üyeler silindi';
 
         return NextResponse.json({
-            message: 'Tüm üye listesi temizlendi',
-            count: result.deletedCount
+            message,
+            deletedCount: result.deletedCount,
+            protectedCount
         });
     } catch (error) {
         console.error('Error deleting members:', error);
