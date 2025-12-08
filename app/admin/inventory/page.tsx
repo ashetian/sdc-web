@@ -15,6 +15,7 @@ import {
     X,
     Filter
 } from 'lucide-react';
+import { SkeletonTable } from '@/app/_components/Skeleton';
 
 interface InventoryItem {
     _id: string;
@@ -281,7 +282,7 @@ export default function InventoryPage() {
                     </thead>
                     <tbody className="divide-y-2 divide-black">
                         {loading ? (
-                            <tr><td colSpan={5} className="p-8 text-center font-bold">Yükleniyor...</td></tr>
+                            <tr><td colSpan={5}><SkeletonTable rows={5} cols={5} /></td></tr>
                         ) : displayItems.length === 0 ? (
                             <tr><td colSpan={5} className="p-8 text-center font-bold text-gray-500">Kayıt bulunamadı.</td></tr>
                         ) : (

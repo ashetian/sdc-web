@@ -7,6 +7,7 @@ import ShareButtons from "../../_components/ShareButtons";
 import CommentSection from "../../_components/CommentSection";
 import BookmarkButton from "../../_components/BookmarkButton";
 import LikeButton from "../../_components/LikeButton";
+import { SkeletonGallery, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 
 interface Announcement {
   _id: string;
@@ -102,9 +103,10 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neo-purple">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
-      </div>
+      <SkeletonFullPage>
+        <SkeletonPageHeader />
+        <SkeletonGallery />
+      </SkeletonFullPage>
     );
   }
 

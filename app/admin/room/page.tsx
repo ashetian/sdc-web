@@ -70,8 +70,8 @@ export default function RoomStatus() {
             <div className="bg-white border-4 border-black shadow-neo-lg p-6 sm:p-8 space-y-8 max-w-2xl">
 
                 {/* 1. Odamız Var Mı? */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 border-2 border-black">
-                    <div className="space-y-1">
+                <div className="flex items-center justify-between p-4 bg-gray-50 border-2 border-black gap-4">
+                    <div className="space-y-1 flex-1">
                         <label className="text-lg font-black flex items-center gap-2">
                             <MapPin size={24} />
                             Fiziksel Oda Mevcut mu?
@@ -83,14 +83,14 @@ export default function RoomStatus() {
                     <button
                         onClick={() => updateSetting('club_room_exists', settings.club_room_exists === 'true' ? 'false' : 'true')}
                         className={`
-                            relative inline-flex h-8 w-16 items-center rounded-full border-2 border-black transition-colors focus:outline-none
-                            ${settings.club_room_exists === 'true' ? 'bg-neo-green' : 'bg-gray-200'}
+                            relative inline-flex h-10 w-20 flex-shrink-0 items-center rounded-full border-4 border-black transition-colors focus:outline-none
+                            ${settings.club_room_exists === 'true' ? 'bg-neo-green' : 'bg-gray-300'}
                         `}
                     >
                         <span
                             className={`
-                                inline-block h-6 w-6 transform rounded-full bg-white border-2 border-black transition-transform
-                                ${settings.club_room_exists === 'true' ? 'translate-x-8' : 'translate-x-1'}
+                                inline-block h-6 w-6 transform rounded-full bg-white border-2 border-black transition-transform duration-200
+                                ${settings.club_room_exists === 'true' ? 'translate-x-10' : 'translate-x-1'}
                             `}
                         />
                     </button>
@@ -114,17 +114,17 @@ export default function RoomStatus() {
                                 className="relative focus:outline-none transform transition-transform active:scale-95"
                             >
                                 {/* Custom Switch/Lever Design */}
-                                <div className={`w-32 h-16 rounded-full border-4 border-black relative transition-colors ${settings.club_room_is_open === 'true' ? 'bg-neo-green' : 'bg-red-500'}`}>
+                                <div className={`w-28 h-14 rounded-full border-4 border-black relative transition-colors ${settings.club_room_is_open === 'true' ? 'bg-neo-green' : 'bg-red-500'}`}>
                                     <div className={`
-                                        absolute top-1 left-1 w-12 h-12 bg-white border-4 border-black rounded-full shadow-sm transition-transform duration-300
-                                        ${settings.club_room_is_open === 'true' ? 'translate-x-16' : 'translate-x-0'}
+                                        absolute top-1 w-10 h-10 bg-white border-4 border-black rounded-full shadow-sm transition-all duration-300
+                                        ${settings.club_room_is_open === 'true' ? 'left-[calc(100%-2.75rem)]' : 'left-1'}
                                     `}>
                                         {/* Status Icon inside Knob */}
                                         <div className="absolute inset-0 flex items-center justify-center">
                                             {submitting ? (
                                                 <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                                             ) : (
-                                                settings.club_room_is_open === 'true' ? <ToggleRight size={24} /> : <ToggleLeft size={24} />
+                                                settings.club_room_is_open === 'true' ? <ToggleRight size={20} /> : <ToggleLeft size={20} />
                                             )}
                                         </div>
                                     </div>

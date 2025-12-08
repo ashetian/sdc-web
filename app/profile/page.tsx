@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 import Image from 'next/image';
 import Link from 'next/link';
 import { FolderGit2, Bookmark, Home, LogOut } from 'lucide-react';
@@ -233,9 +234,10 @@ export default function ProfilePage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-yellow-400 border-t-transparent"></div>
-            </div>
+            <SkeletonFullPage>
+                <SkeletonPageHeader />
+                <SkeletonForm />
+            </SkeletonFullPage>
         );
     }
 

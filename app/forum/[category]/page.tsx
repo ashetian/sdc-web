@@ -3,6 +3,7 @@ import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { MessageSquare, Clock, TrendingUp, Eye, ChevronLeft, Pin } from "lucide-react";
 import { useLanguage } from "../../_context/LanguageContext";
+import { SkeletonList, SkeletonPageHeader } from "../../_components/Skeleton";
 
 interface Category {
   _id: string;
@@ -137,11 +138,8 @@ export default function CategoryPage({ params }: PageProps) {
     return (
       <main className="min-h-screen bg-neo-cyan pt-24 pb-16 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center py-20">
-            <div className="inline-block bg-white border-4 border-black shadow-neo px-6 py-3 animate-pulse">
-              <span className="text-xl font-black">{language === "tr" ? "Yükleniyor..." : "Loading..."}</span>
-            </div>
-          </div>
+          <SkeletonPageHeader />
+          <SkeletonList items={6} />
         </div>
       </main>
     );
@@ -193,11 +191,10 @@ export default function CategoryPage({ params }: PageProps) {
               <button
                 key={s}
                 onClick={() => { setSort(s); setPage(1); }}
-                className={`px-4 py-2 font-bold border-2 border-black transition-all ${
-                  sort === s
+                className={`px-4 py-2 font-bold border-2 border-black transition-all ${sort === s
                     ? "bg-black text-white"
                     : "bg-white text-black hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {s === "latest" ? l.sortLatest : s === "popular" ? l.sortPopular : l.sortActive}
               </button>
@@ -278,9 +275,8 @@ export default function CategoryPage({ params }: PageProps) {
               <button
                 key={p}
                 onClick={() => setPage(p)}
-                className={`w-10 h-10 font-bold border-2 border-black ${
-                  page === p ? "bg-black text-white" : "bg-white text-black hover:bg-gray-100"
-                }`}
+                className={`w-10 h-10 font-bold border-2 border-black ${page === p ? "bg-black text-white" : "bg-white text-black hover:bg-gray-100"
+                  }`}
               >
                 {p}
               </button>

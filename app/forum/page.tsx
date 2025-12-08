@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { 
-  MessageSquare, Clock, TrendingUp, MessageCircle, Rocket, 
+import {
+  MessageSquare, Clock, TrendingUp, MessageCircle, Rocket,
   HelpCircle, Calendar, Briefcase, BookOpen, Pin, LucideIcon
 } from "lucide-react";
 import { useLanguage } from "../_context/LanguageContext";
+import { SkeletonCardGrid, SkeletonPageHeader, SkeletonList } from "../_components/Skeleton";
 
 // Icon mapping for dynamic rendering
 const iconMap: Record<string, LucideIcon> = {
@@ -156,9 +157,13 @@ export default function ForumPage() {
     return (
       <main className="min-h-screen bg-neo-cyan pt-24 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center py-20">
-            <div className="inline-block bg-white border-4 border-black shadow-neo px-6 py-3 animate-pulse">
-              <span className="text-xl font-black">{language === "tr" ? "Yükleniyor..." : "Loading..."}</span>
+          <SkeletonPageHeader />
+          <div className="lg:grid lg:grid-cols-3 gap-8 mt-8">
+            <div className="lg:col-span-2">
+              <SkeletonCardGrid items={4} cols={2} />
+            </div>
+            <div>
+              <SkeletonList items={5} />
             </div>
           </div>
         </div>

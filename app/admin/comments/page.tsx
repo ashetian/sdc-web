@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AlertTriangle, Trash2, RotateCcw } from 'lucide-react';
+import { SkeletonList } from "@/app/_components/Skeleton";
 
 interface Comment {
     _id: string;
@@ -218,9 +219,7 @@ export default function AdminCommentsPage() {
             {/* Comments List */}
             <div className="bg-white border-4 border-black shadow-neo p-6">
                 {loading ? (
-                    <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-4 border-black border-t-transparent mx-auto"></div>
-                    </div>
+                    <SkeletonList items={4} />
                 ) : comments.length === 0 ? (
                     <p className="text-gray-500 text-center py-8">
                         {showDeleted ? 'Silinmiş yorum bulunamadı.' : 'Yorum bulunamadı.'}

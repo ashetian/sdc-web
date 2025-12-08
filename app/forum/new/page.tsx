@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Send, Eye } from "lucide-react";
+import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useLanguage } from "../../_context/LanguageContext";
@@ -126,8 +127,8 @@ function NewTopicForm() {
         const data = await res.json();
         // If there's a pending message, show it; otherwise redirect
         if (data.message) {
-          alert(language === "tr" 
-            ? "Konunuz admin onayına gönderildi. Onaylandıktan sonra yayınlanacak." 
+          alert(language === "tr"
+            ? "Konunuz admin onayına gönderildi. Onaylandıktan sonra yayınlanacak."
             : "Your topic has been submitted for admin approval."
           );
           router.push("/forum");
@@ -223,18 +224,16 @@ function NewTopicForm() {
                 <button
                   type="button"
                   onClick={() => setPreview(false)}
-                  className={`px-4 py-1 font-bold ${
-                    !preview ? "bg-black text-white" : "bg-white text-black"
-                  }`}
+                  className={`px-4 py-1 font-bold ${!preview ? "bg-black text-white" : "bg-white text-black"
+                    }`}
                 >
                   {l.write}
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreview(true)}
-                  className={`px-4 py-1 font-bold flex items-center gap-1 ${
-                    preview ? "bg-black text-white" : "bg-white text-black"
-                  }`}
+                  className={`px-4 py-1 font-bold flex items-center gap-1 ${preview ? "bg-black text-white" : "bg-white text-black"
+                    }`}
                 >
                   <Eye size={16} />
                   {l.preview}
@@ -284,11 +283,10 @@ function NewTopicForm() {
             <button
               type="submit"
               disabled={submitting}
-              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 border-4 border-black font-black text-xl uppercase transition-all ${
-                submitting
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-neo-green shadow-neo hover:-translate-y-1 hover:shadow-neo-lg"
-              }`}
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 border-4 border-black font-black text-xl uppercase transition-all ${submitting
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-neo-green shadow-neo hover:-translate-y-1 hover:shadow-neo-lg"
+                }`}
             >
               <Send size={22} />
               {submitting ? l.submitting : l.submit}
@@ -303,13 +301,10 @@ function NewTopicForm() {
 export default function NewTopicPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen bg-neo-lime pt-24 pb-16 px-4">
-        <div className="max-w-3xl mx-auto text-center py-20">
-          <div className="inline-block bg-white border-4 border-black shadow-neo px-6 py-3 animate-pulse">
-            <span className="text-xl font-black">Yükleniyor...</span>
-          </div>
-        </div>
-      </main>
+      <SkeletonFullPage>
+        <SkeletonPageHeader />
+        <SkeletonForm />
+      </SkeletonFullPage>
     }>
       <NewTopicForm />
     </Suspense>

@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useLanguage } from '../../_context/LanguageContext';
+import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 
 interface Election {
     _id: string;
@@ -266,11 +267,10 @@ export default function VotePage({ params }: { params: Promise<{ id: string }> }
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-neo-yellow flex items-center justify-center p-4">
-                <div className="bg-white border-4 border-black shadow-neo px-8 py-4">
-                    <span className="text-xl font-black animate-pulse">{l.loading}</span>
-                </div>
-            </div>
+            <SkeletonFullPage>
+                <SkeletonPageHeader />
+                <SkeletonForm />
+            </SkeletonFullPage>
         );
     }
 

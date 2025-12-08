@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
+import { SkeletonCardGrid, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 import ImageLightbox from "../../_components/ImageLightbox";
 import CommentSection from "../../_components/CommentSection";
 import BookmarkButton from "../../_components/BookmarkButton";
@@ -118,11 +119,10 @@ export default function AnnouncementPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neo-yellow py-20 flex items-center justify-center">
-        <div className="bg-white border-4 border-black shadow-neo px-8 py-6">
-          <div className="animate-pulse text-xl font-black">...</div>
-        </div>
-      </div>
+      <SkeletonFullPage>
+        <SkeletonPageHeader />
+        <SkeletonCardGrid />
+      </SkeletonFullPage>
     );
   }
 

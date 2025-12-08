@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { SkeletonTable } from "@/app/_components/Skeleton";
 
 interface AuditLogEntry {
     _id: string;
@@ -105,8 +106,8 @@ export default function AuditLogPage() {
                 </div>
 
                 {loading ? (
-                    <div className="bg-white border-4 border-black shadow-neo p-8 text-center">
-                        <p className="font-bold text-lg animate-pulse">Yükleniyor...</p>
+                    <div className="bg-white border-4 border-black shadow-neo p-4">
+                        <SkeletonTable rows={8} cols={5} />
                     </div>
                 ) : logs.length === 0 ? (
                     <div className="bg-white border-4 border-black shadow-neo p-8 text-center">

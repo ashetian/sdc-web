@@ -9,6 +9,7 @@ import {
   Eye, Pin, Lock, Check, Send
 } from "lucide-react";
 import { useLanguage } from "../../../_context/LanguageContext";
+import { SkeletonList, SkeletonPageHeader } from "../../../_components/Skeleton";
 
 interface Author {
   _id: string;
@@ -212,11 +213,8 @@ export default function TopicPage({ params }: PageProps) {
     return (
       <main className="min-h-screen bg-white pt-24 pb-16 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center py-20">
-            <div className="inline-block bg-neo-cyan border-4 border-black shadow-neo px-6 py-3 animate-pulse">
-              <span className="text-xl font-black">{language === "tr" ? "Yükleniyor..." : "Loading..."}</span>
-            </div>
-          </div>
+          <SkeletonPageHeader />
+          <SkeletonList items={5} />
         </div>
       </main>
     );
@@ -330,11 +328,10 @@ export default function TopicPage({ params }: PageProps) {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleVote(1)}
-                className={`p-2 border-2 border-black transition-all ${
-                  userVote === 1
+                className={`p-2 border-2 border-black transition-all ${userVote === 1
                     ? "bg-neo-green"
                     : "bg-white hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 <ThumbsUp size={20} />
               </button>
@@ -343,11 +340,10 @@ export default function TopicPage({ params }: PageProps) {
               </span>
               <button
                 onClick={() => handleVote(-1)}
-                className={`p-2 border-2 border-black transition-all ${
-                  userVote === -1
+                className={`p-2 border-2 border-black transition-all ${userVote === -1
                     ? "bg-neo-pink"
                     : "bg-white hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 <ThumbsDown size={20} />
               </button>
@@ -388,9 +384,8 @@ export default function TopicPage({ params }: PageProps) {
               {replies.map((reply) => (
                 <article
                   key={reply._id}
-                  className={`border-4 border-black shadow-neo ${
-                    reply.isBestAnswer ? "bg-neo-green" : "bg-white"
-                  }`}
+                  className={`border-4 border-black shadow-neo ${reply.isBestAnswer ? "bg-neo-green" : "bg-white"
+                    }`}
                 >
                   {reply.isBestAnswer && (
                     <div className="px-4 py-2 border-b-4 border-black bg-black text-white flex items-center gap-2">
@@ -469,11 +464,10 @@ export default function TopicPage({ params }: PageProps) {
                 <button
                   type="submit"
                   disabled={submitting || !replyContent.trim()}
-                  className={`inline-flex items-center gap-2 px-6 py-3 border-4 border-black font-black uppercase transition-all ${
-                    submitting || !replyContent.trim()
+                  className={`inline-flex items-center gap-2 px-6 py-3 border-4 border-black font-black uppercase transition-all ${submitting || !replyContent.trim()
                       ? "bg-gray-300 cursor-not-allowed"
                       : "bg-neo-green shadow-neo hover:-translate-y-1 hover:shadow-neo-lg"
-                  }`}
+                    }`}
                 >
                   <Send size={18} />
                   {l.send}

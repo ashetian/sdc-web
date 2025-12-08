@@ -167,7 +167,7 @@ export default function NotificationsPage() {
 
     if (loading) {
         return (
-            <section className="min-h-screen bg-gray-100 py-8 px-4">
+            <section className="min-h-screen bg-gray-100 pt-24 py-8 px-4">
                 <div className="max-w-2xl mx-auto">
                     <SkeletonPageHeader />
                     <SkeletonNotifications items={8} />
@@ -177,7 +177,7 @@ export default function NotificationsPage() {
     }
 
     return (
-        <section className="min-h-screen bg-gray-100 py-8 px-4">
+        <section className="min-h-screen bg-gray-100 pt-24 py-8 px-4">
             <div className="max-w-2xl mx-auto">
                 {/* Header */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">

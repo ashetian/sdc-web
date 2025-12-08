@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "../_context/LanguageContext";
+import { SkeletonCardGrid, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 
 interface Article {
     slug: string;
@@ -67,9 +68,10 @@ export default function ArticlesPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-neo-yellow flex items-center justify-center">
-                <div className="w-16 h-16 border-4 border-black border-t-transparent animate-spin" />
-            </div>
+            <SkeletonFullPage>
+                <SkeletonPageHeader />
+                <SkeletonCardGrid />
+            </SkeletonFullPage>
         );
     }
 

@@ -140,7 +140,30 @@ export default function Team() {
         });
     };
 
-    if (loading) return null;
+    if (loading) {
+        return (
+            <section className="py-20 bg-neo-blue border-b-4 border-black scroll-mt-20" id="team">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="mb-12 text-center">
+                        <div className="h-12 w-48 bg-gray-200 animate-pulse mx-auto rounded mb-4"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="bg-white border-4 border-black shadow-neo p-4 animate-pulse">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 bg-gray-200 rounded-full border-2 border-black"></div>
+                                    <div className="flex-1">
+                                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     // Member card component for reuse
     const MemberCard = ({ member, size = 'normal', showCrown = false, bgColor = 'bg-white' }: { member: TeamMember, size?: 'small' | 'normal' | 'large', showCrown?: boolean, bgColor?: string }) => {

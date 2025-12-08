@@ -45,16 +45,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.9,
         },
         {
-            url: `${BASE_URL}/join`,
+            url: `${BASE_URL}/articles`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: `${BASE_URL}/projects`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: `${BASE_URL}/team`,
             lastModified: new Date(),
             changeFrequency: 'monthly',
             priority: 0.7,
         },
         {
-            url: `${BASE_URL}/kvkk`,
+            url: `${BASE_URL}/join`,
             lastModified: new Date(),
-            changeFrequency: 'yearly',
-            priority: 0.3,
+            changeFrequency: 'monthly',
+            priority: 0.7,
         },
         {
             url: `${BASE_URL}/code`,
@@ -66,7 +78,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             url: `${BASE_URL}/forum`,
             lastModified: new Date(),
             changeFrequency: 'daily',
-            priority: 0.9,
+            priority: 0.8,
+        },
+        {
+            url: `${BASE_URL}/kvkk`,
+            lastModified: new Date(),
+            changeFrequency: 'yearly',
+            priority: 0.3,
+        },
+        {
+            url: `${BASE_URL}/gizlilik`,
+            lastModified: new Date(),
+            changeFrequency: 'yearly',
+            priority: 0.3,
+        },
+        {
+            url: `${BASE_URL}/uyelik-sozlesmesi`,
+            lastModified: new Date(),
+            changeFrequency: 'yearly',
+            priority: 0.3,
         },
     ];
 

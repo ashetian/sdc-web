@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Calendar, BookOpen, Gift, Clock, AlertCircle, Sparkles } from "lucide-react";
+import { SkeletonList } from "@/app/_components/Skeleton";
 
 interface CalendarMarker {
     _id: string;
@@ -368,7 +369,7 @@ export default function AdminCalendarPage() {
                 {/* Markers List */}
                 <div className="bg-white border-4 border-black shadow-neo overflow-hidden">
                     {loading ? (
-                        <div className="p-8 text-center font-bold animate-pulse">Yükleniyor...</div>
+                        <SkeletonList items={5} />
                     ) : markers.length === 0 ? (
                         <div className="p-8 text-center">
                             <Calendar className="mx-auto mb-4 text-gray-400" size={48} />

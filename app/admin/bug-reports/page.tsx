@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Bug, Clock, CheckCircle, XCircle, Eye, Trash2, MessageSquare } from "lucide-react";
+import { SkeletonList } from "@/app/_components/Skeleton";
 
 interface BugReport {
     _id: string;
@@ -88,7 +89,7 @@ export default function BugReportsAdmin() {
 
     const deleteReport = async (id: string) => {
         if (!confirm('Bu bildirimi silmek istediğinizden emin misiniz?')) return;
-        
+
         try {
             const res = await fetch(`/api/admin/bug-reports/${id}`, {
                 method: 'DELETE',
@@ -134,9 +135,8 @@ export default function BugReportsAdmin() {
                         <button
                             key={key}
                             onClick={() => setFilter(key)}
-                            className={`p-4 border-4 border-black shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all ${
-                                filter === key ? 'bg-black text-white' : 'bg-white'
-                            }`}
+                            className={`p-4 border-4 border-black shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all ${filter === key ? 'bg-black text-white' : 'bg-white'
+                                }`}
                         >
                             <div className="flex items-center gap-2">
                                 <StatusIcon size={20} />
@@ -161,7 +161,7 @@ export default function BugReportsAdmin() {
             {/* Reports List */}
             <div className="bg-white border-4 border-black shadow-neo">
                 {loading ? (
-                    <div className="p-8 text-center text-gray-500">Yükleniyor...</div>
+                    <SkeletonList items={5} />
                 ) : reports.length === 0 ? (
                     <div className="p-8 text-center text-gray-500">
                         <Bug size={48} className="mx-auto mb-4 opacity-30" />
@@ -175,9 +175,8 @@ export default function BugReportsAdmin() {
                             return (
                                 <div
                                     key={report._id}
-                                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                                        selectedReport?._id === report._id ? 'bg-yellow-50' : ''
-                                    }`}
+                                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedReport?._id === report._id ? 'bg-yellow-50' : ''
+                                        }`}
                                     onClick={() => {
                                         setSelectedReport(report);
                                         setAdminNote(report.adminNote || '');

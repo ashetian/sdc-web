@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { SkeletonList, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 import {
   MessageSquare, Plus, Check, X, Trash2, Edit, Pin, Lock,
   MessageCircle, Rocket, HelpCircle, Calendar, Briefcase, BookOpen,
@@ -47,7 +48,7 @@ export default function ForumAdminPage() {
   const [pendingTopics, setPendingTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"pending" | "categories">("pending");
-  
+
   // Category form
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -110,11 +111,11 @@ export default function ForumAdminPage() {
 
   async function saveCategory() {
     try {
-      const url = editingCategory 
+      const url = editingCategory
         ? `/api/forum/categories/${editingCategory.slug}`
         : "/api/forum/categories";
       const method = editingCategory ? "PUT" : "POST";
-      
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -176,11 +177,10 @@ export default function ForumAdminPage() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center">
-        <div className="inline-block bg-neo-cyan border-4 border-black shadow-neo px-6 py-3 animate-pulse">
-          <span className="text-xl font-black">Yükleniyor...</span>
-        </div>
-      </div>
+      <SkeletonFullPage>
+        <SkeletonPageHeader />
+        <SkeletonList items={5} />
+      </SkeletonFullPage>
     );
   }
 
@@ -191,8 +191,8 @@ export default function ForumAdminPage() {
           <MessageSquare size={32} />
           Forum Yönetimi
         </h1>
-        <Link 
-          href="/forum" 
+        <Link
+          href="/forum"
           className="px-4 py-2 bg-gray-100 border-2 border-black font-bold hover:bg-gray-200"
         >
           Forumu Görüntüle →
@@ -203,21 +203,19 @@ export default function ForumAdminPage() {
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => setActiveTab("pending")}
-          className={`px-6 py-3 font-bold border-4 border-black ${
-            activeTab === "pending" 
-              ? "bg-neo-yellow shadow-neo" 
-              : "bg-white hover:bg-gray-100"
-          }`}
+          className={`px-6 py-3 font-bold border-4 border-black ${activeTab === "pending"
+            ? "bg-neo-yellow shadow-neo"
+            : "bg-white hover:bg-gray-100"
+            }`}
         >
           Onay Bekleyenler ({pendingTopics.length})
         </button>
         <button
           onClick={() => setActiveTab("categories")}
-          className={`px-6 py-3 font-bold border-4 border-black ${
-            activeTab === "categories" 
-              ? "bg-neo-cyan shadow-neo" 
-              : "bg-white hover:bg-gray-100"
-          }`}
+          className={`px-6 py-3 font-bold border-4 border-black ${activeTab === "categories"
+            ? "bg-neo-cyan shadow-neo"
+            : "bg-white hover:bg-gray-100"
+            }`}
         >
           Kategoriler ({categories.length})
         </button>
@@ -246,7 +244,7 @@ export default function ForumAdminPage() {
                     </div>
                     <h3 className="text-lg font-black mb-2">{topic.title}</h3>
                     <p className="text-gray-700 line-clamp-3">{topic.content.substring(0, 300)}...</p>
-                    <Link 
+                    <Link
                       href={`/forum/topic/${topic._id}`}
                       className="inline-flex items-center gap-1 text-sm font-bold text-blue-600 mt-2 hover:underline"
                     >
@@ -298,7 +296,7 @@ export default function ForumAdminPage() {
                       <input
                         type="text"
                         value={categoryForm.name}
-                        onChange={e => setCategoryForm({...categoryForm, name: e.target.value})}
+                        onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })}
                         className="w-full p-2 border-2 border-black"
                       />
                     </div>
@@ -307,7 +305,7 @@ export default function ForumAdminPage() {
                       <input
                         type="text"
                         value={categoryForm.nameEn}
-                        onChange={e => setCategoryForm({...categoryForm, nameEn: e.target.value})}
+                        onChange={e => setCategoryForm({ ...categoryForm, nameEn: e.target.value })}
                         className="w-full p-2 border-2 border-black"
                       />
                     </div>
@@ -317,7 +315,7 @@ export default function ForumAdminPage() {
                     <input
                       type="text"
                       value={categoryForm.slug}
-                      onChange={e => setCategoryForm({...categoryForm, slug: e.target.value})}
+                      onChange={e => setCategoryForm({ ...categoryForm, slug: e.target.value })}
                       className="w-full p-2 border-2 border-black"
                       placeholder="kategori-slug"
                     />
@@ -326,7 +324,7 @@ export default function ForumAdminPage() {
                     <label className="block font-bold mb-1">Açıklama</label>
                     <textarea
                       value={categoryForm.description}
-                      onChange={e => setCategoryForm({...categoryForm, description: e.target.value})}
+                      onChange={e => setCategoryForm({ ...categoryForm, description: e.target.value })}
                       className="w-full p-2 border-2 border-black"
                       rows={2}
                     />
@@ -339,10 +337,9 @@ export default function ForumAdminPage() {
                           <button
                             key={icon}
                             type="button"
-                            onClick={() => setCategoryForm({...categoryForm, icon})}
-                            className={`p-2 border-2 border-black ${
-                              categoryForm.icon === icon ? "bg-neo-yellow" : "bg-white"
-                            }`}
+                            onClick={() => setCategoryForm({ ...categoryForm, icon })}
+                            className={`p-2 border-2 border-black ${categoryForm.icon === icon ? "bg-neo-yellow" : "bg-white"
+                              }`}
                           >
                             <CategoryIcon name={icon} size={20} />
                           </button>
@@ -356,10 +353,9 @@ export default function ForumAdminPage() {
                           <button
                             key={color}
                             type="button"
-                            onClick={() => setCategoryForm({...categoryForm, color})}
-                            className={`w-8 h-8 ${color} border-2 ${
-                              categoryForm.color === color ? "border-black border-4" : "border-black"
-                            }`}
+                            onClick={() => setCategoryForm({ ...categoryForm, color })}
+                            className={`w-8 h-8 ${color} border-2 ${categoryForm.color === color ? "border-black border-4" : "border-black"
+                              }`}
                           />
                         ))}
                       </div>
@@ -370,7 +366,7 @@ export default function ForumAdminPage() {
                     <input
                       type="number"
                       value={categoryForm.order}
-                      onChange={e => setCategoryForm({...categoryForm, order: parseInt(e.target.value) || 0})}
+                      onChange={e => setCategoryForm({ ...categoryForm, order: parseInt(e.target.value) || 0 })}
                       className="w-24 p-2 border-2 border-black"
                     />
                   </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { SkeletonForm, SkeletonFullPage } from "@/app/_components/Skeleton";
 
 export default function SetPasswordPage({ params }: { params: Promise<{ token: string }> }) {
     const { token } = use(params);
@@ -90,12 +91,9 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
 
     if (validating) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-yellow-400 border-t-transparent mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Link doğrulanıyor...</p>
-                </div>
-            </div>
+            <SkeletonFullPage>
+                <SkeletonForm />
+            </SkeletonFullPage>
         );
     }
 

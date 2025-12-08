@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
+import { SkeletonList, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 
 interface Sponsor {
     _id: string;
@@ -167,9 +168,10 @@ export default function SponsorsAdminPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-yellow-400 border-t-transparent"></div>
-            </div>
+            <SkeletonFullPage>
+                <SkeletonPageHeader />
+                <SkeletonList items={4} />
+            </SkeletonFullPage>
         );
     }
 

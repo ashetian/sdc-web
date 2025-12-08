@@ -183,8 +183,16 @@ export default function NotificationBell() {
             {/* Notifications List */}
             <div className="overflow-y-auto flex-1">
                 {loading ? (
-                    <div className="p-4 text-center text-gray-500">
-                        {language === 'tr' ? 'Yükleniyor...' : 'Loading...'}
+                    <div className="p-3 space-y-3">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="flex gap-3 animate-pulse">
+                                <div className="w-8 h-8 bg-gray-200 rounded-full shrink-0"></div>
+                                <div className="flex-1 space-y-2">
+                                    <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                                    <div className="h-2 bg-gray-200 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : notifications.length === 0 ? (
                     <div className="p-8 text-center text-gray-500">
@@ -199,9 +207,8 @@ export default function NotificationBell() {
                             key={notification._id}
                             onClick={() => handleNotificationClick(notification)}
                             onTouchEnd={(e) => e.stopPropagation()}
-                            className={`p-3 sm:p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors flex gap-3 ${
-                                !notification.isRead ? 'bg-blue-50' : ''
-                            }`}
+                            className={`p-3 sm:p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors flex gap-3 ${!notification.isRead ? 'bg-blue-50' : ''
+                                }`}
                             style={{ touchAction: 'auto' }}
                         >
                             {/* Read indicator */}
@@ -284,7 +291,7 @@ export default function NotificationBell() {
 
             {/* Mobile Full Screen Modal */}
             {mounted && isOpen && createPortal(
-                <div 
+                <div
                     className="sm:hidden fixed inset-0 z-[100] bg-black/50 flex items-end"
                     onMouseDown={(e) => {
                         if (e.target === e.currentTarget) setIsOpen(false);
@@ -293,7 +300,7 @@ export default function NotificationBell() {
                         if (e.target === e.currentTarget) setIsOpen(false);
                     }}
                 >
-                    <div 
+                    <div
                         className="w-full bg-white border-t-4 border-black rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up"
                         onMouseDown={(e) => e.stopPropagation()}
                         onTouchEnd={(e) => e.stopPropagation()}

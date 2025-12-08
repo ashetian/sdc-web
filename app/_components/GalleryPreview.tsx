@@ -72,7 +72,26 @@ export default function GalleryPreview() {
     return a.date;
   };
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <section className="py-20 bg-neo-cyan border-b-4 border-black scroll-mt-20" id="gallery-preview">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <div className="h-12 w-48 bg-gray-200 animate-pulse mx-auto rounded"></div>
+          </div>
+          <div className="flex gap-8 overflow-x-auto py-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="min-w-[320px] max-w-xs bg-white border-4 border-black shadow-neo p-4 animate-pulse">
+                <div className="h-40 bg-gray-200 mb-3 border-2 border-black"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

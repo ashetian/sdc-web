@@ -12,14 +12,27 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://ktusdc.com'),
   title: {
-    default: 'SDC - Software Development Club | KTÜ',
-    template: '%s | SDC KTÜ',
+    default: 'KTÜ Yazılım Geliştirme Kulübü | Software Development Club',
+    template: '%s | KTÜ Yazılım Geliştirme Kulübü',
   },
-  description: 'Karadeniz Teknik Üniversitesi Yazılım Geliştirme Kulübü - Software Development Club. Yazılım geliştirme, programlama, etkinlikler ve daha fazlası.',
-  keywords: ['SDC', 'Software Development Club', 'KTÜ', 'Karadeniz Teknik Üniversitesi', 'yazılım', 'programlama', 'kulüp', 'öğrenci topluluğu'],
-  authors: [{ name: 'SDC - Software Development Club' }],
-  creator: 'SDC KTÜ',
-  publisher: 'SDC KTÜ',
+  description: 'KTÜ Yazılım Geliştirme Kulübü (SDC) - Karadeniz Teknik Üniversitesi\'nin resmi yazılım ve programlama topluluğu. Etkinlikler, workshoplar, projeler ve daha fazlası.',
+  keywords: [
+    'KTÜ Yazılım Geliştirme Kulübü',
+    'SDC',
+    'Software Development Club',
+    'KTÜ',
+    'Karadeniz Teknik Üniversitesi',
+    'yazılım kulübü',
+    'programlama kulübü',
+    'öğrenci topluluğu',
+    'yazılım geliştirme',
+    'kodlama',
+    'Trabzon',
+    'üniversite kulübü'
+  ],
+  authors: [{ name: 'KTÜ Yazılım Geliştirme Kulübü' }],
+  creator: 'KTÜ Yazılım Geliştirme Kulübü',
+  publisher: 'KTÜ Yazılım Geliştirme Kulübü',
   robots: {
     index: true,
     follow: true,
@@ -36,30 +49,36 @@ export const metadata: Metadata = {
     locale: 'tr_TR',
     alternateLocale: 'en_US',
     url: 'https://ktusdc.com',
-    siteName: 'SDC - Software Development Club',
-    title: 'SDC - Software Development Club | KTÜ',
-    description: 'Karadeniz Teknik Üniversitesi Yazılım Geliştirme Kulübü',
+    siteName: 'KTÜ Yazılım Geliştirme Kulübü',
+    title: 'KTÜ Yazılım Geliştirme Kulübü | Software Development Club',
+    description: 'Karadeniz Teknik Üniversitesi\'nin resmi yazılım ve programlama topluluğu. Etkinlikler, workshoplar ve projeler.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'SDC - Software Development Club',
+        alt: 'KTÜ Yazılım Geliştirme Kulübü',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SDC - Software Development Club | KTÜ',
-    description: 'Karadeniz Teknik Üniversitesi Yazılım Geliştirme Kulübü',
+    title: 'KTÜ Yazılım Geliştirme Kulübü',
+    description: 'Karadeniz Teknik Üniversitesi\'nin resmi yazılım ve programlama topluluğu.',
     images: ['/og-image.png'],
+    creator: '@ktusdc',
   },
   verification: {
-    google: 'google-site-verification-code', // Replace with actual code
+    google: 'google-site-verification-code', // Replace with actual code from Google Search Console
   },
   alternates: {
     canonical: 'https://ktusdc.com',
+    languages: {
+      'tr-TR': 'https://ktusdc.com',
+      'en-US': 'https://ktusdc.com',
+    },
   },
+  category: 'education',
 };
 
 // JSON-LD Structured Data
@@ -69,8 +88,8 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': 'https://ktusdc.com/#organization',
-      name: 'SDC - Software Development Club',
-      alternateName: 'KTÜ Yazılım Geliştirme Kulübü',
+      name: 'KTÜ Yazılım Geliştirme Kulübü',
+      alternateName: ['SDC', 'Software Development Club', 'KTÜ SDC'],
       url: 'https://ktusdc.com',
       logo: {
         '@type': 'ImageObject',
@@ -87,27 +106,40 @@ const jsonLd = {
         '@type': 'ContactPoint',
         email: 'sdc@ktu.edu.tr',
         contactType: 'customer service',
+        availableLanguage: ['Turkish', 'English'],
+      },
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Trabzon',
+        addressCountry: 'TR',
       },
     },
     {
       '@type': 'WebSite',
       '@id': 'https://ktusdc.com/#website',
       url: 'https://ktusdc.com',
-      name: 'SDC - Software Development Club',
+      name: 'KTÜ Yazılım Geliştirme Kulübü',
+      alternateName: 'SDC - Software Development Club',
       publisher: {
         '@id': 'https://ktusdc.com/#organization',
       },
-      inLanguage: ['tr', 'en'],
+      inLanguage: ['tr-TR', 'en-US'],
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://ktusdc.com/search?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
     },
     {
       '@type': 'EducationalOrganization',
       '@id': 'https://ktusdc.com/#educational',
-      name: 'SDC - Software Development Club',
-      description: 'Karadeniz Teknik Üniversitesi bünyesinde faaliyet gösteren yazılım geliştirme kulübü',
+      name: 'KTÜ Yazılım Geliştirme Kulübü',
+      description: 'Karadeniz Teknik Üniversitesi bünyesinde faaliyet gösteren resmi yazılım geliştirme kulübü',
       parentOrganization: {
         '@type': 'CollegeOrUniversity',
         name: 'Karadeniz Teknik Üniversitesi',
         alternateName: 'KTÜ',
+        url: 'https://www.ktu.edu.tr',
       },
     },
   ],

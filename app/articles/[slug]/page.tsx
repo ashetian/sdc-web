@@ -6,6 +6,7 @@ import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
 import ImageLightbox from "../../_components/ImageLightbox";
 import CommentSection from "../../_components/CommentSection";
+import { SkeletonList, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 
 interface ContentBlock {
     id: string;
@@ -104,11 +105,10 @@ export default function ArticlePage({
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-neo-yellow py-20 flex items-center justify-center">
-                <div className="bg-white border-4 border-black shadow-neo px-8 py-6">
-                    <div className="animate-pulse text-xl font-black">...</div>
-                </div>
-            </div>
+            <SkeletonFullPage>
+                <SkeletonPageHeader />
+                <SkeletonList items={5} />
+            </SkeletonFullPage>
         );
     }
 
