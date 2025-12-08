@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonPageHeader, SkeletonFullPage, SkeletonCardGrid } from '@/app/_components/Skeleton';
 import Image from 'next/image';
 import { useLanguage } from '../../_context/LanguageContext';
 import BookmarkButton from '@/app/_components/BookmarkButton';
@@ -205,7 +205,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center pt-24">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

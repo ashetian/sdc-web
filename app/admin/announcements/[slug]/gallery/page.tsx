@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonForm, SkeletonPageHeader, SkeletonGallery, SkeletonList } from '@/app/_components/Skeleton';
 
 interface Announcement {
   slug: string;
@@ -160,7 +160,7 @@ export default function GalleryEditPage({
   if (!announcement) {
     return (
       <div className="flex justify-center items-center p-8">
-        <GlobalLoading />
+        <SkeletonList items={5} />
       </div>
     );
   }

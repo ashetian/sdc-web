@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { downloadICalendar, generateGoogleCalendarUrl, generateOutlookCalendarUrl } from '@/app/lib/utils/calendar';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage, SkeletonList } from '@/app/_components/Skeleton';
 import BookmarkButton from '@/app/_components/BookmarkButton';
 import { useLanguage } from '@/app/_context/LanguageContext';
 
@@ -199,7 +199,7 @@ export default function RegisterPage() {
     };
 
     if (loading || checkingAuth) {
-        return <GlobalLoading />;
+        return <SkeletonList items={5} />;
     }
 
     if (!event) {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '../_context/LanguageContext';
 import { AlertCircle, BookOpen, Calendar, Gift, Clock, X } from 'lucide-react';
+import { SkeletonCalendar, SkeletonPageHeader, SkeletonFullPage } from '../_components/Skeleton';
 
 interface Event {
     _id: string;
@@ -361,9 +362,12 @@ export default function EventsPage() {
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-neo-yellow">
-            <div className="text-2xl font-black text-black animate-bounce">{t('common.loading')}</div>
-        </div>
+        <SkeletonFullPage>
+            <div className="text-center mb-12">
+                <SkeletonPageHeader />
+            </div>
+            <SkeletonCalendar />
+        </SkeletonFullPage>
     );
 
     return (

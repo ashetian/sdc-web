@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonCardGrid, SkeletonPageHeader, SkeletonFullPage } from '@/app/_components/Skeleton';
 import Image from 'next/image';
 import { useLanguage } from '../_context/LanguageContext';
 
@@ -81,9 +81,12 @@ export default function ProjectsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-neo-yellow flex items-center justify-center pt-24">
-                <GlobalLoading fullScreen={false} />
-            </div>
+            <SkeletonFullPage>
+                <div className="text-center mb-16">
+                    <SkeletonPageHeader />
+                </div>
+                <SkeletonCardGrid items={6} cols={3} />
+            </SkeletonFullPage>
         );
     }
 

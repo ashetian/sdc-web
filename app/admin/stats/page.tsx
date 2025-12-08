@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
 
 interface Stat {
     _id: string;
@@ -152,7 +152,7 @@ export default function StatsPage() {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

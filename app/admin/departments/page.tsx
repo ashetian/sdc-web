@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
 import { Check } from 'lucide-react';
 import Image from 'next/image';
 
@@ -156,7 +156,7 @@ export default function DepartmentsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

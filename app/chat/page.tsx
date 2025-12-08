@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import GameCanvas from './_components/GameCanvas';
 import ChatPanel from './_components/ChatPanel';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonAvatar } from '@/app/_components/Skeleton';
 
 interface User {
     id: string;
@@ -128,7 +128,7 @@ export default function ChatRoomPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

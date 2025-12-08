@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage, SkeletonList } from '@/app/_components/Skeleton';
 
 interface Event {
     _id: string;
@@ -116,7 +116,7 @@ export default function CheckinPage() {
     };
 
     if (loading || checkingAuth) {
-        return <GlobalLoading />;
+        return <SkeletonList items={5} />;
     }
 
     if (error) {

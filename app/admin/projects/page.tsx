@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from "next/link";
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonAvatar } from '@/app/_components/Skeleton';
 import Image from 'next/image';
 import { FolderOpen, User, Hash, Github, ExternalLink, AlertTriangle } from 'lucide-react';
 
@@ -258,7 +258,7 @@ export default function AdminProjectsPage() {
                 </div>
 
                 {loading ? (
-                    <GlobalLoading fullScreen={false} />
+                    <SkeletonList items={5} />
                 ) : projects.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-20 border-4 border-neo-black border-dashed bg-neo-white/50">
                         <div className="text-6xl mb-4"><FolderOpen size={48} /></div>

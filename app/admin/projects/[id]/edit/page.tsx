@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonForm, SkeletonPageHeader, SkeletonGallery, SkeletonList } from '@/app/_components/Skeleton';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 
@@ -134,7 +134,7 @@ export default function EditProjectPage() {
         });
     };
 
-    if (loading) return <GlobalLoading />;
+    if (loading) return <SkeletonList items={5} />;
 
     if (!authenticated) {
         return (

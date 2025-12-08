@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonForm, SkeletonPageHeader, SkeletonGallery, SkeletonList } from '@/app/_components/Skeleton';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 
@@ -143,7 +143,7 @@ export default function EditEventPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

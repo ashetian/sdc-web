@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
 import { X, Check } from 'lucide-react';
 
 interface Department {
@@ -322,7 +322,7 @@ export default function TeamPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

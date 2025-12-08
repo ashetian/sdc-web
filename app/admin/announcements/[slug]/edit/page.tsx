@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonForm, SkeletonPageHeader, SkeletonGallery, SkeletonList } from '@/app/_components/Skeleton';
 import ContentBlockEditor, { ContentBlock } from "@/app/admin/_components/ContentBlockEditor";
 
 interface Announcement {
@@ -177,7 +177,7 @@ export default function EditAnnouncementPage({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <GlobalLoading />
+        <SkeletonList items={5} />
       </div>
     );
   }

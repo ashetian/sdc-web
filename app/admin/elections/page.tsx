@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
 import { Trash2, AlertTriangle } from 'lucide-react';
 
 interface Election {
@@ -154,7 +154,7 @@ export default function ElectionsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

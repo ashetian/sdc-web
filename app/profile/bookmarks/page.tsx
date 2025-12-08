@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Bookmark, Trash2, ArrowLeft, Calendar, FileText, Image, MessageSquare, FolderGit2 } from 'lucide-react';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonPageHeader, SkeletonFullPage, SkeletonCardGrid } from '@/app/_components/Skeleton';
 import { useLanguage } from '../../_context/LanguageContext';
 
 interface BookmarkItem {
@@ -122,7 +122,7 @@ export default function BookmarksPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

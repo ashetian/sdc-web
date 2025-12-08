@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonTable, SkeletonPageHeader } from '@/app/_components/Skeleton';
 import {
     Settings,
     X,
@@ -167,8 +167,9 @@ export default function AdminEventsPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <GlobalLoading />
+            <div className="space-y-6">
+                <SkeletonPageHeader />
+                <SkeletonTable rows={6} cols={5} />
             </div>
         );
     }

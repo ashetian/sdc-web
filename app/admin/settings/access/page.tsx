@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
 
 interface AccessRule {
     _id: string;
@@ -134,7 +134,12 @@ export default function AccessControlPage() {
         }
     };
 
-    if (loading) return <GlobalLoading />;
+    if (loading) return (
+        <div className="space-y-8">
+            <SkeletonPageHeader />
+            <SkeletonList items={5} />
+        </div>
+    );
 
     return (
         <div className="space-y-8">

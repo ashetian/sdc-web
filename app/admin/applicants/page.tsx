@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
 import { Check, X, AlertTriangle, XCircle } from 'lucide-react';
 
 interface Applicant {
@@ -200,7 +200,7 @@ export default function ApplicantsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

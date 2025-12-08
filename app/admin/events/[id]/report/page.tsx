@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonForm, SkeletonPageHeader, SkeletonGallery, SkeletonList } from '@/app/_components/Skeleton';
 import ContentBlockEditor, { ContentBlock } from '@/app/admin/_components/ContentBlockEditor';
 import { Save, ArrowLeft, FileText, Users, Clock } from 'lucide-react';
 
@@ -128,7 +128,7 @@ export default function EventReportPage({
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-[400px]">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }

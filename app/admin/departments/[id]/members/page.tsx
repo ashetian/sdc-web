@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Mail, Github, Linkedin, Twitter, Globe, Instagram, Crown } from 'lucide-react';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
 import { useParams } from 'next/navigation';
 
 interface SocialLinks {
@@ -77,7 +77,7 @@ export default function DepartmentMembersPage() {
         if (id) fetchData();
     }, [id]);
 
-    if (loading) return <div className="min-h-screen pt-24 flex justify-center"><GlobalLoading /></div>;
+    if (loading) return <div className="min-h-screen pt-24 flex justify-center"><SkeletonList items={5} /></div>;
     if (!department) return <div className="p-8 text-center text-xl font-bold">Departman bulunamadı</div>;
 
     const lead = department.leadId;

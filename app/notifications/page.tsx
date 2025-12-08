@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Check, CheckCheck, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "../_context/LanguageContext";
-import GlobalLoading from "../_components/GlobalLoading";
+import { SkeletonNotifications, SkeletonPageHeader } from "../_components/Skeleton";
 
 interface Notification {
     _id: string;
@@ -166,7 +166,14 @@ export default function NotificationsPage() {
     const unreadCount = notifications.filter((n) => !n.isRead).length;
 
     if (loading) {
-        return <GlobalLoading />;
+        return (
+            <section className="min-h-screen bg-gray-100 py-8 px-4">
+                <div className="max-w-2xl mx-auto">
+                    <SkeletonPageHeader />
+                    <SkeletonNotifications items={8} />
+                </div>
+            </section>
+        );
     }
 
     return (

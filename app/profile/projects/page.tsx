@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonPageHeader, SkeletonFullPage, SkeletonCardGrid } from '@/app/_components/Skeleton';
 import { useLanguage } from '../../_context/LanguageContext';
 import BookmarkButton from '@/app/_components/BookmarkButton';
 
@@ -118,7 +118,7 @@ export default function MyProjectsPage() {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center pt-24">
-                <GlobalLoading fullScreen={false} />
+                <SkeletonList items={5} />
             </div>
         );
     }

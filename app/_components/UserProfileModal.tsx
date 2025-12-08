@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Github, Linkedin, Twitter, Globe, Instagram, MapPin, Mail, School } from 'lucide-react';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonList, SkeletonAvatar } from '@/app/_components/Skeleton';
 
 interface UserProfileModalProps {
     userId: string;
@@ -68,7 +68,7 @@ export default function UserProfileModal({ userId, onClose }: UserProfileModalPr
                 <div className="p-6">
                     {loading ? (
                         <div className="flex justify-center py-8">
-                            <GlobalLoading />
+                            <SkeletonList items={5} />
                         </div>
                     ) : error ? (
                         <div className="text-center py-8 text-red-600 font-bold">{error}</div>

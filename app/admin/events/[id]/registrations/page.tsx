@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
-import GlobalLoading from '@/app/_components/GlobalLoading';
+import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
 import Link from 'next/link';
 import { ChevronLeft, Check, Download } from 'lucide-react';
 
@@ -127,7 +127,7 @@ export default function EventRegistrationsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center p-8">
-                <GlobalLoading />
+                <SkeletonList items={5} />
             </div>
         );
     }
