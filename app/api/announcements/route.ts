@@ -82,8 +82,12 @@ export async function GET(request: Request) {
 
     // JavaScript tarafında sıralama yapıyoruz
     const sortedAnnouncements = announcements.sort((a, b) => {
-      const dateA = parseDate(a.date);
-      const dateB = parseDate(b.date);
+      let dateA = parseDate(a.date);
+      let dateB = parseDate(b.date);
+
+      // If date is invalid (0), fallback to createdAt
+      if (dateA === 0) dateA = new Date(a.createdAt).getTime();
+      if (dateB === 0) dateB = new Date(b.createdAt).getTime();
 
       // Tarihler eşitse oluşturulma tarihine göre (yeni olan önce)
       if (dateA === dateB) {
@@ -130,7 +134,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Tür kontrolü
-    if (!['event', 'news', 'article'].includes(parsed.data.type)) {
+    if (!['event', 'news', 'article', 'opportunity'].includes(parsed.data.type)) {
       return NextResponse.json(
         { error: 'Geçersiz duyuru türü' },
         { status: 400 }
@@ -179,6 +183,8 @@ export async function POST(request: NextRequest) {
     const announcement = await Announcement.create(announcementData);
     console.log('Announcement created:', announcement.slug);
 
+    // Send email logic disabled by request
+    /*
     // Send email to consenting members if it's not a draft
     if (!announcement.isDraft) {
       // Run in background to not block response
@@ -228,6 +234,7 @@ export async function POST(request: NextRequest) {
         }
       })();
     }
+    */
 
     // Audit log
     await logAdminAction({

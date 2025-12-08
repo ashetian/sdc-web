@@ -31,7 +31,8 @@ interface Announcement {
 }
 
 export default function Announcements() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [allAnnouncements, setAllAnnouncements] = useState<Announcement[]>([]);
+  const [activeTab, setActiveTab] = useState<'announcements' | 'opportunities'>('announcements');
   const [activeIndex, setActiveIndex] = useState(0);
   const { language } = useLanguage();
   const swiperRef = useRef<SwiperType | null>(null);
@@ -45,10 +46,8 @@ export default function Announcements() {
         const data = await res.json();
 
         if (Array.isArray(data)) {
-          const activeAnnouncements = data
-            .filter((a: Announcement) => !a.isDraft && !a.isArchived)
-            .slice(0, 10);
-          setAnnouncements(activeAnnouncements);
+          const active = data.filter((a: Announcement) => !a.isDraft && !a.isArchived);
+          setAllAnnouncements(active);
         } else {
           console.error("API response is not an array:", data);
         }
@@ -59,18 +58,17 @@ export default function Announcements() {
     loadAnnouncements();
   }, []);
 
-  // Manual autoplay timer
-  useEffect(() => {
-    if (announcements.length <= 1) return;
+  // Filter announcements based on active tab
+  const filteredAnnouncements = allAnnouncements.filter(item => {
+    if (activeTab === 'announcements') {
+      // Include 'workshop' here as it was in original code, plus standard types
+      return ['event', 'news', 'article', 'workshop'].includes(item.type);
+    } else {
+      return item.type === 'opportunity';
+    }
+  }).slice(0, 10); // Still limit to 10 most recent of that type
 
-    const interval = setInterval(() => {
-      if (swiperRef.current) {
-        swiperRef.current.slideNext();
-      }
-    }, 7000);
-
-    return () => clearInterval(interval);
-  }, [announcements.length]);
+  // Manual autoplay timer removed in favor of Swiper's native data-swiper-autoplay
 
   const getTypeStyles = (type: string) => {
     const normalizedType = type?.toLowerCase().trim() || 'news';
@@ -79,6 +77,7 @@ export default function Announcements() {
       case "news": return "bg-neo-blue text-black";
       case "workshop": return "bg-neo-green text-black";
       case "article": return "bg-neo-peach text-black";
+      case "opportunity": return "bg-neo-lime text-black";
       default: return "bg-neo-blue text-black";
     }
   };
@@ -86,8 +85,8 @@ export default function Announcements() {
   const getTypeText = (type: string) => {
     const safeLang = (language === 'en' || language === 'tr') ? language : 'tr';
     const typeLabels: Record<string, Record<string, string>> = {
-      tr: { event: "Etkinlik", news: "Duyuru", workshop: "Workshop", article: "Makale" },
-      en: { event: "Event", news: "News", workshop: "Workshop", article: "Article" }
+      tr: { event: "Etkinlik", news: "Duyuru", workshop: "Workshop", article: "Makale", opportunity: "Fırsat" },
+      en: { event: "Event", news: "News", workshop: "Workshop", article: "Article", opportunity: "Opportunity" }
     };
     const normalizedType = type?.toLowerCase().trim() || 'news';
     return typeLabels[safeLang][normalizedType] || typeLabels[safeLang]['news'];
@@ -103,13 +102,21 @@ export default function Announcements() {
       noAnnouncements: 'Henüz duyuru bulunmuyor.',
       details: 'Detayları Gör',
       register: 'Etkinliğe Kaydol',
-      viewAll: 'Tüm Duyurular'
+      viewAll: 'Tüm Duyurular',
+      tabs: {
+        announcements: 'DUYURULAR',
+        opportunities: 'FIRSATLAR'
+      }
     },
     en: {
       noAnnouncements: 'No announcements yet.',
       details: 'View Details',
       register: 'Register for Event',
-      viewAll: 'All Announcements'
+      viewAll: 'All Announcements',
+      tabs: {
+        announcements: 'ANNOUNCEMENTS',
+        opportunities: 'OPPORTUNITIES'
+      }
     }
   };
 
@@ -133,121 +140,193 @@ export default function Announcements() {
     }
   };
 
-  if (announcements.length === 0) {
-    return (
-      <section id="announcements" className="min-h-[60vh] bg-neo-green flex items-center justify-center border-b-4 border-black">
-        <p className="text-2xl font-bold text-black">{l.noAnnouncements}</p>
-      </section>
-    );
-  }
-
   return (
     <section
       id="announcements"
-      className="relative min-h-[80vh] bg-neo-blue border-b-4 border-black overflow-hidden flex flex-col"
+      className="relative min-h-[80vh] bg-neo-blue border-b-4 border-black overflow-hidden flex flex-col items-center"
     >
-      {/* Main Content Container */}
-      <div className="flex-1 relative">
-        <Swiper
-          modules={[Autoplay, Navigation, Keyboard]}
-          onSwiper={(swiper) => { swiperRef.current = swiper; swiper.autoplay.start(); }}
-          onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-          slidesPerView={1}
-          spaceBetween={0}
-          autoplay={{
-            delay: 7000,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          }}
-          keyboard={{ enabled: true }}
-          loop={announcements.length > 1}
-          speed={600}
-          className="h-full min-h-[60vh]"
+      {/* Tab Toggle - Placed prominently at the top */}
+      <div className="z-20 flex items-center justify-center gap-4 mt-8 w-full max-w-md px-4 absolute top-0">
+        <button
+          onClick={() => setActiveTab('announcements')}
+          className={`flex-1 px-4 py-2 font-black uppercase transition-all border-4 text-xs sm:text-sm ${activeTab === 'announcements'
+            ? 'bg-neo-purple text-black border-black shadow-neo transform -translate-y-1'
+            : 'bg-white text-gray-500 border-gray-300 hover:border-black hover:text-black'
+            }`}
         >
-          {announcements.map((current, idx) => (
-            <SwiperSlide key={current.slug || idx}>
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center py-4 sm:py-8 min-h-[50vh] sm:min-h-[60vh]">
-                <div className={`flex flex-col md:flex-row items-center gap-6 sm:gap-12 ${current.image ? 'w-full' : 'max-w-4xl'}`}>
-                  {current.image && (
-                    <div className="flex-shrink-0 w-full md:w-auto">
-                      <div className="relative aspect-[4/5] max-h-[65vh] w-auto md:w-[55vh] border-4 border-black shadow-neo overflow-hidden mx-auto md:mx-0">
+          {l.tabs.announcements}
+        </button>
+        <button
+          onClick={() => setActiveTab('opportunities')}
+          className={`flex-1 px-4 py-2 font-black uppercase transition-all border-4 text-xs sm:text-sm ${activeTab === 'opportunities'
+            ? 'bg-neo-lime text-black border-black shadow-neo transform -translate-y-1'
+            : 'bg-white text-gray-500 border-gray-300 hover:border-black hover:text-black'
+            }`}
+        >
+          {l.tabs.opportunities}
+        </button>
+      </div>
+
+      {filteredAnnouncements.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center w-full">
+          <p className="text-2xl font-bold text-black bg-white p-6 border-4 border-black shadow-neo">{l.noAnnouncements}</p>
+        </div>
+      ) : (
+        /* Main Content Container */
+        <div className="flex-1 relative w-full mt-20">
+
+          {/* ANNOUNCEMENTS: SWIPER VIEW */}
+          {activeTab === 'announcements' && (
+            <Swiper
+              modules={[Autoplay, Navigation, Keyboard]}
+              onSwiper={(swiper) => { swiperRef.current = swiper; swiper.autoplay.start(); }}
+              onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+              slidesPerView={1}
+              spaceBetween={0}
+              autoplay={{
+                delay: 15000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              keyboard={{ enabled: true }}
+              loop={filteredAnnouncements.length > 1}
+              speed={600}
+              className="h-full min-h-[60vh]"
+            >
+              {filteredAnnouncements.map((current, idx) => (
+                <SwiperSlide key={current.slug || idx} data-swiper-autoplay={idx === 0 ? "15000" : "7000"}>
+                  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center py-4 sm:py-8 min-h-[50vh] sm:min-h-[60vh]">
+                    <div className={`flex flex-col md:flex-row items-center gap-6 sm:gap-12 ${current.image ? 'w-full' : 'max-w-4xl'}`}>
+                      {current.image && (
+                        <div className="flex-shrink-0 w-full md:w-auto">
+                          <div className="relative aspect-[4/5] max-h-[65vh] w-auto md:w-[55vh] border-4 border-black shadow-neo overflow-hidden mx-auto md:mx-0">
+                            <ImageLightbox
+                              src={current.image}
+                              alt={getText(current.title, current.titleEn, '')}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex-1 flex flex-col items-start text-left">
+                        <span className={`inline-block px-4 py-1 mb-4 text-sm font-black uppercase border-2 border-black ${getTypeStyles(current.type)}`}>
+                          {getTypeText(current.type)}
+                        </span>
+                        <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase" lang={language}>
+                          {getText(current.title, current.titleEn, '')}
+                        </h2>
+                        <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
+                          {getText(current.description, current.descriptionEn, '')}
+                        </p>
+                        <div className={`flex gap-4 flex-wrap ${current.image ? '' : 'justify-center'}`}>
+                          <Link
+                            href={`/announcements/${current.slug}`}
+                            className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
+                            lang={language}
+                          >
+                            {l.details}
+                          </Link>
+                          {current.eventId && (
+                            <Link
+                              href={`/events/${current.eventId}/register`}
+                              className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
+                              lang={language}
+                            >
+                              {l.register}
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+
+          {/* OPPORTUNITIES: GRID VIEW */}
+          {activeTab === 'opportunities' && (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAnnouncements.map((current) => (
+                  <Link
+                    key={current.slug}
+                    href={`/announcements/${current.slug}`}
+                    className="group bg-white border-4 border-black shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all flex flex-col h-full"
+                  >
+                    {current.image && (
+                      <div className="relative aspect-video border-b-4 border-black overflow-hidden flex-shrink-0">
                         <ImageLightbox
                           src={current.image}
                           alt={getText(current.title, current.titleEn, '')}
                           fill
-                          className="object-cover"
+                          className="object-cover group-hover:scale-105 transition-transform"
                         />
                       </div>
+                    )}
+                    <div className="p-6 flex flex-col flex-1">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={`px-2 py-1 text-xs font-bold uppercase border-2 border-black ${getTypeStyles(current.type)}`}>
+                          {getTypeText(current.type)}
+                        </span>
+                        <time className="text-xs font-bold text-gray-600">
+                          {getText(current.date, current.dateEn, '')}
+                        </time>
+                      </div>
+                      <h3 className="text-xl font-black text-black uppercase mb-3 line-clamp-2 group-hover:text-neo-purple transition-colors" lang={language}>
+                        {getText(current.title, current.titleEn, '')}
+                      </h3>
+                      <p className="text-sm text-gray-700 line-clamp-3 mb-4 flex-1">
+                        {getText(current.description, current.descriptionEn, '')}
+                      </p>
+                      <div className="mt-auto pt-2">
+                        <span className="inline-block text-xs font-black text-neo-purple hover:underline">
+                          DETAYLARI GÖR →
+                        </span>
+                      </div>
                     </div>
-                  )}
-                  <div className="flex-1 flex flex-col items-start text-left">
-                    <span className={`inline-block px-4 py-1 mb-4 text-sm font-black uppercase border-2 border-black ${getTypeStyles(current.type)}`}>
-                      {getTypeText(current.type)}
-                    </span>
-                    <h2 className="text-3xl sm:text-5xl font-black text-black mb-6 uppercase" lang={language}>
-                      {getText(current.title, current.titleEn, '')}
-                    </h2>
-                    <p className="text-lg sm:text-xl font-medium text-black mb-8 max-w-xl">
-                      {getText(current.description, current.descriptionEn, '')}
-                    </p>
-                    <div className={`flex gap-4 flex-wrap ${current.image ? '' : 'justify-center'}`}>
-                      <Link
-                        href={`/announcements/${current.slug}`}
-                        className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
-                        lang={language}
-                      >
-                        {l.details}
-                      </Link>
-                      {current.eventId && (
-                        <Link
-                          href={`/events/${current.eventId}/register`}
-                          className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
-                          lang={language}
-                        >
-                          {l.register}
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  </Link>
+                ))}
               </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+            </div>
+          )}
 
-        {/* Navigation Buttons */}
-        {announcements.length > 1 && (
-          <>
-            <button
-              onClick={goToPrev}
-              className="hidden md:absolute left-1 sm:left-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
-              style={{ transform: 'translateY(-50%)' }}
-              aria-label="Previous announcement"
-            >
-              <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={goToNext}
-              className="hidden md:absolute right-1 sm:right-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo flex items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
-              style={{ transform: 'translateY(-50%)' }}
-              aria-label="Next announcement"
-            >
-              <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </>
-        )}
-      </div>
+
+          {/* Navigation Buttons - Only for Announcements Swiper */}
+          {activeTab === 'announcements' && filteredAnnouncements.length > 1 && (
+            <>
+              <button
+                onClick={goToPrev}
+                className="hidden md:flex md:absolute left-1 sm:left-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
+                style={{ transform: 'translateY(-50%)' }}
+                aria-label="Previous announcement"
+              >
+                <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={goToNext}
+                className="hidden md:flex md:absolute right-1 sm:right-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
+                style={{ transform: 'translateY(-50%)' }}
+                aria-label="Next announcement"
+              >
+                <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Bottom Controls Container */}
       <div className="relative py-2 flex flex-col items-center gap-4 z-10">
-        {/* Dot Indicators */}
-        {announcements.length > 1 && (
+        {/* Dot Indicators - Only for Announcements Swiper */}
+        {activeTab === 'announcements' && filteredAnnouncements.length > 1 && (
           <div className="flex gap-3">
-            {announcements.map((_, idx) => (
+            {filteredAnnouncements.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => goToSlide(idx)}
@@ -266,21 +345,21 @@ export default function Announcements() {
         >
           {l.viewAll} →
         </Link>
-
-        {/* Progress Bar */}
-        {announcements.length > 1 && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
-            <div
-              key={activeIndex}
-              className="h-full bg-black"
-              style={{
-                animation: `progress 7s linear forwards`,
-                width: '0%'
-              }}
-            />
-          </div>
-        )}
       </div>
+
+      {/* Progress Bar - Full Width Positioned Absolute to Section */}
+      {filteredAnnouncements.length > 1 && (
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20 z-0">
+          <div
+            key={activeIndex}
+            className="h-full bg-black"
+            style={{
+              animation: `progress ${activeIndex === 0 ? '15s' : '7s'} linear forwards`,
+              width: '0%'
+            }}
+          />
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes progress {

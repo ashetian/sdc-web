@@ -107,6 +107,7 @@ export async function POST(
             }
         }
 
+        /* Announcement creation disabled by request
         const announcement = await Announcement.create({
             slug,
             title: announcementTitle,
@@ -122,17 +123,28 @@ export async function POST(
             isDraft: false,
             image: event.posterUrl,
         });
+        */
 
-        // Send email notifications (preview only)
+        // Send email notifications to PARTICIPANTS ONLY
         (async () => {
             try {
-                const members = await Member.find({
-                    isActive: true,
-                    emailConsent: true
-                }).select('email nativeLanguage');
+                // Fetch registrations for this event to get participants
+                const registrations = await Registration.find({
+                    eventId: id,
+                    // Optional: only send to those who actually attended? 
+                    // user said "sadece etkinliğe kayıt yapanlara", so effectively all registrants.
+                    // If we want only attendees: attendedAt: { $ne: null }
+                }).populate('memberId', 'email nativeLanguage');
+
+                const members = registrations
+                    .map(reg => reg.memberId)
+                    .filter(member => member && member.email); // Ensure member exists and has email
 
                 if (members.length > 0) {
-                    const announcementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/announcements/${slug}`;
+                    // We don't have an announcement link anymore since we didn't create one.
+                    // We will link to the event page or just remove the link.
+                    // const announcementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/announcements/${slug}`;
+                    const eventUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/events/${id}`;
 
                     const htmlTr = wrapEmailHtml(`
                         <h2 style="margin-bottom: 20px;">${announcementTitle}</h2>
@@ -140,8 +152,9 @@ export async function POST(
                             <p><strong>Katılımcı:</strong> ${totalAttended} kişi</p>
                             <p><strong>Süre:</strong> ${Math.floor(report.duration / 60)} saat ${report.duration % 60} dakika</p>
                         </div>
-                        <p style="margin-bottom: 20px;">${report.summary.substring(0, 200)}${report.summary.length > 200 ? '...' : ''}</p>
-                        <a href="${announcementUrl}" style="display: inline-block; background: #FFDE00; color: #000; padding: 12px 24px; text-decoration: none; font-weight: bold; border: 3px solid #000;">Detayları Gör</a>
+                        <p style="margin-bottom: 20px;">${report.summary}</p>
+                        <!-- Reminder Note -->
+                        <p style="margin-top:20px; color:#666; font-size:12px;">Bu e-posta sadece etkinlik katılımcılarına gönderilmiştir.</p>
                     `, 'Etkinlik Raporu', 'tr');
 
                     const htmlEn = wrapEmailHtml(`
@@ -150,8 +163,8 @@ export async function POST(
                             <p><strong>Participants:</strong> ${totalAttended} people</p>
                             <p><strong>Duration:</strong> ${Math.floor(report.duration / 60)} hours ${report.duration % 60} minutes</p>
                         </div>
-                        <p style="margin-bottom: 20px;">${(summaryEn || report.summary).substring(0, 200)}${(summaryEn || report.summary).length > 200 ? '...' : ''}</p>
-                        <a href="${announcementUrl}" style="display: inline-block; background: #FFDE00; color: #000; padding: 12px 24px; text-decoration: none; font-weight: bold; border: 3px solid #000;">View Details</a>
+                        <p style="margin-bottom: 20px;">${summaryEn || report.summary}</p>
+                        <p style="margin-top:20px; color:#666; font-size:12px;">This email was sent only to event participants.</p>
                     `, 'Event Report', 'en');
 
                     for (const member of members) {
@@ -183,14 +196,10 @@ export async function POST(
         });
 
         return NextResponse.json({
-            message: 'Etkinlik sonlandırıldı ve duyuru oluşturuldu',
+            message: 'Etkinlik sonlandırıldı. (Duyuru oluşturulmadı, sadece katılımcılara e-posta gönderildi)',
             stats: {
                 attendeeCount: totalAttended,
                 duration: report.duration,
-            },
-            announcement: {
-                slug: announcement.slug,
-                title: announcement.title,
             }
         });
     } catch (error) {

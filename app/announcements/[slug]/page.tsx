@@ -25,6 +25,17 @@ interface Announcement {
   image?: string;
   isDraft: boolean;
   eventId?: string;
+  contentBlocks?: ContentBlock[];
+}
+
+interface ContentBlock {
+  id: string;
+  type: "text" | "image" | "image-grid" | "link-button";
+  content?: string;
+  image?: string;
+  images?: string[];
+  url?: string;
+  buttonText?: string;
 }
 
 interface Event {
@@ -186,13 +197,72 @@ export default function AnnouncementPage({
               </div>
             )}
 
-            {getContent()
-              .split("\n")
-              .map((paragraph: string, index: number) => (
-                <p key={index} className="text-black font-medium mb-4 leading-relaxed">
-                  {paragraph}
-                </p>
-              ))}
+            {announcement.contentBlocks && announcement.contentBlocks.length > 0 ? (
+              <div className="space-y-8">
+                {announcement.contentBlocks.map((block) => {
+                  switch (block.type) {
+                    case "text":
+                      return (
+                        <p key={block.id} className="text-black font-medium leading-relaxed">
+                          {block.content}
+                        </p>
+                      );
+                    case "image":
+                      return block.image ? (
+                        <div key={block.id} className="border-4 border-black shadow-neo">
+                          <ImageLightbox
+                            src={block.image}
+                            alt="İçerik görseli"
+                            width={800}
+                            height={600}
+                            className="w-full h-auto object-cover"
+                          />
+                        </div>
+                      ) : null;
+                    case "image-grid":
+                      return block.images && block.images.length > 0 ? (
+                        <div key={block.id} className="grid grid-cols-2 gap-4">
+                          {block.images.map((img, idx) => (
+                            <div key={idx} className="border-4 border-black shadow-neo">
+                              <ImageLightbox
+                                src={img}
+                                alt={`Galeri görseli ${idx + 1}`}
+                                width={400}
+                                height={300}
+                                className="w-full h-48 object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : null;
+                    case "link-button":
+                      return block.url && block.buttonText ? (
+                        <div key={block.id} className="flex justify-center my-6">
+                          <a
+                            href={block.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-8 py-4 border-4 border-black shadow-neo text-lg font-black text-white bg-neo-purple hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-1"
+                          >
+                            {block.buttonText} ↗
+                          </a>
+                        </div>
+                      ) : null;
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
+            ) : (
+              // Fallback to old text rendering
+              getContent()
+                .split("\n")
+                .map((paragraph: string, index: number) => (
+                  <p key={index} className="text-black font-medium mb-4 leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))
+            )}
           </div>
 
           {event && event.isOpen && (

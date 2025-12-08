@@ -2,11 +2,13 @@ import mongoose from 'mongoose';
 
 export interface IContentBlock {
   id: string;
-  type: 'text' | 'image' | 'image-grid';
+  type: 'text' | 'image' | 'image-grid' | 'link-button';
   content?: string;
   contentEn?: string;
   image?: string;
   images?: string[];
+  url?: string;
+  buttonText?: string;
 }
 
 export interface IAnnouncement {
@@ -14,7 +16,7 @@ export interface IAnnouncement {
   title: string;
   date: string;
   description: string;
-  type: 'event' | 'news' | 'article';
+  type: 'event' | 'news' | 'article' | 'opportunity';
   content: string;
   image?: string;
   imageOrientation?: 'horizontal' | 'vertical';
@@ -57,7 +59,7 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
     },
     type: {
       type: String,
-      enum: ['event', 'news', 'article'],
+      enum: ['event', 'news', 'article', 'opportunity'],
       required: true,
     },
     content: {
@@ -95,7 +97,7 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
       default: '',
     },
     eventId: {
-      type: String, // ObjectId olarak tutmak daha doğru olurdu ama ref karmaşası olmasın diye string tutuyoruz, zaten manuel gireceğiz.
+      type: String,
       required: false,
     },
     titleEn: {
@@ -121,11 +123,13 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
     contentBlocks: {
       type: [{
         id: String,
-        type: { type: String, enum: ['text', 'image', 'image-grid'] },
+        type: { type: String, enum: ['text', 'image', 'image-grid', 'link-button'] },
         content: String,
         contentEn: String,
         image: String,
         images: [String],
+        url: String,
+        buttonText: String,
       }],
       required: false,
       default: [],
@@ -133,11 +137,13 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
     contentBlocksEn: {
       type: [{
         id: String,
-        type: { type: String, enum: ['text', 'image', 'image-grid'] },
+        type: { type: String, enum: ['text', 'image', 'image-grid', 'link-button'] },
         content: String,
         contentEn: String,
         image: String,
         images: [String],
+        url: String,
+        buttonText: String,
       }],
       required: false,
       default: [],

@@ -222,6 +222,7 @@ export default function NewAnnouncementPage() {
             <option value="event">Etkinlik</option>
             <option value="news">Haber</option>
             <option value="article">Makale</option>
+            <option value="opportunity">Fırsat</option>
           </select>
         </div>
 

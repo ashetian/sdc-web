@@ -72,8 +72,12 @@ export const wrapEmailHtml = (content: string, title: string = 'SDC', lang: 'tr'
             </div>
 
             <div class="footer">
-                <p>${t.footer}</p>
-                <p>${t.settings}</p>
+                <p style="margin: 0 0 10px 0;">${t.footer}</p>
+                <p style="margin: 0;">
+                    <a href="${baseUrl}/profile" style="color: #666; text-decoration: underline;">
+                        ${t.settings}
+                    </a>
+                </p>
             </div>
         </div>
     </body>

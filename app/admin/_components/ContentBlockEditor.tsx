@@ -6,10 +6,12 @@ import { X, ArrowUp, ArrowDown } from "lucide-react";
 
 export interface ContentBlock {
     id: string;
-    type: "text" | "image" | "image-grid";
+    type: "text" | "image" | "image-grid" | "link-button";
     content?: string;
     image?: string;
     images?: string[];
+    url?: string;
+    buttonText?: string;
 }
 
 interface ContentBlockEditorProps {
@@ -27,6 +29,16 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
             id: generateId(),
             type: "text",
             content: "",
+        };
+        onChange([...blocks, newBlock]);
+    };
+
+    const addLinkButtonBlock = () => {
+        const newBlock: ContentBlock = {
+            id: generateId(),
+            type: "link-button",
+            url: "",
+            buttonText: "Detaylar",
         };
         onChange([...blocks, newBlock]);
     };
@@ -120,6 +132,70 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
             updateBlock(blockId, { images: newImages });
         }
     };
+
+    const renderLinkButtonBlock = (block: ContentBlock, index: number) => (
+        <div key={block.id} className="border-2 border-black p-4 bg-white">
+            <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-black text-gray-600 uppercase">Link Butonu #{index + 1}</span>
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        onClick={() => moveBlock(block.id, "up")}
+                        disabled={index === 0}
+                        className="p-1 border-2 border-black bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Yukarı Taşı"
+                    >
+                        <ArrowUp size={16} />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => moveBlock(block.id, "down")}
+                        disabled={index === blocks.length - 1}
+                        className="p-1 border-2 border-black bg-gray-100 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Aşağı Taşı"
+                    >
+                        <ArrowDown size={16} />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => deleteBlock(block.id)}
+                        className="p-1 border-2 border-black bg-red-500 text-white hover:bg-red-600"
+                        title="Sil"
+                    >
+                        <X size={16} />
+                    </button>
+                </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Buton Metni</label>
+                    <input
+                        type="text"
+                        value={block.buttonText || ""}
+                        onChange={(e) => updateBlock(block.id, { buttonText: e.target.value })}
+                        className="w-full border-2 border-black p-2 text-gray-900 bg-white focus:ring-2 focus:ring-neo-blue"
+                        placeholder="Örn: Başvuru Yap"
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">URL (Link)</label>
+                    <input
+                        type="text"
+                        value={block.url || ""}
+                        onChange={(e) => updateBlock(block.id, { url: e.target.value })}
+                        className="w-full border-2 border-black p-2 text-gray-900 bg-white focus:ring-2 focus:ring-neo-blue"
+                        placeholder="https://..."
+                    />
+                </div>
+            </div>
+            <div className="mt-4 p-4 bg-gray-100 border-2 border-dashed border-gray-300 text-center">
+                <p className="text-xs text-gray-500 mb-2 font-bold uppercase">Önizleme</p>
+                <div className="inline-block bg-neo-purple text-white font-black py-3 px-8 border-2 border-black shadow-neo-sm transform hover:-translate-y-0.5 transition-transform cursor-pointer">
+                    {block.buttonText || "Buton Metni"} ↗
+                </div>
+            </div>
+        </div>
+    );
 
     const renderTextBlock = (block: ContentBlock, index: number) => (
         <div key={block.id} className="border-2 border-black p-4 bg-white">
@@ -334,6 +410,8 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                             return renderImageBlock(block, index);
                         case "image-grid":
                             return renderImageGridBlock(block, index);
+                        case "link-button":
+                            return renderLinkButtonBlock(block, index);
                         default:
                             return null;
                     }
@@ -362,6 +440,13 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
                     className="px-4 py-2 border-2 border-black bg-neo-purple text-white font-bold hover:bg-purple-400 transition-all"
                 >
                     + Yan Yana Görsel
+                </button>
+                <button
+                    type="button"
+                    onClick={addLinkButtonBlock}
+                    className="px-4 py-2 border-2 border-black bg-neo-yellow text-black font-bold hover:bg-yellow-300 transition-all"
+                >
+                    + Link Butonu
                 </button>
             </div>
 

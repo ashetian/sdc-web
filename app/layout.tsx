@@ -153,6 +153,8 @@ export default function RootLayout({
   return (
     <html lang="tr" className="overflow-x-hidden">
       <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

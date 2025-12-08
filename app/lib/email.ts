@@ -73,6 +73,15 @@ interface EmailOptions {
 export async function sendEmail(options: EmailOptions): Promise<void> {
     const { to, subject, html } = options;
     const settings = await getEmailSettings();
+    const replyTo = 'iletisim@ktusdc.com'; // Constant Reply-To
+    const unsubscribeUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/profile`;
+
+    // Generate simple plain text version
+    const text = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove style tags
+        .replace(/<br\s*\/?>/gi, '\n') // Replace br with newline
+        .replace(/<[^>]*>/g, '') // Remove other tags
+        .replace(/\n\s*\n/g, '\n\n') // Normalize newlines
+        .trim();
 
     if (settings.emailProvider === 'nodemailer-gmail') {
         // Use Nodemailer with Gmail SMTP (credentials from env)
@@ -83,8 +92,14 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
             await transporter.sendMail({
                 from: `KTUDSC Yazılım Geliştirme Kulübü <${gmailUser}>`,
                 to: to,
+                replyTo: replyTo,
                 subject: subject,
                 html: html,
+                text: text, // Plain text version
+                headers: {
+                    'List-Unsubscribe': `<${unsubscribeUrl}>`,
+                    'X-Entity-ID': 'KTUSDC-Web',
+                }
             });
         } catch (error) {
             console.error('Nodemailer Gmail error:', error);
@@ -96,10 +111,12 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
             const data = await resend.emails.send({
                 from: 'KTUSDC Yazılım Geliştirme Kulübü <noreply@ktusdc.com>',
                 to: [to],
+                replyTo: replyTo,
                 subject: subject,
                 html: html,
+                text: text, // Plain text version
                 headers: {
-                    'List-Unsubscribe': `<${process.env.NEXT_PUBLIC_BASE_URL}/profile>`,
+                    'List-Unsubscribe': `<${unsubscribeUrl}>`,
                     'X-Entity-ID': 'KTUSDC-Web',
                 }
             });

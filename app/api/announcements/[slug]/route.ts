@@ -80,7 +80,7 @@ export async function PUT(
     }
 
     // Tür kontrolü
-    if (!['event', 'news', 'article'].includes(parsed.data.type)) {
+    if (parsed.data.type && !['event', 'news', 'article', 'opportunity'].includes(parsed.data.type)) {
       return NextResponse.json(
         { error: 'Geçersiz duyuru türü' },
         { status: 400 }

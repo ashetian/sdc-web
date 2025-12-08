@@ -12,7 +12,7 @@ interface Announcement {
     title: string;
     date: string;
     description: string;
-    type: "event" | "news" | "workshop" | "article";
+    type: "event" | "news" | "workshop" | "article" | "opportunity";
     image?: string;
     isDraft: boolean;
 }
@@ -61,6 +61,7 @@ export default function AnnouncementsIndexPage() {
             case "news": return "bg-neo-blue text-black";
             case "workshop": return "bg-neo-green text-black";
             case "article": return "bg-neo-yellow text-black";
+            case "opportunity": return "bg-neo-lime text-black";
             default: return "bg-gray-200 text-black";
         }
     };
@@ -71,6 +72,7 @@ export default function AnnouncementsIndexPage() {
             case "news": return "Haber";
             case "workshop": return "Atölye";
             case "article": return "Makale";
+            case "opportunity": return "Fırsat";
             default: return type;
         }
     };
