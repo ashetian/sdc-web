@@ -174,6 +174,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                 updateData.isApproved = isApproved;
                 // Update category count when approving
                 if (isApproved && !topic.isApproved) {
+                    // Auto-translate if DeepL API key is available
+                    if (process.env.DEEPL_API_KEY) {
+                        try {
+                            const { translateContent } = await import('@/app/lib/translate');
+
+                            const titleResult = await translateContent(topic.title, 'tr');
+                            updateData.titleEn = titleResult.en || '';
+
+                            const contentResult = await translateContent(topic.content, 'tr');
+                            updateData.contentEn = contentResult.en || '';
+
+                            console.log('ForumTopic auto-translation successful on approval');
+                        } catch (translateError) {
+                            console.error('ForumTopic translation failed:', translateError);
+                        }
+                    }
+
                     await ForumCategory.findByIdAndUpdate(topic.categoryId, {
                         $inc: { topicCount: 1 },
                         lastTopicAt: new Date(),

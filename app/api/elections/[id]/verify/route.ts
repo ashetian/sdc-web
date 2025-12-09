@@ -3,7 +3,7 @@ import connectDB from '@/app/lib/db';
 import ClubMember from '@/app/lib/models/ClubMember';
 import OTPCode from '@/app/lib/models/OTPCode';
 import Election from '@/app/lib/models/Election';
-import { sendEmail } from '@/app/lib/email';
+import { sendEmail, wrapEmailHtml } from '@/app/lib/email';
 import crypto from 'crypto';
 
 // Generate 6-digit OTP
@@ -65,23 +65,26 @@ export async function POST(
         );
 
         // Send email
+        const subject = `SDC Seçim Doğrulama Kodu - ${election.title}`;
+        const content = `
+            <h2 style="color: #000; border-bottom: 3px solid #000; padding-bottom: 10px; margin-top: 0;">
+                SDC Seçim Doğrulama
+            </h2>
+            <p>Merhaba <strong>${member.fullName}</strong>,</p>
+            <p><strong>${election.title}</strong> için oy kullanmak üzere doğrulama kodunuz:</p>
+            <div style="background: #FFDE00; border: 3px solid #000; padding: 20px; text-align: center; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px;">${code}</span>
+            </div>
+            <p style="color: #666; font-size: 14px;">Bu kod 10 dakika içinde geçerliliğini yitirecektir.</p>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                <p style="color: #999; font-size: 12px;">Bu e-postayı siz talep etmediyseniz lütfen dikkate almayın.</p>
+            </div>
+        `;
+
         await sendEmail({
             to: email,
-            subject: `SDC Seçim Doğrulama Kodu - ${election.title}`,
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
-                    <h2 style="color: #000; border-bottom: 3px solid #000; padding-bottom: 10px;">
-                        SDC Seçim Doğrulama
-                    </h2>
-                    <p>Merhaba <strong>${member.fullName}</strong>,</p>
-                    <p><strong>${election.title}</strong> için oy kullanmak üzere doğrulama kodunuz:</p>
-                    <div style="background: #FFDE00; border: 3px solid #000; padding: 20px; text-align: center; margin: 20px 0;">
-                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px;">${code}</span>
-                    </div>
-                    <p style="color: #666; font-size: 14px;">Bu kod 10 dakika içinde geçerliliğini yitirecektir.</p>
-                    <p style="color: #666; font-size: 14px;">Bu e-postayı siz talep etmediyseniz lütfen dikkate almayın.</p>
-                </div>
-            `,
+            subject: subject,
+            html: wrapEmailHtml(content, 'Seçim Doğrulama', 'tr'),
         });
 
         return NextResponse.json({

@@ -57,9 +57,33 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             await deleteFromCloudinary(existingSponsor.logo);
         }
 
+        // Prepare update data
+        let updateData = { name, nameEn, description, descriptionEn, logo, order, isActive };
+
+        // Auto-translate if DeepL API key is available and English fields are not provided
+        if (process.env.DEEPL_API_KEY && (!nameEn || !descriptionEn)) {
+            try {
+                const { translateContent } = await import('@/app/lib/translate');
+
+                if (!nameEn && name) {
+                    const nameResult = await translateContent(name, 'tr');
+                    updateData.nameEn = nameResult.en || '';
+                }
+
+                if (!descriptionEn && description) {
+                    const descResult = await translateContent(description, 'tr');
+                    updateData.descriptionEn = descResult.en || '';
+                }
+
+                console.log('Sponsor update auto-translation successful');
+            } catch (translateError) {
+                console.error('Sponsor update translation failed:', translateError);
+            }
+        }
+
         const updatedSponsor = await Sponsor.findByIdAndUpdate(
             id,
-            { name, nameEn, description, descriptionEn, logo, order, isActive },
+            updateData,
             { new: true }
         );
 

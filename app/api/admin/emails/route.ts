@@ -65,7 +65,8 @@ export async function POST(request: NextRequest) {
             htmlEn = wrapEmailHtml(html, subject, 'en');
         }
 
-        // Batch sending
+        // Batch sending with rate limiting
+        const RATE_LIMIT_DELAY = 100; // ms between emails to avoid spam detection
         let successCount = 0;
 
         for (const member of members) {
@@ -77,6 +78,11 @@ export async function POST(request: NextRequest) {
                     html: isEn ? htmlEn : htmlTr
                 });
                 successCount++;
+
+                // Rate limiting: wait between emails
+                if (successCount < members.length) {
+                    await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_DELAY));
+                }
             } catch (err) {
                 console.error(`Failed to send to ${member.email}`, err);
             }

@@ -5,16 +5,55 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LoadingSpinner from '@/app/_components/LoadingSpinner';
+import { useLanguage } from '@/app/_context/LanguageContext';
 
 function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const returnUrl = searchParams.get('returnUrl');
+    const { language } = useLanguage();
 
     const [studentNo, setStudentNo] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const labels = {
+        tr: {
+            title: 'Giriş Yap',
+            subtitle: 'Üye hesabınıza giriş yapın',
+            studentNo: 'Öğrenci Numarası',
+            password: 'Şifre',
+            submit: 'Giriş Yap',
+            submitting: 'Giriş yapılıyor...',
+            forgotPassword: 'Şifremi Unuttum',
+            noAccount: 'Hesabınız yok mu?',
+            register: 'Kayıt Ol',
+            notRegistered: 'Hesabınız henüz oluşturulmamış. Önce kayıt olun.',
+            loginFailed: 'Giriş başarısız',
+            genericError: 'Bir hata oluştu. Lütfen tekrar deneyin.',
+            noPermission: '⚠️ Giriş başarılı ancak Panel yetkiniz yok!',
+            registerLink: 'Kayıt olmak için tıklayın'
+        },
+        en: {
+            title: 'Login',
+            subtitle: 'Sign in to your member account',
+            studentNo: 'Student Number',
+            password: 'Password',
+            submit: 'Login',
+            submitting: 'Logging in...',
+            forgotPassword: 'Forgot Password',
+            noAccount: "Don't have an account?",
+            register: 'Register',
+            notRegistered: 'Your account has not been created yet. Please register first.',
+            loginFailed: 'Login failed',
+            genericError: 'An error occurred. Please try again.',
+            noPermission: '⚠️ Login successful but you do not have panel access!',
+            registerLink: 'Click to register'
+        }
+    };
+
+    const l = labels[language] || labels.tr;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -38,7 +77,7 @@ function LoginForm() {
                         if (authCheck.ok) {
                             window.location.href = returnUrl;
                         } else {
-                            setError('⚠️ Giriş başarılı ancak Panel yetkiniz yok!');
+                            setError(l.noPermission);
                             // Optional: Redirect to profile after short delay or let user choose
                             setTimeout(() => router.push('/profile'), 2000);
                         }
@@ -52,13 +91,13 @@ function LoginForm() {
                 }
             } else {
                 if (data.notRegistered) {
-                    setError('Hesabınız henüz oluşturulmamış. Önce kayıt olun.');
+                    setError(l.notRegistered);
                 } else {
-                    setError(data.error || 'Giriş başarısız');
+                    setError(data.error || l.loginFailed);
                 }
             }
         } catch {
-            setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+            setError(l.genericError);
         } finally {
             setLoading(false);
         }
@@ -74,14 +113,14 @@ function LoginForm() {
                     height={80}
                     className="mx-auto mb-4"
                 />
-                <h1 className="text-2xl font-black text-black uppercase">Giriş Yap</h1>
-                <p className="text-gray-600 mt-2">Üye hesabınıza giriş yapın</p>
+                <h1 className="text-2xl font-black text-black uppercase">{l.title}</h1>
+                <p className="text-gray-600 mt-2">{l.subtitle}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label htmlFor="studentNo" className="block text-sm font-black text-black mb-2">
-                        Öğrenci Numarası
+                        {l.studentNo}
                     </label>
                     <input
                         type="text"
@@ -96,7 +135,7 @@ function LoginForm() {
 
                 <div>
                     <label htmlFor="password" className="block text-sm font-black text-black mb-2">
-                        Şifre
+                        {l.password}
                     </label>
                     <input
                         type="password"
@@ -112,9 +151,9 @@ function LoginForm() {
                 {error && (
                     <div className="bg-red-100 border-2 border-red-500 p-3 text-red-700 text-sm">
                         {error}
-                        {error.includes('Önce kayıt') && (
+                        {error === l.notRegistered && (
                             <Link href="/auth/signup" className="block mt-2 text-blue-600 hover:underline">
-                                Kayıt olmak için tıklayın
+                                {l.registerLink}
                             </Link>
                         )}
                     </div>
@@ -125,19 +164,19 @@ function LoginForm() {
                     disabled={loading}
                     className="w-full bg-yellow-400 text-black font-black py-3 border-2 border-black hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                    {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+                    {loading ? l.submitting : l.submit}
                 </button>
 
                 <div className="text-center text-sm">
                     <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
-                        Şifremi Unuttum
+                        {l.forgotPassword}
                     </Link>
                 </div>
 
                 <div className="text-center text-sm text-gray-600 border-t pt-4">
-                    <p>Hesabınız yok mu?</p>
+                    <p>{l.noAccount}</p>
                     <Link href="/auth/signup" className="text-blue-600 hover:underline font-bold">
-                        Kayıt Ol
+                        {l.register}
                     </Link>
                 </div>
             </form>
@@ -154,3 +193,4 @@ export default function LoginPage() {
         </div>
     );
 }
+

@@ -40,6 +40,11 @@ export interface IMember extends Document {
     kvkkAccepted: boolean;
     nativeLanguage?: 'tr' | 'en';
 
+    // Email bounce tracking
+    emailBounced?: boolean;
+    emailBounceCount?: number;
+    lastBounceAt?: Date;
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -144,6 +149,19 @@ const MemberSchema = new Schema<IMember>(
             type: String,
             enum: ['tr', 'en'],
             default: 'tr',
+        },
+
+        // Email bounce tracking
+        emailBounced: {
+            type: Boolean,
+            default: false,
+        },
+        emailBounceCount: {
+            type: Number,
+            default: 0,
+        },
+        lastBounceAt: {
+            type: Date,
         },
     },
     {

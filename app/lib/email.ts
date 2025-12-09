@@ -1,7 +1,9 @@
 import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 import connectDB from './db';
 import { Setting } from './models/Setting';
+import { wrapEmailHtml } from './email-template';
 
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -73,8 +75,12 @@ interface EmailOptions {
 export async function sendEmail(options: EmailOptions): Promise<void> {
     const { to, subject, html } = options;
     const settings = await getEmailSettings();
-    const replyTo = 'iletisim@ktusdc.com'; // Constant Reply-To
+    const replyTo = 'contact@ktusdc.com'; // Constant Reply-To
     const unsubscribeUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/profile`;
+
+    // Generate unique Message-ID for better spam score
+    const messageId = `<${crypto.randomUUID()}@ktusdc.com>`;
+    const entityRefId = crypto.randomUUID();
 
     // Generate simple plain text version
     const text = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove style tags
@@ -97,8 +103,10 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
                 html: html,
                 text: text, // Plain text version
                 headers: {
+                    'Message-ID': messageId,
                     'List-Unsubscribe': `<${unsubscribeUrl}>`,
-                    'X-Entity-ID': 'KTUSDC-Web',
+                    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+                    'X-Entity-Ref-ID': entityRefId,
                 }
             });
         } catch (error) {
@@ -116,8 +124,10 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
                 html: html,
                 text: text, // Plain text version
                 headers: {
+                    'Message-ID': messageId,
                     'List-Unsubscribe': `<${unsubscribeUrl}>`,
-                    'X-Entity-ID': 'KTUSDC-Web',
+                    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+                    'X-Entity-Ref-ID': entityRefId,
                 }
             });
 
@@ -148,7 +158,7 @@ export function maskEmail(email: string): string {
 export function generatePasswordSetupEmail(name: string, token: string, isReset: boolean = false, lang: 'tr' | 'en' = 'tr'): string {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ktusdc.com';
     const actionUrl = `${baseUrl}/auth/set-password/${token}`;
-    const logoUrl = `${baseUrl}/sdclogo.png`;
+    // Logo is handled by wrapper
 
     const texts = {
         tr: {
@@ -175,40 +185,34 @@ export function generatePasswordSetupEmail(name: string, token: string, isReset:
 
     const t = texts[lang] || texts.tr;
 
-    return `
-        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #fff;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <img src="${logoUrl}" alt="SDC Logo" style="height: 80px; width: auto;" />
-            </div>
-            <h2 style="color: #000; border-bottom: 3px solid #000; padding-bottom: 10px; text-align: center;">
-                ${t.title}
-            </h2>
-            <p>${t.greeting}</p>
-            <p>${t.instruction}</p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="${actionUrl}" 
-                   style="background: #FFDE00; color: #000; padding: 15px 30px; text-decoration: none; 
-                          font-weight: bold; border: 3px solid #000; display: inline-block;">
-                    ${t.button}
-                </a>
-            </div>
-            <p style="color: #666; font-size: 14px;">
-                ${t.expiry}
+    const content = `
+        <h2 style="color: #000; border-bottom: 3px solid #000; padding-bottom: 10px; text-align: center; margin-top: 0;">
+            ${t.title}
+        </h2>
+        <p>${t.greeting}</p>
+        <p>${t.instruction}</p>
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="${actionUrl}" 
+               style="background: #FFDE00; color: #000; padding: 15px 30px; text-decoration: none; 
+                      font-weight: bold; border: 3px solid #000; display: inline-block;">
+                ${t.button}
+            </a>
+        </div>
+        <p style="color: #666; font-size: 14px;">
+            ${t.expiry}
+        </p>
+        <p style="color: #666; font-size: 14px;">
+            ${t.fallback}<br>
+            <a href="${actionUrl}" style="color: #0066cc; word-break: break-all;">${actionUrl}</a>
+        </p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+            <p style="color: #999; font-size: 12px;">
+                ${t.ignore}
             </p>
-            <p style="color: #666; font-size: 14px;">
-                ${t.fallback}<br>
-                <a href="${actionUrl}" style="color: #0066cc; word-break: break-all;">${actionUrl}</a>
-            </p>
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
-                <p style="color: #999; font-size: 12px;">
-                    ${t.ignore}
-                </p>
-                <p style="color: #999; font-size: 12px;">
-                    ${t.copyright}
-                </p>
-            </div>
         </div>
     `;
+
+    return wrapEmailHtml(content, t.title, lang);
 }
 
 // Re-export for compatibility

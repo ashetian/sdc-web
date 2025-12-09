@@ -72,7 +72,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Bu slug zaten kullanılıyor' }, { status: 400 });
         }
 
-        const category = await ForumCategory.create({
+        // Auto-translate if DeepL API key is available
+        let categoryData = {
             name,
             nameEn,
             slug,
@@ -81,7 +82,29 @@ export async function POST(request: NextRequest) {
             icon: icon || '💬',
             color: color || 'bg-neo-blue',
             order: order || 0,
-        });
+        };
+
+        if (process.env.DEEPL_API_KEY && (!nameEn || !descriptionEn)) {
+            try {
+                const { translateContent } = await import('@/app/lib/translate');
+
+                if (!nameEn && name) {
+                    const nameResult = await translateContent(name, 'tr');
+                    categoryData.nameEn = nameResult.en || '';
+                }
+
+                if (!descriptionEn && description) {
+                    const descResult = await translateContent(description, 'tr');
+                    categoryData.descriptionEn = descResult.en || '';
+                }
+
+                console.log('ForumCategory auto-translation successful');
+            } catch (translateError) {
+                console.error('ForumCategory translation failed:', translateError);
+            }
+        }
+
+        const category = await ForumCategory.create(categoryData);
 
         // Audit log
         if (adminInfo.userId) {

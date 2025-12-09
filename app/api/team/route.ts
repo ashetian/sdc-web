@@ -67,7 +67,30 @@ export async function POST(request: NextRequest) {
 
         const data = await request.json();
 
-        const member = await TeamMember.create(data);
+        // Auto-translate if DeepL API key is available
+        let memberData = { ...data };
+
+        if (process.env.DEEPL_API_KEY && (!data.titleEn || !data.descriptionEn)) {
+            try {
+                const { translateContent } = await import('@/app/lib/translate');
+
+                if (!data.titleEn && data.title) {
+                    const titleResult = await translateContent(data.title, 'tr');
+                    memberData.titleEn = titleResult.en || '';
+                }
+
+                if (!data.descriptionEn && data.description) {
+                    const descResult = await translateContent(data.description, 'tr');
+                    memberData.descriptionEn = descResult.en || '';
+                }
+
+                console.log('TeamMember auto-translation successful');
+            } catch (translateError) {
+                console.error('TeamMember translation failed:', translateError);
+            }
+        }
+
+        const member = await TeamMember.create(memberData);
 
         // Audit log
         await logAdminAction({

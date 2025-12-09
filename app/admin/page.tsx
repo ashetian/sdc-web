@@ -24,7 +24,8 @@ import {
   Mail,
   Bug,
   MapPin,
-  Package
+  Package,
+  LineChart
 } from "lucide-react";
 import AdminNotificationBadge from "@/app/_components/AdminNotificationBadge";
 
@@ -56,6 +57,7 @@ const DASHBOARD_BUTTONS: DashboardButton[] = [
   { key: 'elections', label: 'Seçimler', href: '/admin/elections', color: 'bg-neo-yellow', description: 'Seçim ve anketler', icon: Vote },
   { key: 'bug-reports', label: 'Hata Bildirimleri', href: '/admin/bug-reports', color: 'bg-red-500 text-white', description: 'Kullanıcı hata bildirimleri', icon: Bug },
   { key: 'stats', label: 'İstatistikler', href: '/admin/stats', color: 'bg-neo-purple text-white', description: 'Site istatistikleri', icon: BarChart3 },
+  { key: 'analytics', label: 'Analitik', href: '/admin/analytics', color: 'bg-neo-green', description: 'Site analitik verileri', icon: LineChart },
   { key: 'audit-log', label: 'İşlem Geçmişi', href: '/admin/audit-log', color: 'bg-neo-pink', description: 'Admin işlem kayıtları', icon: ClipboardList },
   { key: 'settings', label: 'Ayarlar', href: '/admin/settings', color: 'bg-gray-700 text-white', description: 'Genel ayarlar ve yapılandırma', icon: Settings },
 ];

@@ -62,7 +62,30 @@ export async function PUT(
 
         const data = await request.json();
 
-        const election = await Election.findByIdAndUpdate(id, data, { new: true });
+        // Auto-translate if DeepL API key is available
+        let updateData = { ...data };
+
+        if (process.env.DEEPL_API_KEY && (data.title || data.description)) {
+            try {
+                const { translateContent } = await import('@/app/lib/translate');
+
+                if (data.title && !data.titleEn) {
+                    const titleResult = await translateContent(data.title, 'tr');
+                    updateData.titleEn = titleResult.en || '';
+                }
+
+                if (data.description && !data.descriptionEn) {
+                    const descResult = await translateContent(data.description, 'tr');
+                    updateData.descriptionEn = descResult.en || '';
+                }
+
+                console.log('Election update auto-translation successful');
+            } catch (translateError) {
+                console.error('Election update translation failed:', translateError);
+            }
+        }
+
+        const election = await Election.findByIdAndUpdate(id, updateData, { new: true });
 
         if (!election) {
             return NextResponse.json({ error: 'Seçim bulunamadı' }, { status: 404 });

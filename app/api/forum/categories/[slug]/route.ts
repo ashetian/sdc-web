@@ -108,9 +108,33 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         const body = await request.json();
         const { name, nameEn, description, descriptionEn, icon, color, order, isActive } = body;
 
+        // Prepare update data
+        let updateData = { name, nameEn, description, descriptionEn, icon, color, order, isActive };
+
+        // Auto-translate if DeepL API key is available
+        if (process.env.DEEPL_API_KEY && (!nameEn || !descriptionEn)) {
+            try {
+                const { translateContent } = await import('@/app/lib/translate');
+
+                if (!nameEn && name) {
+                    const nameResult = await translateContent(name, 'tr');
+                    updateData.nameEn = nameResult.en || '';
+                }
+
+                if (!descriptionEn && description) {
+                    const descResult = await translateContent(description, 'tr');
+                    updateData.descriptionEn = descResult.en || '';
+                }
+
+                console.log('ForumCategory update auto-translation successful');
+            } catch (translateError) {
+                console.error('ForumCategory update translation failed:', translateError);
+            }
+        }
+
         const category = await ForumCategory.findOneAndUpdate(
             { slug },
-            { name, nameEn, description, descriptionEn, icon, color, order, isActive },
+            updateData,
             { new: true }
         );
 

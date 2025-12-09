@@ -5,10 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { SkeletonForm, SkeletonFullPage } from "@/app/_components/Skeleton";
+import { useLanguage } from '@/app/_context/LanguageContext';
 
 export default function SetPasswordPage({ params }: { params: Promise<{ token: string }> }) {
     const { token } = use(params);
     const router = useRouter();
+    const { language } = useLanguage();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
@@ -22,6 +24,53 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
         requiresNickname: boolean;
     } | null>(null);
 
+    const labels = {
+        tr: {
+            createAccount: 'Hesap Oluştur',
+            resetPassword: 'Şifre Sıfırla',
+            hello: 'Merhaba,',
+            invalidLink: 'Geçersiz Link',
+            registerAgain: 'Tekrar Kayıt Ol',
+            nicknameLabel: 'Nickname (Sitede görünecek isminiz)',
+            nicknamePlaceholder: 'Örn: AhmetY',
+            nicknameHelp: 'Bu isim sitede görünecek. Gerçek adınız gizli kalır.',
+            passwordLabel: 'Şifre',
+            passwordPlaceholder: 'En az 6 karakter',
+            confirmLabel: 'Şifre Tekrar',
+            confirmPlaceholder: 'Şifreyi tekrar girin',
+            submit: 'Hesabı Oluştur',
+            submitReset: 'Şifreyi Güncelle',
+            submitting: 'Kaydediliyor...',
+            passwordMismatch: 'Şifreler eşleşmiyor',
+            passwordShort: 'Şifre en az 6 karakter olmalı',
+            nicknameShort: 'Nickname en az 2 karakter olmalı',
+            genericError: 'Bir hata oluştu'
+        },
+        en: {
+            createAccount: 'Create Account',
+            resetPassword: 'Reset Password',
+            hello: 'Hello,',
+            invalidLink: 'Invalid Link',
+            registerAgain: 'Register Again',
+            nicknameLabel: 'Nickname (Your display name on the site)',
+            nicknamePlaceholder: 'E.g.: JohnD',
+            nicknameHelp: 'This name will be displayed on the site. Your real name stays private.',
+            passwordLabel: 'Password',
+            passwordPlaceholder: 'At least 6 characters',
+            confirmLabel: 'Confirm Password',
+            confirmPlaceholder: 'Enter password again',
+            submit: 'Create Account',
+            submitReset: 'Update Password',
+            submitting: 'Saving...',
+            passwordMismatch: 'Passwords do not match',
+            passwordShort: 'Password must be at least 6 characters',
+            nicknameShort: 'Nickname must be at least 2 characters',
+            genericError: 'An error occurred'
+        }
+    };
+
+    const l = labels[language] || labels.tr;
+
     useEffect(() => {
         validateToken();
     }, [token]);
@@ -34,10 +83,10 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
             if (res.ok && data.valid) {
                 setTokenInfo(data);
             } else {
-                setError(data.error || 'Geçersiz link');
+                setError(data.error || l.invalidLink);
             }
         } catch {
-            setError('Bir hata oluştu');
+            setError(l.genericError);
         } finally {
             setValidating(false);
         }
@@ -47,17 +96,17 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
         e.preventDefault();
 
         if (password !== confirmPassword) {
-            setError('Şifreler eşleşmiyor');
+            setError(l.passwordMismatch);
             return;
         }
 
         if (password.length < 6) {
-            setError('Şifre en az 6 karakter olmalı');
+            setError(l.passwordShort);
             return;
         }
 
         if (tokenInfo?.requiresNickname && nickname.trim().length < 2) {
-            setError('Nickname en az 2 karakter olmalı');
+            setError(l.nicknameShort);
             return;
         }
 
@@ -80,10 +129,10 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
             if (res.ok) {
                 router.push('/auth/login?success=' + (data.isSignup ? 'signup' : 'reset'));
             } else {
-                setError(data.error || 'Bir hata oluştu');
+                setError(data.error || l.genericError);
             }
         } catch {
-            setError('Bir hata oluştu');
+            setError(l.genericError);
         } finally {
             setLoading(false);
         }
@@ -102,13 +151,13 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
             <div className="min-h-screen bg-gray-100 flex flex-col items-center pt-56 pb-8 px-4">
                 <div className="bg-white border-4 border-black shadow-neo p-8 w-full max-w-md text-center">
                     <div className="text-red-500 text-6xl mb-4">✗</div>
-                    <h1 className="text-xl font-black text-black mb-4">Geçersiz Link</h1>
+                    <h1 className="text-xl font-black text-black mb-4">{l.invalidLink}</h1>
                     <p className="text-gray-600 mb-6">{error}</p>
                     <Link
                         href="/auth/signup"
                         className="inline-block bg-yellow-400 text-black font-black py-3 px-6 border-2 border-black hover:bg-yellow-500"
                     >
-                        Tekrar Kayıt Ol
+                        {l.registerAgain}
                     </Link>
                 </div>
             </div>
@@ -127,10 +176,10 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
                         className="mx-auto mb-4"
                     />
                     <h1 className="text-2xl font-black text-black uppercase">
-                        {tokenInfo?.type === 'signup' ? 'Hesap Oluştur' : 'Şifre Sıfırla'}
+                        {tokenInfo?.type === 'signup' ? l.createAccount : l.resetPassword}
                     </h1>
                     <p className="text-gray-600 mt-2">
-                        Merhaba, <strong>{tokenInfo?.fullName}</strong>
+                        {l.hello} <strong>{tokenInfo?.fullName}</strong>
                     </p>
                 </div>
 
@@ -138,33 +187,33 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
                     {tokenInfo?.requiresNickname && (
                         <div>
                             <label htmlFor="nickname" className="block text-sm font-black text-black mb-2">
-                                Nickname (Sitede görünecek isminiz)
+                                {l.nicknameLabel}
                             </label>
                             <input
                                 type="text"
                                 id="nickname"
                                 value={nickname}
                                 onChange={(e) => setNickname(e.target.value)}
-                                placeholder="Örn: AhmetY"
+                                placeholder={l.nicknamePlaceholder}
                                 required
                                 className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
                             />
                             <p className="text-xs text-gray-500 mt-1">
-                                Bu isim sitede görünecek. Gerçek adınız gizli kalır.
+                                {l.nicknameHelp}
                             </p>
                         </div>
                     )}
 
                     <div>
                         <label htmlFor="password" className="block text-sm font-black text-black mb-2">
-                            Şifre
+                            {l.passwordLabel}
                         </label>
                         <input
                             type="password"
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="En az 6 karakter"
+                            placeholder={l.passwordPlaceholder}
                             required
                             minLength={6}
                             className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
@@ -173,14 +222,14 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
 
                     <div>
                         <label htmlFor="confirmPassword" className="block text-sm font-black text-black mb-2">
-                            Şifre Tekrar
+                            {l.confirmLabel}
                         </label>
                         <input
                             type="password"
                             id="confirmPassword"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Şifreyi tekrar girin"
+                            placeholder={l.confirmPlaceholder}
                             required
                             className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
                         />
@@ -197,10 +246,11 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
                         disabled={loading}
                         className="w-full bg-yellow-400 text-black font-black py-3 border-2 border-black hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                        {loading ? 'Kaydediliyor...' : tokenInfo?.type === 'signup' ? 'Hesabı Oluştur' : 'Şifreyi Güncelle'}
+                        {loading ? l.submitting : tokenInfo?.type === 'signup' ? l.submit : l.submitReset}
                     </button>
                 </form>
             </div>
         </div>
     );
 }
+

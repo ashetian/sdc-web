@@ -49,7 +49,30 @@ export async function PUT(
             await deleteFromCloudinary(oldMember.photo);
         }
 
-        const member = await TeamMember.findByIdAndUpdate(id, data, { new: true })
+        // Auto-translate if DeepL API key is available
+        let updateData = { ...data };
+
+        if (process.env.DEEPL_API_KEY && (!data.titleEn || !data.descriptionEn)) {
+            try {
+                const { translateContent } = await import('@/app/lib/translate');
+
+                if (!data.titleEn && data.title) {
+                    const titleResult = await translateContent(data.title, 'tr');
+                    updateData.titleEn = titleResult.en || '';
+                }
+
+                if (!data.descriptionEn && data.description) {
+                    const descResult = await translateContent(data.description, 'tr');
+                    updateData.descriptionEn = descResult.en || '';
+                }
+
+                console.log('TeamMember update auto-translation successful');
+            } catch (translateError) {
+                console.error('TeamMember update translation failed:', translateError);
+            }
+        }
+
+        const member = await TeamMember.findByIdAndUpdate(id, updateData, { new: true })
             .populate('departmentId', 'name slug color');
 
         if (!member) {

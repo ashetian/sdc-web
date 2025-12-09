@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'İsim, açıklama ve logo gerekli' }, { status: 400 });
         }
 
-        const sponsor = await Sponsor.create({
+        // Auto-translate if DeepL API key is available
+        let sponsorData = {
             name,
             nameEn,
             description,
@@ -53,7 +54,29 @@ export async function POST(request: NextRequest) {
             logo,
             order: order || 0,
             isActive: isActive !== false,
-        });
+        };
+
+        if (process.env.DEEPL_API_KEY && (!nameEn || !descriptionEn)) {
+            try {
+                const { translateContent } = await import('@/app/lib/translate');
+
+                if (!nameEn && name) {
+                    const nameResult = await translateContent(name, 'tr');
+                    sponsorData.nameEn = nameResult.en || '';
+                }
+
+                if (!descriptionEn && description) {
+                    const descResult = await translateContent(description, 'tr');
+                    sponsorData.descriptionEn = descResult.en || '';
+                }
+
+                console.log('Sponsor auto-translation successful');
+            } catch (translateError) {
+                console.error('Sponsor translation failed:', translateError);
+            }
+        }
+
+        const sponsor = await Sponsor.create(sponsorData);
 
         // Audit log
         await logAdminAction({

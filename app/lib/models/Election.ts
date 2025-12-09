@@ -5,7 +5,9 @@ export type ElectionStatus = 'draft' | 'active' | 'completed' | 'suspended';
 
 export interface IElection extends Document {
     title: string;
+    titleEn?: string;
     description?: string;
+    descriptionEn?: string;
     type: ElectionType;
     departmentId?: mongoose.Types.ObjectId;
     status: ElectionStatus;
@@ -25,7 +27,13 @@ const ElectionSchema = new Schema<IElection>(
             type: String,
             required: true,
         },
+        titleEn: {
+            type: String,
+        },
         description: {
+            type: String,
+        },
+        descriptionEn: {
             type: String,
         },
         type: {
