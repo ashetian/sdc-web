@@ -1,9 +1,29 @@
 "use client";
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
-import { MessageSquare, Clock, TrendingUp, Eye, ChevronLeft, Pin } from "lucide-react";
+import {
+  MessageSquare, Clock, TrendingUp, Eye, ChevronLeft, Pin,
+  MessageCircle, Rocket, HelpCircle, Calendar, Briefcase, BookOpen, LucideIcon
+} from "lucide-react";
 import { useLanguage } from "../../_context/LanguageContext";
 import { SkeletonList, SkeletonPageHeader } from "../../_components/Skeleton";
+
+// Icon mapping for dynamic rendering
+const iconMap: Record<string, LucideIcon> = {
+  MessageCircle, Rocket, HelpCircle, Calendar, Briefcase, BookOpen, MessageSquare,
+};
+
+const CategoryIcon = ({ name, size = 48 }: { name: string; size?: number }) => {
+  const Icon = iconMap[name];
+  if (Icon) {
+    return <Icon size={size} className="text-black" />;
+  }
+  // Eğer iconMap'te yoksa emoji olabilir
+  if (name && !iconMap[name]) {
+    return <span className="text-5xl leading-none">{name}</span>;
+  }
+  return <MessageCircle size={size} className="text-black" />;
+};
 
 interface Category {
   _id: string;
@@ -172,7 +192,7 @@ export default function CategoryPage({ params }: PageProps) {
         {/* Category Header */}
         <div className={`${category.color} border-4 border-black shadow-neo p-6 mb-8`}>
           <div className="flex items-start gap-4">
-            <span className="text-5xl">{category.icon}</span>
+            <CategoryIcon name={category.icon} size={48} />
             <div className="flex-1">
               <h1 className="text-3xl font-black text-black">{getTitle(category)}</h1>
               <p className="text-base font-medium text-black/70 mt-2">{getDescription(category)}</p>

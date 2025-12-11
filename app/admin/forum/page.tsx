@@ -14,8 +14,15 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 const CategoryIcon = ({ name, size = 20 }: { name: string; size?: number }) => {
-  const Icon = iconMap[name] || MessageCircle;
-  return <Icon size={size} />;
+  const Icon = iconMap[name];
+  if (Icon) {
+    return <Icon size={size} />;
+  }
+  // Eğer iconMap'te yoksa emoji olabilir
+  if (name && !iconMap[name]) {
+    return <span className="text-xl leading-none">{name}</span>;
+  }
+  return <MessageCircle size={size} />;
 };
 
 interface Category {

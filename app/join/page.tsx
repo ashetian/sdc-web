@@ -85,45 +85,45 @@ export default function JoinPage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-neo-yellow py-20 pt-40">
+        <div className="min-h-screen bg-neo-yellow py-12 pt-28 lg:py-20 lg:pt-40">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="text-center mb-16">
-                    <h1 className="inline-block text-4xl sm:text-6xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo-lg px-8 py-4 transform -rotate-2">
+                <div className="text-center mb-8 lg:mb-16">
+                    <h1 className="inline-block text-2xl sm:text-4xl lg:text-6xl font-black text-black mb-4 lg:mb-6 bg-white border-4 border-black shadow-neo lg:shadow-neo-lg px-4 py-2 lg:px-8 lg:py-4 lg:transform lg:-rotate-2">
                         {l.title}
                     </h1>
-                    <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-6 bg-neo-blue border-4 border-black p-4 shadow-neo transform rotate-1">
+                    <p className="text-base lg:text-xl font-bold text-black max-w-3xl mx-auto mt-4 lg:mt-6 bg-neo-blue border-4 border-black p-3 lg:p-4 shadow-neo lg:transform lg:rotate-1">
                         {l.subtitle}
                     </p>
                 </div>
 
                 {/* Steps */}
-                <div className="space-y-12 mb-20">
+                <div className="space-y-6 lg:space-y-12 mb-10 lg:mb-20">
                     {steps.map((step, index) => (
                         <div
                             key={step.number}
-                            className={`bg-white border-4 border-black shadow-neo-lg p-8 transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'
+                            className={`bg-white border-4 border-black shadow-neo lg:shadow-neo-lg p-4 lg:p-8 lg:transform ${index % 2 === 0 ? 'lg:rotate-1' : 'lg:-rotate-1'
                                 }`}
                         >
-                            <div className="flex flex-col lg:flex-row items-center gap-8">
+                            <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
                                 {/* Step Number and Text */}
-                                <div className="flex-1 order-2 lg:order-1">
-                                    <div className="flex items-center mb-4">
-                                        <div className="bg-neo-purple text-white border-4 border-black shadow-neo px-6 py-3 text-4xl font-black mr-4">
+                                <div className="flex-1 order-2 lg:order-1 w-full">
+                                    <div className="flex items-center mb-3 lg:mb-4 gap-3 lg:gap-0">
+                                        <div className="bg-neo-purple text-white border-4 border-black shadow-neo px-3 py-2 lg:px-6 lg:py-3 text-2xl lg:text-4xl font-black lg:mr-4 shrink-0">
                                             {step.number}
                                         </div>
-                                        <h2 className="text-3xl font-black text-black uppercase">
+                                        <h2 className="text-lg sm:text-xl lg:text-3xl font-black text-black uppercase leading-tight">
                                             {step.title}
                                         </h2>
                                     </div>
-                                    <p className="text-xl font-bold text-black leading-relaxed border-l-4 border-neo-purple pl-4">
+                                    <p className="text-base lg:text-xl font-bold text-black leading-relaxed border-l-4 border-neo-purple pl-3 lg:pl-4">
                                         {step.description}
                                     </p>
                                 </div>
 
                                 {/* Step Image */}
-                                <div className="flex-shrink-0 order-1 lg:order-2">
-                                    <div className="bg-white border-4 border-black shadow-neo-lg p-4 w-[280px] sm:w-[320px]">
+                                <div className="flex-shrink-0 order-1 lg:order-2 w-full lg:w-auto flex justify-center">
+                                    <div className="bg-white border-4 border-black shadow-neo lg:shadow-neo-lg p-2 lg:p-4 w-full max-w-[220px] sm:max-w-[280px] lg:w-[320px]">
                                         <Image
                                             src={step.image}
                                             alt={`${l.step} ${step.number}`}
@@ -139,21 +139,21 @@ export default function JoinPage() {
                 </div>
 
                 {/* WhatsApp CTA */}
-                <div className="bg-neo-green border-4 border-black shadow-neo-lg p-12 text-center transform rotate-1">
-                    <h2 className="text-3xl sm:text-4xl font-black text-black mb-6 uppercase">
+                <div className="bg-neo-green border-4 border-black shadow-neo lg:shadow-neo-lg p-6 lg:p-12 text-center lg:transform lg:rotate-1">
+                    <h2 className="text-xl sm:text-2xl lg:text-4xl font-black text-black mb-4 lg:mb-6 uppercase">
                         {l.lastStep}
                     </h2>
-                    <p className="text-xl font-bold text-black mb-8">
+                    <p className="text-base lg:text-xl font-bold text-black mb-6 lg:mb-8">
                         {l.lastStepDesc}
                     </p>
                     <a
                         href={whatsappGroupLink}
 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center px-12 py-6 bg-[#25D366] text-white border-4 border-black shadow-neo text-2xl font-black hover:bg-white hover:text-[#25D366] hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-2"
+                        className="inline-flex items-center px-6 py-4 lg:px-12 lg:py-6 bg-[#25D366] text-white border-4 border-black shadow-neo text-base lg:text-2xl font-black hover:bg-white hover:text-[#25D366] hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-2"
                     >
                         <svg
-                            className="w-10 h-10 mr-4"
+                            className="w-6 h-6 lg:w-10 lg:h-10 mr-2 lg:mr-4"
                             fill="currentColor"
                             viewBox="0 0 24 24"
                         >
@@ -164,13 +164,13 @@ export default function JoinPage() {
                 </div>
 
                 {/* Back Button */}
-                <div className="mt-12 text-center">
+                <div className="mt-8 lg:mt-12 text-center">
                     <Link
                         href="/"
-                        className="inline-flex items-center text-black font-black uppercase hover:underline decoration-4 decoration-neo-purple underline-offset-4 transition-all text-lg"
+                        className="inline-flex items-center text-black font-black uppercase hover:underline decoration-4 decoration-neo-purple underline-offset-4 transition-all text-base lg:text-lg"
                     >
                         <svg
-                            className="w-6 h-6 mr-2"
+                            className="w-5 h-5 lg:w-6 lg:h-6 mr-2"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"

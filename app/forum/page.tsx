@@ -24,6 +24,10 @@ const CategoryIcon = ({ name, size = 28 }: { name: string; size?: number }) => {
   if (Icon) {
     return <Icon size={size} className="text-black" />;
   }
+  // Eğer iconMap'te yoksa emoji olabilir, emoji olarak göster
+  if (name && !iconMap[name]) {
+    return <span className="text-2xl leading-none">{name}</span>;
+  }
   return <MessageCircle size={size} className="text-black" />;
 };
 
