@@ -107,7 +107,6 @@ export async function POST(
             }
         }
 
-        /* Announcement creation disabled by request
         const announcement = await Announcement.create({
             slug,
             title: announcementTitle,
@@ -123,7 +122,6 @@ export async function POST(
             isDraft: false,
             image: event.posterUrl,
         });
-        */
 
         // Send email notifications to PARTICIPANTS ONLY
         (async () => {
@@ -196,7 +194,8 @@ export async function POST(
         });
 
         return NextResponse.json({
-            message: 'Etkinlik sonlandırıldı. (Duyuru oluşturulmadı, sadece katılımcılara e-posta gönderildi)',
+            message: 'Etkinlik sonlandırıldı, duyuru oluşturuldu ve katılımcılara e-posta gönderildi.',
+            announcementSlug: slug,
             stats: {
                 attendeeCount: totalAttended,
                 duration: report.duration,
