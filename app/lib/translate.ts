@@ -157,12 +157,15 @@ export async function translateContentBlocks(
     blocks: ContentBlock[],
     sourceLanguage: 'tr' | 'en' = 'tr'
 ): Promise<ContentBlock[]> {
+    console.log('[translateContentBlocks] Called with', blocks?.length || 0, 'blocks');
+
     if (!blocks || blocks.length === 0) {
+        console.log('[translateContentBlocks] No blocks to translate');
         return blocks;
     }
 
     if (!DEEPL_API_KEY) {
-        console.warn('DEEPL_API_KEY not set, returning original blocks');
+        console.warn('[translateContentBlocks] DEEPL_API_KEY not set, returning original blocks');
         return blocks;
     }
 
@@ -170,26 +173,32 @@ export async function translateContentBlocks(
         const translatedBlocks = await Promise.all(
             blocks.map(async (block) => {
                 const translatedBlock = { ...block };
+                console.log('[translateContentBlocks] Processing block:', block.type, 'content:', block.content?.substring(0, 50));
 
                 // Translate text content if present
                 if (block.type === 'text' && block.content && block.content.trim()) {
+                    console.log('[translateContentBlocks] Translating text block content...');
                     const contentResult = await translateContent(block.content, sourceLanguage);
                     translatedBlock.contentEn = contentResult.en;
+                    console.log('[translateContentBlocks] Text translated, contentEn set to:', contentResult.en?.substring(0, 50));
                 }
 
                 // Translate button text if present (for link-button type)
                 if (block.type === 'link-button' && block.buttonText && block.buttonText.trim()) {
+                    console.log('[translateContentBlocks] Translating link-button text...');
                     const buttonResult = await translateContent(block.buttonText, sourceLanguage);
                     translatedBlock.buttonTextEn = buttonResult.en;
+                    console.log('[translateContentBlocks] Button text translated, buttonTextEn set to:', buttonResult.en);
                 }
 
                 return translatedBlock;
             })
         );
 
+        console.log('[translateContentBlocks] Translation complete, returning', translatedBlocks.length, 'blocks');
         return translatedBlocks;
     } catch (error) {
-        console.error('Content blocks translation error:', error);
+        console.error('[translateContentBlocks] Translation error:', error);
         return blocks; // Return original on error
     }
 }

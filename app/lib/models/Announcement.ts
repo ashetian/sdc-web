@@ -9,6 +9,7 @@ export interface IContentBlock {
   images?: string[];
   url?: string;
   buttonText?: string;
+  buttonTextEn?: string;
 }
 
 export interface IAnnouncement {
@@ -130,6 +131,7 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
         images: [String],
         url: String,
         buttonText: String,
+        buttonTextEn: String,
       }],
       required: false,
       default: [],
@@ -144,6 +146,7 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
         images: [String],
         url: String,
         buttonText: String,
+        buttonTextEn: String,
       }],
       required: false,
       default: [],

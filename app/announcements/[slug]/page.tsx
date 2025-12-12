@@ -33,10 +33,12 @@ interface ContentBlock {
   id: string;
   type: "text" | "image" | "image-grid" | "link-button";
   content?: string;
+  contentEn?: string;
   image?: string;
   images?: string[];
   url?: string;
   buttonText?: string;
+  buttonTextEn?: string;
 }
 
 interface Event {
@@ -213,7 +215,7 @@ export default function AnnouncementPage({
                     case "text":
                       return (
                         <p key={block.id} className="text-black font-medium leading-relaxed">
-                          {block.content}
+                          {language === 'en' && block.contentEn ? block.contentEn : block.content}
                         </p>
                       );
                     case "image":
@@ -253,7 +255,7 @@ export default function AnnouncementPage({
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-8 py-4 border-4 border-black shadow-neo text-lg font-black text-white bg-neo-purple hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-1"
                           >
-                            {block.buttonText} ↗
+                            {language === 'en' && block.buttonTextEn ? block.buttonTextEn : block.buttonText} ↗
                           </a>
                         </div>
                       ) : null;

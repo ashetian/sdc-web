@@ -139,10 +139,7 @@ export async function POST(
                     .filter(member => member && member.email); // Ensure member exists and has email
 
                 if (members.length > 0) {
-                    // We don't have an announcement link anymore since we didn't create one.
-                    // We will link to the event page or just remove the link.
-                    // const announcementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/announcements/${slug}`;
-                    const eventUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/events/${id}`;
+                    const announcementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/announcements/${slug}`;
 
                     const htmlTr = wrapEmailHtml(`
                         <h2 style="margin-bottom: 20px;">${announcementTitle}</h2>
@@ -151,7 +148,13 @@ export async function POST(
                             <p><strong>Süre:</strong> ${Math.floor(report.duration / 60)} saat ${report.duration % 60} dakika</p>
                         </div>
                         <p style="margin-bottom: 20px;">${report.summary}</p>
-                        <!-- Reminder Note -->
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${announcementUrl}" 
+                               style="background: #FFDE00; color: #000; padding: 15px 30px; text-decoration: none; 
+                                      font-weight: bold; border: 3px solid #000; display: inline-block;">
+                                Duyuruyu Görüntüle
+                            </a>
+                        </div>
                         <p style="margin-top:20px; color:#666; font-size:12px;">Bu e-posta sadece etkinlik katılımcılarına gönderilmiştir.</p>
                     `, 'Etkinlik Raporu', 'tr');
 
@@ -162,6 +165,13 @@ export async function POST(
                             <p><strong>Duration:</strong> ${Math.floor(report.duration / 60)} hours ${report.duration % 60} minutes</p>
                         </div>
                         <p style="margin-bottom: 20px;">${summaryEn || report.summary}</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${announcementUrl}" 
+                               style="background: #FFDE00; color: #000; padding: 15px 30px; text-decoration: none; 
+                                      font-weight: bold; border: 3px solid #000; display: inline-block;">
+                                View Announcement
+                            </a>
+                        </div>
                         <p style="margin-top:20px; color:#666; font-size:12px;">This email was sent only to event participants.</p>
                     `, 'Event Report', 'en');
 
