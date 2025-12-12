@@ -22,6 +22,7 @@ export type NotificationType =
     | 'admin_new_forum_topic'
     | 'admin_new_registration'
     | 'admin_new_applicant'
+    | 'admin_bug_report'
     | 'admin_spam_alert'
     | 'admin_milestone';
 
@@ -73,6 +74,7 @@ const NotificationSchema = new Schema<INotification>(
                 'admin_new_forum_topic',
                 'admin_new_registration',
                 'admin_new_applicant',
+                'admin_bug_report',
                 'admin_spam_alert',
                 'admin_milestone',
             ],

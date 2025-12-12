@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     try {
         // Use verifyAuth for consistent auth checking
         const auth = await verifyAuth(request);
-        
+
         if (!auth || !auth.userId) {
             return NextResponse.json(
                 { error: 'Giriş yapmanız gerekiyor' },
@@ -48,6 +48,24 @@ export async function POST(request: NextRequest) {
             browser: browser?.trim() || '',
             status: 'pending',
         });
+
+        // Admin notification for new bug report
+        try {
+            const { createAdminNotification } = await import('@/app/lib/notifications');
+            await createAdminNotification({
+                type: 'admin_bug_report',
+                title: 'Yeni hata bildirimi',
+                titleEn: 'New bug report',
+                message: `${member.nickname || member.fullName}: "${title.trim().slice(0, 50)}..."`,
+                messageEn: `${member.nickname || member.fullName}: "${title.trim().slice(0, 50)}..."`,
+                link: '/admin/bug-reports',
+                relatedContentType: 'bug_report',
+                relatedContentId: bugReport._id,
+                actorId: member._id.toString(),
+            });
+        } catch (notifError) {
+            console.error('Admin notification error:', notifError);
+        }
 
         return NextResponse.json(
             { success: true, bugReport },

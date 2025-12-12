@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import Project from '@/app/lib/models/Project';
+import { verifyAuth } from '@/app/lib/auth';
 
 // GET - All projects for admin (including pending)
 export async function GET(request: NextRequest) {
     try {
         await connectDB();
 
-        // Check admin password
-        const adminPassword = request.headers.get('x-admin-password');
-        if (adminPassword !== process.env.ADMIN_PASSWORD) {
+        // Check auth via JWT cookie
+        const user = await verifyAuth(request);
+        if (!user) {
             return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
         }
 
@@ -45,9 +46,9 @@ export async function PUT(request: NextRequest) {
     try {
         await connectDB();
 
-        // Check admin password
-        const adminPassword = request.headers.get('x-admin-password');
-        if (adminPassword !== process.env.ADMIN_PASSWORD) {
+        // Check auth via JWT cookie
+        const user = await verifyAuth(request);
+        if (!user) {
             return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
         }
 
@@ -90,9 +91,9 @@ export async function DELETE(request: NextRequest) {
     try {
         await connectDB();
 
-        // Check admin password
-        const adminPassword = request.headers.get('x-admin-password');
-        if (adminPassword !== process.env.ADMIN_PASSWORD) {
+        // Check auth via JWT cookie
+        const user = await verifyAuth(request);
+        if (!user) {
             return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
         }
 

@@ -158,6 +158,19 @@ export async function POST(request: NextRequest) {
             if (parentId) {
                 const parentComment = await Comment.findById(parentId).populate('memberId', '_id');
                 if (parentComment && parentComment.memberId._id.toString() !== memberId) {
+                    // Generate correct link based on content type
+                    let notificationLink = '';
+                    if (contentType === 'gallery') {
+                        notificationLink = `/gallery/${contentId}`;
+                    } else if (contentType === 'announcement') {
+                        // Announcements use slug, not ID - need to fetch the slug
+                        const { Announcement } = await import('@/app/lib/models/Announcement');
+                        const announcement = await Announcement.findById(contentId).select('slug');
+                        notificationLink = announcement ? `/announcements/${announcement.slug}` : `/announcements`;
+                    } else if (contentType === 'project') {
+                        notificationLink = `/projects/${contentId}`;
+                    }
+
                     await createNotification({
                         recipientId: parentComment.memberId._id,
                         type: 'comment_reply',
@@ -165,7 +178,7 @@ export async function POST(request: NextRequest) {
                         titleEn: 'New reply to your comment',
                         message: `${member.nickname || 'Bir kullanıcı'}: "${content.trim().slice(0, 50)}..."`,
                         messageEn: `${member.nickname || 'A user'}: "${content.trim().slice(0, 50)}..."`,
-                        link: contentType === 'gallery' ? `/gallery/${contentId}` : `/${contentType}s/${contentId}`,
+                        link: notificationLink,
                         relatedContentType: 'comment',
                         relatedContentId: comment._id,
                         actorId: memberId,

@@ -138,3 +138,58 @@ export function translateDate(turkishDate: string): string {
     }
     return result;
 }
+
+// Content block interface
+interface ContentBlock {
+    id: string;
+    type: 'text' | 'image' | 'image-grid' | 'link-button';
+    content?: string;
+    contentEn?: string;
+    image?: string;
+    images?: string[];
+    url?: string;
+    buttonText?: string;
+    buttonTextEn?: string;
+}
+
+// Translate content blocks (text content and button text)
+export async function translateContentBlocks(
+    blocks: ContentBlock[],
+    sourceLanguage: 'tr' | 'en' = 'tr'
+): Promise<ContentBlock[]> {
+    if (!blocks || blocks.length === 0) {
+        return blocks;
+    }
+
+    if (!DEEPL_API_KEY) {
+        console.warn('DEEPL_API_KEY not set, returning original blocks');
+        return blocks;
+    }
+
+    try {
+        const translatedBlocks = await Promise.all(
+            blocks.map(async (block) => {
+                const translatedBlock = { ...block };
+
+                // Translate text content if present
+                if (block.type === 'text' && block.content && block.content.trim()) {
+                    const contentResult = await translateContent(block.content, sourceLanguage);
+                    translatedBlock.contentEn = contentResult.en;
+                }
+
+                // Translate button text if present (for link-button type)
+                if (block.type === 'link-button' && block.buttonText && block.buttonText.trim()) {
+                    const buttonResult = await translateContent(block.buttonText, sourceLanguage);
+                    translatedBlock.buttonTextEn = buttonResult.en;
+                }
+
+                return translatedBlock;
+            })
+        );
+
+        return translatedBlocks;
+    } catch (error) {
+        console.error('Content blocks translation error:', error);
+        return blocks; // Return original on error
+    }
+}

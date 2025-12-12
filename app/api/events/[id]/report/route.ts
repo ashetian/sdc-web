@@ -84,8 +84,20 @@ export async function POST(request: NextRequest, context: RouteContext) {
             return NextResponse.json({ error: 'Geçerli süre gerekli' }, { status: 400 });
         }
 
+        // Translate content blocks if DeepL is available
+        let translatedContentBlocks = contentBlocks || [];
+        if (process.env.DEEPL_API_KEY && contentBlocks && contentBlocks.length > 0) {
+            try {
+                const { translateContentBlocks } = await import('@/app/lib/translate');
+                translatedContentBlocks = await translateContentBlocks(contentBlocks, 'tr');
+            } catch (translateError) {
+                console.error('Content blocks translation failed:', translateError);
+                // Continue with untranslated blocks
+            }
+        }
+
         event.completionReport = {
-            contentBlocks: contentBlocks || [],
+            contentBlocks: translatedContentBlocks,
             participantCount,
             duration,
             summary,

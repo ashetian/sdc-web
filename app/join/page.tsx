@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Clock, Mail } from 'lucide-react';
 import { useLanguage } from '../_context/LanguageContext';
 
 export default function JoinPage() {
@@ -18,6 +19,12 @@ export default function JoinPage() {
             step2Desc: 'Açılan sayfada "Kulüp Yönetim Sistemi"ne tıklayın. Kulüp listesinden "Yazılım Geliştirme Kulübü"nü bulun.',
             step3Title: 'Üye Olun',
             step3Desc: 'Kulüp detay sayfasında "ÜYE OL" butonuna tıklayarak kulübümüze katılın!',
+            warningTitle: 'Önemli Bilgi',
+            warningDesc: 'Kulübe başvurduktan sonra üyeliğinizin kulüp yönetimi tarafından onaylanması ve üyelik bilgilerinizin veritabanımıza işlenmesi için lütfen biraz bekleyiniz. Bu süreç birkaç iş günü sürebilir.',
+            contactNote: 'Sürecin hızlanması için kulüp yönetimiyle iletişime geçebilirsiniz:',
+            contactTitle: 'İletişim',
+            contactEmail: 'E-posta: contact@ktusdc.com',
+            contactWhatsApp: 'veya aşağıdaki WhatsApp grubundan ulaşabilirsiniz.',
             lastStep: 'Son Adım: WhatsApp Grubuna Katıl!',
             lastStepDesc: 'Yukarıdaki adımları tamamladıktan sonra WhatsApp grubumuza katılarak kulüp etkinliklerinden haberdar olun!',
             joinWhatsApp: 'WhatsApp Grubuna Katıl',
@@ -33,6 +40,12 @@ export default function JoinPage() {
             step2Desc: 'Click on "Club Management System" on the opened page. Find "Software Development Club" in the club list.',
             step3Title: 'Become a Member',
             step3Desc: 'Click the "JOIN" button on the club detail page to join our club!',
+            warningTitle: 'Important Notice',
+            warningDesc: 'After applying to the club, please wait for your membership to be approved by the club management and for your membership information to be processed into our database. This process may take a few business days.',
+            contactNote: 'To speed up the process, you can contact the club management:',
+            contactTitle: 'Contact',
+            contactEmail: 'Email: contact@ktusdc.com',
+            contactWhatsApp: 'or reach us via the WhatsApp group below.',
             lastStep: 'Last Step: Join the WhatsApp Group!',
             lastStepDesc: 'After completing the steps above, join our WhatsApp group to stay updated on club activities!',
             joinWhatsApp: 'Join WhatsApp Group',
@@ -136,6 +149,38 @@ export default function JoinPage() {
                             </div>
                         </div>
                     ))}
+                </div>
+
+                {/* Membership Approval Warning */}
+                <div className="bg-red-100 border-4 border-red-500 shadow-neo-lg p-8 mb-8 transform -rotate-1">
+                    <div className="flex items-start gap-4">
+                        <div className="bg-red-500 border-2 border-black p-3 shadow-neo">
+                            <Clock className="w-8 h-8 text-white" strokeWidth={2.5} />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-black text-black uppercase mb-2">
+                                {l.warningTitle}
+                            </h3>
+                            <p className="text-lg font-bold text-black leading-relaxed mb-4">
+                                {l.warningDesc}
+                            </p>
+
+                            {/* Contact Info */}
+                            <div className="bg-white border-2 border-black p-4 mt-4">
+                                <p className="font-bold text-black mb-3">{l.contactNote}</p>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Mail className="w-5 h-5 text-black" strokeWidth={2.5} />
+                                    <h4 className="text-lg font-black text-black uppercase">
+                                        {l.contactTitle}
+                                    </h4>
+                                </div>
+                                <div className="space-y-1 font-bold text-black pl-7">
+                                    <p>{l.contactEmail}</p>
+                                    <p className="text-sm italic">{l.contactWhatsApp}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* WhatsApp CTA */}

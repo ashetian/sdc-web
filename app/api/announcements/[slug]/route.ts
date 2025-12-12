@@ -33,7 +33,24 @@ export async function GET(
   try {
     await connectDB();
     const { slug } = await params;
-    const announcement = await Announcement.findOne({ slug });
+
+    // First try to find by slug
+    let announcement = await Announcement.findOne({ slug });
+
+    // If not found, try to find by ObjectId (for old notification links)
+    if (!announcement) {
+      const mongoose = await import('mongoose');
+      if (mongoose.Types.ObjectId.isValid(slug)) {
+        announcement = await Announcement.findById(slug);
+        // If found by ID, return with redirect hint
+        if (announcement) {
+          return NextResponse.json({
+            ...announcement.toObject(),
+            _redirect: `/announcements/${announcement.slug}`
+          });
+        }
+      }
+    }
 
     if (!announcement) {
       return NextResponse.json(
@@ -124,7 +141,7 @@ export async function PUT(
     let updateData: any = { ...parsed.data };
     if (process.env.DEEPL_API_KEY) {
       try {
-        const { translateContent, translateFields, translateDate } = await import('@/app/lib/translate');
+        const { translateContent, translateFields, translateDate, translateContentBlocks } = await import('@/app/lib/translate');
 
         // Translate main fields: title, description, content
         const mainTranslations = await translateFields({
@@ -147,6 +164,12 @@ export async function PUT(
         if (parsed.data.galleryDescription) {
           const galleryDescResult = await translateContent(parsed.data.galleryDescription, 'tr');
           updateData.galleryDescriptionEn = galleryDescResult.en;
+        }
+
+        // Translate content blocks if present
+        if (parsed.data.contentBlocks && parsed.data.contentBlocks.length > 0) {
+          const translatedBlocks = await translateContentBlocks(parsed.data.contentBlocks, 'tr');
+          updateData.contentBlocks = translatedBlocks;
         }
 
         console.log('Announcement auto-translated on update');

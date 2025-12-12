@@ -170,16 +170,18 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Geçerli üye bulunamadı' }, { status: 400 });
         }
 
-        // Upsert members (update if exists, insert if not)
-        let upsertCount = 0;
-        for (const member of uniqueMembers) {
-            await Member.findOneAndUpdate(
-                { studentNo: member.studentNo },
-                member,
-                { upsert: true, new: true }
-            );
-            upsertCount++;
-        }
+        // Upsert members using bulkWrite for much better performance
+        // This processes all members in a single database operation instead of one-by-one
+        const bulkOps = uniqueMembers.map(member => ({
+            updateOne: {
+                filter: { studentNo: member.studentNo },
+                update: { $set: member },
+                upsert: true
+            }
+        }));
+
+        const bulkResult = await Member.bulkWrite(bulkOps, { ordered: false });
+        const upsertCount = bulkResult.upsertedCount + bulkResult.modifiedCount;
 
         return NextResponse.json({
             message: `${upsertCount} üye yüklendi/güncellendi`,

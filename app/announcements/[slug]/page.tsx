@@ -2,6 +2,7 @@
 import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
 import { SkeletonCardGrid, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
@@ -50,6 +51,7 @@ export default function AnnouncementPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const router = useRouter();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -84,6 +86,13 @@ export default function AnnouncementPage({
         const res = await fetch(`/api/announcements/${slug}`);
         if (!res.ok) throw new Error("Duyuru yüklenemedi");
         const data = await res.json();
+
+        // Handle redirect for old ObjectId-based links
+        if (data._redirect) {
+          router.replace(data._redirect);
+          return;
+        }
+
         if (data.isDraft) {
           setAnnouncement(null);
         } else {
@@ -104,7 +113,7 @@ export default function AnnouncementPage({
     }
 
     loadData();
-  }, [slug]);
+  }, [slug, router]);
 
   const getTitle = () => {
     if (!announcement) return '';

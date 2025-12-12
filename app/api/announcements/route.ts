@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
 
     if (process.env.DEEPL_API_KEY) {
       try {
-        const { translateContent } = await import('@/app/lib/translate');
+        const { translateContent, translateContentBlocks } = await import('@/app/lib/translate');
 
         // Translate each field separately
         const titleResult = await translateContent(data.title, 'tr');
@@ -173,6 +173,13 @@ export async function POST(request: NextRequest) {
           descriptionEn: descResult.en || '',
           contentEn: contentResult.en || '',
         };
+
+        // Translate content blocks if present
+        if (data.contentBlocks && data.contentBlocks.length > 0) {
+          const translatedBlocks = await translateContentBlocks(data.contentBlocks, 'tr');
+          announcementData.contentBlocks = translatedBlocks;
+        }
+
         console.log('Auto-translation successful');
       } catch (translateError) {
         console.error('Auto-translation failed (continuing without translation):', translateError);

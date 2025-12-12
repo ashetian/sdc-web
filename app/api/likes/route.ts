@@ -84,6 +84,19 @@ export async function POST(request: NextRequest) {
                     const Comment = (await import('@/app/lib/models/Comment')).default;
                     const comment = await Comment.findById(contentId);
                     if (comment && comment.memberId.toString() !== auth.userId) {
+                        // Generate correct link based on content type
+                        let notificationLink = '';
+                        if (comment.contentType === 'gallery') {
+                            notificationLink = `/gallery/${comment.contentId}`;
+                        } else if (comment.contentType === 'announcement') {
+                            // Announcements use slug, not ID
+                            const { Announcement } = await import('@/app/lib/models/Announcement');
+                            const announcement = await Announcement.findById(comment.contentId).select('slug');
+                            notificationLink = announcement ? `/announcements/${announcement.slug}` : `/announcements`;
+                        } else if (comment.contentType === 'project') {
+                            notificationLink = `/projects/${comment.contentId}`;
+                        }
+
                         await createNotification({
                             recipientId: comment.memberId,
                             type: 'comment_like',
@@ -91,7 +104,7 @@ export async function POST(request: NextRequest) {
                             titleEn: 'Your comment was liked',
                             message: 'Birisi yorumunuzu beğendi',
                             messageEn: 'Someone liked your comment',
-                            link: comment.contentType === 'gallery' ? `/gallery/${comment.contentId}` : `/${comment.contentType}s/${comment.contentId}`,
+                            link: notificationLink,
                             relatedContentType: 'like',
                             relatedContentId: contentId,
                             actorId: auth.userId,

@@ -125,6 +125,24 @@ export async function POST(request: NextRequest) {
 
         const project = await Project.create(projectData);
 
+        // Admin notification for new project submission
+        try {
+            const { createAdminNotification } = await import('@/app/lib/notifications');
+            await createAdminNotification({
+                type: 'admin_new_project',
+                title: 'Yeni proje başvurusu',
+                titleEn: 'New project submission',
+                message: `${member.nickname || member.fullName}: "${title}"`,
+                messageEn: `${member.nickname || member.fullName}: "${titleEn || title}"`,
+                link: '/admin/projects',
+                relatedContentType: 'project',
+                relatedContentId: project._id,
+                actorId: memberId,
+            });
+        } catch (notifError) {
+            console.error('Admin notification error:', notifError);
+        }
+
         return NextResponse.json({
             message: 'Proje başarıyla eklendi. Onay bekliyor.',
             project,

@@ -33,9 +33,28 @@ export async function POST(request: Request) {
         }
 
         const registration = await Registration.create(body);
+
+        // Admin notification for new registration
+        try {
+            const { createAdminNotification } = await import('@/app/lib/notifications');
+            await createAdminNotification({
+                type: 'admin_new_registration',
+                title: 'Yeni etkinlik kaydı',
+                titleEn: 'New event registration',
+                message: `"${event.title}" etkinliğine yeni kayıt: ${body.fullName}`,
+                messageEn: `New registration for "${event.titleEn || event.title}": ${body.fullName}`,
+                link: `/admin/events/${eventId}`,
+                relatedContentType: 'registration',
+                relatedContentId: registration._id,
+            });
+        } catch (notifError) {
+            console.error('Admin notification error:', notifError);
+        }
+
         return NextResponse.json(registration, { status: 201 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: 'Kayıt oluşturulamadı.' }, { status: 500 });
     }
 }
+

@@ -32,8 +32,6 @@ type TabType = 'pending' | 'approved' | 'rejected' | 'all' | 'deleted';
 export default function AdminProjectsPage() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
-    const [password, setPassword] = useState('');
-    const [authenticated, setAuthenticated] = useState(false);
     const [filter, setFilter] = useState<TabType>('pending');
     const [rejectReason, setRejectReason] = useState('');
     const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -41,18 +39,8 @@ export default function AdminProjectsPage() {
     const [permanentDeleteModalId, setPermanentDeleteModalId] = useState<string | null>(null);
 
     useEffect(() => {
-        const savedPassword = localStorage.getItem('adminPassword');
-        if (savedPassword) {
-            setPassword(savedPassword);
-            setAuthenticated(true);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (authenticated) {
-            fetchProjects();
-        }
-    }, [authenticated, filter]);
+        fetchProjects();
+    }, [filter]);
 
     const fetchProjects = async () => {
         setLoading(true);
@@ -61,19 +49,14 @@ export default function AdminProjectsPage() {
             if (filter === 'deleted') {
                 url = '/api/admin/projects?deleted=true';
             } else if (filter !== 'all') {
-                url = `/ api / admin / projects ? status = ${filter} `;
+                url = `/api/admin/projects?status=${filter}`;
             }
 
-            const res = await fetch(url, {
-                headers: { 'x-admin-password': password },
-            });
+            const res = await fetch(url);
 
             if (res.ok) {
                 const data = await res.json();
                 setProjects(data);
-            } else if (res.status === 401) {
-                setAuthenticated(false);
-                localStorage.removeItem('adminPassword');
             }
         } catch (err) {
             console.error('Fetch error:', err);
@@ -82,17 +65,10 @@ export default function AdminProjectsPage() {
         }
     };
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        localStorage.setItem('adminPassword', password);
-        setAuthenticated(true);
-    };
-
     const handleApprove = async (id: string) => {
         try {
-            const res = await fetch(`/ api / admin / projects / ${id}/approve`, {
+            const res = await fetch(`/api/admin/projects/${id}/approve`, {
                 method: 'POST',
-                headers: { 'x-admin-password': password },
             });
 
             if (res.ok) {
@@ -109,7 +85,6 @@ export default function AdminProjectsPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-admin-password': password,
                 },
                 body: JSON.stringify({ reason: rejectReason }),
             });
@@ -128,7 +103,6 @@ export default function AdminProjectsPage() {
         try {
             const res = await fetch(`/api/admin/projects?id=${id}`, {
                 method: 'DELETE',
-                headers: { 'x-admin-password': password },
             });
 
             if (res.ok) {
@@ -146,7 +120,6 @@ export default function AdminProjectsPage() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-admin-password': password,
                 },
                 body: JSON.stringify({ projectId: id, action: 'restore' }),
             });
@@ -165,7 +138,6 @@ export default function AdminProjectsPage() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-admin-password': password,
                 },
                 body: JSON.stringify({ projectId: id, action: 'permanent-delete' }),
             });
@@ -202,29 +174,6 @@ export default function AdminProjectsPage() {
         const diffTime = 30 * 24 * 60 * 60 * 1000 - (now.getTime() - deleted.getTime());
         return Math.max(0, Math.ceil(diffTime / (24 * 60 * 60 * 1000)));
     };
-
-    if (!authenticated) {
-        return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-                <form onSubmit={handleLogin} className="bg-gray-800 border-2 border-gray-700 p-8 w-full max-w-md">
-                    <h1 className="text-2xl font-bold text-white mb-6">Proje Yönetimi</h1>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Admin Şifresi"
-                        className="w-full p-3 bg-gray-700 text-white border border-gray-600 mb-4"
-                    />
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-600 text-white py-3 font-bold hover:bg-blue-700"
-                    >
-                        Giriş
-                    </button>
-                </form>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-neo-gray text-neo-black p-6 font-sans">
