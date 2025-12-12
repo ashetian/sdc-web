@@ -87,9 +87,19 @@ export async function POST(request: NextRequest) {
                     }
 
                     if (needsUpdate) {
-                        await Announcement.findByIdAndUpdate(announcement._id, updateData);
+                        // Use direct document update with markModified for proper nested array save
+                        if (updateData.contentBlocks) {
+                            announcement.contentBlocks = updateData.contentBlocks;
+                            announcement.markModified('contentBlocks');
+                        }
+                        if (updateData.titleEn) announcement.titleEn = updateData.titleEn;
+                        if (updateData.descriptionEn) announcement.descriptionEn = updateData.descriptionEn;
+                        if (updateData.contentEn) announcement.contentEn = updateData.contentEn;
+                        if (updateData.dateEn) announcement.dateEn = updateData.dateEn;
+                        if (updateData.galleryDescriptionEn) announcement.galleryDescriptionEn = updateData.galleryDescriptionEn;
+
+                        await announcement.save();
                         results.announcements.translated++;
-                        console.log(`Translated announcement: ${announcement.title}`);
                     }
                 } catch (error) {
                     console.error(`Error translating announcement ${announcement.slug}:`, error);
