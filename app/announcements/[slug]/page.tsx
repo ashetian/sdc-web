@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import connectDB from '@/app/lib/db';
-import { Announcement } from '@/app/lib/models/Announcement';
+import { Announcement, IAnnouncement } from '@/app/lib/models/Announcement';
 import AnnouncementClient from './AnnouncementClient';
 
 interface Props {
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   try {
     await connectDB();
-    const announcement = await Announcement.findOne({ slug }).lean();
+    const announcement = await Announcement.findOne({ slug }).lean() as IAnnouncement | null;
 
     if (!announcement || announcement.isDraft) {
       return {
