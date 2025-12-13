@@ -122,7 +122,6 @@ export default function ForgotPasswordPage() {
                                 id="studentNo"
                                 value={studentNo}
                                 onChange={(e) => setStudentNo(e.target.value)}
-                                placeholder="412345"
                                 required
                                 className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
                             />

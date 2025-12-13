@@ -88,7 +88,6 @@ function LoginForm() {
                     label={t('auth.studentNo')}
                     value={studentNo}
                     onChange={(e) => setStudentNo(e.target.value)}
-                    placeholder="412345"
                     required
                 />
 

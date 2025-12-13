@@ -127,6 +127,20 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: 'Üye bulunamadı' }, { status: 404 });
         }
 
+        // Also update TeamMember photo if exists
+        try {
+            const { default: TeamMember } = await import('@/app/lib/models/TeamMember');
+            if (updateData.avatar !== undefined) {
+                await TeamMember.updateMany(
+                    { memberId: member._id },
+                    { $set: { photo: updateData.avatar } }
+                );
+            }
+        } catch (tmError) {
+            console.error('Error syncing team member photo:', tmError);
+            // Don't fail the request if this sync fails
+        }
+
         return NextResponse.json({
             message: 'Profil güncellendi',
             user: {

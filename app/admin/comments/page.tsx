@@ -63,7 +63,7 @@ export default function AdminCommentsPage() {
 
             if (res.ok) {
                 const data = await res.json();
-                setComments(data);
+                setComments(data.comments);
             } else {
                 console.error('Fetch failed:', res.status);
             }

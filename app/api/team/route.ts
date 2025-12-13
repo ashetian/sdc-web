@@ -25,7 +25,12 @@ export async function GET(request: NextRequest) {
         }
 
         if (role) {
-            filter.role = role;
+            // Support comma-separated roles
+            if (role.includes(',')) {
+                filter.role = { $in: role.split(',') };
+            } else {
+                filter.role = role;
+            }
         }
 
         let members = await TeamMember.find(filter)

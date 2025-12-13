@@ -47,6 +47,35 @@ export default function ProfilePage() {
         instagram: ''
     });
 
+    const [uploading, setUploading] = useState(false);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+
+        const file = e.target.files[0];
+        const uploadForm = new FormData();
+        uploadForm.append("file", file);
+
+        setUploading(true);
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: uploadForm,
+            });
+
+            if (!res.ok) throw new Error("Yükleme başarısız");
+
+            const data = await res.json();
+            setAvatar(data.path);
+            setMessage(t('profile.page.avatarUploaded') || "Fotoğraf yüklendi");
+        } catch (error) {
+            console.error("Görsel yükleme hatası:", error);
+            setError(t('profile.page.uploadError') || "Fotoğraf yüklenirken bir hata oluştu");
+        } finally {
+            setUploading(false);
+        }
+    };
+
     useEffect(() => {
         fetchProfile();
     }, []);
@@ -205,16 +234,73 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
+
+
+                {/* Avatar Picker */}
                 {/* Avatar Picker */}
                 {showAvatarPicker && (
                     <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                         <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
                             {t('profile.page.pickAvatar')}
                         </h2>
+
+                        {/* Custom Upload Section */}
+                        <div className="mb-6">
+                            <h3 className="font-bold text-sm mb-2">{t('profile.page.uploadCustom') || "Kendi Fotoğrafını Yükle"}</h3>
+                            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                                {/* Upload Box */}
+                                <label className={`
+                                    flex-1 flex flex-col items-center justify-center w-full h-32 
+                                    border-4 border-dashed rounded-lg cursor-pointer transition-all
+                                    ${uploading ? 'bg-gray-100 border-gray-400' : 'bg-white border-gray-300 hover:border-black hover:bg-yellow-50'}
+                                `}>
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        {uploading ? (
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+                                        ) : (
+                                            <>
+                                                <FolderGit2 className="w-8 h-8 mb-2 text-gray-500" />
+                                                <p className="mb-1 text-sm text-gray-500 font-bold">
+                                                    <span className="font-black text-black">Tıkla</span> veya sürükle
+                                                </p>
+                                                <p className="text-xs text-gray-400">JPEG, PNG, WEBP (Max 5MB)</p>
+                                            </>
+                                        )}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        disabled={uploading}
+                                    />
+                                </label>
+
+                                {/* Preview of Selected/Current Avatar */}
+                                <div className="flex flex-col items-center gap-2">
+                                    <span className="text-xs font-bold text-gray-400 uppercase">ÖNİZLEME</span>
+                                    <div className="w-24 h-24 rounded-full border-4 border-black overflow-hidden bg-gray-100 relative shadow-neo">
+                                        <Image
+                                            src={avatar || generateAvatarUrl('avataaars', 'preview')}
+                                            alt="Preview"
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="h-px bg-gray-200 flex-1"></div>
+                            <span className="text-xs text-gray-400 font-bold uppercase">VEYA HAZIR AVATAR SEÇ</span>
+                            <div className="h-px bg-gray-200 flex-1"></div>
+                        </div>
+
                         <p className="text-sm text-gray-600 mb-4">
                             {t('profile.page.pickAvatarDesc')}
                         </p>
-                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mb-6">
                             {AVATAR_STYLES.flatMap(style =>
                                 AVATAR_SEEDS.slice(0, 4).map(seed => {
                                     const url = generateAvatarUrl(style, seed);
@@ -224,7 +310,7 @@ export default function ProfilePage() {
                                             key={`${style}-${seed}`}
                                             onClick={() => setAvatar(url)}
                                             className={`w-12 h-12 rounded-full border-2 overflow-hidden transition-all ${isSelected
-                                                ? 'border-yellow-400 ring-4 ring-yellow-200'
+                                                ? 'border-yellow-400 ring-4 ring-yellow-200 scale-110'
                                                 : 'border-black hover:border-yellow-400'
                                                 }`}
                                         >
@@ -240,19 +326,32 @@ export default function ProfilePage() {
                                 })
                             )}
                         </div>
-                        <div className="flex gap-2 mt-4">
+
+                        <div className="flex justify-between items-center pt-4 border-t-2 border-gray-100">
                             <button
                                 onClick={() => setAvatar('')}
-                                className="px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 text-sm"
+                                className="text-xs text-red-500 font-bold hover:underline"
                             >
                                 {t('profile.page.resetDefault')}
                             </button>
-                            <button
-                                onClick={() => setShowAvatarPicker(false)}
-                                className="px-4 py-2 bg-black text-white font-bold border-2 border-black hover:bg-gray-800 text-sm"
-                            >
-                                {t('profile.page.close')}
-                            </button>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowAvatarPicker(false)}
+                                    className="px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 text-sm"
+                                >
+                                    {t('profile.page.close')}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        handleSave(); // Explicitly save when confirming from modal
+                                        setShowAvatarPicker(false);
+                                    }}
+                                    className="px-6 py-2 bg-yellow-400 text-black font-black border-2 border-black hover:bg-yellow-500 text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-[2px] active:shadow-none transition-all"
+                                >
+                                    KAYDET VE GÜNCELLE
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

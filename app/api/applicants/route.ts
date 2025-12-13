@@ -96,7 +96,7 @@ export async function POST(request: Request) {
                 titleEn: 'New team application',
                 message: `${parsed.data.fullName} - ${parsed.data.selectedDepartment}`,
                 messageEn: `${parsed.data.fullName} - ${parsed.data.selectedDepartment}`,
-                link: '/admin/applicants',
+                link: '/admin/departments',
                 relatedContentType: 'applicant',
                 relatedContentId: applicant._id,
             });

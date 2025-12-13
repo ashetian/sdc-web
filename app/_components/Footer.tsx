@@ -87,14 +87,11 @@ export default function Footer() {
             <span className="text-sm font-bold bg-neo-pink text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
               {t('footer.cookedBy')}
             </span>
-            <span className="text-sm font-bold bg-neo-blue text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-              Caner
-            </span>
-            <span className="text-sm font-bold bg-neo-green text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-              Cihan
-            </span>
             <span className="text-sm font-bold bg-neo-purple text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
               Murat
+            </span>
+            <span className="text-sm font-bold bg-neo-blue text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+              Caner
             </span>
           </div>
         </div>

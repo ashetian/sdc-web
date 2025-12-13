@@ -148,10 +148,10 @@ export default function JoinPage() {
                         href={whatsappGroupLink}
 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center px-6 py-4 lg:px-12 lg:py-6 bg-[#25D366] text-white border-4 border-black shadow-neo text-base lg:text-2xl font-black hover:bg-white hover:text-[#25D366] hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-2"
+                        className="inline-flex items-center gap-4 px-8 py-5 lg:px-16 lg:py-8 bg-[#25D366] text-white border-4 border-black shadow-neo text-base lg:text-2xl font-black hover:bg-white hover:text-[#25D366] hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-2"
                     >
                         <svg
-                            className="w-6 h-6 lg:w-10 lg:h-10 mr-2 lg:mr-4"
+                            className="w-6 h-6 lg:w-10 lg:h-10"
                             fill="currentColor"
                             viewBox="0 0 24 24"
                         >

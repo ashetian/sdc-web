@@ -67,9 +67,10 @@ export default function Team() {
 
     const getDeptMembers = (deptId: string) => {
         return members.filter(m => {
-            const mDeptId = typeof m.departmentId === 'object' ? m.departmentId?._id : m.departmentId;
+            const mDeptId = typeof m.departmentId === 'object' && m.departmentId ? (m.departmentId as any)._id : m.departmentId;
             if (m.role === 'president' || m.role === 'vice_president') return false;
-            return mDeptId === deptId;
+            // Use String comparison to ensure ObjectId vs string match
+            return String(mDeptId) === String(deptId);
         }).sort((a, b) => {
             if (a.role === 'head' && b.role !== 'head') return -1;
             if (a.role !== 'head' && b.role === 'head') return 1;
@@ -82,8 +83,26 @@ export default function Team() {
         return getDeptMembers(activeDeptId);
     }, [members, activeDeptId]);
 
-    const lead = activeDeptMembers.find(m => m.role === 'head');
-    const otherMembers = activeDeptMembers.filter(m => m.role !== 'head');
+    const lead = activeDeptMembers.find(m => {
+        // Check if member is the assigned lead in department settings
+        if (activeDept?.leadId) {
+            const leadId = typeof activeDept.leadId === 'object' ? (activeDept.leadId as any)._id : activeDept.leadId;
+            const memberUserId = (m as any).memberId?._id || (m as any).memberId;
+
+            // If department lead is set, prioritize matching by Member ID
+            if (leadId && memberUserId && String(leadId) === String(memberUserId)) return true;
+        }
+        // Fallback to role check
+        return m.role === 'head';
+    });
+
+    const otherMembers = activeDeptMembers.filter(m => {
+        // If we found a lead, exclude them from other members
+        if (lead && m._id === lead._id) return false;
+        // If NO lead was found, but this member is 'head', show them in grid to avoid invisibility
+        if (!lead && m.role === 'head') return true;
+        return m.role !== 'head';
+    });
 
     const handleMemberClick = (member: TeamMember) => {
         const linkedId = (member as any).memberId?._id || (member as any).memberId;

@@ -537,7 +537,10 @@ export const tr = {
             languagePref: 'Dil Tercihi',
             languageDesc: 'Size gönderilecek e-postaların dilini seçin:',
             turkish: 'Türkçe',
-            english: 'English'
+            english: 'English',
+            uploadCustom: 'Kendi Fotoğrafını Yükle',
+            avatarUploaded: 'Profil fotoğrafı başarıyla yüklendi',
+            uploadError: 'Fotoğraf yüklenirken bir hata oluştu',
         },
         bookmarks: {
             backToProfile: 'Profile Dön',

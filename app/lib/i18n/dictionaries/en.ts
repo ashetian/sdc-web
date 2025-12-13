@@ -541,7 +541,10 @@ export const en = {
             languagePref: 'Language Preference',
             languageDesc: 'Choose the language for emails sent to you:',
             turkish: 'Türkçe',
-            english: 'English'
+            english: 'English',
+            uploadCustom: 'Upload Custom Photo',
+            avatarUploaded: 'Profile photo uploaded successfully',
+            uploadError: 'Error uploading photo',
         },
         bookmarks: {
             backToProfile: 'Back to Profile',
