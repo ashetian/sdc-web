@@ -1,9 +1,10 @@
+
 "use client";
 import { useRef, useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
-import { Crown, ChevronDown, ChevronUp } from "lucide-react";
+import { Crown, ChevronDown, ChevronUp, Users, ExternalLink } from "lucide-react";
 import UserProfileModal from "./UserProfileModal";
 import { useDepartments, useTeam } from "../lib/swr";
 import type { TeamMember, Department } from "../lib/types/api";
@@ -31,6 +32,16 @@ const iconMap: Record<string, React.ReactNode> = {
     ),
 };
 
+// Map department colors to border colors for connectors
+const borderColorMap: Record<string, string> = {
+    'bg-neo-blue': 'border-neo-blue',
+    'bg-neo-pink': 'border-neo-pink',
+    'bg-neo-green': 'border-neo-green',
+    'bg-neo-yellow': 'border-neo-yellow',
+    'bg-neo-purple': 'border-neo-purple',
+    'bg-neo-orange': 'border-neo-orange',
+};
+
 // Standard Neo-Brutalist CSS class
 const standardCardClass = "border-4 border-black shadow-neo bg-white transition-all";
 
@@ -47,66 +58,23 @@ export default function Team() {
     const loading = deptLoading || teamLoading;
 
     const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
-    const [activeDeptId, setActiveDeptId] = useState<string | null>(null);
     const [expandedDepts, setExpandedDepts] = useState<Set<string>>(new Set());
-
-    // Set first department as active when data loads
-    useEffect(() => {
-        if (departments.length > 0 && !activeDeptId) {
-            setActiveDeptId(departments[0]._id);
-            setExpandedDepts(new Set([departments[0]._id]));
-        }
-    }, [departments, activeDeptId]);
 
     const management = useMemo(() => {
         return members.filter(m => m.role === 'president' || m.role === 'vice_president')
             .sort((a, b) => (a.role === 'president' ? -1 : 1));
     }, [members]);
 
-    const activeDept = useMemo(() => departments.find(d => d._id === activeDeptId), [departments, activeDeptId]);
-
     const getDeptMembers = (deptId: string) => {
         return members.filter(m => {
             const mDeptId = typeof m.departmentId === 'object' && m.departmentId ? (m.departmentId as any)._id : m.departmentId;
             if (m.role === 'president' || m.role === 'vice_president') return false;
-            // Use String comparison to ensure ObjectId vs string match
             return String(mDeptId) === String(deptId);
         }).sort((a, b) => {
             if (a.role === 'head' && b.role !== 'head') return -1;
             if (a.role !== 'head' && b.role === 'head') return 1;
             return (a.order || 0) - (b.order || 0);
         });
-    };
-
-    const activeDeptMembers = useMemo(() => {
-        if (!activeDeptId) return [];
-        return getDeptMembers(activeDeptId);
-    }, [members, activeDeptId]);
-
-    const lead = activeDeptMembers.find(m => {
-        // Check if member is the assigned lead in department settings
-        if (activeDept?.leadId) {
-            const leadId = typeof activeDept.leadId === 'object' ? (activeDept.leadId as any)._id : activeDept.leadId;
-            const memberUserId = (m as any).memberId?._id || (m as any).memberId;
-
-            // If department lead is set, prioritize matching by Member ID
-            if (leadId && memberUserId && String(leadId) === String(memberUserId)) return true;
-        }
-        // Fallback to role check
-        return m.role === 'head';
-    });
-
-    const otherMembers = activeDeptMembers.filter(m => {
-        // If we found a lead, exclude them from other members
-        if (lead && m._id === lead._id) return false;
-        // If NO lead was found, but this member is 'head', show them in grid to avoid invisibility
-        if (!lead && m.role === 'head') return true;
-        return m.role !== 'head';
-    });
-
-    const handleMemberClick = (member: TeamMember) => {
-        const linkedId = (member as any).memberId?._id || (member as any).memberId;
-        if (linkedId) setSelectedMemberId(linkedId);
     };
 
     const toggleDept = (deptId: string) => {
@@ -121,6 +89,11 @@ export default function Team() {
         });
     };
 
+    const handleMemberClick = (member: TeamMember) => {
+        const linkedId = (member as any).memberId?._id || (member as any).memberId;
+        if (linkedId) setSelectedMemberId(linkedId);
+    };
+
     if (loading) {
         return (
             <section className="py-20 bg-neo-blue border-b-4 border-black scroll-mt-20" id="team">
@@ -128,26 +101,13 @@ export default function Team() {
                     <div className="mb-12 text-center">
                         <div className="h-12 w-48 bg-gray-200 animate-pulse mx-auto rounded mb-4"></div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[...Array(6)].map((_, i) => (
-                            <div key={i} className="bg-white border-4 border-black shadow-neo p-4 animate-pulse">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-gray-200 rounded-full border-2 border-black"></div>
-                                    <div className="flex-1">
-                                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
                 </div>
             </section>
         );
     }
 
-    // Member card component for reuse
-    const MemberCard = ({ member, size = 'normal', showCrown = false, bgColor = 'bg-white' }: { member: TeamMember, size?: 'small' | 'normal' | 'large', showCrown?: boolean, bgColor?: string }) => {
+    const MemberCard = ({ member, size = 'normal', showCrown = false, bgColor = 'bg-white', className = '' }:
+        { member: TeamMember, size?: 'small' | 'normal' | 'large', showCrown?: boolean, bgColor?: string, className?: string }) => {
         const sizeClasses = {
             small: 'w-10 h-10',
             normal: 'w-12 h-12',
@@ -156,7 +116,7 @@ export default function Team() {
         return (
             <div
                 onClick={() => handleMemberClick(member)}
-                className={`${standardCardClass} ${bgColor} hover:bg-gray-50 p-3 cursor-pointer hover:-translate-y-1 transition-transform flex items-center gap-3`}
+                className={`${standardCardClass} ${bgColor} hover:bg-gray-50 p-3 cursor-pointer hover:-translate-y-1 transition-transform flex items-center gap-3 ${className}`}
             >
                 <div className={`relative ${sizeClasses[size]} shrink-0`}>
                     {member.photo ? (
@@ -167,18 +127,31 @@ export default function Team() {
                     {showCrown && <Crown size={14} className="absolute -top-2 -right-1 text-black fill-yellow-400" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                    <h4 className="font-black text-sm leading-tight truncate">{member.name}</h4>
-                    <p className="text-xs font-bold text-gray-500 uppercase truncate">{member.title}</p>
+                    <h4 className="font-black text-xs sm:text-sm leading-tight truncate">{member.name}</h4>
+                    <p className="text-[10px] sm:text-xs font-bold text-gray-700 uppercase truncate opacity-80">{member.title}</p>
                 </div>
             </div>
         );
     };
 
     return (
-        <section ref={sectionRef} id="team" className="relative py-20 bg-white border-b-4 border-black min-h-screen">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-                {/* Join Us Button - Hidden on mobile, shown on larger screens */}
-                <div className="absolute top-0 right-4 lg:right-8 z-50 hidden sm:block">
+        <section ref={sectionRef} id="team" className="relative py-12 lg:py-20 bg-white border-b-4 border-black min-h-screen overflow-hidden">
+            {/* Title */}
+            <div className="text-center mb-12 lg:mb-20 px-4">
+                <h2 className="inline-block bg-white border-4 border-black shadow-neo-lg px-6 py-2 lg:px-12 lg:py-4 text-3xl lg:text-5xl font-black uppercase transform -rotate-2">
+                    {t('team.title')}
+                </h2>
+                <div className="mt-4 flex justify-center">
+                    <p className="bg-neo-yellow border-4 border-black px-4 py-2 font-bold text-lg shadow-neo transform rotate-1 max-w-2xl">
+                        {t('team.subtitle')}
+                    </p>
+                </div>
+            </div>
+
+            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+
+                {/* Join Us (Desktop) */}
+                <div className="absolute top-0 right-4 lg:right-8 z-50 hidden md:block">
                     <Link
                         href="/apply"
                         className="bg-neo-yellow border-4 border-black px-4 py-2 md:px-6 md:py-3 font-black text-sm md:text-lg shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center gap-2"
@@ -190,36 +163,22 @@ export default function Team() {
                     </Link>
                 </div>
 
-                {/* ==================== MOBILE VIEW ==================== */}
+                {/* ==================== MOBILE VIEW (Accordion) ==================== */}
                 <div className="lg:hidden">
                     {/* Management Section */}
-                    <div className={`${standardCardClass} p-4 mb-4`}>
-                        <div className="bg-black text-white px-3 py-1 font-black uppercase text-xs inline-block mb-4">
+                    <div className="mb-8">
+                        <div className="bg-black text-white px-4 py-2 font-black uppercase text-sm inline-block mb-4 shadow-neo border-2 border-white">
                             {t('team.management')}
                         </div>
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 gap-4">
                             {management.map(m => (
-                                <div key={m._id} onClick={() => handleMemberClick(m)} className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer rounded transition-colors">
-                                    <div className="relative w-14 h-14 shrink-0">
-                                        <div className="absolute inset-0 bg-black rounded-full translate-x-0.5 translate-y-0.5"></div>
-                                        {m.photo ? (
-                                            <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover relative bg-white" />
-                                        ) : (
-                                            <div className="w-full h-full rounded-full border-2 border-black bg-gray-200 flex items-center justify-center relative font-black text-lg">{m.name[0]}</div>
-                                        )}
-                                        {m.role === 'president' && <Crown size={16} className="absolute -top-2 -right-1 text-neo-yellow drop-shadow-md rotate-12" fill="currentColor" />}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <h3 className="font-black text-base leading-tight">{m.name}</h3>
-                                        <p className="text-xs font-bold text-gray-500 uppercase">{m.title}</p>
-                                    </div>
-                                </div>
+                                <MemberCard key={m._id} member={m} size="large" showCrown bgColor="bg-neo-yellow" className="py-4" />
                             ))}
                         </div>
                     </div>
 
                     {/* Departments Accordion */}
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {departments.map(dept => {
                             const isExpanded = expandedDepts.has(dept._id);
                             const deptMembers = getDeptMembers(dept._id);
@@ -228,37 +187,44 @@ export default function Team() {
 
                             return (
                                 <div key={dept._id} className={`${standardCardClass} overflow-hidden`}>
-                                    {/* Department Header */}
                                     <button
                                         onClick={() => toggleDept(dept._id)}
-                                        className={`w-full px-4 py-3 font-black uppercase text-sm flex items-center justify-between ${isExpanded ? dept.color : 'bg-white'} transition-colors`}
+                                        className={`w-full px-4 py-4 font-black uppercase text-sm flex items-center justify-between ${dept.color || 'bg-white'} border-b-4 border-black transition-colors`}
                                     >
-                                        <span className="flex items-center gap-2">
-                                            {iconMap[dept.icon]}
-                                            <span>{language === 'en' && dept.nameEn ? dept.nameEn : dept.name}</span>
-                                        </span>
-                                        <span className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-gray-500">({deptMembers.length})</span>
-                                            {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                                        </span>
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-white border-2 border-black p-1.5 shadow-sm rounded-md">
+                                                {iconMap[dept.icon]}
+                                            </div>
+                                            <span className="text-left leading-tight py-1">{language === 'en' && dept.nameEn ? dept.nameEn : dept.name}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-white border-2 border-black px-2 py-1 shadow-sm ml-2 shrink-0">
+                                            <span className="text-xs font-bold">{deptMembers.length}</span>
+                                            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                        </div>
                                     </button>
 
-                                    {/* Department Content */}
                                     {isExpanded && (
-                                        <div className="p-4 border-t-2 border-black bg-gray-50">
-                                            {/* Description */}
-                                            <p className="text-sm text-gray-600 mb-4">
-                                                {language === 'en' && dept.descriptionEn ? dept.descriptionEn : dept.description}
+                                        <div className="p-4 bg-gray-50">
+                                            <p className="text-sm font-medium text-gray-600 mb-6 italic border-l-4 border-black pl-3 py-1">
+                                                "{language === 'en' && dept.descriptionEn ? dept.descriptionEn : dept.description}"
                                             </p>
 
-                                            {/* Members List */}
-                                            <div className="space-y-2">
+                                            <div className="space-y-3">
                                                 {deptLead && (
-                                                    <MemberCard member={deptLead} size="normal" showCrown bgColor={dept.color} />
+                                                    <div className="mb-4 relative">
+                                                        <div className="absolute -top-3 left-3 bg-black text-white text-[10px] font-black px-2 py-0.5 uppercase z-10">
+                                                            {t('about.departmentHead')}
+                                                        </div>
+                                                        <MemberCard member={deptLead} size="normal" showCrown bgColor={dept.color} />
+                                                    </div>
                                                 )}
-                                                {deptOthers.map(m => (
-                                                    <MemberCard key={m._id} member={m} size="small" />
-                                                ))}
+
+                                                <div className="grid grid-cols-1 gap-3 pl-4 border-l-2 border-dashed border-gray-300">
+                                                    {deptOthers.map(m => (
+                                                        <MemberCard key={m._id} member={m} size="small" />
+                                                    ))}
+                                                </div>
+
                                                 {deptMembers.length === 0 && (
                                                     <p className="text-center text-gray-400 italic text-sm py-4">
                                                         {t('team.membersSoon')}
@@ -271,176 +237,140 @@ export default function Team() {
                             );
                         })}
                     </div>
-
-                    {/* Join Button for Mobile */}
-                    <div className="mt-6">
-                        <Link
-                            href="/apply"
-                            className="w-full bg-neo-yellow border-4 border-black px-6 py-4 font-black text-lg shadow-neo hover:shadow-none transition-all flex items-center justify-center gap-2"
-                        >
-                            <span>{t('team.joinUs')}</span>
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </Link>
-                    </div>
                 </div>
 
-                {/* ==================== DESKTOP VIEW (Tree Hierarchy) ==================== */}
-                <div className="hidden lg:block">
-                    {/* 1. Root Node: Management */}
-                    <div className="flex flex-col items-center relative z-10">
-                        <div className={`${standardCardClass} bg-white p-8 max-w-2xl w-full text-center relative z-10`}>
-                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white px-4 font-black uppercase text-sm -rotate-2 shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
-                                {t('team.management')}
-                            </div>
-                            <div className="flex justify-center gap-16">
-                                {management.map(m => (
-                                    <div key={m._id} className="flex flex-col items-center cursor-pointer group" onClick={() => handleMemberClick(m)}>
-                                        <div className="relative w-32 h-32 mb-3">
-                                            <div className="absolute inset-0 bg-black rounded-full translate-x-1 translate-y-1"></div>
-                                            {m.photo ? (
-                                                <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover relative bg-white group-hover:-translate-y-1 transition-transform" />
-                                            ) : (
-                                                <div className="w-full h-full rounded-full border-2 border-black bg-gray-200 flex items-center justify-center relative font-black text-2xl">
-                                                    {m.name[0]}
-                                                </div>
-                                            )}
-                                            {m.role === 'president' && <Crown size={20} className="absolute -top-4 -right-2 text-neo-yellow drop-shadow-md rotate-12 w-6 h-6" fill="currentColor" />}
+                {/* ==================== DESKTOP VIEW (Scalable Tree) ==================== */}
+                <div className="hidden lg:block overflow-x-auto pb-12 pt-8">
+                    <div className="min-w-fit flex flex-col items-center">
+
+                        {/* 1. Root: Management */}
+                        <div className="relative z-20 mb-12">
+                            <div className={`${standardCardClass} p-6 flex gap-6 items-center bg-white relative`}>
+                                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-1 font-black uppercase text-sm shadow-neo transform -rotate-1">
+                                    {t('team.management')}
+                                </div>
+                                {management.map((m, i) => (
+                                    <div key={m._id} className="flex gap-4 items-center group cursor-pointer" onClick={() => handleMemberClick(m)}>
+                                        <div className="relative w-20 h-20">
+                                            <Image
+                                                src={m.photo || '/avatar-placeholder.png'}
+                                                alt={m.name}
+                                                fill
+                                                className="rounded-full border-4 border-black object-cover bg-gray-100"
+                                            />
+                                            {m.role === 'president' && <Crown size={24} className="absolute -top-3 -right-2 text-neo-yellow drop-shadow-md rotate-12 fill-current" />}
                                         </div>
-                                        <h3 className="font-black text-lg leading-tight">{m.name}</h3>
-                                        <p className="text-sm font-bold text-gray-500 uppercase">{m.title}</p>
+                                        <div>
+                                            <h3 className="font-black text-lg leading-none mb-1 group-hover:text-neo-blue transition-colors">{m.name}</h3>
+                                            <p className="text-xs font-bold text-gray-500 uppercase bg-gray-100 px-2 py-0.5 inline-block border-2 border-black/10 rounded-sm">{m.title}</p>
+                                        </div>
+                                        {i < management.length - 1 && <div className="w-px h-12 bg-gray-300 mx-2"></div>}
                                     </div>
                                 ))}
                             </div>
+                            {/* Vertical Line from Management */}
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-1 h-12 bg-black"></div>
                         </div>
-                        {/* Vertical Line Down */}
-                        <div className="w-2 h-16 bg-black mt-[-4px] relative z-0"></div>
-                    </div>
 
-                    {/* 2. Branches: Tabs */}
-                    <div className="relative mb-0">
-                        {/* Horizontal Connector Line */}
-                        <div className="absolute top-0 left-0 right-0 h-2 bg-black mx-auto max-w-6xl"></div>
+                        {/* Horizontal Connector Bar */}
+                        <div className="relative w-full flex justify-center mb-12">
+                            {/* The actual line needs to span from the center of the first child to the center of the last child. 
+                                 We can approximate this with a wide div, provided the children are centered. 
+                             */}
+                            <div className="h-1 bg-black w-[90%] max-w-[95%] rounded-full absolute top-0"></div>
+                        </div>
 
-                        {/* Tabs Container */}
-                        <div className="grid grid-cols-4 gap-8 pt-12 relative w-full max-w-7xl mx-auto">
-                            {departments.map((dept) => {
-                                const isActive = activeDeptId === dept._id;
+                        {/* 2. Branches: Departments */}
+                        <div className="flex justify-center gap-6 px-4 w-full">
+                            {departments.map((dept, index) => {
+                                const deptMembers = getDeptMembers(dept._id);
+                                const deptLead = deptMembers.find(m => m.role === 'head');
+                                const deptOthers = deptMembers.filter(m => m.role !== 'head');
+                                const borderColor = borderColorMap[dept.color] || 'border-black';
+
                                 return (
-                                    <div key={dept._id} className="flex flex-col items-center relative group w-full">
-                                        {/* Vertical Line Up to Connector */}
-                                        <div className="w-2 bg-black absolute -top-[48px] bottom-[100%]" style={{ height: '48px' }}></div>
+                                    <div key={dept._id} className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px] relative">
+                                        {/* Connector from horizontal bar to department */}
+                                        <div className={`w-1 h-12 bg-black absolute -top-12 left-1/2 -translate-x-1/2`}></div>
 
-                                        <button
-                                            onClick={() => setActiveDeptId(dept._id)}
-                                            className={`
-                                                 ${standardCardClass} w-full px-4 py-3 font-black uppercase text-base transition-all duration-200 relative flex items-center justify-center
-                                                 ${isActive ? `${dept.color} -translate-y-1 shadow-[5px_6px_0px_black] z-30` : 'bg-white hover:bg-gray-50 z-10'}
-                                             `}
-                                        >
-                                            <span className="flex items-center gap-2 text-center">
-                                                {iconMap[dept.icon]}
-                                                <span>{language === 'en' && dept.nameEn ? dept.nameEn : dept.name}</span>
-                                            </span>
-                                        </button>
-                                        {/* Vertical Line Down if Active */}
-                                        {isActive && (
-                                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-16 bg-black -mt-4 z-0"></div>
-                                        )}
+                                        {/* Department Node */}
+                                        <div className={`w-full flex flex-col items-center`}>
+
+                                            {/* Header / Head */}
+                                            <div className={`${standardCardClass} w-full p-0 overflow-hidden flex flex-col mb-4 relative z-10 hover:-translate-y-1 transition-transform duration-300 group`}>
+                                                {/* Color Header */}
+                                                <div className={`${dept.color} p-3 border-b-4 border-black flex items-center justify-center gap-2 h-16`}>
+                                                    <div className="bg-white/90 p-1.5 rounded-full border-2 border-black/20 text-black">
+                                                        {iconMap[dept.icon]}
+                                                    </div>
+                                                    <h3 className="font-black text-xs uppercase text-center leading-tight">
+                                                        {language === 'en' && dept.nameEn ? dept.nameEn : dept.name}
+                                                    </h3>
+                                                </div>
+
+                                                {/* Dept Description Tooltip (Optional, or just static content) */}
+                                                <div className="p-4 text-center bg-white flex-1 flex flex-col items-center justify-center min-h-[140px]">
+                                                    {/* Lead Info */}
+                                                    {deptLead ? (
+                                                        <div className="flex flex-col items-center cursor-pointer" onClick={() => handleMemberClick(deptLead)}>
+                                                            <div className="relative w-16 h-16 mb-2">
+                                                                <div className={`absolute inset-0 rounded-full border-4 ${borderColor} animate-pulse-slow opacity-20`}></div>
+                                                                {deptLead.photo ? (
+                                                                    <Image src={deptLead.photo} alt={deptLead.name} fill className="rounded-full border-2 border-black object-cover relative z-10" />
+                                                                ) : (
+                                                                    <div className="w-full h-full rounded-full border-2 border-black bg-gray-100 flex items-center justify-center font-black relative z-10">{deptLead.name[0]}</div>
+                                                                )}
+                                                                <Crown size={14} className="absolute -top-2 -right-1 text-black fill-yellow-400 z-20" />
+                                                            </div>
+                                                            <div className="font-black text-sm leading-tight mb-1">{deptLead.name}</div>
+                                                            <div className="text-[10px] font-bold text-gray-500 uppercase bg-gray-100 px-2 rounded-full">{t('about.departmentHead')}</div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-gray-400 italic text-xs py-4 flex flex-col items-center">
+                                                            <Users size={24} className="mb-2 opacity-20" />
+                                                            <span>{t('team.managersSoon')}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Connector to Members */}
+                                            {deptOthers.length > 0 && (
+                                                <div className={`w-1 h-6 bg-black mb-0`}></div>
+                                            )}
+
+                                            {/* Members Grid */}
+                                            {deptOthers.length > 0 && (
+                                                <div className={`grid grid-cols-1 gap-2 w-full pt-2 border-t-4 ${borderColor} relative`}>
+                                                    {/* Decorative styling for the member list container */}
+                                                    <div className={`absolute top-0 left-0 w-full h-full ${dept.color} opacity-5 -z-10`}></div>
+
+                                                    {deptOthers.map(m => (
+                                                        <div
+                                                            key={m._id}
+                                                            onClick={() => handleMemberClick(m)}
+                                                            className="bg-white border-2 border-black p-2 flex items-center gap-2 hover:bg-gray-50 cursor-pointer transition-colors shadow-sm"
+                                                        >
+                                                            <div className="relative w-8 h-8 shrink-0">
+                                                                {m.photo ? (
+                                                                    <Image src={m.photo} alt={m.name} fill className="rounded-full border border-black object-cover" />
+                                                                ) : (
+                                                                    <div className="w-full h-full rounded-full border border-black bg-gray-100 flex items-center justify-center font-bold text-xs">{m.name[0]}</div>
+                                                                )}
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <div className="font-bold text-xs truncate leading-tight">{m.name}</div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 );
                             })}
                         </div>
                     </div>
-
-                    {/* 3. Leaves: Content Area */}
-                    {activeDept && (
-                        <div className="relative animate-in fade-in slide-in-from-bottom-4 duration-500 mt-4">
-                            <div className={`${standardCardClass} bg-white p-12 relative z-10 min-h-[400px]`}>
-                                {/* Dept Info */}
-                                <div className="text-center mb-0">
-                                    <h2 className="text-3xl font-black uppercase mb-3 flex items-center justify-center gap-3">
-                                        {iconMap[activeDept.icon]}
-                                        {language === 'en' && activeDept.nameEn ? activeDept.nameEn : activeDept.name}
-                                    </h2>
-                                    <p className="text-lg font-bold text-gray-600 max-w-2xl mx-auto">
-                                        {language === 'en' && activeDept.descriptionEn ? activeDept.descriptionEn : activeDept.description}
-                                    </p>
-                                </div>
-
-                                {/* Tree Layout Inside Dept */}
-                                <div className="flex flex-col items-center">
-                                    {/* Lead Node */}
-                                    {lead ? (
-                                        <div className="mb-0 flex flex-col items-center relative">
-                                            {/* Connector from Header to Lead */}
-                                            <div className="w-1 h-8 bg-black"></div>
-
-                                            <div
-                                                onClick={() => handleMemberClick(lead)}
-                                                className={`${standardCardClass} ${activeDept.color} p-4 w-64 flex items-center gap-4 cursor-pointer hover:-translate-y-1 transition-transform bg-opacity-20 relative z-10`}
-                                            >
-                                                <div className="relative w-16 h-16 shrink-0">
-                                                    {lead.photo ? (
-                                                        <Image src={lead.photo} alt={lead.name} fill className="rounded-full border-2 border-black object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full rounded-full border-2 border-black bg-white flex items-center justify-center font-black">{lead.name[0]}</div>
-                                                    )}
-                                                    <Crown size={16} className="absolute -top-2 -right-1 text-black fill-yellow-400" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h3 className="font-black text-black leading-tight truncate">{lead.name}</h3>
-                                                    <p className="text-xs font-bold text-black/70 uppercase break-words">{lead.title}</p>
-                                                </div>
-                                            </div>
-                                            {otherMembers.length > 0 && <div className="w-1 h-8 bg-black mt-[-4px] relative z-0"></div>}
-                                        </div>
-                                    ) : (
-                                        // No Lead - Connect Header to Grid directly
-                                        otherMembers.length > 0 && <div className="w-1 h-12 bg-black"></div>
-                                    )}
-
-                                    {/* Members Grid */}
-                                    {otherMembers.length > 0 ? (
-                                        <div className="relative w-full">
-                                            {/* Horizontal Line for Members */}
-                                            <div className="absolute top-0 left-10 right-10 h-1 bg-black"></div>
-                                            <div className="grid grid-cols-5 gap-6 pt-6">
-                                                {otherMembers.map((m) => (
-                                                    <div key={m._id} className="flex flex-col items-center relative group">
-                                                        {/* Connection Line */}
-                                                        <div className="w-1 h-6 bg-black absolute -top-6"></div>
-
-                                                        <div
-                                                            onClick={() => handleMemberClick(m)}
-                                                            className={`${standardCardClass} bg-white hover:bg-gray-50 p-3 w-full cursor-pointer hover:-translate-y-1 transition-transform flex flex-col items-center text-center h-full`}
-                                                        >
-                                                            <div className="relative w-12 h-12 mb-2">
-                                                                {m.photo ? (
-                                                                    <Image src={m.photo} alt={m.name} fill className="rounded-full border-2 border-black object-cover" />
-                                                                ) : (
-                                                                    <div className="w-full h-full rounded-full border-2 border-black bg-gray-100 flex items-center justify-center font-bold text-sm">{m.name[0]}</div>
-                                                                )}
-                                                            </div>
-                                                            <h4 className="font-black text-sm leading-tight mb-1">{m.name}</h4>
-                                                            <p className="text-[10px] font-bold text-gray-500 uppercase leading-tight line-clamp-2">{m.title}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="text-center py-8">
-                                            <span className="font-bold text-gray-400 italic">
-                                                {t('team.membersSoon')}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
 
