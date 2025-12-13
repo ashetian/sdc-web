@@ -78,6 +78,7 @@ export const en = {
         management: 'MANAGEMENT',
         membersSoon: 'Team members joining soon.',
         joinUs: 'JOIN US',
+        managersSoon: 'Managers coming soon.',
     },
     events: {
         title: 'Events',

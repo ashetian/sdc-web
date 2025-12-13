@@ -78,6 +78,7 @@ export const tr = {
         management: 'YÖNETİM',
         membersSoon: 'Ekip arkadaşları yakında eklenecek.',
         joinUs: 'BİZE KATILIN',
+        managersSoon: 'Yöneticiler yakında eklenecek.',
     },
     events: {
         title: 'Etkinlikler',

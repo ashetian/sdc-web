@@ -272,13 +272,7 @@ export default function Team() {
                             <div className="absolute top-full left-1/2 -translate-x-1/2 w-1 h-12 bg-black"></div>
                         </div>
 
-                        {/* Horizontal Connector Bar */}
-                        <div className="relative w-full flex justify-center mb-12">
-                            {/* The actual line needs to span from the center of the first child to the center of the last child. 
-                                 We can approximate this with a wide div, provided the children are centered. 
-                             */}
-                            <div className="h-1 bg-black w-[90%] max-w-[95%] rounded-full absolute top-0"></div>
-                        </div>
+
 
                         {/* 2. Branches: Departments */}
                         <div className="flex justify-center gap-6 px-4 w-full">
@@ -287,9 +281,19 @@ export default function Team() {
                                 const deptLead = deptMembers.find(m => m.role === 'head');
                                 const deptOthers = deptMembers.filter(m => m.role !== 'head');
                                 const borderColor = borderColorMap[dept.color] || 'border-black';
+                                const isFirst = index === 0;
+                                const isLast = index === departments.length - 1;
 
                                 return (
                                     <div key={dept._id} className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px] relative">
+                                        {/* Horizontal Connectors */}
+                                        {!isFirst && (
+                                            <div className="absolute -top-12 right-1/2 w-[calc(50%+12px)] h-1 bg-black"></div>
+                                        )}
+                                        {!isLast && (
+                                            <div className="absolute -top-12 left-1/2 w-[calc(50%+12px)] h-1 bg-black"></div>
+                                        )}
+
                                         {/* Connector from horizontal bar to department */}
                                         <div className={`w-1 h-12 bg-black absolute -top-12 left-1/2 -translate-x-1/2`}></div>
 
