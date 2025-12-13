@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useLanguage } from "./_context/LanguageContext";
+import { Button } from "./_components/ui";
 
 export default function Error({
     error,
@@ -47,12 +48,13 @@ export default function Error({
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button
+                        <Button
                             onClick={() => reset()}
-                            className="inline-block px-8 py-4 bg-neo-green text-black text-xl font-black uppercase border-4 border-black hover:shadow-neo transition-all transform hover:-translate-y-1"
+                            variant="success"
+                            size="lg"
                         >
                             {l[language].tryAgain}
-                        </button>
+                        </Button>
                         <Link
                             href="/"
                             className="inline-block px-8 py-4 bg-black text-white text-xl font-black uppercase border-4 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all transform hover:-translate-y-1"

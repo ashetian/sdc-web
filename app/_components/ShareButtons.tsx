@@ -10,22 +10,7 @@ interface ShareButtonsProps {
 
 export default function ShareButtons({ url, title, description }: ShareButtonsProps) {
     const [copied, setCopied] = useState(false);
-    const { language } = useLanguage();
-
-    const labels = {
-        tr: {
-            share: "Paylaş",
-            copied: "Kopyalandı!",
-            copyLink: "Linki Kopyala",
-        },
-        en: {
-            share: "Share",
-            copied: "Copied!",
-            copyLink: "Copy Link",
-        },
-    };
-
-    const l = labels[language];
+    const { t } = useLanguage();
 
     const shareText = description ? `${title} - ${description}` : title;
 
@@ -47,7 +32,7 @@ export default function ShareButtons({ url, title, description }: ShareButtonsPr
 
     return (
         <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-bold text-black uppercase">{l.share}:</span>
+            <span className="text-sm font-bold text-black uppercase">{t('common.share')}:</span>
 
             {/* WhatsApp */}
             <a
@@ -93,21 +78,21 @@ export default function ShareButtons({ url, title, description }: ShareButtonsPr
                 onClick={handleCopyLink}
                 className={`h-10 px-4 border-2 border-black shadow-neo-sm flex items-center gap-2 font-bold text-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all ${copied ? "bg-neo-green text-black" : "bg-white text-black"
                     }`}
-                aria-label={l.copyLink}
+                aria-label={t('common.copyLink')}
             >
                 {copied ? (
                     <>
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
-                        {l.copied}
+                        {t('common.copied')}
                     </>
                 ) : (
                     <>
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>
-                        {l.copyLink}
+                        {t('common.copyLink')}
                     </>
                 )}
             </button>

@@ -8,54 +8,13 @@ import { useLanguage } from '../../_context/LanguageContext';
 import BookmarkButton from '@/app/_components/BookmarkButton';
 import LikeButton from '@/app/_components/LikeButton';
 import CommentSection from '@/app/_components/CommentSection';
-
-interface Project {
-    _id: string;
-    title: string;
-    titleEn?: string;
-    description: string;
-    descriptionEn?: string;
-    githubUrl: string;
-    demoUrl?: string;
-    technologies: string[];
-    viewCount: number;
-    createdAt: string;
-    author: {
-        _id: string;
-        nickname: string;
-        fullName?: string;
-        department?: string;
-    };
-}
+import type { Project } from '../../lib/types/api';
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
-
-    const labels = {
-        tr: {
-            back: 'Projelere Dön',
-            views: 'görüntülenme',
-            demo: 'Canlı Demo',
-            github: 'GitHub',
-            technologies: 'Teknolojiler',
-            developer: 'Geliştirici',
-            notFound: 'Proje bulunamadı',
-        },
-        en: {
-            back: 'Back to Projects',
-            views: 'views',
-            demo: 'Live Demo',
-            github: 'GitHub',
-            technologies: 'Technologies',
-            developer: 'Developer',
-            notFound: 'Project not found',
-        },
-    };
-
-    const l = labels[language];
 
     useEffect(() => {
         fetchProject();
@@ -102,8 +61,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     if (!project) {
         return (
             <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center pt-24">
-                <div className="text-xl font-bold mb-4">{l.notFound}</div>
-                <Link href="/projects" className="text-blue-600 hover:underline">{l.back}</Link>
+                <div className="text-xl font-bold mb-4">{t('projects.detail.notFound')}</div>
+                <Link href="/projects" className="text-blue-600 hover:underline">{t('projects.detail.back')}</Link>
             </div>
         );
     }
@@ -113,7 +72,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <div className="max-w-4xl mx-auto">
                 {/* Back Link */}
                 <Link href="/projects" className="inline-flex items-center text-black font-bold mb-6 hover:underline">
-                    ← {l.back}
+                    ← {t('projects.detail.back')}
                 </Link>
 
                 {/* Project Card */}
@@ -121,7 +80,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     {/* Preview Image */}
                     <div className="relative h-64 border-b-4 border-black">
                         <Image
-                            src={getGithubPreview(project.githubUrl)}
+                            src={getGithubPreview(project.githubUrl ?? '')}
                             alt={project.title}
                             fill
                             className="object-cover"
@@ -142,9 +101,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
                         {/* Meta */}
                         <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
-                            <span>{project.viewCount} {l.views}</span>
+                            <span>{project.viewCount} {t('projects.detail.views')}</span>
                             <span>•</span>
-                            <span>{formatDate(project.createdAt)}</span>
+                            <span>{formatDate(project.createdAt ?? '')}</span>
                         </div>
 
                         {/* Description */}
@@ -153,9 +112,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         </p>
 
                         {/* Technologies */}
-                        {project.technologies.length > 0 && (
+                        {project.technologies && project.technologies.length > 0 && (
                             <div className="mb-6">
-                                <h3 className="font-black text-black mb-2">{l.technologies}</h3>
+                                <h3 className="font-black text-black mb-2">{t('projects.detail.technologies')}</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {project.technologies.map((tech, i) => (
                                         <span key={i} className="px-3 py-1 bg-neo-purple text-white font-bold border-2 border-black">
@@ -167,12 +126,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         )}
 
                         {/* Author */}
-                        <div className="mb-6 p-4 bg-gray-50 border-2 border-black">
-                            <h3 className="font-black text-black mb-2">{l.developer}</h3>
-                            <p className="font-bold">{project.author.nickname}</p>
-                            {project.author.fullName && <p className="text-gray-600">{project.author.fullName}</p>}
-                            {project.author.department && <p className="text-gray-500 text-sm">{project.author.department}</p>}
-                        </div>
+                        {project.author && (
+                            <div className="mb-6 p-4 bg-gray-50 border-2 border-black">
+                                <h3 className="font-black text-black mb-2">{t('projects.detail.developer')}</h3>
+                                <p className="font-bold">{project.author.nickname}</p>
+                                {project.author.fullName && <p className="text-gray-600">{project.author.fullName}</p>}
+                                {project.author.department && <p className="text-gray-500 text-sm">{project.author.department}</p>}
+                            </div>
+                        )}
 
                         {/* Action Buttons */}
                         <div className="flex flex-wrap gap-4">
@@ -182,7 +143,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                                 rel="noopener noreferrer"
                                 className="px-6 py-3 bg-black text-white font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all uppercase"
                             >
-                                {l.github}
+                                {t('projects.detail.github')}
                             </a>
                             {project.demoUrl && (
                                 <a
@@ -191,7 +152,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                                     rel="noopener noreferrer"
                                     className="px-6 py-3 bg-neo-green text-black font-bold border-2 border-black hover:shadow-neo transition-all uppercase"
                                 >
-                                    {l.demo}
+                                    {t('projects.detail.demo')}
                                 </a>
                             )}
                         </div>

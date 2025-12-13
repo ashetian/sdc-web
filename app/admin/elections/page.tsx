@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
 import { Trash2, AlertTriangle } from 'lucide-react';
+import { Button, ConfirmModal } from '@/app/_components/ui';
 
 interface Election {
     _id: string;
@@ -167,12 +168,12 @@ export default function ElectionsPage() {
                     <h1 className="text-2xl font-black text-black uppercase">Seçim Yönetimi</h1>
                     <p className="text-gray-600 font-medium mt-1">Kulüp başkanlığı ve departman seçimlerini yönetin</p>
                 </div>
-                <button
+                <Button
                     onClick={() => setShowForm(!showForm)}
-                    className="bg-neo-green text-black border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-white hover:shadow-none transition-all"
+                    variant={showForm ? 'secondary' : 'success'}
                 >
                     {showForm ? 'İptal' : '+ Yeni Seçim'}
-                </button>
+                </Button>
             </div>
 
             {/* Form */}
@@ -228,19 +229,18 @@ export default function ElectionsPage() {
                         </div>
 
                         <div className="flex gap-3">
-                            <button
+                            <Button
                                 type="submit"
-                                className="bg-black text-white border-4 border-black px-6 py-3 font-black uppercase hover:bg-white hover:text-black transition-all"
                             >
                                 Oluştur
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="button"
                                 onClick={() => setShowForm(false)}
-                                className="bg-gray-200 text-black border-4 border-black px-6 py-3 font-black uppercase hover:bg-gray-300 transition-all"
+                                variant="secondary"
                             >
                                 İptal
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 </div>
@@ -290,31 +290,33 @@ export default function ElectionsPage() {
                                     </Link>
 
                                     {election.status === 'active' && !election.isSuspended && (
-                                        <button
+                                        <Button
                                             onClick={() => setSuspendModalId(election._id)}
-                                            className="px-4 py-2 bg-orange-500 text-white border-2 border-black font-black text-sm hover:bg-orange-600 transition-all"
+                                            size="sm"
                                         >
                                             Askıya Al
-                                        </button>
+                                        </Button>
                                     )}
 
                                     {election.isSuspended && (
-                                        <button
+                                        <Button
                                             onClick={() => handleResume(election._id)}
                                             disabled={actionLoading}
-                                            className="px-4 py-2 bg-green-500 text-white border-2 border-black font-black text-sm hover:bg-green-600 transition-all disabled:opacity-50"
+                                            variant="success"
+                                            size="sm"
                                         >
                                             Devam Ettir
-                                        </button>
+                                        </Button>
                                     )}
 
                                     {(election.status === 'draft' || election.status === 'suspended' || election.status === 'completed') && (
-                                        <button
+                                        <Button
                                             onClick={() => setDeleteModalId(election._id)}
-                                            className="px-4 py-2 bg-red-500 text-white border-2 border-black font-black text-sm hover:bg-red-600 transition-all"
+                                            variant="danger"
+                                            size="sm"
                                         >
                                             Sil
-                                        </button>
+                                        </Button>
                                     )}
                                 </div>
                             </div>
@@ -324,32 +326,17 @@ export default function ElectionsPage() {
             </div>
 
             {/* Delete Confirmation Modal */}
-            {deleteModalId && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2"><Trash2 size={20} /> Seçimi Sil</h3>
-                        <p className="text-gray-700 mb-6">
-                            Bu seçimi silmek istediğinize emin misiniz? Tüm adaylar, üyeler ve oylar da silinecektir. Bu işlem geri alınamaz!
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => handleDelete(deleteModalId)}
-                                disabled={actionLoading}
-                                className="flex-1 bg-red-500 text-white py-3 font-bold border-2 border-black hover:bg-red-600 transition-all disabled:opacity-50"
-                            >
-                                {actionLoading ? 'Siliniyor...' : 'Evet, Sil'}
-                            </button>
-                            <button
-                                onClick={() => setDeleteModalId(null)}
-                                disabled={actionLoading}
-                                className="flex-1 bg-gray-200 text-black py-3 font-bold border-2 border-black hover:bg-gray-300 transition-all disabled:opacity-50"
-                            >
-                                İptal
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                isOpen={!!deleteModalId}
+                onClose={() => setDeleteModalId(null)}
+                onConfirm={() => deleteModalId && handleDelete(deleteModalId)}
+                title="Seçimi Sil"
+                message="Bu seçimi silmek istediğinize emin misiniz? Tüm adaylar, üyeler ve oylar da silinecektir. Bu işlem geri alınamaz!"
+                confirmText="Evet, Sil"
+                cancelText="İptal"
+                variant="danger"
+                isLoading={actionLoading}
+            />
 
             {/* Suspend Modal */}
             {suspendModalId && (

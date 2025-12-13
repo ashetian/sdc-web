@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
 import { Check, X, AlertTriangle, XCircle } from 'lucide-react';
+import { Button } from '@/app/_components/ui';
 
 interface Applicant {
     _id: string;
@@ -265,21 +266,19 @@ export default function ApplicantsPage() {
                                             </div>
                                         </div>
                                         <div className="flex flex-col space-y-2 ml-4">
-                                            <button
+                                            <Button
                                                 onClick={() => toggleExpand(applicant._id)}
-                                                className={`px-4 py-2 text-sm font-black border-2 border-black transition-all ${expandedId === applicant._id
-                                                    ? "bg-black text-white"
-                                                    : "bg-neo-blue text-black hover:bg-blue-300"
-                                                    }`}
+                                                size="sm"
                                             >
                                                 {expandedId === applicant._id ? "Gizle" : "Detaylar"}
-                                            </button>
-                                            <button
+                                            </Button>
+                                            <Button
                                                 onClick={() => handleDelete(applicant._id, applicant.fullName)}
-                                                className="px-4 py-2 text-sm font-black bg-red-500 text-white border-2 border-black hover:bg-red-600 transition-all"
+                                                variant="danger"
+                                                size="sm"
                                             >
                                                 Sil
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
 

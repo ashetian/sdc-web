@@ -7,26 +7,9 @@ import Link from 'next/link';
 import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage, SkeletonList } from '@/app/_components/Skeleton';
 import BookmarkButton from '@/app/_components/BookmarkButton';
 import { useLanguage } from '@/app/_context/LanguageContext';
-
-interface Event {
-    _id: string;
-    title: string;
-    description: string;
-    eventDate?: string;
-    eventEndDate?: string;
-    location?: string;
-    isOpen: boolean;
-    isPaid: boolean;
-    price?: number;
-    iban?: string;
-    isEnded?: boolean;
-}
-
-interface User {
-    studentNo: string;
-    nickname: string;
-    fullName: string;
-}
+import { useToast } from '@/app/_context/ToastContext';
+import { Button } from '@/app/_components/ui';
+import type { Event, User } from '@/app/lib/types/api';
 
 export default function RegisterPage() {
     const params = useParams();
@@ -38,62 +21,8 @@ export default function RegisterPage() {
     const [submitting, setSubmitting] = useState(false);
     const [registered, setRegistered] = useState(false);
     const [alreadyRegistered, setAlreadyRegistered] = useState(false);
-    const { language } = useLanguage();
-
-    const labels = {
-        tr: {
-            notFound: 'Etkinlik bulunamadı.',
-            ended: 'Bu etkinlik sona ermiş.',
-            closed: 'Bu etkinlik için kayıtlar kapalı.',
-            backToEvents: 'Etkinliklere Dön',
-            alreadyRegistered: 'Zaten Kayıtlısınız!',
-            registrationSuccess: 'Kayıt Başarılı!',
-            registrationComplete: 'Etkinliğe kaydınız tamamlandı.',
-            addToCalendar: '📅 Takvime Ekle',
-            googleCalendar: 'Google Takvim',
-            outlookCalendar: 'Outlook',
-            appleCalendar: 'Diğer (.ics)',
-            loginRequired: 'Bu etkinliğe kayıt olmak için giriş yapmalısınız.',
-            login: 'Giriş Yap',
-            registrationInfo: 'Kayıt Bilgileriniz',
-            paymentInfo: 'Ödeme Bilgileri',
-            fee: 'Ücret:',
-            iban: 'IBAN:',
-            paymentWarning: '⚠️ Ödemenizi yaptıktan sonra kaydolun. Admin onayı gerekecektir.',
-            registering: 'Kaydediliyor...',
-            register: '✓ Kaydol',
-            kvkkNote: 'Kaydolarak KVKK Aydınlatma Metni\'ni kabul etmiş olursunuz.',
-            error: 'Bir hata oluştu.',
-            registrationError: 'Kayıt sırasında hata oluştu.'
-        },
-        en: {
-            notFound: 'Event not found.',
-            ended: 'This event has ended.',
-            closed: 'Registration is closed for this event.',
-            backToEvents: 'Back to Events',
-            alreadyRegistered: 'Already Registered!',
-            registrationSuccess: 'Registration Successful!',
-            registrationComplete: 'Your registration for the event is complete.',
-            addToCalendar: '📅 Add to Calendar',
-            googleCalendar: 'Google Calendar',
-            outlookCalendar: 'Outlook',
-            appleCalendar: 'Other (.ics)',
-            loginRequired: 'You must log in to register for this event.',
-            login: 'Login',
-            registrationInfo: 'Registration Details',
-            paymentInfo: 'Payment Details',
-            fee: 'Fee:',
-            iban: 'IBAN:',
-            paymentWarning: '⚠️ Please register after making your payment. Admin approval will be required.',
-            registering: 'Registering...',
-            register: '✓ Register',
-            kvkkNote: 'By registering, you accept the KVKK Clarification Text.',
-            error: 'An error occurred.',
-            registrationError: 'Error during registration.'
-        }
-    };
-
-    const l = labels[language];
+    const { t } = useLanguage();
+    const { showToast } = useToast();
 
     // Check authentication
     useEffect(() => {
@@ -174,11 +103,11 @@ export default function RegisterPage() {
             if (res.ok) {
                 setRegistered(true);
             } else {
-                alert(data.error || l.registrationError);
+                showToast(data.error || t('events.registerPage.registrationError'), 'error');
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert(l.error);
+            showToast(t('events.registerPage.error'), 'error');
         } finally {
             setSubmitting(false);
         }
@@ -205,7 +134,7 @@ export default function RegisterPage() {
     if (!event) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-neo-yellow">
-                <div className="text-2xl font-black text-black">{l.notFound}</div>
+                <div className="text-2xl font-black text-black">{t('events.registerPage.notFound')}</div>
             </div>
         );
     }
@@ -214,10 +143,10 @@ export default function RegisterPage() {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-neo-yellow">
                 <div className="text-2xl font-black text-red-600 bg-white border-4 border-black p-4 shadow-neo">
-                    {event.isEnded ? l.ended : l.closed}
+                    {event.isEnded ? t('events.registerPage.ended') : t('events.registerPage.closed')}
                 </div>
                 <Link href="/events" className="text-black font-bold underline hover:text-white hover:bg-black px-2">
-                    {l.backToEvents}
+                    {t('events.registerPage.backToEvents')}
                 </Link>
             </div>
         );
@@ -235,16 +164,16 @@ export default function RegisterPage() {
                             </svg>
                         </div>
                         <h2 className="text-3xl font-black text-black uppercase">
-                            {alreadyRegistered && !registered ? l.alreadyRegistered : l.registrationSuccess}
+                            {alreadyRegistered && !registered ? t('events.registerPage.alreadyRegistered') : t('events.registerPage.registrationSuccess')}
                         </h2>
-                        <p className="mt-2 text-black font-bold">{l.registrationComplete}</p>
+                        <p className="mt-2 text-black font-bold">{t('events.registerPage.registrationComplete')}</p>
                     </div>
 
                     <div className="space-y-4">
                         {event.eventDate && (
                             <div className="space-y-2">
                                 <div className="text-center font-bold text-black border-2 border-black bg-neo-yellow py-1 text-sm uppercase mb-2">
-                                    {l.addToCalendar}
+                                    {t('events.registerPage.addToCalendar')}
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                     <a
@@ -259,7 +188,7 @@ export default function RegisterPage() {
                                         rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 py-2 px-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all text-sm font-bold uppercase"
                                     >
-                                        G. Calendar
+                                        {t('events.registerPage.googleCalendar')}
                                     </a>
                                     <a
                                         href={generateOutlookCalendarUrl({
@@ -273,22 +202,24 @@ export default function RegisterPage() {
                                         rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 py-2 px-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all text-sm font-bold uppercase"
                                     >
-                                        Outlook
+                                        {t('events.registerPage.outlookCalendar')}
                                     </a>
                                 </div>
-                                <button
+                                <Button
                                     onClick={handleAddToCalendar}
-                                    className="w-full flex items-center justify-center gap-2 py-2 px-4 border-2 border-black bg-gray-100 hover:bg-black hover:text-white transition-all text-sm font-bold uppercase"
+                                    variant="secondary"
+                                    fullWidth
+                                    size="sm"
                                 >
-                                    {l.appleCalendar}
-                                </button>
+                                    {t('events.registerPage.appleCalendar')}
+                                </Button>
                             </div>
                         )}
                         <Link
                             href="/events"
                             className="w-full flex justify-center py-3 px-4 border-4 border-black shadow-neo text-lg font-black text-black bg-white hover:bg-black hover:text-white hover:shadow-none transition-all uppercase"
                         >
-                            {l.backToEvents}
+                            {t('events.registerPage.backToEvents')}
                         </Link>
                     </div>
                 </div>
@@ -303,7 +234,7 @@ export default function RegisterPage() {
                 <div className="max-w-md w-full bg-white border-4 border-black shadow-neo-lg p-8">
                     <div className="text-center mb-8">
                         <h2 className="text-2xl font-black text-black uppercase mb-4">{event.title}</h2>
-                        <p className="text-black font-bold">{l.loginRequired}</p>
+                        <p className="text-black font-bold">{t('events.registerPage.loginRequired')}</p>
                     </div>
 
                     <div className="space-y-4">
@@ -311,13 +242,13 @@ export default function RegisterPage() {
                             href={`/auth/login?returnUrl=${encodeURIComponent(`/events/${params.id}/register`)}`}
                             className="w-full flex justify-center py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-neo-green hover:text-black hover:shadow-none transition-all uppercase"
                         >
-                            {l.login}
+                            {t('events.registerPage.login')}
                         </Link>
                         <Link
                             href="/events"
                             className="w-full flex justify-center py-3 px-4 border-2 border-black text-black font-bold hover:bg-gray-100 transition-all"
                         >
-                            ← {l.backToEvents}
+                            ← {t('events.registerPage.backToEvents')}
                         </Link>
                     </div>
                 </div>
@@ -340,7 +271,7 @@ export default function RegisterPage() {
 
                 {/* User Info Display */}
                 <div className="bg-gray-50 border-2 border-black p-4 mb-6">
-                    <h3 className="font-black text-sm uppercase text-gray-600 mb-2">{l.registrationInfo}</h3>
+                    <h3 className="font-black text-sm uppercase text-gray-600 mb-2">{t('events.registerPage.registrationInfo')}</h3>
                     <p className="font-bold text-lg text-black">{user.fullName || user.nickname}</p>
                     <p className="text-gray-600 font-medium">{user.studentNo}</p>
                 </div>
@@ -348,31 +279,33 @@ export default function RegisterPage() {
                 {/* Payment Info for Paid Events */}
                 {event.isPaid && (
                     <div className="bg-neo-purple p-4 border-4 border-black shadow-neo-sm mb-6">
-                        <h3 className="text-lg font-black text-white mb-3 uppercase">{l.paymentInfo}</h3>
+                        <h3 className="text-lg font-black text-white mb-3 uppercase">{t('events.registerPage.paymentInfo')}</h3>
                         <div className="bg-white border-2 border-black p-3 mb-2">
-                            <span className="text-sm font-bold text-gray-600">{l.fee}</span>
+                            <span className="text-sm font-bold text-gray-600">{t('events.registerPage.fee')}</span>
                             <span className="block text-2xl font-black text-black">{event.price} TL</span>
                         </div>
                         <div className="bg-white border-2 border-black p-3">
-                            <span className="text-sm font-bold text-gray-600">{l.iban}</span>
+                            <span className="text-sm font-bold text-gray-600">{t('events.registerPage.iban')}</span>
                             <span className="block font-mono font-bold text-black text-sm break-all select-all">{event.iban}</span>
                         </div>
                         <p className="text-white text-sm font-bold mt-3">
-                            {l.paymentWarning}
+                            {t('events.registerPage.paymentWarning')}
                         </p>
                     </div>
                 )}
 
-                <button
+                <Button
                     onClick={handleRegister}
-                    disabled={submitting}
-                    className="w-full py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-neo-green hover:bg-white hover:text-black hover:shadow-none transition-all uppercase disabled:opacity-50"
+                    isLoading={submitting}
+                    variant="success"
+                    fullWidth
+                    size="lg"
                 >
-                    {submitting ? l.registering : l.register}
-                </button>
+                    {t('events.registerPage.register')}
+                </Button>
 
                 <p className="text-center text-sm text-gray-500 font-medium mt-4">
-                    {l.kvkkNote}
+                    {t('events.registerPage.kvkkNote')}
                 </p>
             </div>
         </div>

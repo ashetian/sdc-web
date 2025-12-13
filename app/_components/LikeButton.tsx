@@ -67,7 +67,7 @@ export default function LikeButton({
                 setHasLiked(wasLiked);
                 setCount(prev => wasLiked ? prev + 1 : prev - 1);
                 // Show login prompt or redirect
-                router.push('/auth/login');
+                router.push(`/auth/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
                 return;
             }
 

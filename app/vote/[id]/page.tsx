@@ -21,7 +21,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useLanguage } from '../../_context/LanguageContext';
 import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
+import { Button } from '@/app/_components/ui';
 
+// Local types - page-specific structure
 interface Election {
     _id: string;
     title: string;
@@ -364,13 +366,14 @@ export default function VotePage({ params }: { params: Promise<{ id: string }> }
                                 </div>
                             )}
 
-                            <button
+                            <Button
                                 type="submit"
                                 disabled={submitting}
-                                className="w-full bg-black text-white border-4 border-black py-3 font-black uppercase hover:bg-white hover:text-black transition-all disabled:opacity-50"
+                                isLoading={submitting}
+                                fullWidth
                             >
-                                {submitting ? l.sending : l.sendCode}
-                            </button>
+                                {l.sendCode}
+                            </Button>
                         </form>
                     </div>
                 )}
@@ -400,7 +403,7 @@ export default function VotePage({ params }: { params: Promise<{ id: string }> }
                                 </div>
                             )}
 
-                            <button
+                            <Button
                                 onClick={() => {
                                     if (otpCode.length === 6) {
                                         setStep('vote');
@@ -408,17 +411,19 @@ export default function VotePage({ params }: { params: Promise<{ id: string }> }
                                     }
                                 }}
                                 disabled={otpCode.length !== 6}
-                                className="w-full bg-neo-green text-black border-4 border-black py-3 font-black uppercase hover:bg-green-400 transition-all disabled:opacity-50"
+                                variant="success"
+                                fullWidth
                             >
                                 {l.continue}
-                            </button>
+                            </Button>
 
-                            <button
+                            <Button
                                 onClick={() => setStep('verify')}
-                                className="w-full bg-gray-200 text-black border-4 border-black py-3 font-black uppercase hover:bg-gray-300 transition-all"
+                                variant="secondary"
+                                fullWidth
                             >
                                 {l.back}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}
@@ -461,20 +466,22 @@ export default function VotePage({ params }: { params: Promise<{ id: string }> }
                             </div>
                         )}
 
-                        <button
+                        <Button
                             onClick={handleVote}
                             disabled={submitting}
-                            className="w-full bg-neo-purple text-white border-4 border-black shadow-neo py-4 font-black text-xl uppercase hover:bg-purple-600 transition-all disabled:opacity-50"
+                            isLoading={submitting}
+                            fullWidth
                         >
-                            {submitting ? l.sending : l.submitVote}
-                        </button>
+                            {l.submitVote}
+                        </Button>
 
-                        <button
+                        <Button
                             onClick={() => setStep('otp')}
-                            className="w-full bg-gray-200 text-black border-4 border-black py-3 font-black uppercase hover:bg-gray-300 transition-all"
+                            variant="secondary"
+                            fullWidth
                         >
                             {l.back}
-                        </button>
+                        </Button>
                     </div>
                 )}
 

@@ -1,8 +1,10 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
 import ImageLightbox from "./ImageLightbox";
+import { useAnnouncements } from "../lib/swr";
+import type { Announcement } from "../lib/types/api";
 
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,53 +12,18 @@ import { Autoplay, Navigation, Keyboard } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 
-// Robust interface for Announcement
-interface Announcement {
-  _id?: string;
-  slug: string;
-  title: string;
-  titleEn?: string;
-  date: string;
-  dateEn?: string;
-  description: string;
-  descriptionEn?: string;
-  type: string;
-  content: string;
-  contentEn?: string;
-  image?: string;
-  imageOrientation?: "horizontal" | "vertical";
-  isDraft: boolean;
-  isArchived?: boolean;
-  eventId?: string;
-}
-
 export default function Announcements() {
-  const [allAnnouncements, setAllAnnouncements] = useState<Announcement[]>([]);
+  const { data, isLoading } = useAnnouncements();
   const [activeTab, setActiveTab] = useState<'announcements' | 'opportunities'>('announcements');
   const [activeIndex, setActiveIndex] = useState(0);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const swiperRef = useRef<SwiperType | null>(null);
 
-  useEffect(() => {
-    async function loadAnnouncements() {
-      try {
-        const res = await fetch("/api/announcements?active=true");
-        if (!res.ok) throw new Error("Duyurular alınamadı");
-
-        const data = await res.json();
-
-        if (Array.isArray(data)) {
-          const active = data.filter((a: Announcement) => !a.isDraft && !a.isArchived);
-          setAllAnnouncements(active);
-        } else {
-          console.error("API response is not an array:", data);
-        }
-      } catch (error) {
-        console.error("Duyurular yüklenirken hata:", error);
-      }
-    }
-    loadAnnouncements();
-  }, []);
+  // Filter active announcements from API data
+  const allAnnouncements = useMemo(() => {
+    if (!data || !Array.isArray(data)) return [];
+    return (data as Announcement[]).filter((a) => !a.isDraft && !a.isArchived);
+  }, [data]);
 
   // Filter announcements based on active tab
   const filteredAnnouncements = allAnnouncements.filter(item => {
@@ -83,44 +50,17 @@ export default function Announcements() {
   };
 
   const getTypeText = (type: string) => {
-    const safeLang = (language === 'en' || language === 'tr') ? language : 'tr';
-    const typeLabels: Record<string, Record<string, string>> = {
-      tr: { event: "Etkinlik", news: "Duyuru", workshop: "Workshop", article: "Makale", opportunity: "Fırsat" },
-      en: { event: "Event", news: "News", workshop: "Workshop", article: "Article", opportunity: "Opportunity" }
-    };
     const normalizedType = type?.toLowerCase().trim() || 'news';
-    return typeLabels[safeLang][normalizedType] || typeLabels[safeLang]['news'];
+    // Use i18n keys for types
+    // Using explicit mapping because dictionary might not have all or exact match might be needed
+    // Assuming announcements.types.[type] exists
+    return t(`announcements.types.${normalizedType}` as any) || normalizedType;
   };
 
   const getText = (tr: string | undefined, en: string | undefined, fallback: string) => {
     if (language === 'en' && en) return en;
     return tr || fallback;
   };
-
-  const labels = {
-    tr: {
-      noAnnouncements: 'Henüz duyuru bulunmuyor.',
-      details: 'Detayları Gör',
-      register: 'Etkinliğe Kaydol',
-      viewAll: 'Tüm Duyurular',
-      tabs: {
-        announcements: 'DUYURULAR',
-        opportunities: 'FIRSATLAR'
-      }
-    },
-    en: {
-      noAnnouncements: 'No announcements yet.',
-      details: 'View Details',
-      register: 'Register for Event',
-      viewAll: 'All Announcements',
-      tabs: {
-        announcements: 'ANNOUNCEMENTS',
-        opportunities: 'OPPORTUNITIES'
-      }
-    }
-  };
-
-  const l = labels[language] || labels.tr;
 
   const goToSlide = (index: number) => {
     if (swiperRef.current) {
@@ -154,7 +94,7 @@ export default function Announcements() {
             : 'bg-white text-gray-500 border-gray-300 hover:border-black hover:text-black'
             }`}
         >
-          {l.tabs.announcements}
+          {t('announcements.tabs.announcements')}
         </button>
         <button
           onClick={() => setActiveTab('opportunities')}
@@ -163,13 +103,13 @@ export default function Announcements() {
             : 'bg-white text-gray-500 border-gray-300 hover:border-black hover:text-black'
             }`}
         >
-          {l.tabs.opportunities}
+          {t('announcements.tabs.opportunities')}
         </button>
       </div>
 
       {filteredAnnouncements.length === 0 ? (
         <div className="flex-1 flex items-center justify-center w-full">
-          <p className="text-2xl font-bold text-black bg-white p-6 border-4 border-black shadow-neo">{l.noAnnouncements}</p>
+          <p className="text-2xl font-bold text-black bg-white p-6 border-4 border-black shadow-neo">{t('announcements.noAnnouncements')}</p>
         </div>
       ) : (
         /* Main Content Container */
@@ -225,7 +165,7 @@ export default function Announcements() {
                             className="px-8 py-4 bg-black text-white font-black uppercase border-4 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all"
                             lang={language}
                           >
-                            {l.details}
+                            {t('announcements.viewDetails')}
                           </Link>
                           {current.eventId && (
                             <Link
@@ -233,7 +173,7 @@ export default function Announcements() {
                               className="px-8 py-4 bg-neo-green text-black font-black uppercase border-4 border-black hover:shadow-neo transition-all"
                               lang={language}
                             >
-                              {l.register}
+                              {t('events.register')}
                             </Link>
                           )}
                         </div>
@@ -282,7 +222,7 @@ export default function Announcements() {
                       </p>
                       <div className="mt-auto pt-2">
                         <span className="inline-block text-xs font-black text-neo-purple hover:underline">
-                          DETAYLARI GÖR →
+                          {t('announcements.details')}
                         </span>
                       </div>
                     </div>
@@ -343,7 +283,7 @@ export default function Announcements() {
           href="/announcements"
           className="px-6 py-2 bg-white border-2 border-black font-bold text-sm hover:bg-black hover:text-white transition-all shadow-neo-sm"
         >
-          {l.viewAll} →
+          {t('announcements.viewAll')} →
         </Link>
       </div>
 

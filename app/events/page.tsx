@@ -28,12 +28,12 @@ interface CalendarMarker {
     color?: string;
 }
 
-const markerConfig: Record<string, { bg: string; text: string; icon: React.ReactNode; label: { tr: string; en: string } }> = {
-    holiday: { bg: 'bg-green-200', text: 'text-green-800', icon: <Gift size={14} />, label: { tr: 'Tatil', en: 'Holiday' } },
-    exam_week: { bg: 'bg-red-200', text: 'text-red-800', icon: <BookOpen size={14} />, label: { tr: 'Sınav Haftası', en: 'Exam Week' } },
-    registration_period: { bg: 'bg-blue-200', text: 'text-blue-800', icon: <Clock size={14} />, label: { tr: 'Kayıt Dönemi', en: 'Registration' } },
-    semester_break: { bg: 'bg-orange-200', text: 'text-orange-800', icon: <Calendar size={14} />, label: { tr: 'Yarıyıl Tatili', en: 'Semester Break' } },
-    important: { bg: 'bg-yellow-200', text: 'text-yellow-800', icon: <AlertCircle size={14} />, label: { tr: 'Önemli', en: 'Important' } },
+const markerConfig: Record<string, { bg: string; text: string; icon: React.ReactNode; labelKey: string }> = {
+    holiday: { bg: 'bg-green-200', text: 'text-green-800', icon: <Gift size={14} />, labelKey: 'events.type.holiday' },
+    exam_week: { bg: 'bg-red-200', text: 'text-red-800', icon: <BookOpen size={14} />, labelKey: 'events.type.exam_week' },
+    registration_period: { bg: 'bg-blue-200', text: 'text-blue-800', icon: <Clock size={14} />, labelKey: 'events.type.registration_period' },
+    semester_break: { bg: 'bg-orange-200', text: 'text-orange-800', icon: <Calendar size={14} />, labelKey: 'events.type.semester_break' },
+    important: { bg: 'bg-yellow-200', text: 'text-yellow-800', icon: <AlertCircle size={14} />, labelKey: 'events.type.important' },
 };
 
 export default function EventsPage() {
@@ -80,16 +80,6 @@ export default function EventsPage() {
         }
     };
 
-    const months = {
-        tr: ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"],
-        en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    };
-
-    const daysOfWeek = {
-        tr: ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"],
-        en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    };
-
     const getDaysInMonth = (year: number, month: number) => {
         return new Date(year, month + 1, 0).getDate();
     };
@@ -124,6 +114,21 @@ export default function EventsPage() {
             month: 'long',
             year: 'numeric'
         });
+    };
+
+    const getMonthName = (date: Date) => {
+        return date.toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', { month: 'long' });
+    };
+
+    const getDayName = (dayIndex: number) => {
+        // Create a date that is definitely that day of week (e.g. 2024-01-01 is Monday)
+        // 0=Mon, ... 6=Sun in our index logic, but Date.getDay() is 0=Sun.
+        // Let's rely on hardcoded localized strings for short days or use Intl?
+        // Intl short days might vary. Let's stick to simple map or Intl.
+        // For consistency with existing design (Mon, Tue / Pzt, Sal), let's use:
+        const tr = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+        const en = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        return language === 'tr' ? tr[dayIndex] : en[dayIndex];
     };
 
     // Helper: Get weeks for the current month view
@@ -378,9 +383,7 @@ export default function EventsPage() {
                         {t('events.calendar')}
                     </h1>
                     <p className="mt-4 text-xl font-bold text-black max-w-2xl mx-auto bg-white border-2 border-black p-4 shadow-neo-sm transform rotate-1">
-                        {language === 'tr'
-                            ? 'Yaklaşan etkinliklerimizi takvimden takip edebilir ve kaydolabilirsiniz.'
-                            : 'Follow our upcoming events from the calendar and register.'}
+                        {t('events.description')}
                     </p>
                 </div>
 
@@ -389,12 +392,12 @@ export default function EventsPage() {
                     {Object.entries(markerConfig).map(([key, config]) => (
                         <div key={key} className={`flex items-center gap-2 px-3 py-1 border-2 border-black ${config.bg} ${config.text} font-bold text-sm shadow-neo-sm`}>
                             {config.icon}
-                            <span>{config.label[language]}</span>
+                            <span>{t(config.labelKey)}</span>
                         </div>
                     ))}
                     <div className="flex items-center gap-2 px-3 py-1 border-2 border-black bg-neo-purple text-white font-bold text-sm shadow-neo-sm">
                         <Calendar size={14} />
-                        <span>{language === 'tr' ? 'Etkinlik' : 'Event'}</span>
+                        <span>{t('events.type.event')}</span>
                     </div>
                 </div>
 
@@ -406,7 +409,7 @@ export default function EventsPage() {
                             </svg>
                         </button>
                         <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-wider">
-                            {months[language][currentDate.getMonth()]} {currentDate.getFullYear()}
+                            {getMonthName(currentDate)} {currentDate.getFullYear()}
                         </h2>
                         <button onClick={nextMonth} className="p-2 hover:bg-white hover:text-black border-2 border-transparent hover:border-white transition-colors">
                             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -416,9 +419,9 @@ export default function EventsPage() {
                     </div>
 
                     <div className="grid grid-cols-7 bg-neo-blue border-b-4 border-black text-white">
-                        {daysOfWeek[language].map(day => (
-                            <div key={day} className="py-2 sm:py-4 text-center font-black text-black border-r-2 border-black last:border-r-0 uppercase text-sm sm:text-base bg-neo-green">
-                                {day}
+                        {Array.from({ length: 7 }).map((_, i) => (
+                            <div key={i} className="py-2 sm:py-4 text-center font-black text-black border-r-2 border-black last:border-r-0 uppercase text-sm sm:text-base bg-neo-green">
+                                {getDayName(i)}
                             </div>
                         ))}
                     </div>
@@ -494,7 +497,7 @@ export default function EventsPage() {
                             </p>
                         )}
                         <p className="text-xs text-neo-purple font-bold mt-2">
-                            {language === 'tr' ? 'Detaylar için tıklayın →' : 'Click for details →'}
+                            {t('events.tooltip.details')}
                         </p>
                     </div>
                 </>

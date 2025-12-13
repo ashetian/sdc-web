@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Calendar, BookOpen, Gift, Clock, AlertCircle, Sparkles } from "lucide-react";
 import { SkeletonList } from "@/app/_components/Skeleton";
+import { Button } from '@/app/_components/ui';
 
 interface CalendarMarker {
     _id: string;
@@ -167,20 +168,19 @@ export default function AdminCalendarPage() {
                             <p className="text-gray-600 font-medium mt-2">Sınav haftaları, tatiller ve özel günler</p>
                         </div>
                         <div className="flex gap-2">
-                            <button
+                            <Button
                                 onClick={() => { setShowPresets(!showPresets); setShowForm(false); }}
-                                className="flex items-center gap-2 px-4 py-2 bg-neo-yellow border-2 border-black font-bold shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
                             >
                                 <Sparkles size={20} />
                                 Hazır Tatiller
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => { setShowForm(!showForm); setShowPresets(false); }}
-                                className="flex items-center gap-2 px-4 py-2 bg-neo-green border-2 border-black font-bold shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+                                variant="success"
                             >
                                 <Plus size={20} />
                                 Yeni Ekle
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -347,20 +347,19 @@ export default function AdminCalendarPage() {
                             </div>
 
                             <div className="flex gap-2 pt-4">
-                                <button
+                                <Button
                                     type="submit"
-                                    disabled={submitting}
-                                    className="px-6 py-2 bg-black text-white font-bold border-2 border-black hover:bg-neo-green hover:text-black transition-colors disabled:opacity-50"
+                                    isLoading={submitting}
                                 >
-                                    {submitting ? 'Kaydediliyor...' : 'Kaydet'}
-                                </button>
-                                <button
+                                    Kaydet
+                                </Button>
+                                <Button
                                     type="button"
                                     onClick={() => setShowForm(false)}
-                                    className="px-6 py-2 bg-white font-bold border-2 border-black hover:bg-gray-100 transition-colors"
+                                    variant="secondary"
                                 >
                                     İptal
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     </div>

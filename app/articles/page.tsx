@@ -1,70 +1,26 @@
 "use client";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "../_context/LanguageContext";
 import { SkeletonCardGrid, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
+import { useAnnouncements } from "../lib/swr";
+import type { Announcement } from "../lib/types/api";
 
-interface Article {
-    slug: string;
-    title: string;
-    titleEn?: string;
-    date: string;
-    dateEn?: string;
-    description: string;
-    descriptionEn?: string;
-    image?: string;
-    isDraft: boolean;
-    isArchived?: boolean;
-}
+// Articles are actually announcements with type='article'
+type Article = Announcement;
 
 export default function ArticlesPage() {
-    const [articles, setArticles] = useState<Article[]>([]);
-    const [loading, setLoading] = useState(true);
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
+    const { data, isLoading: loading } = useAnnouncements({ type: 'article' });
 
-    useEffect(() => {
-        async function loadArticles() {
-            try {
-                const res = await fetch("/api/announcements?type=article");
-                if (!res.ok) throw new Error("Failed to fetch");
-                const data = await res.json();
-                const activeArticles = data.filter(
-                    (a: Article) => !a.isDraft && !a.isArchived
-                );
-                setArticles(activeArticles);
-            } catch (error) {
-                console.error("Error loading articles:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        loadArticles();
-    }, []);
+    // Filter out drafts and archived
+    const articles = data?.filter((a: Article) => !a.isDraft && !a.isArchived) ?? [];
 
     const getText = (tr: string | undefined, en: string | undefined) => {
         if (language === 'en' && en) return en;
         return tr || '';
     };
 
-    const labels = {
-        tr: {
-            title: 'Makaleler',
-            subtitle: 'Kulübümüzün blog yazıları ve makaleleri',
-            backHome: '← Ana Sayfa',
-            noArticles: 'Henüz makale bulunmuyor.',
-            readMore: 'Devamını Oku →'
-        },
-        en: {
-            title: 'Articles',
-            subtitle: 'Blog posts and articles from our club',
-            backHome: '← Home',
-            noArticles: 'No articles yet.',
-            readMore: 'Read More →'
-        }
-    };
-
-    const l = labels[language];
 
     if (loading) {
         return (
@@ -84,18 +40,18 @@ export default function ArticlesPage() {
                         href="/"
                         className="inline-block text-black font-bold hover:underline mb-4"
                     >
-                        {l.backHome}
+                        {t('articles.backHome')}
                     </Link>
                     <h1 className="text-4xl sm:text-5xl font-black text-black uppercase mb-4" lang={language}>
-                        {l.title}
+                        {t('articles.title')}
                     </h1>
-                    <p className="text-xl font-medium text-gray-700">{l.subtitle}</p>
+                    <p className="text-xl font-medium text-gray-700">{t('articles.subtitle')}</p>
                 </div>
 
                 {/* Articles Grid */}
                 {articles.length === 0 ? (
                     <div className="text-center py-20">
-                        <p className="text-2xl font-bold text-gray-500">{l.noArticles}</p>
+                        <p className="text-2xl font-bold text-gray-500">{t('articles.noArticles')}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -118,7 +74,7 @@ export default function ArticlesPage() {
                                 <div className="p-5">
                                     <div className="flex items-center gap-2 mb-3">
                                         <span className="px-2 py-1 text-xs font-bold uppercase border-2 border-black bg-neo-peach text-black">
-                                            {language === 'tr' ? 'Makale' : 'Article'}
+                                            {t('articles.typeLabel')}
                                         </span>
                                         <time className="text-xs font-bold text-gray-600">
                                             {getText(article.date, article.dateEn)}
@@ -131,7 +87,7 @@ export default function ArticlesPage() {
                                         {getText(article.description, article.descriptionEn)}
                                     </p>
                                     <span className="text-sm font-bold text-neo-purple group-hover:underline">
-                                        {l.readMore}
+                                        {t('articles.readMore')}
                                     </span>
                                 </div>
                             </Link>

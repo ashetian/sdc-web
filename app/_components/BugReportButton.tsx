@@ -14,7 +14,7 @@ export default function BugReportButton() {
     const [error, setError] = useState("");
     const [mounted, setMounted] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
 
     useEffect(() => {
         setMounted(true);
@@ -55,9 +55,9 @@ export default function BugReportButton() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!title.trim() || !description.trim()) {
-            setError(language === 'tr' ? 'Lütfen tüm alanları doldurun' : 'Please fill in all fields');
+            setError(t('bugReport.fillFields'));
             return;
         }
 
@@ -83,10 +83,10 @@ export default function BugReportButton() {
                 }, 2000);
             } else {
                 const data = await res.json();
-                setError(data.error || (language === 'tr' ? 'Bir hata oluştu' : 'An error occurred'));
+                setError(data.error || t('bugReport.error'));
             }
         } catch {
-            setError(language === 'tr' ? 'Bağlantı hatası' : 'Connection error');
+            setError(t('bugReport.connectionError'));
         } finally {
             setLoading(false);
         }
@@ -99,7 +99,7 @@ export default function BugReportButton() {
                 <div className="flex items-center gap-2">
                     <Bug size={20} className="text-red-500" />
                     <h3 className="font-black text-base sm:text-sm uppercase">
-                        {language === 'tr' ? 'Hata Bildir' : 'Report Bug'}
+                        {t('bugReport.title')}
                     </h3>
                 </div>
                 <button
@@ -117,25 +117,23 @@ export default function BugReportButton() {
                     <div className="flex flex-col items-center py-8 sm:py-6 text-center">
                         <CheckCircle size={56} className="text-green-500 mb-4 sm:mb-3" />
                         <p className="font-bold text-xl sm:text-lg">
-                            {language === 'tr' ? 'Teşekkürler!' : 'Thank you!'}
+                            {t('bugReport.thankYou')}
                         </p>
                         <p className="text-base sm:text-sm text-gray-600 mt-2">
-                            {language === 'tr' 
-                                ? 'Geri bildiriminiz alındı' 
-                                : 'Your feedback has been received'}
+                            {t('bugReport.feedbackReceived')}
                         </p>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-4">
                         <div>
                             <label className="block text-base sm:text-sm font-bold mb-2 sm:mb-1">
-                                {language === 'tr' ? 'Başlık' : 'Title'}
+                                {t('bugReport.titleLabel')}
                             </label>
                             <input
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder={language === 'tr' ? 'Kısa bir başlık...' : 'A short title...'}
+                                placeholder={t('bugReport.titlePlaceholder')}
                                 className="w-full px-4 py-3 sm:px-3 sm:py-2 text-base sm:text-sm border-2 border-black focus:outline-none focus:ring-2 focus:ring-red-300"
                                 maxLength={200}
                                 autoComplete="off"
@@ -144,14 +142,12 @@ export default function BugReportButton() {
 
                         <div>
                             <label className="block text-base sm:text-sm font-bold mb-2 sm:mb-1">
-                                {language === 'tr' ? 'Açıklama' : 'Description'}
+                                {t('bugReport.descriptionLabel')}
                             </label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder={language === 'tr' 
-                                    ? 'Hatayı detaylı anlatın...' 
-                                    : 'Describe the bug in detail...'}
+                                placeholder={t('bugReport.descriptionPlaceholder')}
                                 rows={5}
                                 className="w-full px-4 py-3 sm:px-3 sm:py-2 text-base sm:text-sm border-2 border-black focus:outline-none focus:ring-2 focus:ring-red-300 resize-none"
                                 maxLength={2000}
@@ -159,9 +155,7 @@ export default function BugReportButton() {
                         </div>
 
                         <p className="text-sm sm:text-xs text-gray-500">
-                            {language === 'tr' 
-                                ? `Sayfa: ${typeof window !== 'undefined' ? window.location.pathname : ''}` 
-                                : `Page: ${typeof window !== 'undefined' ? window.location.pathname : ''}`}
+                            {t('bugReport.pageLabel')} {typeof window !== 'undefined' ? window.location.pathname : ''}
                         </p>
 
                         {error && (
@@ -174,11 +168,11 @@ export default function BugReportButton() {
                             className="w-full py-4 sm:py-3 bg-red-500 text-white font-bold text-lg sm:text-base border-2 border-black shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {loading ? (
-                                <span>{language === 'tr' ? 'Gönderiliyor...' : 'Sending...'}</span>
+                                <span>{t('bugReport.sending')}</span>
                             ) : (
                                 <>
                                     <Send size={20} />
-                                    <span>{language === 'tr' ? 'Gönder' : 'Send'}</span>
+                                    <span>{t('bugReport.send')}</span>
                                 </>
                             )}
                         </button>
@@ -195,7 +189,7 @@ export default function BugReportButton() {
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className="relative p-2 bg-white border-2 border-black hover:shadow-neo transition-all group"
-                title={language === 'tr' ? 'Hata Bildir' : 'Report Bug'}
+                title={t('bugReport.title')}
             >
                 <Bug size={20} className="text-red-500 group-hover:animate-pulse" />
             </button>
@@ -209,7 +203,7 @@ export default function BugReportButton() {
 
             {/* Mobile Full Screen Modal */}
             {mounted && isOpen && createPortal(
-                <div 
+                <div
                     className="sm:hidden fixed inset-0 z-[100] bg-black/50 flex items-end"
                     onMouseDown={(e) => {
                         if (e.target === e.currentTarget) setIsOpen(false);
@@ -218,7 +212,7 @@ export default function BugReportButton() {
                         if (e.target === e.currentTarget) setIsOpen(false);
                     }}
                 >
-                    <div 
+                    <div
                         className="w-full bg-white border-t-4 border-black rounded-t-2xl max-h-[90vh] flex flex-col animate-slide-up"
                         onMouseDown={(e) => e.stopPropagation()}
                         onTouchEnd={(e) => e.stopPropagation()}

@@ -7,72 +7,25 @@ import { Clock, Mail } from 'lucide-react';
 import { useLanguage } from '../_context/LanguageContext';
 
 export default function JoinPage() {
-    const { language } = useLanguage();
-
-    const labels = {
-        tr: {
-            title: 'KULÜBE NASIL ÜYE OLUNUR?',
-            subtitle: 'Sadece 3 basit adımda KTÜ Yazılım Geliştirme Kulübü\'ne katılabilirsiniz!',
-            step1Title: 'KTÜ Mobil Uygulamasını Açın',
-            step1Desc: 'KTÜ mobil uygulamasından "Öğrenci Girişi" yapın ve ana sayfada "Kulüp Yönetim Sistemi\"ni seçin.',
-            step2Title: 'Kulüp Listesine Gidin',
-            step2Desc: 'Açılan sayfada "Kulüp Yönetim Sistemi"ne tıklayın. Kulüp listesinden "Yazılım Geliştirme Kulübü"nü bulun.',
-            step3Title: 'Üye Olun',
-            step3Desc: 'Kulüp detay sayfasında "ÜYE OL" butonuna tıklayarak kulübümüze katılın!',
-            warningTitle: 'Önemli Bilgi',
-            warningDesc: 'Kulübe başvurduktan sonra üyeliğinizin kulüp yönetimi tarafından onaylanması ve üyelik bilgilerinizin veritabanımıza işlenmesi için lütfen biraz bekleyiniz. Bu süreç birkaç iş günü sürebilir.',
-            contactNote: 'Sürecin hızlanması için kulüp yönetimiyle iletişime geçebilirsiniz:',
-            contactTitle: 'İletişim',
-            contactEmail: 'E-posta: contact@ktusdc.com',
-            contactWhatsApp: 'veya aşağıdaki WhatsApp grubundan ulaşabilirsiniz.',
-            lastStep: 'Son Adım: WhatsApp Grubuna Katıl!',
-            lastStepDesc: 'Yukarıdaki adımları tamamladıktan sonra WhatsApp grubumuza katılarak kulüp etkinliklerinden haberdar olun!',
-            joinWhatsApp: 'WhatsApp Grubuna Katıl',
-            backHome: 'Ana Sayfaya Dön',
-            step: 'Adım'
-        },
-        en: {
-            title: 'HOW TO JOIN THE CLUB?',
-            subtitle: 'You can join KTÜ Software Development Club in just 3 simple steps!',
-            step1Title: 'Open the KTÜ Mobile App',
-            step1Desc: 'Log in as a student from the KTÜ mobile app and select "Club Management System" on the home page.',
-            step2Title: 'Go to the Club List',
-            step2Desc: 'Click on "Club Management System" on the opened page. Find "Software Development Club" in the club list.',
-            step3Title: 'Become a Member',
-            step3Desc: 'Click the "JOIN" button on the club detail page to join our club!',
-            warningTitle: 'Important Notice',
-            warningDesc: 'After applying to the club, please wait for your membership to be approved by the club management and for your membership information to be processed into our database. This process may take a few business days.',
-            contactNote: 'To speed up the process, you can contact the club management:',
-            contactTitle: 'Contact',
-            contactEmail: 'Email: contact@ktusdc.com',
-            contactWhatsApp: 'or reach us via the WhatsApp group below.',
-            lastStep: 'Last Step: Join the WhatsApp Group!',
-            lastStepDesc: 'After completing the steps above, join our WhatsApp group to stay updated on club activities!',
-            joinWhatsApp: 'Join WhatsApp Group',
-            backHome: 'Back to Home',
-            step: 'Step'
-        }
-    };
-
-    const l = labels[language];
+    const { t } = useLanguage();
 
     const steps = [
         {
             number: 1,
-            title: l.step1Title,
-            description: l.step1Desc,
+            title: t('join.step1Title'),
+            description: t('join.step1Desc'),
             image: '/images/join-steps/step3.png',
         },
         {
             number: 2,
-            title: l.step2Title,
-            description: l.step2Desc,
+            title: t('join.step2Title'),
+            description: t('join.step2Desc'),
             image: '/images/join-steps/step1.png',
         },
         {
             number: 3,
-            title: l.step3Title,
-            description: l.step3Desc,
+            title: t('join.step3Title'),
+            description: t('join.step3Desc'),
             image: '/images/join-steps/step2.png',
         },
     ];
@@ -103,10 +56,10 @@ export default function JoinPage() {
                 {/* Header */}
                 <div className="text-center mb-8 lg:mb-16">
                     <h1 className="inline-block text-2xl sm:text-4xl lg:text-6xl font-black text-black mb-4 lg:mb-6 bg-white border-4 border-black shadow-neo lg:shadow-neo-lg px-4 py-2 lg:px-8 lg:py-4 lg:transform lg:-rotate-2">
-                        {l.title}
+                        {t('join.title')}
                     </h1>
                     <p className="text-base lg:text-xl font-bold text-black max-w-3xl mx-auto mt-4 lg:mt-6 bg-neo-blue border-4 border-black p-3 lg:p-4 shadow-neo lg:transform lg:rotate-1">
-                        {l.subtitle}
+                        {t('join.subtitle')}
                     </p>
                 </div>
 
@@ -139,7 +92,7 @@ export default function JoinPage() {
                                     <div className="bg-white border-4 border-black shadow-neo lg:shadow-neo-lg p-2 lg:p-4 w-full max-w-[220px] sm:max-w-[280px] lg:w-[320px]">
                                         <Image
                                             src={step.image}
-                                            alt={`${l.step} ${step.number}`}
+                                            alt={`${t('join.step')} ${step.number}`}
                                             width={320}
                                             height={600}
                                             className="w-full h-auto object-contain"
@@ -159,24 +112,24 @@ export default function JoinPage() {
                         </div>
                         <div className="flex-1">
                             <h3 className="text-2xl font-black text-black uppercase mb-2">
-                                {l.warningTitle}
+                                {t('join.warningTitle')}
                             </h3>
                             <p className="text-lg font-bold text-black leading-relaxed mb-4">
-                                {l.warningDesc}
+                                {t('join.warningDesc')}
                             </p>
 
                             {/* Contact Info */}
                             <div className="bg-white border-2 border-black p-4 mt-4">
-                                <p className="font-bold text-black mb-3">{l.contactNote}</p>
+                                <p className="font-bold text-black mb-3">{t('join.contactNote')}</p>
                                 <div className="flex items-center gap-2 mb-2">
                                     <Mail className="w-5 h-5 text-black" strokeWidth={2.5} />
                                     <h4 className="text-lg font-black text-black uppercase">
-                                        {l.contactTitle}
+                                        {t('join.contactTitle')}
                                     </h4>
                                 </div>
                                 <div className="space-y-1 font-bold text-black pl-7">
-                                    <p>{l.contactEmail}</p>
-                                    <p className="text-sm italic">{l.contactWhatsApp}</p>
+                                    <p>{t('join.contactEmail')}</p>
+                                    <p className="text-sm italic">{t('join.contactWhatsApp')}</p>
                                 </div>
                             </div>
                         </div>
@@ -186,10 +139,10 @@ export default function JoinPage() {
                 {/* WhatsApp CTA */}
                 <div className="bg-neo-green border-4 border-black shadow-neo lg:shadow-neo-lg p-6 lg:p-12 text-center lg:transform lg:rotate-1">
                     <h2 className="text-xl sm:text-2xl lg:text-4xl font-black text-black mb-4 lg:mb-6 uppercase">
-                        {l.lastStep}
+                        {t('join.lastStep')}
                     </h2>
                     <p className="text-base lg:text-xl font-bold text-black mb-6 lg:mb-8">
-                        {l.lastStepDesc}
+                        {t('join.lastStepDesc')}
                     </p>
                     <a
                         href={whatsappGroupLink}
@@ -204,7 +157,7 @@ export default function JoinPage() {
                         >
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                         </svg>
-                        {l.joinWhatsApp}
+                        {t('join.joinWhatsApp')}
                     </a>
                 </div>
 
@@ -227,7 +180,7 @@ export default function JoinPage() {
                                 d="M10 19l-7-7m0 0l7-7m-7 7h18"
                             />
                         </svg>
-                        {l.backHome}
+                        {t('join.backHome')}
                     </Link>
                 </div>
             </div>

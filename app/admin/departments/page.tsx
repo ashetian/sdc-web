@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
 import { Check } from 'lucide-react';
 import Image from 'next/image';
+import { Button } from '@/app/_components/ui';
 
 interface Department {
     _id: string;
@@ -176,12 +177,12 @@ export default function DepartmentsPage() {
                     >
                         Ekip Yönetimi
                     </Link>
-                    <button
+                    <Button
                         onClick={() => setShowForm(!showForm)}
-                        className="bg-neo-green text-black border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-white hover:shadow-none transition-all"
+                        variant="success"
                     >
                         {showForm ? 'İptal' : '+ Yeni Departman'}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -285,19 +286,16 @@ export default function DepartmentsPage() {
                             </div>
                         </div>
                         <div className="flex gap-3">
-                            <button
-                                type="submit"
-                                className="bg-black text-white border-4 border-black px-6 py-3 font-black uppercase hover:bg-white hover:text-black transition-all"
-                            >
+                            <Button type="submit">
                                 {editingId ? 'Güncelle' : 'Oluştur'}
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="button"
                                 onClick={resetForm}
-                                className="bg-gray-200 text-black border-4 border-black px-6 py-3 font-black uppercase hover:bg-gray-300 transition-all"
+                                variant="secondary"
                             >
                                 İptal
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 </div>
@@ -329,18 +327,19 @@ export default function DepartmentsPage() {
                                     >
                                         Üyeler
                                     </Link>
-                                    <button
+                                    <Button
                                         onClick={() => handleEdit(dept)}
-                                        className="px-4 py-2 bg-neo-blue text-black border-2 border-black font-black text-sm hover:bg-blue-300 transition-all"
+                                        size="sm"
                                     >
                                         Düzenle
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         onClick={() => handleDelete(dept._id)}
-                                        className="px-4 py-2 bg-red-500 text-white border-2 border-black font-black text-sm hover:bg-red-600 transition-all"
+                                        variant="danger"
+                                        size="sm"
                                     >
                                         Sil
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}

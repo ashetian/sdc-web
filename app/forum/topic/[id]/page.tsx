@@ -9,7 +9,9 @@ import {
   Eye, Pin, Lock, Check, Send
 } from "lucide-react";
 import { useLanguage } from "../../../_context/LanguageContext";
+import { useToast } from "../../../_context/ToastContext";
 import { SkeletonList, SkeletonPageHeader } from "../../../_components/Skeleton";
+import { Button } from "../../../_components/ui";
 
 interface Author {
   _id: string;
@@ -68,48 +70,8 @@ export default function TopicPage({ params }: PageProps) {
   const [replyContent, setReplyContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [userVote, setUserVote] = useState<number | null>(null);
-  const { language } = useLanguage();
-
-  const labels = {
-    tr: {
-      backToCategory: "← Kategoriye Dön",
-      backToForum: "← Forum",
-      replies: "Yanıtlar",
-      reply: "yanıt",
-      views: "görüntülenme",
-      pinned: "Sabitlenmiş",
-      locked: "Kilitli",
-      bestAnswer: "En İyi Yanıt",
-      edited: "düzenlendi",
-      writeReply: "Yanıtınızı yazın...",
-      send: "Gönder",
-      loginToReply: "Yanıt yazmak için giriş yapın",
-      topicLocked: "Bu konu kilitli",
-      report: "Raporla",
-      noReplies: "Henüz yanıt yok. İlk yanıtı sen yaz!",
-      notFound: "Konu bulunamadı",
-    },
-    en: {
-      backToCategory: "← Back to Category",
-      backToForum: "← Forum",
-      replies: "Replies",
-      reply: "reply",
-      views: "views",
-      pinned: "Pinned",
-      locked: "Locked",
-      bestAnswer: "Best Answer",
-      edited: "edited",
-      writeReply: "Write your reply...",
-      send: "Send",
-      loginToReply: "Login to reply",
-      topicLocked: "This topic is locked",
-      report: "Report",
-      noReplies: "No replies yet. Be the first!",
-      notFound: "Topic not found",
-    },
-  };
-
-  const l = labels[language] || labels.tr;
+  const { t, language } = useLanguage();
+  const { showToast } = useToast();
 
   useEffect(() => {
     async function loadTopic() {
@@ -171,11 +133,11 @@ export default function TopicPage({ params }: PageProps) {
         setUserVote(data.userVote);
       } else {
         const error = await res.json();
-        alert(error.error || (language === "tr" ? "Oy verilemedi" : "Vote failed"));
+        showToast(error.error || t('forum.topic.voteFailed'), 'error');
       }
     } catch (error) {
       console.error("Vote error:", error);
-      alert(language === "tr" ? "Bir hata oluştu" : "An error occurred");
+      showToast(t('forum.topic.voteError'), 'error');
     }
   };
 
@@ -200,7 +162,7 @@ export default function TopicPage({ params }: PageProps) {
         }
       } else {
         const error = await res.json();
-        alert(error.error || "Bir hata oluştu");
+        showToast(error.error || t('forum.topic.replySubmitError'), 'error');
       }
     } catch (error) {
       console.error("Reply submit error:", error);
@@ -225,9 +187,9 @@ export default function TopicPage({ params }: PageProps) {
       <main className="min-h-screen bg-white pt-24 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center py-20">
           <div className="bg-neo-pink border-4 border-black shadow-neo p-8">
-            <h1 className="text-2xl font-black text-black">{l.notFound}</h1>
+            <h1 className="text-2xl font-black text-black">{t('forum.topic.notFound')}</h1>
             <Link href="/forum" className="inline-block mt-4 font-bold text-black underline">
-              {l.backToForum}
+              {t('forum.category.backToForum')}
             </Link>
           </div>
         </div>
@@ -244,7 +206,7 @@ export default function TopicPage({ params }: PageProps) {
           className="inline-flex items-center gap-1 font-bold text-black hover:underline mb-6"
         >
           <ChevronLeft size={18} />
-          {l.backToCategory}
+          {t('forum.topic.backToCategory')}
         </Link>
 
         {/* Topic */}
@@ -260,12 +222,12 @@ export default function TopicPage({ params }: PageProps) {
               </Link>
               {topic.isPinned && (
                 <span className="inline-flex items-center gap-1 bg-neo-yellow text-black text-sm font-bold px-3 py-1 border-2 border-black">
-                  <Pin size={14} /> {l.pinned}
+                  <Pin size={14} /> {t('forum.page.pinned')}
                 </span>
               )}
               {topic.isLocked && (
                 <span className="inline-flex items-center gap-1 bg-gray-300 text-black text-sm font-bold px-3 py-1 border-2 border-black">
-                  <Lock size={14} /> {l.locked}
+                  <Lock size={14} /> {t('forum.category.locked')}
                 </span>
               )}
             </div>
@@ -329,8 +291,8 @@ export default function TopicPage({ params }: PageProps) {
               <button
                 onClick={() => handleVote(1)}
                 className={`p-2 border-2 border-black transition-all ${userVote === 1
-                    ? "bg-neo-green"
-                    : "bg-white hover:bg-gray-100"
+                  ? "bg-neo-green"
+                  : "bg-white hover:bg-gray-100"
                   }`}
               >
                 <ThumbsUp size={20} />
@@ -341,8 +303,8 @@ export default function TopicPage({ params }: PageProps) {
               <button
                 onClick={() => handleVote(-1)}
                 className={`p-2 border-2 border-black transition-all ${userVote === -1
-                    ? "bg-neo-pink"
-                    : "bg-white hover:bg-gray-100"
+                  ? "bg-neo-pink"
+                  : "bg-white hover:bg-gray-100"
                   }`}
               >
                 <ThumbsDown size={20} />
@@ -353,15 +315,15 @@ export default function TopicPage({ params }: PageProps) {
             <div className="flex items-center gap-4 text-sm font-bold text-black/50">
               <span className="flex items-center gap-1">
                 <MessageSquare size={16} />
-                {topic.replyCount} {l.reply}
+                {topic.replyCount} {t('forum.topic.reply')}
               </span>
               <span className="flex items-center gap-1">
                 <Eye size={16} />
-                {topic.viewCount} {l.views}
+                {topic.viewCount} {t('forum.page.views')}
               </span>
               <button className="flex items-center gap-1 hover:text-black">
                 <Flag size={16} />
-                {l.report}
+                {t('forum.topic.report')}
               </button>
             </div>
           </div>
@@ -371,13 +333,13 @@ export default function TopicPage({ params }: PageProps) {
         <section>
           <h2 className="text-2xl font-black text-black mb-6 flex items-center gap-2">
             <span className="bg-neo-yellow border-2 border-black px-4 py-1">
-              {l.replies} ({replies.length})
+              {t('forum.topic.replies')} ({replies.length})
             </span>
           </h2>
 
           {replies.length === 0 ? (
             <div className="bg-gray-100 border-4 border-black p-8 text-center mb-8">
-              <p className="font-bold text-black/60">{l.noReplies}</p>
+              <p className="font-bold text-black/60">{t('forum.topic.noReplies')}</p>
             </div>
           ) : (
             <div className="space-y-4 mb-8">
@@ -390,7 +352,7 @@ export default function TopicPage({ params }: PageProps) {
                   {reply.isBestAnswer && (
                     <div className="px-4 py-2 border-b-4 border-black bg-black text-white flex items-center gap-2">
                       <Check size={18} />
-                      <span className="font-bold">{l.bestAnswer}</span>
+                      <span className="font-bold">{t('forum.topic.bestAnswer')}</span>
                     </div>
                   )}
                   <div className="p-5">
@@ -415,7 +377,7 @@ export default function TopicPage({ params }: PageProps) {
                         </span>
                         <span className="text-sm text-black/50 ml-2">
                           {formatDate(reply.createdAt)}
-                          {reply.isEdited && ` (${l.edited})`}
+                          {reply.isEdited && ` (${t('forum.topic.edited')})`}
                         </span>
                       </div>
                     </div>
@@ -449,29 +411,27 @@ export default function TopicPage({ params }: PageProps) {
           {topic.isLocked ? (
             <div className="bg-gray-200 border-4 border-black p-6 text-center">
               <Lock size={24} className="mx-auto mb-2" />
-              <p className="font-bold text-black/60">{l.topicLocked}</p>
+              <p className="font-bold text-black/60">{t('forum.topic.topicLocked')}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmitReply} className="bg-gray-100 border-4 border-black p-6">
               <textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
-                placeholder={l.writeReply}
+                placeholder={t('forum.topic.writeReply')}
                 rows={4}
                 className="w-full p-4 border-4 border-black font-medium resize-none focus:outline-none focus:shadow-neo"
               />
               <div className="flex justify-end mt-4">
-                <button
+                <Button
                   type="submit"
-                  disabled={submitting || !replyContent.trim()}
-                  className={`inline-flex items-center gap-2 px-6 py-3 border-4 border-black font-black uppercase transition-all ${submitting || !replyContent.trim()
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-neo-green shadow-neo hover:-translate-y-1 hover:shadow-neo-lg"
-                    }`}
+                  disabled={!replyContent.trim()}
+                  isLoading={submitting}
+                  variant="success"
                 >
                   <Send size={18} />
-                  {l.send}
-                </button>
+                  {t('forum.topic.send')}
+                </Button>
               </div>
             </form>
           )}

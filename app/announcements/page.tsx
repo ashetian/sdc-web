@@ -1,59 +1,79 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "../_context/LanguageContext";
 import { SkeletonCardGrid, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
+import Pagination from "@/app/_components/Pagination";
+import type { Announcement } from "../lib/types/api";
 
-interface Announcement {
-    slug: string;
-    title: string;
-    titleEn?: string;
-    date: string;
-    dateEn?: string;
-    description: string;
-    descriptionEn?: string;
-    type: "event" | "news" | "article" | "opportunity";
-    image?: string;
-    isDraft: boolean;
-    isArchived?: boolean;
-}
+const ITEMS_PER_PAGE = 12;
 
 export default function AnnouncementsPage() {
     const [activeTab, setActiveTab] = useState<'announcements' | 'opportunities'>('announcements');
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [loading, setLoading] = useState(true);
-    const { language } = useLanguage();
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [totalPages, setTotalPages] = useState(1);
+    const { language, t } = useLanguage();
+
+    const loadAnnouncements = async (pageNum: number, append: boolean = false) => {
+        if (pageNum === 1) {
+            setLoading(true);
+        } else {
+            setLoadingMore(true);
+        }
+
+        try {
+            const typeParam = activeTab === 'announcements'
+                ? '&type=event&type=news&type=article'
+                : '&type=opportunity';
+            const res = await fetch(`/api/announcements?active=true&page=${pageNum}&limit=${ITEMS_PER_PAGE}`);
+            if (!res.ok) throw new Error("Failed to fetch");
+            const data = await res.json();
+
+            // Handle paginated response
+            const items = data.items || data;
+
+            // Filter based on active tab
+            const filteredData = items.filter((item: Announcement) => {
+                if (item.isDraft || item.isArchived) return false;
+                if (activeTab === 'announcements') {
+                    return ['event', 'news', 'article'].includes(item.type);
+                } else {
+                    return item.type === 'opportunity';
+                }
+            });
+
+            if (append) {
+                setAnnouncements(prev => [...prev, ...filteredData]);
+            } else {
+                setAnnouncements(filteredData);
+            }
+
+            setHasMore(data.hasMore ?? false);
+            setTotalPages(data.totalPages ?? 1);
+            setPage(pageNum);
+        } catch (error) {
+            console.error("Error loading announcements:", error);
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
 
     useEffect(() => {
-        async function loadAnnouncements() {
-            setLoading(true);
-            try {
-                const res = await fetch("/api/announcements");
-                if (!res.ok) throw new Error("Failed to fetch");
-                const data = await res.json();
-
-                // Filter based on active tab and status
-                const filteredData = data.filter((item: Announcement) => {
-                    if (item.isDraft || item.isArchived) return false;
-
-                    if (activeTab === 'announcements') {
-                        return ['event', 'news', 'article'].includes(item.type);
-                    } else {
-                        return item.type === 'opportunity';
-                    }
-                });
-
-                setAnnouncements(filteredData);
-            } catch (error) {
-                console.error("Error loading announcements:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        loadAnnouncements();
+        setPage(1);
+        setAnnouncements([]);
+        loadAnnouncements(1, false);
     }, [activeTab]);
+
+    const handleLoadMore = () => {
+        loadAnnouncements(page + 1, true);
+    };
 
     const getTypeStyles = (type: Announcement["type"]) => {
         switch (type) {
@@ -66,11 +86,7 @@ export default function AnnouncementsPage() {
     };
 
     const getTypeText = (type: Announcement["type"]) => {
-        const typeLabels = {
-            tr: { event: "Etkinlik", news: "Duyuru", article: "Makale", opportunity: "Fırsat" },
-            en: { event: "Event", news: "News", article: "Article", opportunity: "Opportunity" }
-        };
-        return typeLabels[language][type] || type;
+        return t(`announcements.types.${type}` as any);
     };
 
     const getText = (tr: string | undefined, en: string | undefined) => {
@@ -78,50 +94,6 @@ export default function AnnouncementsPage() {
         return tr || '';
     };
 
-    const labels = {
-        tr: {
-            titleMap: {
-                announcements: 'Duyurular',
-                opportunities: 'Fırsatlar'
-            },
-            subtitleMap: {
-                announcements: 'Kulübümüzden en son haberler, etkinlikler ve gelişmeler.',
-                opportunities: 'Stajlar, yarışmalar, hackathonlar ve kariyer fırsatları.'
-            },
-            backHome: '← Ana Sayfa',
-            noAnnouncementsMap: {
-                announcements: 'Henüz duyuru bulunmuyor.',
-                opportunities: 'Şu an aktif bir fırsat bulunmuyor.'
-            },
-            tabs: {
-                announcements: 'DUYURULAR',
-                opportunities: 'FIRSATLAR'
-            }
-        },
-        en: {
-            titleMap: {
-                announcements: 'Announcements',
-                opportunities: 'Opportunities'
-            },
-            subtitleMap: {
-                announcements: 'Latest news, events and updates from our club.',
-                opportunities: 'Internships, competitions, hackathons and career opportunities.'
-            },
-            backHome: '← Home',
-            noAnnouncementsMap: {
-                announcements: 'No announcements yet.',
-                opportunities: 'No active opportunities at the moment.'
-            },
-            tabs: {
-                announcements: 'ANNOUNCEMENTS',
-                opportunities: 'OPPORTUNITIES'
-            }
-        }
-    };
-
-    const l = labels[language];
-
-    // Separate loading logic for better UX
     const renderContent = () => {
         if (loading) return <SkeletonCardGrid />;
 
@@ -129,58 +101,69 @@ export default function AnnouncementsPage() {
             return (
                 <div className="text-center py-20">
                     <p className="text-2xl font-bold text-gray-500">
-                        {l.noAnnouncementsMap[activeTab]}
+                        {t(`announcements.noContent.${activeTab}` as any)}
                     </p>
                 </div>
             );
         }
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {announcements.map((announcement) => (
-                    <Link
-                        href={`/announcements/${announcement.slug}`}
-                        key={announcement.slug}
-                        className="group bg-white border-4 border-black shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all flex flex-col h-full"
-                    >
-                        {announcement.image && (
-                            <div className="relative aspect-video border-b-4 border-black overflow-hidden flex-shrink-0">
-                                <Image
-                                    src={announcement.image}
-                                    alt={getText(announcement.title, announcement.titleEn)}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform"
-                                />
-                            </div>
-                        )}
-                        <div className="p-4 flex flex-col flex-1">
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className={`px-2 py-1 text-xs font-bold uppercase border-2 border-black ${getTypeStyles(announcement.type)}`}>
-                                    {getTypeText(announcement.type)}
-                                </span>
-                                <time className="text-xs font-bold text-gray-600">
-                                    {getText(announcement.date, announcement.dateEn)}
-                                </time>
-                            </div>
-                            <h3 className="text-lg font-black text-black uppercase mb-2 line-clamp-2 group-hover:text-neo-purple transition-colors" lang={language}>
-                                {getText(announcement.title, announcement.titleEn)}
-                            </h3>
-                            <p className="text-sm text-gray-700 line-clamp-3 mb-4 flex-1">
-                                {getText(announcement.description, announcement.descriptionEn)}
-                            </p>
-
-                            {/* Link Button Preview if available (simplified for card) */}
-                            {announcement.type === 'opportunity' && (
-                                <div className="mt-auto pt-2">
-                                    <span className="inline-block text-xs font-black text-neo-purple hover:underline">
-                                        DETAYLARI GÖR →
-                                    </span>
+            <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {announcements.map((announcement) => (
+                        <Link
+                            href={`/announcements/${announcement.slug}`}
+                            key={announcement.slug}
+                            className="group bg-white border-4 border-black shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all flex flex-col h-full"
+                        >
+                            {announcement.image && (
+                                <div className="relative aspect-video border-b-4 border-black overflow-hidden flex-shrink-0">
+                                    <Image
+                                        src={announcement.image}
+                                        alt={getText(announcement.title, announcement.titleEn)}
+                                        fill
+                                        className="object-cover group-hover:scale-105 transition-transform"
+                                    />
                                 </div>
                             )}
-                        </div>
-                    </Link>
-                ))}
-            </div>
+                            <div className="p-4 flex flex-col flex-1">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className={`px-2 py-1 text-xs font-bold uppercase border-2 border-black ${getTypeStyles(announcement.type)}`}>
+                                        {getTypeText(announcement.type)}
+                                    </span>
+                                    <time className="text-xs font-bold text-gray-600">
+                                        {getText(announcement.date, announcement.dateEn)}
+                                    </time>
+                                </div>
+                                <h3 className="text-lg font-black text-black uppercase mb-2 line-clamp-2 group-hover:text-neo-purple transition-colors" lang={language}>
+                                    {getText(announcement.title, announcement.titleEn)}
+                                </h3>
+                                <p className="text-sm text-gray-700 line-clamp-3 mb-4 flex-1">
+                                    {getText(announcement.description, announcement.descriptionEn)}
+                                </p>
+
+                                {announcement.type === 'opportunity' && (
+                                    <div className="mt-auto pt-2">
+                                        <span className="inline-block text-xs font-black text-neo-purple hover:underline">
+                                            {t('announcements.details')}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+
+                {/* Load More Pagination */}
+                <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={handleLoadMore}
+                    mode="loadMore"
+                    hasMore={hasMore}
+                    loading={loadingMore}
+                />
+            </>
         );
     };
 
@@ -193,7 +176,7 @@ export default function AnnouncementsPage() {
                         href="/"
                         className="self-start text-black font-bold hover:underline mb-4 md:absolute md:left-8 top-32"
                     >
-                        {l.backHome}
+                        ← {t('announcements.detail.backHome')}
                     </Link>
 
 
@@ -206,7 +189,7 @@ export default function AnnouncementsPage() {
                                 : 'bg-white text-gray-500 border-gray-300 hover:border-black hover:text-black'
                                 }`}
                         >
-                            {l.tabs.announcements}
+                            {t('announcements.tabs.announcements')}
                         </button>
                         <button
                             onClick={() => setActiveTab('opportunities')}
@@ -215,15 +198,15 @@ export default function AnnouncementsPage() {
                                 : 'bg-white text-gray-500 border-gray-300 hover:border-black hover:text-black'
                                 }`}
                         >
-                            {l.tabs.opportunities}
+                            {t('announcements.tabs.opportunities')}
                         </button>
                     </div>
 
                     <h1 className="text-4xl md:text-5xl font-black text-black uppercase mb-4 tracking-tight">
-                        {l.titleMap[activeTab]}
+                        {t(`announcements.titles.${activeTab}` as any)}
                     </h1>
                     <p className="text-xl font-bold text-gray-600 max-w-2xl">
-                        {l.subtitleMap[activeTab]}
+                        {t(`announcements.subtitles.${activeTab}` as any)}
                     </p>
                 </div>
 

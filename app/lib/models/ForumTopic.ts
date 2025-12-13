@@ -15,7 +15,9 @@ export interface IForumTopic extends Document {
     isPinned: boolean;
     isLocked: boolean;
     isDeleted: boolean;
-    isApproved: boolean;
+    status: 'pending' | 'approved' | 'rejected' | 'revision_requested' | 'resubmitted';
+    revisionMessage?: string;
+    revisionRequestedAt?: Date;
     lastReplyAt?: Date;
     lastReplyById?: mongoose.Types.ObjectId;
     createdAt: Date;
@@ -90,10 +92,18 @@ const ForumTopicSchema = new Schema<IForumTopic>(
             default: false,
             index: true,
         },
-        isApproved: {
-            type: Boolean,
-            default: false,
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected', 'revision_requested', 'resubmitted'],
+            default: 'pending',
             index: true,
+        },
+        revisionMessage: {
+            type: String,
+            maxlength: 1000,
+        },
+        revisionRequestedAt: {
+            type: Date,
         },
         lastReplyAt: {
             type: Date,

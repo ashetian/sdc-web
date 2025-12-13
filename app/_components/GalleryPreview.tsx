@@ -1,49 +1,22 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "../_context/LanguageContext";
-
-interface Announcement {
-  slug: string;
-  title: string;
-  titleEn?: string;
-  date: string;
-  dateEn?: string;
-  description: string;
-  descriptionEn?: string;
-  type: "event" | "news" | "workshop";
-  galleryLinks?: string[];
-  galleryCover?: string;
-  isInGallery?: boolean;
-  galleryDescription?: string;
-  galleryDescriptionEn?: string;
-}
+import { useAnnouncements } from "../lib/swr";
+import type { Announcement } from "../lib/types/api";
 
 export default function GalleryPreview() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useAnnouncements();
   const { language, t } = useLanguage();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    async function loadGallery() {
-      try {
-        const res = await fetch("/api/announcements");
-        if (!res.ok) throw new Error("Galeri yüklenemedi");
-        const data: Announcement[] = await res.json();
-        const galleryItems = data.filter((a) => a.isInGallery).slice(0, 15);
-        setAnnouncements(galleryItems);
-      } catch (error) {
-        console.error("Galeri yüklenirken hata:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadGallery();
-  }, []);
+  // Filter gallery items from announcements
+  const announcements = useMemo(() => {
+    if (!data) return [];
+    return (data as Announcement[]).filter((a) => a.isInGallery).slice(0, 15);
+  }, [data]);
 
   const getTitle = (a: Announcement) => {
     if (language === 'en' && a.titleEn) return a.titleEn;
@@ -74,7 +47,7 @@ export default function GalleryPreview() {
     return a.date;
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <section className="py-20 bg-neo-cyan border-b-4 border-black scroll-mt-20" id="gallery-preview">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,7 +89,7 @@ export default function GalleryPreview() {
       <button
         onClick={() => scroll('left')}
         className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 items-center justify-center bg-white border-4 border-black shadow-neo hover:shadow-neo-sm hover:translate-y-[calc(-50%+2px)] active:shadow-none active:translate-y-[calc(-50%+4px)] transition-all font-black"
-        aria-label={language === 'tr' ? 'Önceki' : 'Previous'}
+        aria-label={t('gallery.previous')}
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
@@ -125,7 +98,7 @@ export default function GalleryPreview() {
       <button
         onClick={() => scroll('right')}
         className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 items-center justify-center bg-white border-4 border-black shadow-neo hover:shadow-neo-sm hover:translate-y-[calc(-50%+2px)] active:shadow-none active:translate-y-[calc(-50%+4px)] transition-all font-black"
-        aria-label={language === 'tr' ? 'Sonraki' : 'Next'}
+        aria-label={t('gallery.next')}
       >
         <ChevronRight className="w-6 h-6" />
       </button>
@@ -140,7 +113,7 @@ export default function GalleryPreview() {
               href="/gallery"
               className="inline-block px-6 py-2 bg-black text-white font-bold border-2 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all"
             >
-              {language === 'tr' ? 'Tümünü Gör' : 'See All'}
+              {t('gallery.seeAll')}
             </Link>
           </div>
         </div>
@@ -151,10 +124,10 @@ export default function GalleryPreview() {
             {announcements.length === 0 ? (
               <div className="w-full text-center py-12 bg-white border-4 border-black shadow-neo transform rotate-1">
                 <p className="text-xl font-black text-black uppercase" lang={language}>
-                  {language === 'tr' ? 'Henüz galeriye eklenmiş içerik yok.' : 'No content added to gallery yet.'}
+                  {t('gallery.noContent')}
                 </p>
                 <p className="text-black font-medium mt-2">
-                  {language === 'tr' ? 'Etkinliklerimizden kareler çok yakında burada olacak!' : 'Photos from our events will be here soon!'}
+                  {t('gallery.comingSoon')}
                 </p>
               </div>
             ) : (

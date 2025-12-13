@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const contentType = searchParams.get('type');
         const showDeleted = searchParams.get('deleted') === 'true';
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '30');
 
         const query: { contentType?: string; isDeleted?: boolean | { $ne: boolean } } = {};
 
@@ -31,10 +33,14 @@ export async function GET(request: NextRequest) {
             query.isDeleted = { $ne: true };
         }
 
+        const total = await Comment.countDocuments(query);
+        const totalPages = Math.ceil(total / limit);
+
         const comments = await Comment.find(query)
             .populate('memberId', 'fullName nickname studentNo')
             .sort({ createdAt: -1 })
-            .limit(100);
+            .skip((page - 1) * limit)
+            .limit(limit);
 
         // Get content titles
         const enrichedComments = await Promise.all(comments.map(async (comment) => {
@@ -81,7 +87,10 @@ export async function GET(request: NextRequest) {
             };
         }));
 
-        return NextResponse.json(enrichedComments);
+        return NextResponse.json({
+            comments: enrichedComments,
+            pagination: { page, limit, total, totalPages }
+        });
     } catch (error) {
         console.error('Admin comments fetch error:', error);
         return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });

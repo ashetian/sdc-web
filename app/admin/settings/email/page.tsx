@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
 import Link from 'next/link';
 import { Mail, AlertCircle, CheckCircle, Send, Info } from 'lucide-react';
+import { Button } from '@/app/_components/ui';
 
 type EmailProvider = 'resend' | 'nodemailer-gmail';
 
@@ -214,13 +215,14 @@ export default function EmailSettingsPage() {
             {/* Save Button */}
             <div className="bg-white border-4 border-black shadow-neo p-6">
                 <form onSubmit={handleSave}>
-                    <button
+                    <Button
                         type="submit"
                         disabled={saving || (provider === 'nodemailer-gmail' && !gmailConfigured)}
-                        className="bg-neo-green text-black border-4 border-black px-8 py-3 font-black uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        isLoading={saving}
+                        variant="success"
                     >
-                        {saving ? 'Kaydediliyor...' : 'Sağlayıcıyı Kaydet'}
-                    </button>
+                        Sağlayıcıyı Kaydet
+                    </Button>
                     {provider === 'nodemailer-gmail' && !gmailConfigured && (
                         <p className="text-sm font-bold text-red-600 mt-2">
                             Gmail seçmek için önce ortam değişkenlerini yapılandırın.
@@ -240,15 +242,15 @@ export default function EmailSettingsPage() {
                         placeholder="test@example.com"
                         className="flex-1 p-3 border-4 border-black bg-gray-50 font-bold focus:shadow-neo focus:outline-none"
                     />
-                    <button
+                    <Button
                         type="button"
                         onClick={handleTestEmail}
                         disabled={testing || !testEmail}
-                        className="flex items-center gap-2 bg-neo-pink text-black border-4 border-black px-6 py-3 font-black uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50"
+                        isLoading={testing}
                     >
                         <Send size={18} />
-                        {testing ? 'Gönderiliyor...' : 'Test Gönder'}
-                    </button>
+                        Test Gönder
+                    </Button>
                 </div>
             </div>
 

@@ -5,29 +5,8 @@ import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
 import { Crown, ChevronDown, ChevronUp } from "lucide-react";
 import UserProfileModal from "./UserProfileModal";
-
-interface Department {
-    _id: string;
-    name: string;
-    nameEn?: string;
-    description: string;
-    descriptionEn?: string;
-    color: string;
-    icon: string;
-    leadId?: string;
-    order?: number;
-}
-
-export interface TeamMember {
-    _id: string;
-    name: string;
-    photo?: string;
-    role: string;
-    title: string;
-    departmentId?: Department | string;
-    description?: string;
-    order?: number;
-}
+import { useDepartments, useTeam } from "../lib/swr";
+import type { TeamMember, Department } from "../lib/types/api";
 
 const iconMap: Record<string, React.ReactNode> = {
     clipboard: (
@@ -58,43 +37,26 @@ const standardCardClass = "border-4 border-black shadow-neo bg-white transition-
 export default function Team() {
     const { language, t } = useLanguage();
     const sectionRef = useRef<HTMLElement>(null);
-    const [departments, setDepartments] = useState<Department[]>([]);
-    const [members, setMembers] = useState<TeamMember[]>([]);
-    const [loading, setLoading] = useState(true);
+
+    // SWR hooks
+    const { data: departmentsData, isLoading: deptLoading } = useDepartments();
+    const { data: membersData, isLoading: teamLoading } = useTeam();
+
+    const departments = departmentsData || [];
+    const members = membersData || [];
+    const loading = deptLoading || teamLoading;
+
     const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
     const [activeDeptId, setActiveDeptId] = useState<string | null>(null);
     const [expandedDepts, setExpandedDepts] = useState<Set<string>>(new Set());
 
-    // Fetch Data
+    // Set first department as active when data loads
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [deptRes, teamRes] = await Promise.all([
-                    fetch('/api/departments'),
-                    fetch('/api/team?showInTeam=true')
-                ]);
-
-                if (deptRes.ok) {
-                    const data = await deptRes.json();
-                    setDepartments(data);
-                    // Set first department as active by default if available
-                    if (data.length > 0) {
-                        setActiveDeptId(data[0]._id);
-                        setExpandedDepts(new Set([data[0]._id]));
-                    }
-                }
-                if (teamRes.ok) {
-                    const data = await teamRes.json();
-                    setMembers(data);
-                }
-            } catch (error) {
-                console.error('Veri yüklenemedi:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
+        if (departments.length > 0 && !activeDeptId) {
+            setActiveDeptId(departments[0]._id);
+            setExpandedDepts(new Set([departments[0]._id]));
+        }
+    }, [departments, activeDeptId]);
 
     const management = useMemo(() => {
         return members.filter(m => m.role === 'president' || m.role === 'vice_president')
@@ -202,7 +164,7 @@ export default function Team() {
                         href="/apply"
                         className="bg-neo-yellow border-4 border-black px-4 py-2 md:px-6 md:py-3 font-black text-sm md:text-lg shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center gap-2"
                     >
-                        <span>{language === 'tr' ? 'BİZE KATILIN' : 'JOIN US'}</span>
+                        <span>{t('team.joinUs')}</span>
                         <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
@@ -214,7 +176,7 @@ export default function Team() {
                     {/* Management Section */}
                     <div className={`${standardCardClass} p-4 mb-4`}>
                         <div className="bg-black text-white px-3 py-1 font-black uppercase text-xs inline-block mb-4">
-                            {language === 'tr' ? 'YÖNETİM' : 'MANAGEMENT'}
+                            {t('team.management')}
                         </div>
                         <div className="space-y-3">
                             {management.map(m => (
@@ -280,7 +242,7 @@ export default function Team() {
                                                 ))}
                                                 {deptMembers.length === 0 && (
                                                     <p className="text-center text-gray-400 italic text-sm py-4">
-                                                        {language === 'tr' ? 'Ekip arkadaşları yakında eklenecek.' : 'Team members joining soon.'}
+                                                        {t('team.membersSoon')}
                                                     </p>
                                                 )}
                                             </div>
@@ -297,7 +259,7 @@ export default function Team() {
                             href="/apply"
                             className="w-full bg-neo-yellow border-4 border-black px-6 py-4 font-black text-lg shadow-neo hover:shadow-none transition-all flex items-center justify-center gap-2"
                         >
-                            <span>{language === 'tr' ? 'BİZE KATILIN' : 'JOIN US'}</span>
+                            <span>{t('team.joinUs')}</span>
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
@@ -311,7 +273,7 @@ export default function Team() {
                     <div className="flex flex-col items-center relative z-10">
                         <div className={`${standardCardClass} bg-white p-8 max-w-2xl w-full text-center relative z-10`}>
                             <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white px-4 font-black uppercase text-sm -rotate-2 shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
-                                {language === 'tr' ? 'YÖNETİM' : 'MANAGEMENT'}
+                                {t('team.management')}
                             </div>
                             <div className="flex justify-center gap-16">
                                 {management.map(m => (
@@ -452,7 +414,7 @@ export default function Team() {
                                     ) : (
                                         <div className="text-center py-8">
                                             <span className="font-bold text-gray-400 italic">
-                                                {language === 'tr' ? 'Ekip arkadaşları yakında eklenecek.' : 'Team members joining soon.'}
+                                                {t('team.membersSoon')}
                                             </span>
                                         </div>
                                     )}

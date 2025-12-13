@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SkeletonList, SkeletonAvatar } from '@/app/_components/Skeleton';
 import Image from 'next/image';
 import { FolderOpen, User, Hash, Github, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Button, ConfirmModal } from '@/app/_components/ui';
 
 interface Project {
     _id: string;
@@ -345,43 +346,42 @@ export default function AdminProjectsPage() {
 
                                                     {project.status === 'pending' && (
                                                         <>
-                                                            <button
+                                                            <Button
                                                                 onClick={() => handleApprove(project._id)}
-                                                                className="px-6 py-2 bg-neo-green border-2 border-neo-black text-neo-black font-black uppercase hover:brightness-110 shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                                variant="success"
                                                             >
                                                                 Onayla
-                                                            </button>
-                                                            <button
+                                                            </Button>
+                                                            <Button
                                                                 onClick={() => setRejectingId(project._id)}
-                                                                className="px-6 py-2 bg-neo-red border-2 border-neo-black text-white font-black uppercase hover:brightness-110 shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                                variant="danger"
                                                             >
                                                                 Reddet
-                                                            </button>
+                                                            </Button>
                                                         </>
                                                     )}
                                                     {(project.status === 'approved' || project.status === 'rejected') && (
-                                                        <button
+                                                        <Button
                                                             onClick={() => setDeleteModalId(project._id)}
-                                                            className="px-6 py-2 bg-neo-gray-dark border-2 border-neo-black text-white font-black uppercase hover:bg-neo-red shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                            variant="secondary"
                                                         >
                                                             Sil
-                                                        </button>
+                                                        </Button>
                                                     )}
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-wrap gap-3">
-                                                    <button
+                                                    <Button
                                                         onClick={() => handleRestore(project._id)}
-                                                        className="px-6 py-2 bg-neo-blue border-2 border-neo-black text-white font-black uppercase hover:brightness-110 shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                                                     >
                                                         Geri Yükle
-                                                    </button>
-                                                    <button
+                                                    </Button>
+                                                    <Button
                                                         onClick={() => setPermanentDeleteModalId(project._id)}
-                                                        className="px-6 py-2 bg-neo-red border-2 border-neo-black text-white font-black uppercase hover:brightness-110 shadow-neo-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                                        variant="danger"
                                                     >
                                                         Kalıcı Sil
-                                                    </button>
+                                                    </Button>
                                                 </div>
                                             )}
                                         </div>
@@ -398,18 +398,18 @@ export default function AdminProjectsPage() {
                                                     rows={3}
                                                 />
                                                 <div className="flex justify-end gap-3">
-                                                    <button
+                                                    <Button
                                                         onClick={() => { setRejectingId(null); setRejectReason(''); }}
-                                                        className="px-4 py-2 border-2 border-white text-white font-bold uppercase hover:bg-white hover:text-black transition-all"
+                                                        variant="secondary"
                                                     >
                                                         İptal
-                                                    </button>
-                                                    <button
+                                                    </Button>
+                                                    <Button
                                                         onClick={() => handleReject(project._id)}
-                                                        className="px-4 py-2 bg-neo-red border-2 border-neo-red text-white font-bold uppercase hover:brightness-125 transition-all"
+                                                        variant="danger"
                                                     >
                                                         Reddet
-                                                    </button>
+                                                    </Button>
                                                 </div>
                                             </div>
                                         )}

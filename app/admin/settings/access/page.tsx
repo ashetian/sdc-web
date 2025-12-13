@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
+import { Button } from '@/app/_components/ui';
 
 interface AccessRule {
     _id: string;
@@ -225,13 +226,15 @@ export default function AccessControlPage() {
                             ))}
                         </div>
 
-                        <button
+                        <Button
                             onClick={handleSave}
                             disabled={saving || selectedKeys.length === 0}
-                            className="mt-6 w-full py-3 bg-neo-blue border-2 border-black text-white font-black uppercase shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50"
+                            isLoading={saving}
+                            fullWidth
+                            className="mt-6"
                         >
-                            {saving ? 'Kaydediliyor...' : 'Yetki Ver'}
-                        </button>
+                            Yetki Ver
+                        </Button>
                     </div>
                 )}
             </div>
@@ -255,12 +258,13 @@ export default function AccessControlPage() {
                                         ))}
                                     </div>
                                 </div>
-                                <button
+                                <Button
                                     onClick={() => handleDelete(rule._id)}
-                                    className="px-4 py-2 bg-red-100 text-red-700 border-2 border-red-200 font-black uppercase text-xs hover:bg-red-200"
+                                    variant="danger"
+                                    size="sm"
                                 >
                                     Kaldır
-                                </button>
+                                </Button>
                             </div>
                         ))}
                     </div>

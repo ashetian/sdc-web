@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useToast } from '@/app/_context/ToastContext';
+import { Button } from '@/app/_components/ui';
 
 export default function CreateEventPage() {
     const router = useRouter();
+    const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
@@ -41,7 +44,7 @@ export default function CreateEventPage() {
             setFormData(prev => ({ ...prev, posterUrl: data.path }));
         } catch (error) {
             console.error('Görsel yükleme hatası:', error);
-            alert('Görsel yüklenirken bir hata oluştu.');
+            showToast('Görsel yüklenirken bir hata oluştu.', 'error');
         } finally {
             setUploading(false);
         }
@@ -63,11 +66,11 @@ export default function CreateEventPage() {
             if (res.ok) {
                 router.push('/admin/events');
             } else {
-                alert('Etkinlik oluşturulurken bir hata oluştu.');
+                showToast('Etkinlik oluşturulurken bir hata oluştu.', 'error');
             }
         } catch (error) {
             console.error('Hata:', error);
-            alert('Bir hata oluştu.');
+            showToast('Bir hata oluştu.', 'error');
         } finally {
             setLoading(false);
         }
@@ -280,20 +283,20 @@ export default function CreateEventPage() {
                 </div>
 
                 <div className="flex justify-end space-x-3">
-                    <button
+                    <Button
                         type="button"
                         onClick={() => router.back()}
-                        className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        variant="secondary"
                     >
                         İptal
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="submit"
                         disabled={loading}
-                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                        isLoading={loading}
                     >
-                        {loading ? 'Oluşturuluyor...' : 'Oluştur'}
-                    </button>
+                        Oluştur
+                    </Button>
                 </div>
             </form>
         </div>

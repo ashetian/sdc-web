@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bug, Clock, CheckCircle, XCircle, Eye, Trash2, MessageSquare } from "lucide-react";
 import { SkeletonList } from "@/app/_components/Skeleton";
+import { Button } from '@/app/_components/ui';
 
 interface BugReport {
     _id: string;
@@ -264,37 +265,37 @@ export default function BugReportsAdmin() {
                         </div>
 
                         <div className="flex flex-wrap gap-2 pt-4 border-t-2 border-gray-200">
-                            <button
+                            <Button
                                 onClick={() => updateStatus(selectedReport._id, 'reviewed')}
                                 disabled={updating}
-                                className="px-4 py-2 bg-blue-500 text-white font-bold border-2 border-black shadow-neo-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
+                                isLoading={updating}
                             >
                                 <Eye size={16} className="inline mr-1" />
                                 İncelendi
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => updateStatus(selectedReport._id, 'resolved')}
                                 disabled={updating}
-                                className="px-4 py-2 bg-green-500 text-white font-bold border-2 border-black shadow-neo-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
+                                variant="success"
                             >
                                 <CheckCircle size={16} className="inline mr-1" />
                                 Çözüldü
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => updateStatus(selectedReport._id, 'dismissed')}
                                 disabled={updating}
-                                className="px-4 py-2 bg-gray-500 text-white font-bold border-2 border-black shadow-neo-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
+                                variant="secondary"
                             >
                                 <XCircle size={16} className="inline mr-1" />
                                 Reddet
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => deleteReport(selectedReport._id)}
-                                className="px-4 py-2 bg-red-500 text-white font-bold border-2 border-black shadow-neo-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ml-auto"
+                                variant="danger"
                             >
                                 <Trash2 size={16} className="inline mr-1" />
                                 Sil
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SkeletonTable, SkeletonPageHeader } from '@/app/_components/Skeleton';
+import { useToast } from '@/app/_context/ToastContext';
 import {
     Settings,
     X,
@@ -18,6 +19,7 @@ import {
     Save,
     FileText
 } from 'lucide-react';
+import { Button } from '@/app/_components/ui';
 
 interface Event {
     _id: string;
@@ -35,6 +37,7 @@ interface Event {
 export default function AdminEventsPage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
+    const { showToast } = useToast();
 
     // Manage Modal
     const [manageModal, setManageModal] = useState<Event | null>(null);
@@ -116,11 +119,11 @@ export default function AdminEventsPage() {
                 const fullUrl = `${window.location.origin}${data.qrUrl}`;
                 setQrModal({ eventId, eventTitle, qrUrl: fullUrl });
             } else {
-                alert('QR oluşturulamadı.');
+                showToast('QR oluşturulamadı.', 'error');
             }
         } catch (error) {
             console.error('QR generation error:', error);
-            alert('Hata oluştu.');
+            showToast('Hata oluştu.', 'error');
         } finally {
             setGeneratingQR(false);
         }
@@ -143,18 +146,18 @@ export default function AdminEventsPage() {
                 setEndModal(null);
                 setDuration('');
                 fetchEvents();
-                alert('Etkinlik sonlandırıldı ve duyuru oluşturuldu!');
+                showToast('Etkinlik sonlandırıldı ve duyuru oluşturuldu!', 'success');
             } else if (data.needsReport) {
                 setEndModal(null);
-                alert('Önce sonuç raporu eklemelisiniz.');
+                showToast('Önce sonuç raporu eklemelisiniz.', 'warning');
                 // Redirect to report page
                 window.location.href = `/admin/events/${endModal.eventId}/report`;
             } else {
-                alert(data.error || 'Sonlandırılamadı.');
+                showToast(data.error || 'Sonlandırılamadı.', 'error');
             }
         } catch (error) {
             console.error('End event error:', error);
-            alert('Hata oluştu.');
+            showToast('Hata oluştu.', 'error');
         } finally {
             setEndingEvent(false);
         }
@@ -162,7 +165,7 @@ export default function AdminEventsPage() {
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        alert('Kopyalandı!');
+        showToast('Kopyalandı!', 'success');
     };
 
     if (loading) {
@@ -254,12 +257,12 @@ export default function AdminEventsPage() {
                                             : '-'}
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <button
+                                        <Button
                                             onClick={() => setManageModal(event)}
-                                            className="inline-flex items-center px-4 py-2 text-sm font-black bg-white text-black border-4 border-black shadow-neo hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all uppercase"
+                                            size="sm"
                                         >
                                             <Settings size={16} /> Yönet
-                                        </button>
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}

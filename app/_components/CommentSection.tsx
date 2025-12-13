@@ -6,22 +6,7 @@ import { useLanguage } from '../_context/LanguageContext';
 import LikeButton from './LikeButton';
 import { Reply, CornerDownRight } from 'lucide-react';
 import UserProfileModal from './UserProfileModal';
-
-interface Comment {
-    _id: string;
-    content: string;
-    isEdited: boolean;
-    createdAt: string;
-    parentId: string | null;
-    author: {
-        _id: string;
-        nickname: string;
-        avatar?: string;
-        fullName?: string;
-        department?: string;
-    };
-    replies?: Comment[];
-}
+import type { Comment } from '../lib/types/api';
 
 interface CommentSectionProps {
     contentType: 'project' | 'gallery' | 'announcement';
@@ -40,7 +25,6 @@ interface CommentItemProps {
     setDeleteModalId: (id: string | null) => void;
     currentUserId: string | null;
     isLoggedIn: boolean;
-    l: any;
     formatDate: (dateStr: string) => string;
 
     submitting: boolean;
@@ -58,11 +42,11 @@ const CommentItem = ({
     setDeleteModalId,
     currentUserId,
     isLoggedIn,
-    l,
     formatDate,
     submitting,
     onUserClick
 }: CommentItemProps) => {
+    const { t } = useLanguage();
     const isReplying = replyingTo === comment._id;
 
     return (
@@ -105,7 +89,7 @@ const CommentItem = ({
                                     onClick={() => setDeleteModalId(comment._id)}
                                     className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold border-2 border-black hover:bg-red-600 transition-all"
                                 >
-                                    {l.delete}
+                                    {t('comments.delete')}
                                 </button>
                             )}
                         </div>
@@ -114,7 +98,7 @@ const CommentItem = ({
                     <div className="flex items-center justify-between mt-2">
                         <div className="text-[10px] sm:text-xs text-gray-500">
                             {formatDate(comment.createdAt)}
-                            {comment.isEdited && ` (${l.edited})`}
+                            {comment.isEdited && ` (${t('comments.edited')})`}
                         </div>
 
                         {/* Reply Button - Only for root comments */}
@@ -129,10 +113,10 @@ const CommentItem = ({
                                     }
                                 }}
                                 className="text-gray-500 hover:text-black transition-colors flex items-center gap-1.5 text-xs font-bold px-3 py-1 hover:bg-gray-100 rounded"
-                                title={l.reply}
+                                title={t('comments.reply')}
                             >
                                 <Reply size={14} />
-                                {l.reply}
+                                {t('comments.reply')}
                             </button>
                         )}
                     </div>
@@ -146,7 +130,7 @@ const CommentItem = ({
                                     <textarea
                                         value={replyContent}
                                         onChange={(e) => setReplyContent(e.target.value)}
-                                        placeholder={l.replyPlaceholder}
+                                        placeholder={t('comments.replyPlaceholder')}
                                         maxLength={500}
                                         rows={2}
                                         autoFocus
@@ -158,14 +142,14 @@ const CommentItem = ({
                                             onClick={() => setReplyingTo(null)}
                                             className="px-3 py-1 text-xs font-bold border-2 border-transparent hover:underline"
                                         >
-                                            {l.cancelReply}
+                                            {t('comments.cancelReply')}
                                         </button>
                                         <button
                                             type="submit"
                                             disabled={submitting || !replyContent.trim()}
                                             className="px-4 py-1 bg-black text-white text-xs font-bold border-2 border-black hover:bg-white hover:text-black transition-all disabled:opacity-50"
                                         >
-                                            {submitting ? '...' : l.reply}
+                                            {submitting ? '...' : t('comments.reply')}
                                         </button>
                                     </div>
                                 </div>
@@ -191,7 +175,6 @@ const CommentItem = ({
                             setDeleteModalId={setDeleteModalId}
                             currentUserId={currentUserId}
                             isLoggedIn={isLoggedIn}
-                            l={l}
                             formatDate={formatDate}
 
                             submitting={submitting}
@@ -205,7 +188,7 @@ const CommentItem = ({
 };
 
 export default function CommentSection({ contentType, contentId }: CommentSectionProps) {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -220,61 +203,6 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
     // Reply logic
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState('');
-
-    const labels = {
-        tr: {
-            comments: 'Yorumlar',
-            noComments: 'Henüz yorum yapılmamış. İlk yorumu siz yapın!',
-            commentPlaceholder: 'Yorumunuzu yazın... (link eklenemez)',
-            replyPlaceholder: 'Yanıtınızı yazın...',
-            submit: 'Gönder',
-            reply: 'Yanıtla',
-            cancelReply: 'İptal',
-            loginToComment: 'Yorum yapmak için giriş yapın',
-            edited: 'düzenlendi',
-            delete: 'Sil',
-            confirmDeleteTitle: '⚠️ Yorumu Sil',
-            confirmDeleteText: 'Bu yorumu silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
-            confirmYes: 'Evet, Sil',
-            confirmCancel: 'İptal',
-            disclaimerTitle: '⚠️ Önemli Uyarı',
-            disclaimerText: `Yorum yapmadan önce aşağıdaki bilgileri dikkatlice okuyunuz:
-
-• Yorumda yazdığınız içeriklerden tamamen kendiniz sorumlusunuz.
-• Kulüp yönetimi, uygunsuz, hakaret içeren veya yasadışı içerikler tespit ettiğinde üniversite yönetimine bilgi vermekle yükümlüdür.
-• Üye bilgileriniz (isim, öğrenci numarası, bölüm vb.) yönetim tarafından erişilebilir durumdadır.
-• Yorumunuz diğer kullanıcılar tarafından görüntülenebilir ve moderatörler tarafından silinebilir.`,
-            acceptDisclaimer: 'Okudum, anladım ve kabul ediyorum',
-            cancel: 'İptal',
-        },
-        en: {
-            comments: 'Comments',
-            noComments: 'No comments yet. Be the first to comment!',
-            commentPlaceholder: 'Write your comment... (no links allowed)',
-            replyPlaceholder: 'Write your reply...',
-            submit: 'Submit',
-            reply: 'Reply',
-            cancelReply: 'Cancel',
-            loginToComment: 'Login to comment',
-            edited: 'edited',
-            delete: 'Delete',
-            confirmDeleteTitle: '⚠️ Delete Comment',
-            confirmDeleteText: 'Are you sure you want to delete this comment? This action cannot be undone.',
-            confirmYes: 'Yes, Delete',
-            confirmCancel: 'Cancel',
-            disclaimerTitle: '⚠️ Important Notice',
-            disclaimerText: `Please read the following information carefully before commenting:
-
-• You are fully responsible for the content you write in your comment.
-• Club management is obligated to report inappropriate, offensive, or illegal content to university administration.
-• Your member information (name, student number, department, etc.) is accessible by management.
-• Your comment can be viewed by other users and may be deleted by moderators.`,
-            acceptDisclaimer: 'I have read, understood, and accept',
-            cancel: 'Cancel',
-        },
-    };
-
-    const l = labels[language];
 
     useEffect(() => {
         fetchComments();
@@ -377,10 +305,10 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                 }
                 fetchComments();
             } else {
-                setCommentError(data.error || 'Bir hata oluştu');
+                setCommentError(data.error || t('common.error'));
             }
         } catch {
-            setCommentError('Bir hata oluştu');
+            setCommentError(t('common.error'));
         } finally {
             setSubmitting(false);
         }
@@ -414,22 +342,22 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
             {showDisclaimer && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-lg w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4">{l.disclaimerTitle}</h3>
+                        <h3 className="text-xl font-black text-black mb-4">{t('comments.disclaimer.title')}</h3>
                         <div className="text-gray-800 whitespace-pre-line mb-6 text-sm leading-relaxed border-l-4 border-red-500 pl-4 bg-red-50 py-3">
-                            {l.disclaimerText}
+                            {t('comments.disclaimer.text')}
                         </div>
                         <div className="flex gap-3">
                             <button
                                 onClick={handleAcceptDisclaimer}
                                 className="flex-1 bg-black text-white py-3 font-bold border-2 border-black hover:bg-gray-800 transition-all"
                             >
-                                {l.acceptDisclaimer}
+                                {t('comments.disclaimer.accept')}
                             </button>
                             <button
                                 onClick={() => setShowDisclaimer(false)}
                                 className="px-6 py-3 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 transition-all"
                             >
-                                {l.cancel}
+                                {t('comments.disclaimer.cancel')}
                             </button>
                         </div>
                     </div>
@@ -438,7 +366,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
 
             <div className="bg-white border-4 border-black shadow-neo p-6 mt-12 transform -rotate-1">
                 <h2 className="text-xl font-black text-black mb-4 border-b-4 border-black pb-3">
-                    {l.comments} ({comments.length + comments.reduce((acc, c) => acc + (c.replies?.length || 0) + (c.replies?.reduce((subAcc, subC) => subAcc + (subC.replies?.length || 0), 0) || 0), 0)})
+                    {t('comments.title')} ({comments.length + comments.reduce((acc, c) => acc + (c.replies?.length || 0) + (c.replies?.reduce((subAcc, subC) => subAcc + (subC.replies?.length || 0), 0) || 0), 0)})
                 </h2>
 
                 {isLoggedIn ? (
@@ -447,7 +375,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                             onFocus={handleCommentFocus}
-                            placeholder={l.commentPlaceholder}
+                            placeholder={t('comments.placeholder')}
                             maxLength={500}
                             rows={3}
                             className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-neo-yellow resize-none mb-3"
@@ -460,24 +388,24 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                             disabled={submitting || !newComment.trim() || !disclaimerAccepted}
                             className="px-6 py-2 bg-black text-white font-bold border-2 border-black hover:bg-white hover:text-black transition-all disabled:opacity-50"
                         >
-                            {submitting && !replyingTo ? '...' : l.submit}
+                            {submitting && !replyingTo ? '...' : t('comments.submit')}
                         </button>
                         {!disclaimerAccepted && newComment.trim() && (
                             <p className="text-orange-600 text-xs mt-2">
-                                {language === 'tr' ? 'Yorum göndermek için uyarıyı kabul etmelisiniz.' : 'You must accept the disclaimer to submit a comment.'}
+                                {t('comments.disclaimer.warning')}
                             </p>
                         )}
                     </form>
                 ) : (
                     <div className="mb-6 p-4 bg-gray-100 border-2 border-black text-center">
                         <Link href="/auth/login" className="text-blue-600 hover:underline font-bold">
-                            {l.loginToComment}
+                            {t('comments.loginToComment')}
                         </Link>
                     </div>
                 )}
 
                 {comments.length === 0 ? (
-                    <p className="text-gray-500 text-center py-6">{l.noComments}</p>
+                    <p className="text-gray-500 text-center py-6">{t('comments.noComments')}</p>
                 ) : (
                     <div className="space-y-6">
                         {comments.map((comment) => (
@@ -492,7 +420,6 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                                     setDeleteModalId={setDeleteModalId}
                                     currentUserId={currentUserId}
                                     isLoggedIn={isLoggedIn}
-                                    l={l}
                                     formatDate={formatDate}
 
                                     submitting={submitting}
@@ -507,22 +434,22 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
             {deleteModalId && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
                     <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4">{l.confirmDeleteTitle}</h3>
+                        <h3 className="text-xl font-black text-black mb-4">{t('comments.confirmDelete.title')}</h3>
                         <p className="text-gray-700 mb-6">
-                            {l.confirmDeleteText}
+                            {t('comments.confirmDelete.text')}
                         </p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => handleDeleteComment(deleteModalId)}
                                 className="flex-1 bg-red-500 text-white py-3 font-bold border-2 border-black hover:bg-red-600 transition-all"
                             >
-                                {l.confirmYes}
+                                {t('comments.confirmDelete.yes')}
                             </button>
                             <button
                                 onClick={() => setDeleteModalId(null)}
                                 className="flex-1 bg-gray-200 text-black py-3 font-bold border-2 border-black hover:bg-gray-300 transition-all"
                             >
-                                {l.confirmCancel}
+                                {t('comments.confirmDelete.cancel')}
                             </button>
                         </div>
                     </div>

@@ -5,6 +5,7 @@ import Footer from "./Footer";
 import ScrollToTop from "./ScrollToTop";
 import CustomCursor from "./CustomCursor";
 import { LanguageProvider } from "../_context/LanguageContext";
+import { ToastProvider } from "../_context/ToastContext";
 
 export default function ClientLayout({
     children,
@@ -13,11 +14,14 @@ export default function ClientLayout({
 }) {
     return (
         <LanguageProvider>
-            <Navbar />
-            <CustomCursor />
-            {children}
-            <Footer />
-            <ScrollToTop />
+            <ToastProvider>
+                <Navbar />
+                <CustomCursor />
+                {children}
+                <Footer />
+                <ScrollToTop />
+            </ToastProvider>
         </LanguageProvider>
     );
 }
+

@@ -1,22 +1,22 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "../_context/LanguageContext";
+import { useStats, useUser } from "../lib/swr";
+import type { StatData } from "../lib/types/api";
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface StatData {
-  _id: string;
-  label: string;
-  labelEn?: string;
-  value: string;
-  color: string;
-  order: number;
-}
+// Fallback stats if API fails
+const fallbackStats: StatData[] = [
+  { _id: '1', label: 'Üye', labelEn: 'Members', value: '220+', color: 'bg-neo-yellow', order: 0 },
+  { _id: '2', label: 'Proje', labelEn: 'Projects', value: '2', color: 'bg-neo-cyan', order: 1 },
+  { _id: '3', label: 'Etkinlik', labelEn: 'Events', value: '12', color: 'bg-neo-pink', order: 2 },
+];
 
 export default function Home() {
   const containerRef = useRef(null);
@@ -24,41 +24,15 @@ export default function Home() {
   const subtitleRef = useRef(null);
   const buttonsRef = useRef(null);
   const statsRef = useRef(null);
-  const [stats, setStats] = useState<StatData[]>([]);
-  const [user, setUser] = useState<any>(null);
-  const [loadingUser, setLoadingUser] = useState(true);
+
+  // SWR hooks
+  const { data: statsData, error: statsError } = useStats();
+  const { user, isLoading: loadingUser } = useUser();
   const { t, language } = useLanguage();
   const router = useRouter();
 
-  useEffect(() => {
-    // Fetch stats
-    fetch('/api/stats')
-      .then(res => res.json())
-      .then(data => setStats(data))
-      .catch(err => {
-        console.error('Stats yüklenirken hata:', err);
-        setStats([
-          { _id: '1', label: 'Üye', labelEn: 'Members', value: '220+', color: 'bg-neo-yellow', order: 0 },
-          { _id: '2', label: 'Proje', labelEn: 'Projects', value: '2', color: 'bg-neo-cyan', order: 1 },
-          { _id: '3', label: 'Etkinlik', labelEn: 'Events', value: '12', color: 'bg-neo-pink', order: 2 },
-        ]);
-      });
-
-    // Fetch user
-    fetch('/api/auth/me')
-      .then(res => {
-        if (res.ok) return res.json();
-        throw new Error('Not logged in');
-      })
-      .then(data => {
-        setUser(data.user);
-        setLoadingUser(false);
-      })
-      .catch(() => {
-        setUser(null);
-        setLoadingUser(false);
-      });
-  }, []);
+  // Use fallback if stats fail to load
+  const stats = statsData || (statsError ? fallbackStats : []);
 
   useGSAP(() => {
     // ... GSAP code (unchanged logic, just re-running effect)
@@ -146,26 +120,16 @@ export default function Home() {
 
           <div ref={titleRef} className="bg-neo-yellow border-4 border-black shadow-neo-lg p-6 transform rotate-1 lg:-rotate-2">
             <h1 className="text-3xl md:text-6xl lg:text-7xl font-black text-black uppercase tracking-tight text-left">
-              {language === 'tr' ? (
-                <>
-                  KTÜ Yazılım
-                  <br />
-                  Geliştirme Kulübü
-                </>
-              ) : (
-                <>
-                  KTU Software
-                  <br />
-                  Development Club
-                </>
-              )}
+              {t('home.clubNameLine1')}
+              <br />
+              {t('home.clubNameLine2')}
             </h1>
           </div>
         </div>
 
         <div ref={subtitleRef} className="bg-neo-blue border-4 border-black shadow-neo p-4 mx-auto transform rotate-1 max-w-3xl mt-8">
           <h2 className="text-xl md:text-3xl font-bold text-black">
-            {language === 'tr' ? 'Geleceği inşa ediyoruz!' : 'We are building the future!'}
+            {t('home.subtitle')}
           </h2>
         </div>
 
@@ -179,25 +143,25 @@ export default function Home() {
                     onClick={() => router.push("/join")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-pink text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {language === 'tr' ? 'Kulübe Üye Ol' : 'Join the Club'}
+                    {t('home.joinClub')}
                   </button>
                   <button
                     onClick={() => router.push("/auth/signup")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-blue text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {language === 'tr' ? 'Kayıt Ol' : 'Sign Up'}
+                    {t('home.signUp')}
                   </button>
                   <button
                     onClick={() => router.push("/auth/login")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-white text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {language === 'tr' ? 'Giriş Yap' : 'Login'}
+                    {t('home.login')}
                   </button>
                   <button
                     onClick={() => router.push("/team")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-cyan text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {language === 'tr' ? 'Ekip' : 'Team'}
+                    {t('home.team')}
                   </button>
                 </>
               ) : (
@@ -207,25 +171,25 @@ export default function Home() {
                     onClick={() => router.push("/articles")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-purple text-white border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {language === 'tr' ? 'Makaleler' : 'Articles'}
+                    {t('home.articles')}
                   </button>
                   <button
                     onClick={() => router.push("/projects")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-orange text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {language === 'tr' ? 'Projeler' : 'Projects'}
+                    {t('home.projects')}
                   </button>
                   <button
                     onClick={() => router.push("/events")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-green text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {language === 'tr' ? 'Etkinlikler' : 'Events'}
+                    {t('home.events')}
                   </button>
                   <button
                     onClick={() => router.push("/team")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-cyan text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {language === 'tr' ? 'Ekip' : 'Team'}
+                    {t('home.team')}
                   </button>
                 </>
               )}

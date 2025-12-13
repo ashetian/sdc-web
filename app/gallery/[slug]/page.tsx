@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,25 +8,7 @@ import CommentSection from "../../_components/CommentSection";
 import BookmarkButton from "../../_components/BookmarkButton";
 import LikeButton from "../../_components/LikeButton";
 import { SkeletonGallery, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
-
-interface Announcement {
-  _id: string;
-  slug: string;
-  title: string;
-  titleEn?: string;
-  date: string;
-  dateEn?: string;
-  description: string;
-  descriptionEn?: string;
-  type: "event" | "news" | "workshop";
-  content: string;
-  contentEn?: string;
-  galleryLinks?: string[];
-  galleryCover?: string;
-  galleryDescription?: string;
-  galleryDescriptionEn?: string;
-  isInGallery?: boolean;
-}
+import type { Announcement } from "../../lib/types/api";
 
 function isImage(url: string) {
   return url.match(/\.(jpeg|jpg|gif|png|webp)$/i) || url.includes("image/upload");
@@ -40,30 +22,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
   const { slug } = use(params);
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
-  const { language } = useLanguage();
-
-  const labels = {
-    tr: {
-      backToGallery: '← Galeriye Dön',
-      notFound: 'Galeri etkinliği bulunamadı.',
-      event: 'Etkinlik',
-      news: 'Duyuru',
-      workshop: 'Workshop',
-      viewFile: 'Dosyayı Görüntüle',
-      galleryImage: 'Galeri görseli'
-    },
-    en: {
-      backToGallery: '← Back to Gallery',
-      notFound: 'Gallery event not found.',
-      event: 'Event',
-      news: 'News',
-      workshop: 'Workshop',
-      viewFile: 'View File',
-      galleryImage: 'Gallery image'
-    }
-  };
-
-  const l = labels[language];
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     async function loadAnnouncement() {
@@ -97,8 +56,15 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
     return a.galleryDescription || a.description;
   };
 
-  const getTypeLabel = (type: "event" | "news" | "workshop") => {
-    return l[type];
+  const getTypeLabel = (type: Announcement['type']) => {
+    const typeMap = {
+      event: 'gallery.types.event',
+      news: 'gallery.types.news',
+      workshop: 'gallery.types.workshop',
+      article: 'gallery.types.news',
+      opportunity: 'gallery.types.news',
+    };
+    return t(typeMap[type] as any);
   };
 
   if (loading) {
@@ -114,7 +80,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
     return (
       <div className="min-h-screen flex items-center justify-center bg-neo-yellow">
         <div className="bg-white border-4 border-black shadow-neo p-8 text-2xl font-black text-black">
-          {l.notFound}
+          {t('gallery.detail.notFound')}
         </div>
       </div>
     );
@@ -125,7 +91,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border-4 border-black shadow-neo-lg p-8 transform rotate-1">
           <Link href="/gallery" className="text-black font-black hover:underline mb-6 inline-block uppercase text-sm" lang={language}>
-            {l.backToGallery}
+            {t('gallery.detail.backToGallery')}
           </Link>
 
           {announcement.galleryCover && (
@@ -172,7 +138,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
                   {isImage(link) ? (
                     <Image
                       src={link}
-                      alt={`${l.galleryImage} ${i + 1}`}
+                      alt={`${t('gallery.detail.galleryImage')} ${i + 1}`}
                       width={800}
                       height={500}
                       className="w-full object-contain bg-black"
@@ -185,7 +151,7 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
                     />
                   ) : (
                     <a href={link} className="text-white font-bold underline p-4 block text-center hover:text-neo-yellow">
-                      {l.viewFile}
+                      {t('gallery.detail.viewFile')}
                     </a>
                   )}
                 </div>

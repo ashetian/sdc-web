@@ -9,7 +9,9 @@ export type NotificationType =
     | 'project_like'
     | 'project_approved'
     | 'project_rejected'
+    | 'project_revision_requested'
     | 'forum_topic_approved'
+    | 'forum_topic_revision_requested'
     | 'content_deleted'
     | 'event_reminder'
     | 'welcome'
@@ -62,7 +64,9 @@ const NotificationSchema = new Schema<INotification>(
                 'project_like',
                 'project_approved',
                 'project_rejected',
+                'project_revision_requested',
                 'forum_topic_approved',
+                'forum_topic_revision_requested',
                 'content_deleted',
                 'event_reminder',
                 'welcome',

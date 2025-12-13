@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Plus, Edit2, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
 import { SkeletonList, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
+import { Button, ConfirmModal } from '@/app/_components/ui';
 
 interface Sponsor {
     _id: string;
@@ -179,13 +180,13 @@ export default function SponsorsAdminPage() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-black text-black">Sponsorlar</h1>
-                <button
+                <Button
                     onClick={openCreateModal}
-                    className="flex items-center gap-2 px-4 py-2 bg-neo-green text-black font-bold border-4 border-black shadow-neo hover:shadow-none transition-all"
+                    variant="success"
                 >
                     <Plus size={20} />
                     Yeni Sponsor
-                </button>
+                </Button>
             </div>
 
             {sponsors.length === 0 ? (
@@ -345,47 +346,35 @@ export default function SponsorsAdminPage() {
                         </div>
 
                         <div className="flex gap-2 mt-6">
-                            <button
+                            <Button
                                 onClick={() => setShowModal(false)}
-                                className="flex-1 py-2 bg-gray-200 border-2 border-black font-bold"
+                                variant="secondary"
                             >
                                 İptal
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={handleSave}
-                                disabled={saving}
-                                className="flex-1 py-2 bg-neo-green border-2 border-black font-bold disabled:opacity-50"
+                                isLoading={saving}
+                                variant="success"
                             >
-                                {saving ? 'Kaydediliyor...' : 'Kaydet'}
-                            </button>
+                                Kaydet
+                            </Button>
                         </div>
                     </div>
                 </div>
             )}
 
             {/* Delete Confirmation Modal */}
-            {deleteConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white border-4 border-black shadow-neo p-6 max-w-sm w-full">
-                        <h3 className="text-xl font-black mb-4">Sponsoru Sil</h3>
-                        <p className="mb-4">Bu sponsoru silmek istediğinizden emin misiniz?</p>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setDeleteConfirm(null)}
-                                className="flex-1 py-2 bg-gray-200 border-2 border-black font-bold"
-                            >
-                                İptal
-                            </button>
-                            <button
-                                onClick={() => handleDelete(deleteConfirm)}
-                                className="flex-1 py-2 bg-red-500 text-white border-2 border-black font-bold"
-                            >
-                                Sil
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                isOpen={!!deleteConfirm}
+                onClose={() => setDeleteConfirm(null)}
+                onConfirm={() => deleteConfirm && handleDelete(deleteConfirm)}
+                title="Sponsoru Sil"
+                message="Bu sponsoru silmek istediğinizden emin misiniz?"
+                confirmText="Sil"
+                cancelText="İptal"
+                variant="danger"
+            />
         </div>
     );
 }

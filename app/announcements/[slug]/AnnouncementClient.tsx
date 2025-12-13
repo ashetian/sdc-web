@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,26 +10,10 @@ import ImageLightbox from "../../_components/ImageLightbox";
 import CommentSection from "../../_components/CommentSection";
 import BookmarkButton from "../../_components/BookmarkButton";
 import LikeButton from "../../_components/LikeButton";
+import type { Event } from "../../lib/types/api";
 
-interface Announcement {
-    _id: string;
-    slug: string;
-    title: string;
-    titleEn?: string;
-    date: string;
-    dateEn?: string;
-    description: string;
-    descriptionEn?: string;
-    type: "event" | "news" | "workshop";
-    content: string;
-    contentEn?: string;
-    image?: string;
-    isDraft: boolean;
-    eventId?: string;
-    contentBlocks?: ContentBlock[];
-}
-
-interface ContentBlock {
+// Local types for announcement-specific content blocks (different from Article ContentBlock)
+interface AnnouncementContentBlock {
     id: string;
     type: "text" | "image" | "image-grid" | "link-button";
     content?: string;
@@ -41,10 +25,22 @@ interface ContentBlock {
     buttonTextEn?: string;
 }
 
-interface Event {
+interface Announcement {
     _id: string;
+    slug: string;
     title: string;
-    isOpen: boolean;
+    titleEn?: string;
+    date: string;
+    dateEn?: string;
+    description: string;
+    descriptionEn?: string;
+    type: "event" | "news" | "workshop" | "article" | "opportunity";
+    content: string;
+    contentEn?: string;
+    image?: string;
+    isDraft: boolean;
+    eventId?: string;
+    contentBlocks?: AnnouncementContentBlock[];
 }
 
 export default function AnnouncementClient({
@@ -56,30 +52,7 @@ export default function AnnouncementClient({
     const [announcement, setAnnouncement] = useState<Announcement | null>(null);
     const [event, setEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
-    const { language } = useLanguage();
-
-    const labels = {
-        tr: {
-            notFound: 'Duyuru Bulunamadı',
-            notFoundDesc: 'Aradığınız duyuru bulunamadı veya kaldırılmış olabilir.',
-            backHome: 'Ana Sayfaya Dön',
-            event: 'Etkinlik',
-            news: 'Duyuru',
-            workshop: 'Workshop',
-            registerEvent: 'Etkinliğe Kaydol'
-        },
-        en: {
-            notFound: 'Announcement Not Found',
-            notFoundDesc: 'The announcement you are looking for could not be found or has been removed.',
-            backHome: 'Back to Home',
-            event: 'Event',
-            news: 'Announcement',
-            workshop: 'Workshop',
-            registerEvent: 'Register for Event'
-        }
-    };
-
-    const l = labels[language];
+    const { language, t } = useLanguage();
 
     useEffect(() => {
         async function loadData() {
@@ -134,8 +107,15 @@ export default function AnnouncementClient({
         return announcement.description;
     };
 
-    const getTypeLabel = (type: "event" | "news" | "workshop") => {
-        return l[type];
+    const getTypeLabel = (type: Announcement['type']) => {
+        const typeMap = {
+            event: 'announcements.types.event',
+            news: 'announcements.types.news',
+            workshop: 'announcements.types.workshop',
+            article: 'announcements.types.news',
+            opportunity: 'announcements.types.news',
+        };
+        return t(typeMap[type] as any);
     };
 
     if (loading) {
@@ -151,15 +131,15 @@ export default function AnnouncementClient({
         return (
             <div className="min-h-screen bg-neo-yellow py-20 flex items-center justify-center">
                 <div className="bg-white border-4 border-black shadow-neo p-8 transform rotate-1 text-center">
-                    <h1 className="text-4xl font-black text-black mb-4">{l.notFound}</h1>
+                    <h1 className="text-4xl font-black text-black mb-4">{t('announcements.detail.notFound')}</h1>
                     <p className="text-xl font-bold text-black mb-8">
-                        {l.notFoundDesc}
+                        {t('announcements.detail.notFoundDesc')}
                     </p>
                     <Link
                         href="/"
                         className="inline-block bg-black text-white px-6 py-3 border-4 border-transparent hover:bg-white hover:text-black hover:border-black hover:shadow-neo transition-all font-bold uppercase"
                     >
-                        {l.backHome}
+                        {t('announcements.detail.backHome')}
                     </Link>
                 </div>
             </div>
@@ -281,7 +261,7 @@ export default function AnnouncementClient({
                                 href={`/events/${event._id}/register`}
                                 className="inline-flex items-center px-8 py-4 border-4 border-black shadow-neo text-xl font-black text-white bg-neo-green hover:bg-white hover:text-black hover:shadow-none transition-all uppercase tracking-wider transform hover:-translate-y-1"
                             >
-                                {l.registerEvent}
+                                {t('announcements.detail.registerEvent')}
                             </Link>
                         </div>
                     )}
@@ -313,7 +293,7 @@ export default function AnnouncementClient({
                                     d="M10 19l-7-7m0 0l7-7m-7 7h18"
                                 />
                             </svg>
-                            {l.backHome}
+                            {t('announcements.detail.backHome')}
                         </Link>
                     </div>
                 </div>

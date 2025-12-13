@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ContentBlockEditor, { ContentBlock } from "@/app/admin/_components/ContentBlockEditor";
+import { Button } from '@/app/_components/ui';
 
 interface Event {
   _id: string;
@@ -354,13 +355,14 @@ export default function NewAnnouncementPage() {
           >
             İptal
           </Link>
-          <button
+          <Button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-3 border-2 border-black font-bold text-black bg-neo-green hover:bg-green-400 disabled:opacity-50"
+            isLoading={isSubmitting}
+            variant="success"
           >
-            {isSubmitting ? "Kaydediliyor..." : "Kaydet"}
-          </button>
+            Kaydet
+          </Button>
         </div>
       </form>
     </div>

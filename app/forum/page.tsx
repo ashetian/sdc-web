@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   MessageSquare, Clock, TrendingUp, MessageCircle, Rocket,
@@ -31,106 +30,20 @@ const CategoryIcon = ({ name, size = 28 }: { name: string; size?: number }) => {
   return <MessageCircle size={size} className="text-black" />;
 };
 
-interface Category {
-  _id: string;
-  name: string;
-  nameEn?: string;
-  slug: string;
-  description: string;
-  descriptionEn?: string;
-  icon: string;
-  color: string;
-  topicCount: number;
-  lastTopicAt?: string;
-}
+import type { ForumCategory, ForumTopic } from "../lib/types/api";
+import { useForumCategories, useForumTopics } from "../lib/swr";
 
-interface Topic {
-  _id: string;
-  title: string;
-  titleEn?: string;
-  categoryId: {
-    name: string;
-    nameEn?: string;
-    slug: string;
-    icon: string;
-    color: string;
-  };
-  authorId: {
-    fullName: string;
-    nickname?: string;
-    avatar?: string;
-  };
-  upvotes: number;
-  downvotes: number;
-  replyCount: number;
-  viewCount: number;
-  isPinned: boolean;
-  createdAt: string;
-}
+// Use aliases to match local naming
+type Category = ForumCategory;
+type Topic = ForumTopic;
 
 export default function ForumPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [recentTopics, setRecentTopics] = useState<Topic[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
+  const { data: categories, isLoading: categoriesLoading } = useForumCategories();
+  const { data: topicsData, isLoading: topicsLoading } = useForumTopics({ limit: 10 });
 
-  const labels = {
-    tr: {
-      title: "Forum",
-      subtitle: "Sorularını sor, bilgini paylaş, topluluğa katıl",
-      categories: "Kategoriler",
-      recentTopics: "Son Konular",
-      topics: "konu",
-      replies: "yanıt",
-      views: "görüntülenme",
-      newTopic: "Yeni Konu",
-      noCategories: "Henüz kategori yok",
-      noTopics: "Henüz konu açılmamış",
-      pinned: "Sabitlenmiş",
-    },
-    en: {
-      title: "Forum",
-      subtitle: "Ask questions, share knowledge, join the community",
-      categories: "Categories",
-      recentTopics: "Recent Topics",
-      topics: "topics",
-      replies: "replies",
-      views: "views",
-      newTopic: "New Topic",
-      noCategories: "No categories yet",
-      noTopics: "No topics yet",
-      pinned: "Pinned",
-    },
-  };
-
-  const l = labels[language] || labels.tr;
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [catRes, topicsRes] = await Promise.all([
-          fetch("/api/forum/categories"),
-          fetch("/api/forum/topics?limit=10"),
-        ]);
-
-        if (catRes.ok) {
-          const cats = await catRes.json();
-          setCategories(cats);
-        }
-
-        if (topicsRes.ok) {
-          const data = await topicsRes.json();
-          setRecentTopics(data.topics || []);
-        }
-      } catch (error) {
-        console.error("Forum load error:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
-  }, []);
+  const recentTopics = topicsData?.topics ?? [];
+  const loading = categoriesLoading || topicsLoading;
 
   const getTitle = (item: { title?: string; titleEn?: string; name?: string; nameEn?: string }) => {
     if (language === "en") {
@@ -182,16 +95,16 @@ export default function ForumPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-12">
           <div>
             <h1 className="inline-block text-4xl sm:text-5xl font-black text-black mb-2 bg-white border-4 border-black shadow-neo px-6 py-3 transform -rotate-1">
-              {l.title}
+              {t('forum.page.title')}
             </h1>
-            <p className="text-lg font-bold text-black mt-4 max-w-xl">{l.subtitle}</p>
+            <p className="text-lg font-bold text-black mt-4 max-w-xl">{t('forum.page.subtitle')}</p>
           </div>
           <Link
             href="/forum/new"
             className="inline-flex items-center gap-2 px-6 py-3 bg-neo-green border-4 border-black shadow-neo font-black uppercase hover:-translate-y-1 hover:shadow-neo-lg transition-all"
           >
             <MessageSquare size={20} />
-            {l.newTopic}
+            {t('forum.page.newTopic')}
           </Link>
         </div>
 
@@ -199,12 +112,12 @@ export default function ForumPage() {
           {/* Categories */}
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-black text-black mb-6 uppercase flex items-center gap-2">
-              <span className="bg-neo-yellow border-2 border-black px-3 py-1">{l.categories}</span>
+              <span className="bg-neo-yellow border-2 border-black px-3 py-1">{t('forum.page.categories')}</span>
             </h2>
 
-            {categories.length === 0 ? (
+            {!categories || categories.length === 0 ? (
               <div className="bg-white border-4 border-black shadow-neo p-8 text-center">
-                <p className="text-lg font-bold text-black/60">{l.noCategories}</p>
+                <p className="text-lg font-bold text-black/60">{t('forum.page.noCategories')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -216,7 +129,7 @@ export default function ForumPage() {
                   >
                     <div className="flex items-start gap-4">
                       <div className="flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <CategoryIcon name={cat.icon} size={24} />
+                        <CategoryIcon name={cat.icon || 'message-circle'} size={24} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-black text-black truncate">
@@ -228,7 +141,7 @@ export default function ForumPage() {
                         <div className="flex items-center gap-4 mt-3 text-sm font-bold text-black/60">
                           <span className="flex items-center gap-1">
                             <MessageSquare size={14} />
-                            {cat.topicCount} {l.topics}
+                            {cat.topicCount} {t('forum.page.topics')}
                           </span>
                         </div>
                       </div>
@@ -242,12 +155,12 @@ export default function ForumPage() {
           {/* Recent Topics Sidebar */}
           <div>
             <h2 className="text-2xl font-black text-black mb-6 uppercase flex items-center gap-2">
-              <span className="bg-neo-pink border-2 border-black px-3 py-1">{l.recentTopics}</span>
+              <span className="bg-neo-pink border-2 border-black px-3 py-1">{t('forum.page.recentTopics')}</span>
             </h2>
 
             {recentTopics.length === 0 ? (
               <div className="bg-white border-4 border-black shadow-neo p-6 text-center">
-                <p className="text-base font-bold text-black/60">{l.noTopics}</p>
+                <p className="text-base font-bold text-black/60">{t('forum.page.noTopics')}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -261,6 +174,7 @@ export default function ForumPage() {
                       {topic.isPinned && (
                         <span className="bg-neo-yellow text-black text-xs font-bold px-2 py-0.5 border border-black flex items-center gap-1">
                           <Pin size={10} />
+                          {t('forum.page.pinned')}
                         </span>
                       )}
                       <h4 className="font-black text-black line-clamp-2 flex-1">
@@ -278,7 +192,7 @@ export default function ForumPage() {
                       </span>
                       <span className="flex items-center gap-1">
                         <TrendingUp size={12} />
-                        {topic.upvotes - topic.downvotes}
+                        {(topic.upvotes ?? 0) - (topic.downvotes ?? 0)}
                       </span>
                     </div>
                   </Link>

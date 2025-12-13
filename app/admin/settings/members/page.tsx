@@ -38,7 +38,7 @@ export default function MembersSettingsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loadingMembers, setLoadingMembers] = useState(false);
-    const MEMBERS_PER_PAGE = 20;
+    const MEMBERS_PER_PAGE = 50;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [resettingPassword, setResettingPassword] = useState<string | null>(null);
     const [selectedMember, setSelectedMember] = useState<Member | null>(null);

@@ -5,9 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { KVKK_CONTENT } from '@/app/lib/constants/kvkk';
 import { useLanguage } from '@/app/_context/LanguageContext';
+import { Button, Alert, Modal } from '@/app/_components/ui';
 
 export default function SignupPage() {
-    const { language } = useLanguage();
+    const { t } = useLanguage();
     const [studentNo, setStudentNo] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -18,66 +19,10 @@ export default function SignupPage() {
     const [nativeLanguage, setNativeLanguage] = useState('tr');
     const [showKvkkModal, setShowKvkkModal] = useState(false);
 
-    const labels = {
-        tr: {
-            title: 'Kayıt Ol',
-            subtitle: 'Kulüp üyesi olarak kayıt olun',
-            studentNo: 'Öğrenci Numarası',
-            languageLabel: 'Dil Seçimi / Language Preference *',
-            languageTr: 'Türkçe (İletişim dili Türkçe olacak)',
-            languageEn: 'English (Communication will be in English)',
-            alreadyRegistered: 'Bu hesap zaten kayıtlı.',
-            notFound: 'Bu numara ile kayıtlı üye bulunamadı.',
-            genericError: 'Bir hata oluştu. Lütfen tekrar deneyin.',
-            joinClub: 'Kulübe Üye Ol',
-            login: 'Giriş Yap',
-            kvkkLink: 'KVKK Aydınlatma Metni',
-            privacyLink: 'Gizlilik Politikası',
-            termsLink: 'Üyelik Sözleşmesi',
-            kvkkAccept: "'ni okudum, ",
-            kvkkAnd: ' ve ',
-            kvkkEnd: "'ni kabul ediyorum. *",
-            emailConsentText: 'Kulüp tarafından e-posta/SMS yoluyla etkinlik ve duyuru bilgilendirmeleri yapılmasına açık rıza veriyorum.',
-            consentLink: 'Açık Rıza Metni',
-            submit: 'Kayıt Ol',
-            submitting: 'Gönderiliyor...',
-            hasAccount: 'Zaten hesabınız var mı?',
-            sentTo: 'Gönderildi:',
-            checkEmail: 'E-postanızı kontrol edin ve şifrenizi oluşturun.',
-            backToLogin: 'Giriş Sayfasına Dön',
-            readAndUnderstood: 'Okudum ve Anladım / I have read and understood'
-        },
-        en: {
-            title: 'Register',
-            subtitle: 'Register as a club member',
-            studentNo: 'Student Number',
-            languageLabel: 'Language Preference *',
-            languageTr: 'Türkçe (Communication will be in Turkish)',
-            languageEn: 'English (Communication will be in English)',
-            alreadyRegistered: 'This account is already registered.',
-            notFound: 'No member found with this student number.',
-            genericError: 'An error occurred. Please try again.',
-            joinClub: 'Join the Club',
-            login: 'Login',
-            kvkkLink: 'GDPR Clarification Text',
-            privacyLink: 'Privacy Policy',
-            termsLink: 'Membership Agreement',
-            kvkkAccept: " I have read ",
-            kvkkAnd: ' and ',
-            kvkkEnd: " and I accept. *",
-            emailConsentText: 'I consent to receiving event and announcement notifications via email/SMS from the club.',
-            consentLink: 'Consent Form',
-            submit: 'Register',
-            submitting: 'Sending...',
-            hasAccount: 'Already have an account?',
-            sentTo: 'Sent to:',
-            checkEmail: 'Check your email and create your password.',
-            backToLogin: 'Back to Login',
-            readAndUnderstood: 'I have read and understood'
-        }
-    };
+    // Email verification states
+    const [verificationStep, setVerificationStep] = useState<'initial' | 'verify'>('initial');
+    const [emailVerification, setEmailVerification] = useState('');
 
-    const l = labels[language] || labels.tr;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -86,33 +31,60 @@ export default function SignupPage() {
         setMessage('');
 
         try {
-            const res = await fetch('/api/auth/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    studentNo: studentNo.trim(),
-                    kvkkAccepted,
-                    emailConsent,
-                    nativeLanguage
-                }),
-            });
+            // Step 1: Get masked email
+            if (verificationStep === 'initial') {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        studentNo: studentNo.trim()
+                    }),
+                });
 
-            const data = await res.json();
+                const data = await res.json();
 
-            if (res.ok) {
-                setMessage(data.message);
-                setMaskedEmail(data.email);
-            } else {
-                if (data.isRegistered) {
-                    setError(l.alreadyRegistered);
-                } else if (data.isNotFound) {
-                    setError('not_found');
+                if (res.ok && data.step === 'verify') {
+                    setMaskedEmail(data.maskedEmail);
+                    setVerificationStep('verify');
                 } else {
-                    setError(data.error || l.genericError);
+                    if (data.isRegistered) {
+                        setError(t('auth.alreadyRegistered'));
+                    } else if (data.isNotFound) {
+                        setError('not_found');
+                    } else {
+                        setError(data.error || t('auth.genericError'));
+                    }
+                }
+            } else {
+                // Step 2: Verify email and complete signup
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        studentNo: studentNo.trim(),
+                        emailVerification: emailVerification.trim(),
+                        kvkkAccepted,
+                        emailConsent,
+                        nativeLanguage,
+                        step: 'confirm'
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    setMessage(data.message);
+                    setMaskedEmail(data.email);
+                } else {
+                    if (data.emailMismatch) {
+                        setError(t('auth.emailMismatch'));
+                    } else {
+                        setError(data.error || t('auth.genericError'));
+                    }
                 }
             }
         } catch {
-            setError(l.genericError);
+            setError(t('auth.genericError'));
         } finally {
             setLoading(false);
         }
@@ -133,33 +105,35 @@ export default function SignupPage() {
                         height={80}
                         className="mx-auto mb-4"
                     />
-                    <h1 className="text-2xl font-black text-black uppercase">{l.title}</h1>
-                    <p className="text-gray-600 mt-2">{l.subtitle}</p>
+                    <h1 className="text-2xl font-black text-black uppercase">{t('auth.signup')}</h1>
+                    <p className="text-gray-600 mt-2">{t('auth.subtitle')}</p>
                 </div>
 
                 {message ? (
                     <div className="text-center">
-                        <div className="bg-green-100 border-2 border-green-500 p-4 mb-4">
-                            <p className="text-green-800 font-bold">{message}</p>
-                            <p className="text-green-700 mt-2">
-                                {l.sentTo} <strong>{maskedEmail}</strong>
+                        <div className="mb-4">
+                            <Alert variant="success">
+                                <p className="font-bold">{message}</p>
+                                <p className="mt-2">
+                                    {t('auth.sentTo')} <strong>{maskedEmail}</strong>
+                                </p>
+                            </Alert>
+                            <p className="text-gray-600 text-sm">
+                                {t('auth.checkEmail')}
                             </p>
+                            <Link
+                                href="/auth/login"
+                                className="inline-block mt-4 text-blue-600 hover:underline font-bold"
+                            >
+                                {t('auth.backToLogin')}
+                            </Link>
                         </div>
-                        <p className="text-gray-600 text-sm">
-                            {l.checkEmail}
-                        </p>
-                        <Link
-                            href="/auth/login"
-                            className="inline-block mt-4 text-blue-600 hover:underline font-bold"
-                        >
-                            {l.backToLogin}
-                        </Link>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label htmlFor="studentNo" className="block text-sm font-black text-black mb-2">
-                                {l.studentNo}
+                                {t('auth.studentNo')}
                             </label>
                             <input
                                 type="text"
@@ -174,7 +148,7 @@ export default function SignupPage() {
 
                         <div>
                             <label htmlFor="nativeLanguage" className="block text-sm font-black text-black mb-2">
-                                {l.languageLabel}
+                                {t('auth.languageLabel')}
                             </label>
                             <select
                                 id="nativeLanguage"
@@ -183,30 +157,53 @@ export default function SignupPage() {
                                 className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white"
                                 required
                             >
-                                <option value="tr">{l.languageTr}</option>
-                                <option value="en">{l.languageEn}</option>
+                                <option value="tr">{t('auth.languageTr')}</option>
+                                <option value="en">{t('auth.languageEn')}</option>
                             </select>
                         </div>
+
+                        {/* Email Verification Step */}
+                        {verificationStep === 'verify' && (
+                            <div className="bg-neo-yellow border-4 border-black p-4">
+                                <p className="font-bold text-black mb-2">
+                                    {t('auth.verifyEmailTitle')}
+                                </p>
+                                <p className="text-sm text-black mb-3">
+                                    {t('auth.registeredEmail')} {maskedEmail}
+                                </p>
+                                <input
+                                    type="email"
+                                    value={emailVerification}
+                                    onChange={(e) => setEmailVerification(e.target.value)}
+                                    placeholder={t('auth.emailPlaceholder')}
+                                    required
+                                    className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                                />
+                                <p className="text-xs text-black/70 mt-2">
+                                    {t('auth.verifyEmailDesc')}
+                                </p>
+                            </div>
+                        )}
 
                         {error && (
                             <div className={`bg-red-100 border-2 border-red-500 p-3 text-red-700 text-sm ${error === 'not_found' ? 'border-neo-yellow bg-yellow-50 text-black' : ''}`}>
                                 {error === 'not_found' ? (
                                     <div className="text-center">
-                                        <p className="font-bold mb-3">{l.notFound}</p>
+                                        <p className="font-bold mb-3">{t('auth.notFound')}</p>
                                         <button
                                             type="button"
                                             onClick={handleJoinClick}
                                             className="w-full bg-black text-white px-4 py-2 font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all uppercase"
                                         >
-                                            {l.joinClub}
+                                            {t('auth.joinClub')}
                                         </button>
                                     </div>
                                 ) : (
                                     <>
                                         {error}
-                                        {error === l.alreadyRegistered && (
+                                        {error === t('auth.alreadyRegistered') && (
                                             <Link href="/auth/login" className="block mt-2 text-blue-600 hover:underline">
-                                                {l.login}
+                                                {t('auth.login')}
                                             </Link>
                                         )}
                                     </>
@@ -224,17 +221,17 @@ export default function SignupPage() {
                             />
                             <label htmlFor="kvkk" className="text-sm text-gray-700">
                                 <Link href="/kvkk" target="_blank" className="font-bold text-blue-600 hover:underline">
-                                    {l.kvkkLink}
+                                    {t('auth.kvkkLink')}
                                 </Link>
-                                {l.kvkkAccept}
+                                {t('auth.kvkkAccept')}
                                 <Link href="/gizlilik" target="_blank" className="font-bold text-blue-600 hover:underline">
-                                    {l.privacyLink}
+                                    {t('auth.privacyLink')}
                                 </Link>
-                                {l.kvkkAnd}
+                                {t('auth.kvkkAnd')}
                                 <Link href="/uyelik-sozlesmesi" target="_blank" className="font-bold text-blue-600 hover:underline">
-                                    {l.termsLink}
+                                    {t('auth.termsLink')}
                                 </Link>
-                                {l.kvkkEnd}
+                                {t('auth.kvkkEnd')}
                             </label>
                         </div>
 
@@ -247,9 +244,9 @@ export default function SignupPage() {
                                 className="mt-1 w-4 h-4 text-black border-2 border-black rounded focus:ring-0 cursor-pointer"
                             />
                             <label htmlFor="emailConsent" className="text-sm text-gray-700">
-                                {l.emailConsentText} ({' '}
+                                {t('auth.emailConsentText')} ({' '}
                                 <Link href="/acik-riza" target="_blank" className="font-bold text-blue-600 hover:underline">
-                                    {l.consentLink}
+                                    {t('auth.consentLink')}
                                 </Link>
                                 )
                             </label>
@@ -260,13 +257,13 @@ export default function SignupPage() {
                             disabled={loading || !studentNo.trim() || !kvkkAccepted}
                             className="w-full bg-yellow-400 text-black font-black py-3 border-2 border-black hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
-                            {loading ? l.submitting : l.submit}
+                            {loading ? t('auth.submitting') : t('auth.submitRegister')}
                         </button>
 
                         <div className="text-center text-sm text-gray-600">
-                            <p>{l.hasAccount}</p>
+                            <p>{t('auth.hasAccount')}</p>
                             <Link href="/auth/login" className="text-blue-600 hover:underline font-bold">
-                                {l.login}
+                                {t('auth.login')}
                             </Link>
                         </div>
                     </form>
@@ -326,7 +323,7 @@ export default function SignupPage() {
                                 }}
                                 className="bg-black text-white px-4 py-2 font-bold hover:bg-gray-800"
                             >
-                                {l.readAndUnderstood}
+                                {t('auth.readAndUnderstood')}
                             </button>
                         </div>
                     </div>

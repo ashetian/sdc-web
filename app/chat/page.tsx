@@ -144,9 +144,9 @@ export default function ChatRoomPage() {
                 }}
             />
 
-            <div className="relative z-10 flex flex-col lg:flex-row p-4 gap-4 pb-8" style={{ marginTop: '120px', height: 'calc(100vh - 140px)' }}>
+            <div className="relative z-10 flex flex-col lg:flex-row p-2 lg:p-4 gap-2 lg:gap-4 pt-24 lg:pt-32" style={{ minHeight: 'calc(100vh - 60px)' }}>
                 {/* Game Area */}
-                <div className="flex-1 flex items-center justify-center">
+                <div className="flex-1 flex items-center justify-center overflow-auto">
                     <GameCanvas
                         user={user!}
                         positions={positions}
@@ -157,7 +157,7 @@ export default function ChatRoomPage() {
                 </div>
 
                 {/* Chat Panel */}
-                <div className="w-full lg:w-72 flex-shrink-0 h-full overflow-hidden">
+                <div className="w-full lg:w-80 flex-shrink-0 h-64 lg:h-auto">
                     <ChatPanel
                         messages={messages}
                         onSend={sendMessage}

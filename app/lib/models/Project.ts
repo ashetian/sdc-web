@@ -9,8 +9,10 @@ export interface IProject extends Document {
     githubUrl: string;
     demoUrl?: string;
     technologies: string[];
-    status: 'pending' | 'approved' | 'rejected';
+    status: 'pending' | 'approved' | 'rejected' | 'revision_requested' | 'resubmitted';
     rejectionReason?: string;
+    revisionMessage?: string;
+    revisionRequestedAt?: Date;
     viewCount: number;
     isDeleted: boolean;
     deletedAt?: Date;
@@ -72,13 +74,20 @@ const ProjectSchema = new Schema<IProject>(
         },
         status: {
             type: String,
-            enum: ['pending', 'approved', 'rejected'],
+            enum: ['pending', 'approved', 'rejected', 'revision_requested', 'resubmitted'],
             default: 'pending',
             index: true,
         },
         rejectionReason: {
             type: String,
             maxlength: 500,
+        },
+        revisionMessage: {
+            type: String,
+            maxlength: 1000,
+        },
+        revisionRequestedAt: {
+            type: Date,
         },
         viewCount: {
             type: Number,

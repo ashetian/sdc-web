@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from '@/app/_components/ui';
 
 export default function SuperAdminPage() {
     const [studentNo, setStudentNo] = useState("");
@@ -53,12 +54,14 @@ export default function SuperAdminPage() {
                         </p>
                     </div>
 
-                    <button
+                    <Button
                         disabled={loading}
-                        className="w-full bg-red-600 text-white border-2 border-black p-3 font-black uppercase hover:bg-red-700 hover:shadow-none shadow-neo transition-all disabled:opacity-50"
+                        isLoading={loading}
+                        variant="danger"
+                        fullWidth
                     >
-                        {loading ? 'İşleniyor...' : 'TAM YETKİ TANIMLA'}
-                    </button>
+                        TAM YETKİ TANIMLA
+                    </Button>
 
                     {message && (
                         <div className="p-3 border-2 border-black bg-gray-100 font-bold text-sm">

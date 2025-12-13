@@ -7,8 +7,10 @@ import ShareButtons from "../../_components/ShareButtons";
 import ImageLightbox from "../../_components/ImageLightbox";
 import CommentSection from "../../_components/CommentSection";
 import { SkeletonList, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
+import type { Announcement } from "../../lib/types/api";
 
-interface ContentBlock {
+// Local type for article-specific content blocks (simplified version)
+interface ArticleContentBlock {
     id: string;
     type: "text" | "image" | "image-grid";
     content?: string;
@@ -17,23 +19,11 @@ interface ContentBlock {
     images?: string[];
 }
 
-interface Article {
-    _id: string;
-    slug: string;
-    title: string;
-    titleEn?: string;
-    date: string;
-    dateEn?: string;
-    description: string;
-    descriptionEn?: string;
-    content: string;
-    contentEn?: string;
-    image?: string;
-    type: 'event' | 'news' | 'workshop' | 'article';
-    isDraft: boolean;
-    contentBlocks?: ContentBlock[];
-    contentBlocksEn?: ContentBlock[];
-}
+// Article uses Announcement base but with article-specific content blocks
+type Article = Omit<Announcement, 'contentBlocks' | 'contentBlocksEn'> & {
+    contentBlocks?: ArticleContentBlock[];
+    contentBlocksEn?: ArticleContentBlock[];
+};
 
 export default function ArticlePage({
     params,

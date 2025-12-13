@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AlertTriangle, Trash2, RotateCcw } from 'lucide-react';
 import { SkeletonList } from "@/app/_components/Skeleton";
+import { ConfirmModal } from '@/app/_components/ui';
 
 interface Comment {
     _id: string;
@@ -288,30 +289,16 @@ export default function AdminCommentsPage() {
             </div>
 
             {/* Delete Confirmation Modal */}
-            {deleteModalId && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-6">
-                        <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2"><AlertTriangle size={20} /> Yorumu Sil</h3>
-                        <p className="text-gray-700 mb-6">
-                            Bu yorumu silmek istediğinize emin misiniz? Silinen yorumlar 30 gün boyunca geri alınabilir.
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => handleDelete(deleteModalId)}
-                                className="flex-1 bg-red-500 text-white py-3 font-bold border-2 border-black hover:bg-red-600 transition-all"
-                            >
-                                Evet, Sil
-                            </button>
-                            <button
-                                onClick={() => setDeleteModalId(null)}
-                                className="flex-1 bg-gray-200 text-black py-3 font-bold border-2 border-black hover:bg-gray-300 transition-all"
-                            >
-                                İptal
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                isOpen={!!deleteModalId}
+                onClose={() => setDeleteModalId(null)}
+                onConfirm={() => deleteModalId && handleDelete(deleteModalId)}
+                title="Yorumu Sil"
+                message="Bu yorumu silmek istediğinize emin misiniz? Silinen yorumlar 30 gün boyunca geri alınabilir."
+                confirmText="Evet, Sil"
+                cancelText="İptal"
+                variant="danger"
+            />
 
             {/* Action Modal (Restore/Permanent Delete) */}
             {actionModalId && actionType && (

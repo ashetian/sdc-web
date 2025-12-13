@@ -4,29 +4,15 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Github, Linkedin, Twitter, Globe, Instagram, MapPin, Mail, School } from 'lucide-react';
 import { SkeletonList, SkeletonAvatar } from '@/app/_components/Skeleton';
+import type { User } from '../lib/types/api';
 
 interface UserProfileModalProps {
     userId: string;
     onClose: () => void;
 }
 
-interface UserProfile {
-    _id: string;
-    nickname: string;
-    avatar?: string;
-    bio?: string;
-    fullName?: string;
-    email?: string;
-    phone?: string;
-    department?: string;
-    socialLinks?: {
-        github?: string;
-        linkedin?: string;
-        twitter?: string;
-        website?: string;
-        instagram?: string;
-    };
-}
+// UserProfile is a subset of User for profile display
+type UserProfile = User;
 
 export default function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
     const [profile, setProfile] = useState<UserProfile | null>(null);

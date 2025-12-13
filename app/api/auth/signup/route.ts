@@ -5,19 +5,15 @@ import PasswordToken from '@/app/lib/models/PasswordToken';
 import { sendEmail, maskEmail, generatePasswordSetupEmail } from '@/app/lib/email';
 import crypto from 'crypto';
 
-// POST - Request signup with student number
+// POST - Request signup with student number (2-step verification)
 export async function POST(request: NextRequest) {
     try {
         await connectDB();
 
-        const { studentNo, kvkkAccepted, emailConsent, nativeLanguage } = await request.json();
+        const { studentNo, kvkkAccepted, emailConsent, nativeLanguage, emailVerification, step } = await request.json();
 
         if (!studentNo) {
             return NextResponse.json({ error: 'Öğrenci numarası gerekli' }, { status: 400 });
-        }
-
-        if (!kvkkAccepted) {
-            return NextResponse.json({ error: 'KVKK metnini onaylamanız gerekmektedir.' }, { status: 400 });
         }
 
         // Find member in database
@@ -38,6 +34,32 @@ export async function POST(request: NextRequest) {
                 error: 'Bu hesap zaten kayıtlı. Giriş yapabilir veya şifrenizi sıfırlayabilirsiniz.',
                 isRegistered: true
             }, { status: 400 });
+        }
+
+        // STEP 1: Return masked email for verification
+        if (step !== 'confirm') {
+            return NextResponse.json({
+                step: 'verify',
+                maskedEmail: maskEmail(member.email),
+                message: 'E-posta adresinizi doğrulayın'
+            });
+        }
+
+        // STEP 2: Verify email and send link
+        if (!emailVerification) {
+            return NextResponse.json({ error: 'E-posta doğrulaması gerekli' }, { status: 400 });
+        }
+
+        // Check if the entered email matches
+        if (emailVerification.toLowerCase().trim() !== member.email.toLowerCase().trim()) {
+            return NextResponse.json({
+                error: 'E-posta adresi eşleşmiyor. Kayıtlı e-posta adresinizi doğru girin.',
+                emailMismatch: true
+            }, { status: 400 });
+        }
+
+        if (!kvkkAccepted) {
+            return NextResponse.json({ error: 'KVKK metnini onaylamanız gerekmektedir.' }, { status: 400 });
         }
 
         // Generate secure token
@@ -70,9 +92,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             message: 'Şifre oluşturma linki e-posta adresinize gönderildi',
             email: maskEmail(member.email),
+            success: true
         });
     } catch (error) {
         console.error('Signup error:', error);
         return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
     }
 }
+

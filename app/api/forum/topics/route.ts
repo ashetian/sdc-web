@@ -24,9 +24,9 @@ export async function GET(request: NextRequest) {
         const showPending = searchParams.get('pending') === 'true'; // Admin only
 
         // Base query - only show approved topics for public, unless admin requests pending
-        const query: Record<string, unknown> = { 
+        const query: Record<string, unknown> = {
             isDeleted: { $ne: true },
-            isApproved: showPending ? false : true
+            status: showPending ? { $in: ['pending', 'resubmitted'] } : 'approved'
         };
 
         // Filter by category
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
             title: title.trim(),
             content: content.trim(),
             tags: tags?.map((t: string) => t.toLowerCase().trim()) || [],
-            isApproved: isAdmin, // Auto-approve if admin creates the topic
+            status: isAdmin ? 'approved' : 'pending', // Auto-approve if admin creates the topic
         });
 
         // Only update category count if approved

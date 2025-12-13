@@ -5,6 +5,7 @@ import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Pencil, Images, Trash2 } from "lucide-react";
+import { Button } from '@/app/_components/ui';
 
 interface Announcement {
     _id: string;
@@ -165,12 +166,13 @@ export default function AnnouncementsIndexPage() {
                                         >
                                             <Images size={16} /> Galeri
                                         </Link>
-                                        <button
-                                            className="bg-red-500 text-white border-2 border-black px-3 py-2 text-sm font-black uppercase hover:bg-red-600 transition-all flex items-center justify-center gap-2"
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
                                             onClick={() => handleDelete(announcement.slug)}
                                         >
                                             <Trash2 size={16} /> Sil
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </li>

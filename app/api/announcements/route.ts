@@ -65,6 +65,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get('active') === 'true';
     const typeFilter = searchParams.get('type');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '0'); // 0 = no limit (backward compatible)
 
     // Build query based on parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,6 +78,9 @@ export async function GET(request: Request) {
     if (typeFilter) {
       query.type = typeFilter;
     }
+
+    // Get total count for pagination
+    const total = await Announcement.countDocuments(query);
 
     // Önce hepsini çekiyoruz, çünkü string tarih alanına göre veritabanı seviyesinde sıralama yapamayız
     const announcements = await Announcement.find(query);
@@ -98,6 +103,22 @@ export async function GET(request: Request) {
       return dateB - dateA;
     });
 
+    // Apply pagination if limit > 0
+    if (limit > 0) {
+      const skip = (page - 1) * limit;
+      const paginatedAnnouncements = sortedAnnouncements.slice(skip, skip + limit);
+      const totalPages = Math.ceil(total / limit);
+
+      return NextResponse.json({
+        items: paginatedAnnouncements,
+        total,
+        page,
+        totalPages,
+        hasMore: page < totalPages,
+      });
+    }
+
+    // Backward compatible - return array directly if no pagination
     return NextResponse.json(sortedAnnouncements);
   } catch (error) {
     console.error('Duyurular alınırken hata oluştu:', error);

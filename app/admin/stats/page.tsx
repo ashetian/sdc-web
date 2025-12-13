@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
+import { Button } from '@/app/_components/ui';
 
 interface Stat {
     _id: string;
@@ -168,13 +169,12 @@ export default function StatsPage() {
                         Ana sayfada görünen istatistik kartlarını yönetin
                     </p>
                 </div>
-                <button
+                <Button
                     onClick={handleCreate}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     disabled={creating || editing !== null}
                 >
                     Yeni İstatistik
-                </button>
+                </Button>
             </div>
 
             <div className="border-t border-gray-200">
@@ -264,18 +264,18 @@ export default function StatsPage() {
                             </div>
                         </div>
                         <div className="mt-4 flex space-x-2">
-                            <button
+                            <Button
                                 onClick={handleSave}
-                                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                                variant="success"
                             >
                                 Kaydet
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={handleCancel}
-                                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                                variant="secondary"
                             >
                                 İptal
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}
@@ -380,18 +380,18 @@ export default function StatsPage() {
                                             </div>
                                         </div>
                                         <div className="mt-4 flex space-x-2">
-                                            <button
+                                            <Button
                                                 onClick={handleSave}
-                                                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                                                variant="success"
                                             >
                                                 Kaydet
-                                            </button>
-                                            <button
+                                            </Button>
+                                            <Button
                                                 onClick={handleCancel}
-                                                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                                                variant="secondary"
                                             >
                                                 İptal
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                 ) : (

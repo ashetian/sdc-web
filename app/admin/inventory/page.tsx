@@ -16,6 +16,7 @@ import {
     Filter
 } from 'lucide-react';
 import { SkeletonTable } from '@/app/_components/Skeleton';
+import { Button } from '@/app/_components/ui';
 
 interface InventoryItem {
     _id: string;
@@ -225,12 +226,11 @@ export default function InventoryPage() {
                     <h1 className="text-3xl font-black text-black uppercase">Envanter Takibi</h1>
                     <p className="text-gray-600 font-bold">Kulüp demirbaş ve zimmet yönetimi</p>
                 </div>
-                <button
+                <Button
                     onClick={() => { setFormData({}); setShowCreateModal(true); }}
-                    className="bg-black text-white px-6 py-3 font-black uppercase border-4 border-black hover:bg-white hover:text-black transition-all shadow-neo"
                 >
                     <Plus className="inline mr-2" /> Yeni Eşya
-                </button>
+                </Button>
             </div>
 
             {/* Controls */}
@@ -403,9 +403,9 @@ export default function InventoryPage() {
                             </div>
 
                             <div className="flex gap-2 pt-4">
-                                <button type="submit" className="flex-1 bg-black text-white py-3 font-black uppercase border-2 border-black hover:bg-white hover:text-black transition-all">Kaydet</button>
+                                <Button type="submit" fullWidth>Kaydet</Button>
                                 {editingItem && (
-                                    <button
+                                    <Button
                                         type="button"
                                         onClick={() => {
                                             if (confirm('Silmek istediğine emin misin?')) {
@@ -413,10 +413,10 @@ export default function InventoryPage() {
                                                 setEditingItem(null);
                                             }
                                         }}
-                                        className="px-4 bg-red-500 text-white border-2 border-black font-black uppercase hover:bg-red-600"
+                                        variant="danger"
                                     >
                                         <Trash2 size={20} />
-                                    </button>
+                                    </Button>
                                 )}
                             </div>
                         </form>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../_context/LanguageContext";
+import { Button } from '@/app/_components/ui';
 
 type Department = "Proje Departmanı" | "Teknik Departman" | "Medya Departmanı" | "Kurumsal İletişim Departmanı" | string;
 
@@ -36,7 +37,7 @@ export default function ApplyPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [departments, setDepartments] = useState<DepartmentData[]>([]);
-    const { language } = useLanguage();
+    const { t, language } = useLanguage();
     const [formData, setFormData] = useState<FormData>({
         fullName: "",
         department: "",
@@ -55,98 +56,6 @@ export default function ApplyPage() {
         communicationConsent: false,
     });
 
-    const labels = {
-        tr: {
-            title: 'KTÜ SDC – Departman Başvuru Formu',
-            personalInfo: '1. Kişisel Bilgiler',
-            fullName: 'Ad Soyad',
-            department: 'Bölüm',
-            classYear: 'Sınıf',
-            classYearPlaceholder: 'Örn: 2. Sınıf, 3. Sınıf',
-            phone: 'Telefon',
-            email: 'E-posta',
-            github: 'GitHub (varsa)',
-            linkedin: 'LinkedIn (varsa)',
-            deptSelection: '2. Başvurulan Departman',
-            selectDept: 'Departman Seçimi',
-            chooseDept: 'Departman seçiniz...',
-            motivationSection: '3. Motivasyon ve Uygunluk Soruları',
-            whyDept: 'Neden bu departmana başvuruyorsun?',
-            hasExperience: 'Daha önce kulüp, takım, etkinlik vb. bir organizasyon tecrübem var',
-            expDesc: 'Deneyimini açıkla',
-            deptQuestions: '4. Departmana Özel Sorular',
-            additionalNotes: '5. Ek Notlar',
-            notesLabel: 'Eklemek istediğin notlar',
-            optional: 'Opsiyonel',
-            kvkkSection: '6. KVKK ve Onay',
-            kvkkText: 'KVKK Aydınlatma Metni',
-            kvkkConsent: "'ni okudum ve kişisel verilerimin kulüp içi kullanım amaçlı işleneceğini onaylıyorum.",
-            commConsent: 'Kulüp tarafından e-posta/telefon yoluyla bilgilendirilmesine onay veriyorum.',
-            submit: 'Başvuruyu Gönder',
-            sending: 'Gönderiliyor...',
-            success: 'Başvurunuz başarıyla gönderildi!',
-            error: 'Bir hata oluştu',
-            projectDept: 'Proje Departmanı Soruları',
-            eventExp: 'Daha önce etkinlik planlama / moderasyon / görevli deneyimin var mı?',
-            interpersonal: 'İnsan ilişkisi gerektiren durumlarda genelde nasıl davranırsın?',
-            commIdea: 'Üyeler arası iletişimi geliştirmek için bir fikir yaz.',
-            techDept: 'Teknik Departman Soruları',
-            techInterests: 'Hangi teknolojilerle ilgileniyorsun? (Frontend, Backend, AI, DevOps, Mobile, Siber Güvenlik gibi...)',
-            projectDesc: 'Şu ana kadar yaptığın bir projeyi kısaca anlat.',
-            mediaDept: 'Medya Departmanı Soruları',
-            tools: 'Hangi araçları kullanıyorsun? (Canva, Figma, Premiere, After Effects gibi...)',
-            portfolio: 'Daha önce afiş veya video çalışman varsa link bırak.',
-            corpDept: 'Kurumsal İletişim Departmanı Soruları',
-            formalComm: 'Daha önce mail yazışması, sponsorluk görüşmesi veya resmi iletişim deneyimin var mı?',
-            sponsorStrategy: 'Etkinlik için sponsorluk bulma sürecinde nasıl bir strateji izlerdin?'
-        },
-        en: {
-            title: 'KTU SDC – Department Application Form',
-            personalInfo: '1. Personal Information',
-            fullName: 'Full Name',
-            department: 'Department',
-            classYear: 'Class Year',
-            classYearPlaceholder: 'Ex: 2nd Year, 3rd Year',
-            phone: 'Phone',
-            email: 'Email',
-            github: 'GitHub (if any)',
-            linkedin: 'LinkedIn (if any)',
-            deptSelection: '2. Department Selection',
-            selectDept: 'Select Department',
-            chooseDept: 'Choose a department...',
-            motivationSection: '3. Motivation and Suitability Questions',
-            whyDept: 'Why are you applying to this department?',
-            hasExperience: 'I have previous experience in a club, team, event organization etc.',
-            expDesc: 'Explain your experience',
-            deptQuestions: '4. Department Specific Questions',
-            additionalNotes: '5. Additional Notes',
-            notesLabel: 'Notes you want to add',
-            optional: 'Optional',
-            kvkkSection: '6. GDPR and Consent',
-            kvkkText: 'GDPR Clarification Text',
-            kvkkConsent: " I have read and I consent to the processing of my personal data for internal club use.",
-            commConsent: 'I consent to being informed by the club via email/phone.',
-            submit: 'Submit Application',
-            sending: 'Sending...',
-            success: 'Your application has been submitted successfully!',
-            error: 'An error occurred',
-            projectDept: 'Project Department Questions',
-            eventExp: 'Do you have any experience in event planning / moderation / staffing?',
-            interpersonal: 'How do you generally behave in situations requiring human relations?',
-            commIdea: 'Write an idea to improve communication among members.',
-            techDept: 'Technical Department Questions',
-            techInterests: 'Which technologies are you interested in? (Frontend, Backend, AI, DevOps, Mobile, Cyber Security etc...)',
-            projectDesc: 'Briefly describe a project you have done so far.',
-            mediaDept: 'Media Department Questions',
-            tools: 'Which tools do you use? (Canva, Figma, Premiere, After Effects etc...)',
-            portfolio: 'Leave a link if you have previous poster or video work.',
-            corpDept: 'Corporate Relations Department Questions',
-            formalComm: 'Do you have any experience in email correspondence, sponsorship meetings or formal communication?',
-            sponsorStrategy: 'What strategy would you follow in the process of finding sponsorship for an event?'
-        }
-    };
-
-    const l = labels[language];
 
     useEffect(() => {
         const init = async () => {
@@ -238,13 +147,13 @@ export default function ApplyPage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || l.error);
+                throw new Error(errorData.error || t('apply.error'));
             }
 
-            alert(l.success);
+            alert(t('apply.applicationSuccess'));
             router.push("/");
         } catch (err) {
-            setError(err instanceof Error ? err.message : l.error);
+            setError(err instanceof Error ? err.message : t('apply.error'));
         } finally {
             setLoading(false);
         }
@@ -258,11 +167,11 @@ export default function ApplyPage() {
             return (
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
-                        {l.projectDept}
+                        {t('apply.projectDept')}
                     </h3>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.eventExp}
+                            {t('apply.eventExp')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.eventExperience || ""}
@@ -274,7 +183,7 @@ export default function ApplyPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.interpersonal}
+                            {t('apply.interpersonal')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.interpersonalSkills || ""}
@@ -286,7 +195,7 @@ export default function ApplyPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.commIdea}
+                            {t('apply.commIdea')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.communicationIdea || ""}
@@ -302,11 +211,11 @@ export default function ApplyPage() {
             return (
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
-                        {l.techDept}
+                        {t('apply.techDept')}
                     </h3>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.techInterests}
+                            {t('apply.techInterests')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.technologies || ""}
@@ -318,7 +227,7 @@ export default function ApplyPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.projectDesc}
+                            {t('apply.projectDesc')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.projectDescription || ""}
@@ -334,11 +243,11 @@ export default function ApplyPage() {
             return (
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
-                        {l.mediaDept}
+                        {t('apply.mediaDept')}
                     </h3>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.tools}
+                            {t('apply.tools')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.tools || ""}
@@ -350,14 +259,14 @@ export default function ApplyPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.portfolio}
+                            {t('apply.portfolio')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.portfolioLinks || ""}
                             onChange={(e) => handleDepartmentAnswerChange("portfolioLinks", e.target.value)}
                             rows={3}
                             className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                            placeholder={l.optional}
+                            placeholder={t('apply.optional')}
                         />
                     </div>
                 </div>
@@ -366,11 +275,11 @@ export default function ApplyPage() {
             return (
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-black pb-2">
-                        {l.corpDept}
+                        {t('apply.corpDept')}
                     </h3>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.formalComm}
+                            {t('apply.formalComm')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.formalCommunicationExperience || ""}
@@ -382,7 +291,7 @@ export default function ApplyPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {l.sponsorStrategy}
+                            {t('apply.sponsorStrategy')}
                         </label>
                         <textarea
                             value={formData.departmentSpecificAnswers.sponsorshipStrategy || ""}
@@ -403,7 +312,7 @@ export default function ApplyPage() {
             <div className="max-w-3xl mx-auto">
                 <div className="bg-white border-4 border-black shadow-neo p-8">
                     <h1 className="text-3xl font-black text-black mb-2 border-b-4 border-black pb-4">
-                        {l.title}
+                        {t('apply.title')}
                     </h1>
 
                     {error && (
@@ -416,12 +325,12 @@ export default function ApplyPage() {
                         {/* 1. Kişisel Bilgiler */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                {l.personalInfo}
+                                {t('apply.personalInfo')}
                             </h2>
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.fullName} <span className="text-red-600">*</span>
+                                        {t('apply.fullName')} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -437,7 +346,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.department} <span className="text-red-600">*</span>
+                                        {t('apply.departmentLabel')} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -451,7 +360,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.classYear} <span className="text-red-600">*</span>
+                                        {t('apply.classYear')} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -459,14 +368,14 @@ export default function ApplyPage() {
                                         value={formData.classYear}
                                         onChange={handleInputChange}
                                         className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                        placeholder={l.classYearPlaceholder}
+                                        placeholder={t('apply.classYearPlaceholder')}
                                         required
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.phone} <span className="text-red-600">*</span>
+                                        {t('apply.phone')} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="tel"
@@ -480,7 +389,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.email} <span className="text-red-600">*</span>
+                                        {t('apply.email')} <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         type="email"
@@ -494,7 +403,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.github}
+                                        {t('apply.github')}
                                     </label>
                                     <input
                                         type="url"
@@ -508,7 +417,7 @@ export default function ApplyPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.linkedin}
+                                        {t('apply.linkedin')}
                                     </label>
                                     <input
                                         type="url"
@@ -525,11 +434,11 @@ export default function ApplyPage() {
                         {/* 2. Başvurulan Departman */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                {l.deptSelection}
+                                {t('apply.deptSelection')}
                             </h2>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    {l.selectDept} <span className="text-red-600">*</span>
+                                    {t('apply.selectDept')} <span className="text-red-600">*</span>
                                 </label>
                                 <select
                                     name="selectedDepartment"
@@ -538,7 +447,7 @@ export default function ApplyPage() {
                                     className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
                                     required
                                 >
-                                    <option value="">{l.chooseDept}</option>
+                                    <option value="">{t('apply.chooseDept')}</option>
                                     {departments.length > 0 ? (
                                         departments.map((dept) => (
                                             <option key={dept._id} value={dept.name}>
@@ -560,12 +469,12 @@ export default function ApplyPage() {
                         {/* 3. Motivasyon ve Uygunluk Soruları */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                {l.motivationSection}
+                                {t('apply.motivationSection')}
                             </h2>
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {l.whyDept} <span className="text-red-600">*</span>
+                                        {t('apply.whyDept')} <span className="text-red-600">*</span>
                                     </label>
                                     <textarea
                                         name="motivation"
@@ -587,7 +496,7 @@ export default function ApplyPage() {
                                             className="w-5 h-5 border-2 border-black"
                                         />
                                         <span className="text-sm font-medium text-gray-700">
-                                            {l.hasExperience}
+                                            {t('apply.hasExperience')}
                                         </span>
                                     </label>
                                 </div>
@@ -595,7 +504,7 @@ export default function ApplyPage() {
                                 {formData.hasExperience && (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            {l.expDesc} <span className="text-red-600">*</span>
+                                            {t('apply.expDesc')} <span className="text-red-600">*</span>
                                         </label>
                                         <textarea
                                             name="experienceDescription"
@@ -614,7 +523,7 @@ export default function ApplyPage() {
                         {formData.selectedDepartment && (
                             <section>
                                 <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                    {l.deptQuestions}
+                                    {t('apply.deptQuestions')}
                                 </h2>
                                 {renderDepartmentQuestions()}
                             </section>
@@ -623,11 +532,11 @@ export default function ApplyPage() {
                         {/* 5. Ek Notlar */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                {l.additionalNotes}
+                                {t('apply.additionalNotes')}
                             </h2>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    {l.notesLabel}
+                                    {t('apply.notesLabel')}
                                 </label>
                                 <textarea
                                     name="additionalNotes"
@@ -635,7 +544,7 @@ export default function ApplyPage() {
                                     onChange={handleInputChange}
                                     rows={4}
                                     className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
-                                    placeholder={l.optional}
+                                    placeholder={t('apply.optional')}
                                 />
                             </div>
                         </section>
@@ -643,7 +552,7 @@ export default function ApplyPage() {
                         {/* 6. KVKK ve Onay */}
                         <section>
                             <h2 className="text-xl font-bold text-black mb-4 bg-gray-100 border-2 border-black px-4 py-2">
-                                {l.kvkkSection}
+                                {t('apply.kvkkSection')}
                             </h2>
                             <div className="space-y-3">
                                 <label className="flex items-start space-x-2 cursor-pointer">
@@ -662,9 +571,9 @@ export default function ApplyPage() {
                                             rel="noopener noreferrer"
                                             className="text-blue-600 hover:text-blue-800 underline font-bold"
                                         >
-                                            {l.kvkkText}
+                                            {t('apply.kvkkText')}
                                         </a>
-                                        {l.kvkkConsent} <span className="text-red-600">*</span>
+                                        {t('apply.kvkkConsent')} <span className="text-red-600">*</span>
                                     </span>
                                 </label>
 
@@ -678,7 +587,7 @@ export default function ApplyPage() {
                                         required
                                     />
                                     <span className="text-sm text-gray-700">
-                                        {l.commConsent} <span className="text-red-600">*</span>
+                                        {t('apply.commConsent')} <span className="text-red-600">*</span>
                                     </span>
                                 </label>
                             </div>
@@ -686,15 +595,14 @@ export default function ApplyPage() {
 
                         {/* Submit Button */}
                         <div className="pt-6">
-                            <button
+                            <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-black text-white border-4 border-black px-8 py-4 text-lg font-bold 
-                         hover:bg-white hover:text-black transition-colors duration-200 
-                         disabled:opacity-50 disabled:cursor-not-allowed shadow-neo hover:shadow-neo-lg"
+                                isLoading={loading}
+                                fullWidth
                             >
-                                {loading ? l.sending : l.submit}
-                            </button>
+                                {t('apply.submitApplication')}
+                            </Button>
                         </div>
                     </form>
                 </div>

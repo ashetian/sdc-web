@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Bookmark, Trash2, ArrowLeft, Calendar, FileText, Image, MessageSquare, FolderGit2 } from 'lucide-react';
 import { SkeletonList, SkeletonPageHeader, SkeletonFullPage, SkeletonCardGrid } from '@/app/_components/Skeleton';
 import { useLanguage } from '../../_context/LanguageContext';
+import { Button } from '../../_components/ui';
 
 interface BookmarkItem {
     _id: string;
@@ -16,54 +17,23 @@ interface BookmarkItem {
     createdAt: string;
 }
 
-const CONTENT_TYPE_LABELS = {
-    tr: {
-        event: { label: 'Etkinlik', icon: Calendar, color: 'bg-neo-purple text-white' },
-        project: { label: 'Proje', icon: FolderGit2, color: 'bg-neo-green text-black' },
-        announcement: { label: 'Duyuru', icon: FileText, color: 'bg-neo-blue text-black' },
-        gallery: { label: 'Galeri', icon: Image, color: 'bg-neo-yellow text-black' },
-        comment: { label: 'Yorum', icon: MessageSquare, color: 'bg-gray-200 text-black' },
-    },
-    en: {
-        event: { label: 'Event', icon: Calendar, color: 'bg-neo-purple text-white' },
-        project: { label: 'Project', icon: FolderGit2, color: 'bg-neo-green text-black' },
-        announcement: { label: 'Announcement', icon: FileText, color: 'bg-neo-blue text-black' },
-        gallery: { label: 'Gallery', icon: Image, color: 'bg-neo-yellow text-black' },
-        comment: { label: 'Comment', icon: MessageSquare, color: 'bg-gray-200 text-black' },
-    }
-};
+
 
 export default function BookmarksPage() {
     const router = useRouter();
-    const { language } = useLanguage();
+    const { t, language } = useLanguage();
     const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<string>('all');
     const [deleting, setDeleting] = useState<string | null>(null);
 
-    const labels = {
-        tr: {
-            backToProfile: 'Profile Dön',
-            title: 'Kaydedilenler',
-            desc: 'Kaydettiğin içeriklere buradan ulaşabilirsin.',
-            all: 'Tümü',
-            noBookmarks: 'Henüz kaydettiğin bir içerik yok.',
-            noCategoryBookmarks: 'Bu kategoride kayıtlı içerik yok.',
-            removeFromBookmarks: 'Kayıtlardan kaldır'
-        },
-        en: {
-            backToProfile: 'Back to Profile',
-            title: 'Bookmarks',
-            desc: 'You can access your saved content here.',
-            all: 'All',
-            noBookmarks: 'No content saved yet.',
-            noCategoryBookmarks: 'No saved content in this category.',
-            removeFromBookmarks: 'Remove from bookmarks'
-        }
+    const CONTENT_TYPE_LABELS = {
+        event: { label: t('profile.bookmarks.types.event'), icon: Calendar, color: 'bg-neo-purple text-white' },
+        project: { label: t('profile.bookmarks.types.project'), icon: FolderGit2, color: 'bg-neo-green text-black' },
+        announcement: { label: t('profile.bookmarks.types.announcement'), icon: FileText, color: 'bg-neo-blue text-black' },
+        gallery: { label: t('profile.bookmarks.types.gallery'), icon: Image, color: 'bg-neo-yellow text-black' },
+        comment: { label: t('profile.bookmarks.types.comment'), icon: MessageSquare, color: 'bg-gray-200 text-black' },
     };
-
-    const l = labels[language];
-    const typeLabels = CONTENT_TYPE_LABELS[language as keyof typeof CONTENT_TYPE_LABELS] || CONTENT_TYPE_LABELS.en;
 
     useEffect(() => {
         fetch('/api/auth/me')
@@ -146,14 +116,14 @@ export default function BookmarksPage() {
                         className="inline-flex items-center gap-2 text-black font-bold hover:underline mb-4"
                     >
                         <ArrowLeft size={20} />
-                        {l.backToProfile}
+                        {t('profile.bookmarks.backToProfile')}
                     </Link>
                     <h1 className="text-4xl font-black text-black uppercase flex items-center gap-3">
                         <Bookmark size={36} />
-                        {l.title}
+                        {t('profile.bookmarks.title')}
                     </h1>
                     <p className="text-gray-600 font-medium mt-2">
-                        {l.desc}
+                        {t('profile.bookmarks.desc')}
                     </p>
                 </div>
 
@@ -166,9 +136,9 @@ export default function BookmarksPage() {
                             : 'bg-white text-black hover:shadow-neo'
                             }`}
                     >
-                        {l.all} ({bookmarks.length})
+                        {t('profile.bookmarks.all')} ({bookmarks.length})
                     </button>
-                    {Object.entries(typeLabels).map(([type, { label }]) => {
+                    {Object.entries(CONTENT_TYPE_LABELS).map(([type, { label }]) => {
                         const count = bookmarks.filter(b => b.contentType === type).length;
                         if (count === 0) return null;
                         return (
@@ -192,14 +162,14 @@ export default function BookmarksPage() {
                         <Bookmark size={48} className="mx-auto mb-4 text-gray-400" />
                         <p className="text-xl font-bold text-gray-600">
                             {filter === 'all'
-                                ? l.noBookmarks
-                                : l.noCategoryBookmarks}
+                                ? t('profile.bookmarks.noBookmarks')
+                                : t('profile.bookmarks.noCategoryBookmarks')}
                         </p>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {filteredBookmarks.map(bookmark => {
-                            const typeInfo = typeLabels[bookmark.contentType as keyof typeof typeLabels];
+                            const typeInfo = CONTENT_TYPE_LABELS[bookmark.contentType as keyof typeof CONTENT_TYPE_LABELS];
                             const Icon = typeInfo.icon;
 
                             return (
@@ -228,14 +198,15 @@ export default function BookmarksPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <button
+                                    <Button
                                         onClick={() => handleDelete(bookmark._id)}
                                         disabled={deleting === bookmark._id}
-                                        className="p-2 border-2 border-black bg-red-100 hover:bg-red-200 text-red-600 transition-all disabled:opacity-50"
-                                        title={l.removeFromBookmarks}
+                                        variant="danger"
+                                        size="sm"
+                                        isLoading={deleting === bookmark._id}
                                     >
                                         <Trash2 size={18} />
-                                    </button>
+                                    </Button>
                                 </div>
                             );
                         })}
@@ -245,3 +216,5 @@ export default function BookmarksPage() {
         </div>
     );
 }
+
+

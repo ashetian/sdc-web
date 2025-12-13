@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { SkeletonForm, SkeletonPageHeader, SkeletonGallery, SkeletonList } from '@/app/_components/Skeleton';
 import ContentBlockEditor, { ContentBlock } from '@/app/admin/_components/ContentBlockEditor';
 import { Save, ArrowLeft, FileText, Users, Clock } from 'lucide-react';
+import { Button } from '@/app/_components/ui';
 
 interface ReportData {
     contentBlocks: ContentBlock[];
@@ -264,14 +265,15 @@ export default function EventReportPage({
                         >
                             İptal
                         </Link>
-                        <button
+                        <Button
                             onClick={handleSave}
                             disabled={saving}
-                            className="px-6 py-3 bg-neo-green border-4 border-black font-black uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all disabled:opacity-50 flex items-center gap-2"
+                            isLoading={saving}
+                            variant="success"
                         >
                             <Save size={18} />
-                            {saving ? 'Kaydediliyor...' : 'Raporu Kaydet'}
-                        </button>
+                            Raporu Kaydet
+                        </Button>
                     </div>
                 )}
             </div>

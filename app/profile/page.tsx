@@ -7,33 +7,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FolderGit2, Bookmark, Home, LogOut } from 'lucide-react';
 import { useLanguage } from '../_context/LanguageContext';
-
-interface User {
-    id: string;
-    studentNo: string;
-    fullName: string;
-    nickname: string;
-    avatar?: string;
-    email: string;
-    phone?: string;
-    department?: string;
-    profileVisibility: {
-        showEmail: boolean;
-        showPhone: boolean;
-        showDepartment: boolean;
-        showFullName: boolean;
-    };
-    lastLogin?: string;
-    bio?: string;
-    socialLinks?: {
-        github?: string;
-        linkedin?: string;
-        twitter?: string;
-        website?: string;
-        instagram?: string;
-    };
-    nativeLanguage?: 'tr' | 'en';
-}
+import { Button, Alert } from '../_components/ui';
+import type { User } from '../lib/types/api';
 
 // Pre-defined avatar options using DiceBear API
 const AVATAR_STYLES = [
@@ -44,86 +19,13 @@ const AVATAR_SEEDS = ['Felix', 'Aneka', 'Sasha', 'Milo', 'Luna', 'Oliver', 'Bell
 
 export default function ProfilePage() {
     const router = useRouter();
-    const { language } = useLanguage();
+    const { t, language } = useLanguage();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [showAvatarPicker, setShowAvatarPicker] = useState(false);
-
-    const labels = {
-        tr: {
-            projects: 'Projelerim',
-            bookmarks: 'Kaydedilenler',
-            home: 'Ana Sayfa',
-            logout: 'Çıkış',
-            changeAvatar: 'Avatar\'ı değiştirmek için tıklayın',
-            pickAvatar: 'Avatar Seç',
-            pickAvatarDesc: 'Profilinizde ve yorumlarınızda görünecek avatarı seçin:',
-            resetDefault: 'Varsayılana Dön',
-            close: 'Kapat',
-            profileSettings: 'Profil Ayarları',
-            nickname: 'Nickname (Görünen İsim)',
-            nicknameDesc: 'Sitede bu isim görünür',
-            privacySettings: 'Gizlilik Ayarları',
-            privacyDesc: 'Profilinizde hangi bilgilerin görüneceğini seçin:',
-            realName: 'Gerçek İsim',
-            email: 'E-posta',
-            phone: 'Telefon',
-            department: 'Bölüm',
-            notSpecified: 'Belirtilmemiş',
-            saveChanges: 'Değişiklikleri Kaydet',
-            saving: 'Kaydediliyor...',
-            lastLogin: 'Son giriş:',
-            profileUpdated: 'Profil güncellendi!',
-            error: 'Bir hata oluştu',
-            logoutError: 'Çıkış yapılamadı',
-            notificationSettings: 'Bildirim Ayarları',
-            notificationDesc: 'Hangi konularda e-posta almak istediğinizi seçin:',
-            allowEmails: 'Kulüp etkinlikleri ve gelişmeleri hakkında e-posta almak istiyorum.',
-            bio: 'Hakkımda',
-            bioDesc: 'Kendinizden kısaca bahsedin (max 500 karakter)',
-            social: 'Sosyal Medya',
-            socialDesc: 'Profilinizde görünecek bağlantılar:',
-        },
-        en: {
-            projects: 'My Projects',
-            bookmarks: 'Bookmarks',
-            home: 'Home',
-            logout: 'Logout',
-            changeAvatar: 'Click to change avatar',
-            pickAvatar: 'Choose Avatar',
-            pickAvatarDesc: 'Choose an avatar to appear on your profile and comments:',
-            resetDefault: 'Reset to Default',
-            close: 'Close',
-            profileSettings: 'Profile Settings',
-            nickname: 'Nickname (Display Name)',
-            nicknameDesc: 'This name appears on the site',
-            privacySettings: 'Privacy Settings',
-            privacyDesc: 'Choose what information appears on your profile:',
-            realName: 'Real Name',
-            email: 'Email',
-            phone: 'Phone',
-            department: 'Department',
-            notSpecified: 'Not Specified',
-            saveChanges: 'Save Changes',
-            saving: 'Saving...',
-            lastLogin: 'Last login:',
-            profileUpdated: 'Profile updated!',
-            error: 'An error occurred',
-            logoutError: 'Logout failed',
-            notificationSettings: 'Notification Settings',
-            notificationDesc: 'Choose what emails you want to receive:',
-            allowEmails: 'I want to receive emails about club events and news.',
-            bio: 'Bio',
-            bioDesc: 'Briefly describe yourself (max 500 characters)',
-            social: 'Social Media',
-            socialDesc: 'Links to appear on your profile:',
-        }
-    };
-
-    const l = labels[language];
 
     // Edit form state
     const [nickname, setNickname] = useState('');
@@ -206,13 +108,13 @@ export default function ProfilePage() {
             const data = await res.json();
 
             if (res.ok) {
-                setMessage(l.profileUpdated);
+                setMessage(t('profile.page.profileUpdated'));
                 setUser(prev => prev ? { ...prev, nickname, avatar, profileVisibility: visibility, bio, socialLinks } : null);
             } else {
-                setError(data.error || l.error);
+                setError(data.error || t('profile.page.error'));
             }
         } catch {
-            setError(l.error);
+            setError(t('profile.page.error'));
         } finally {
             setSaving(false);
         }
@@ -253,7 +155,7 @@ export default function ProfilePage() {
                             <div
                                 className="w-16 h-16 relative rounded-full border-2 border-black overflow-hidden bg-gray-100 cursor-pointer hover:ring-4 hover:ring-yellow-400 transition-all shrink-0"
                                 onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                                title={l.changeAvatar}
+                                title={t('profile.page.changeAvatar')}
                             >
                                 <Image
                                     src={getCurrentAvatar()}
@@ -274,29 +176,31 @@ export default function ProfilePage() {
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-neo-purple text-white font-bold border-2 border-black hover:shadow-neo whitespace-nowrap"
                             >
                                 <FolderGit2 size={18} />
-                                {l.projects}
+                                {t('profile.page.projects')}
                             </Link>
                             <Link
                                 href="/profile/bookmarks"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-neo-yellow text-black font-bold border-2 border-black hover:shadow-neo whitespace-nowrap"
                             >
                                 <Bookmark size={18} />
-                                {l.bookmarks}
+                                {t('profile.page.bookmarks')}
                             </Link>
                             <Link
                                 href="/"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 whitespace-nowrap"
                             >
                                 <Home size={18} />
-                                {l.home}
+                                {t('profile.page.home')}
                             </Link>
-                            <button
+                            <Button
                                 onClick={handleLogout}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-bold border-2 border-black hover:bg-red-600 whitespace-nowrap"
+                                variant="danger"
+                                size="md"
+                                className="whitespace-nowrap"
                             >
                                 <LogOut size={18} />
-                                {l.logout}
-                            </button>
+                                {t('profile.page.logout')}
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -305,10 +209,10 @@ export default function ProfilePage() {
                 {showAvatarPicker && (
                     <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                         <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                            {l.pickAvatar}
+                            {t('profile.page.pickAvatar')}
                         </h2>
                         <p className="text-sm text-gray-600 mb-4">
-                            {l.pickAvatarDesc}
+                            {t('profile.page.pickAvatarDesc')}
                         </p>
                         <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                             {AVATAR_STYLES.flatMap(style =>
@@ -341,13 +245,13 @@ export default function ProfilePage() {
                                 onClick={() => setAvatar('')}
                                 className="px-4 py-2 bg-gray-200 text-black font-bold border-2 border-black hover:bg-gray-300 text-sm"
                             >
-                                {l.resetDefault}
+                                {t('profile.page.resetDefault')}
                             </button>
                             <button
                                 onClick={() => setShowAvatarPicker(false)}
                                 className="px-4 py-2 bg-black text-white font-bold border-2 border-black hover:bg-gray-800 text-sm"
                             >
-                                {l.close}
+                                {t('profile.page.close')}
                             </button>
                         </div>
                     </div>
@@ -356,13 +260,13 @@ export default function ProfilePage() {
                 {/* Profile Settings */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                     <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                        {l.profileSettings}
+                        {t('profile.page.profileSettings')}
                     </h2>
 
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                {l.nickname}
+                                {t('profile.page.nickname')}
                             </label>
                             <input
                                 type="text"
@@ -370,7 +274,7 @@ export default function ProfilePage() {
                                 onChange={(e) => setNickname(e.target.value)}
                                 className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
                             />
-                            <p className="text-xs text-gray-500 mt-1">{l.nicknameDesc}</p>
+                            <p className="text-xs text-gray-500 mt-1">{t('profile.page.nicknameDesc')}</p>
                         </div>
                     </div>
                 </div>
@@ -378,10 +282,10 @@ export default function ProfilePage() {
                 {/* Privacy Settings */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                     <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                        {l.privacySettings}
+                        {t('profile.page.privacySettings')}
                     </h2>
                     <p className="text-sm text-gray-600 mb-4">
-                        {l.privacyDesc}
+                        {t('profile.page.privacyDesc')}
                     </p>
 
                     <div className="space-y-3">
@@ -393,7 +297,7 @@ export default function ProfilePage() {
                                 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">{l.realName}</span>
+                                <span className="font-bold whitespace-nowrap">{t('profile.page.realName')}</span>
                                 <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.fullName})</span>
                             </div>
                         </label>
@@ -406,7 +310,7 @@ export default function ProfilePage() {
                                 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">{l.email}</span>
+                                <span className="font-bold whitespace-nowrap">{t('profile.page.email')}</span>
                                 <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.email})</span>
                             </div>
                         </label>
@@ -419,8 +323,8 @@ export default function ProfilePage() {
                                 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">{l.phone}</span>
-                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.phone || l.notSpecified})</span>
+                                <span className="font-bold whitespace-nowrap">{t('profile.page.phone')}</span>
+                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.phone || t('profile.page.notSpecified')})</span>
                             </div>
                         </label>
 
@@ -432,8 +336,8 @@ export default function ProfilePage() {
                                 className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"
                             />
                             <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                <span className="font-bold whitespace-nowrap">{l.department}</span>
-                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.department || l.notSpecified})</span>
+                                <span className="font-bold whitespace-nowrap">{t('profile.page.department')}</span>
+                                <span className="text-gray-500 text-sm sm:ml-2 break-all">({user.department || t('profile.page.notSpecified')})</span>
                             </div>
                         </label>
                     </div>
@@ -442,30 +346,30 @@ export default function ProfilePage() {
                 {/* Language Settings */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                     <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                        {language === 'tr' ? 'Dil Tercihi' : 'Language Preference'}
+                        {t('profile.page.languagePref')}
                     </h2>
                     <p className="text-sm text-gray-600 mb-4">
-                        {language === 'tr' ? 'Size gönderilecek e-postaların dilini seçin:' : 'Choose the language for emails sent to you:'}
+                        {t('profile.page.languageDesc')}
                     </p>
                     <select
                         value={nativeLanguage}
                         onChange={(e) => setNativeLanguage(e.target.value)}
                         className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white"
                     >
-                        <option value="tr">Türkçe</option>
-                        <option value="en">English</option>
+                        <option value="tr">{t('profile.page.turkish')}</option>
+                        <option value="en">{t('profile.page.english')}</option>
                     </select>
                 </div>
 
                 {/* Bio & Social */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                     <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                        {l.bio} & {l.social}
+                        {t('profile.page.bio')} & {t('profile.page.social')}
                     </h2>
 
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-black text-black mb-2">{l.bio}</label>
+                            <label className="block text-sm font-black text-black mb-2">{t('profile.page.bio')}</label>
                             <textarea
                                 value={bio}
                                 onChange={(e) => setBio(e.target.value)}
@@ -534,10 +438,10 @@ export default function ProfilePage() {
                 {/* Notification Settings */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 mb-6">
                     <h2 className="text-xl font-black text-black mb-4 border-b-2 border-black pb-2">
-                        {l.notificationSettings}
+                        {t('profile.page.notificationSettings')}
                     </h2>
                     <p className="text-sm text-gray-600 mb-4">
-                        {l.notificationDesc}
+                        {t('profile.page.notificationDesc')}
                     </p>
 
                     <div className="space-y-3">
@@ -548,7 +452,7 @@ export default function ProfilePage() {
                                 onChange={(e) => setEmailConsent(e.target.checked)}
                                 className="w-5 h-5 shrink-0 mt-0.5"
                             />
-                            <span className="font-medium text-sm leading-relaxed">{l.allowEmails}</span>
+                            <span className="font-medium text-sm leading-relaxed">{t('profile.page.allowEmails')}</span>
                         </label>
                     </div>
                 </div>
@@ -571,16 +475,17 @@ export default function ProfilePage() {
                     disabled={saving}
                     className="w-full bg-yellow-400 text-black font-black py-4 border-4 border-black hover:bg-yellow-500 disabled:opacity-50 transition-colors"
                 >
-                    {saving ? l.saving : l.saveChanges}
+                    {saving ? t('profile.page.saving') : t('profile.page.saveChanges')}
                 </button>
 
                 {/* Last Login Info */}
                 {user.lastLogin && (
                     <p className="text-center text-gray-500 text-sm mt-4">
-                        {l.lastLogin} {new Date(user.lastLogin).toLocaleString(language === 'tr' ? 'tr-TR' : 'en-US')}
+                        {t('profile.page.lastLogin')} {new Date(user.lastLogin).toLocaleString(language === 'tr' ? 'tr-TR' : 'en-US')}
                     </p>
                 )}
             </div>
         </div>
     );
 }
+

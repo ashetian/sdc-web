@@ -64,7 +64,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const topics = await ForumTopic.find({
             categoryId: category._id,
             isDeleted: { $ne: true },
-            isApproved: true
+            status: 'approved'
         })
             .populate('authorId', 'fullName nickname avatar')
             .populate('lastReplyById', 'fullName nickname')
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const total = await ForumTopic.countDocuments({
             categoryId: category._id,
             isDeleted: { $ne: true },
-            isApproved: true
+            status: 'approved'
         });
 
         return NextResponse.json({

@@ -64,6 +64,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             technologies: project.technologies,
             status: project.status,
             rejectionReason: project.rejectionReason,
+            revisionMessage: project.revisionMessage,
             viewCount: project.viewCount,
             createdAt: project.createdAt,
             author: {
@@ -161,6 +162,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
         if (project.status === 'rejected') {
             project.status = 'pending';
             project.rejectionReason = undefined;
+        } else if (project.status === 'revision_requested' || project.status === 'resubmitted') {
+            project.status = 'resubmitted';
         }
 
         await project.save();

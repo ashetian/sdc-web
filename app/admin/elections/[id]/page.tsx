@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
 import { ChevronLeft, ChevronRight, ClipboardList, AlertTriangle, Check, Flag, Trophy } from 'lucide-react';
+import { Button } from '@/app/_components/ui';
 
 interface Election {
     _id: string;
@@ -370,37 +371,37 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                     </div>
                     <div className="flex gap-2 flex-wrap">
                         {election.status === 'draft' && (
-                            <button
+                            <Button
                                 onClick={() => handleStatusChange('active')}
-                                className="bg-neo-green text-black border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-green-400 transition-all"
+                                variant="success"
                             >
                                 Seçimi Başlat
-                            </button>
+                            </Button>
                         )}
                         {election.status === 'active' && !election.isSuspended && (
                             <>
-                                <button
+                                <Button
                                     onClick={() => setShowEndModal(true)}
-                                    className="bg-neo-purple text-white border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-purple-600 transition-all"
                                 >
                                     Seçimi Bitir
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     onClick={() => setShowSuspendModal(true)}
-                                    className="bg-orange-500 text-white border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-orange-600 transition-all"
+                                    variant="danger"
                                 >
                                     Askıya Al
-                                </button>
+                                </Button>
                             </>
                         )}
                         {election.isSuspended && (
-                            <button
+                            <Button
                                 onClick={handleResume}
                                 disabled={actionLoading}
-                                className="bg-green-500 text-white border-4 border-black shadow-neo px-6 py-3 font-black uppercase hover:bg-green-600 transition-all disabled:opacity-50"
+                                isLoading={actionLoading}
+                                variant="success"
                             >
                                 Devam Ettir
-                            </button>
+                            </Button>
                         )}
                         {election.status === 'active' && (
                             <button
@@ -464,16 +465,16 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                 <div className="bg-white border-4 border-black shadow-neo p-6">
                     {election.status === 'draft' && (
                         <div className="mb-4 flex justify-end">
-                            <button
+                            <Button
                                 onClick={() => {
                                     setShowCandidateForm(!showCandidateForm);
                                     setEditingCandidate(null);
                                     setCandidateForm({ name: '', bio: '', photo: '' });
                                 }}
-                                className="bg-neo-green text-black border-2 border-black px-4 py-2 font-bold hover:bg-green-400 transition-all"
+                                variant={showCandidateForm ? "secondary" : "success"}
                             >
                                 {showCandidateForm ? 'İptal' : '+ Aday Ekle'}
-                            </button>
+                            </Button>
                         </div>
                     )}
 
@@ -517,12 +518,9 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
                                     className="w-full px-4 py-2 border-2 border-black font-bold"
                                 />
                             </div>
-                            <button
-                                type="submit"
-                                className="bg-black text-white px-4 py-2 font-black uppercase hover:bg-gray-800 transition-all"
-                            >
+                            <Button type="submit">
                                 {editingCandidate ? 'Güncelle' : 'Ekle'}
-                            </button>
+                            </Button>
                         </form>
                     )}
 

@@ -10,41 +10,25 @@ import { useLanguage } from "../_context/LanguageContext";
 import Link from "next/link";
 import NotificationBell from "./NotificationBell";
 import BugReportButton from "./BugReportButton";
-
-interface AuthUser {
-  nickname: string;
-  studentNo: string;
-  avatar?: string;
-}
+import { useUser } from "../lib/swr";
+import type { User } from "../lib/types/api";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const navRef = useRef(null);
   const { language, setLanguage, t } = useLanguage();
 
+  // SWR hook for auth
+  const { user: authData } = useUser();
+  const user = authData as User | null;
+
   useEffect(() => {
     setMounted(true);
-    // Check auth status
-    const checkAuth = async () => {
-      try {
-        const res = await fetch('/api/auth/me');
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user || null);
-        } else {
-          setUser(null);
-        }
-      } catch {
-        setUser(null);
-      }
-    };
-    checkAuth();
-  }, [pathname]);
+  }, []);
 
   // Scroll lock effect
   useEffect(() => {
@@ -202,7 +186,7 @@ export default function Navbar() {
                       />
                     </div>
                     <span className="font-bold text-black">
-                      {user.nickname || (language === 'tr' ? 'Profil' : 'Profile')}
+                      {user.nickname || t('nav.profile')}
                     </span>
                   </Link>
                 </div>
@@ -331,7 +315,7 @@ export default function Navbar() {
                           />
                         </div>
                         <span className="font-black text-xl text-black">
-                          {user.nickname || (language === 'tr' ? 'Profil' : 'Profile')}
+                          {user.nickname || t('nav.profile')}
                         </span>
                       </Link>
                     </>

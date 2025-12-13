@@ -159,21 +159,24 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
 
         const body = await request.json();
-        const { title, content, tags, isPinned, isLocked, isApproved } = body;
+        const { title, content, tags, isPinned, isLocked, status, revisionMessage } = body;
 
         const updateData: Record<string, unknown> = {};
         if (title) updateData.title = title.trim();
         if (content) updateData.content = content.trim();
         if (tags) updateData.tags = tags.map((t: string) => t.toLowerCase().trim());
+        if (revisionMessage) updateData.revisionMessage = revisionMessage;
 
         // Admin-only fields
         if (adminInfo.isAdmin) {
             if (typeof isPinned === 'boolean') updateData.isPinned = isPinned;
             if (typeof isLocked === 'boolean') updateData.isLocked = isLocked;
-            if (typeof isApproved === 'boolean') {
-                updateData.isApproved = isApproved;
+
+            if (status && ['pending', 'approved', 'rejected', 'revision_requested', 'resubmitted'].includes(status)) {
+                updateData.status = status;
+
                 // Update category count when approving
-                if (isApproved && !topic.isApproved) {
+                if (status === 'approved' && topic.status !== 'approved') {
                     // Auto-translate if DeepL API key is available
                     if (process.env.DEEPL_API_KEY) {
                         try {
@@ -208,6 +211,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                         });
                     }
                 }
+            }
+        } else {
+            // If user edits, set status to resubmitted if revisions were requested
+            if (topic.status === 'revision_requested' || topic.status === 'resubmitted') {
+                updateData.status = 'resubmitted';
+            } else if (topic.status === 'approved' && (title || content)) {
+                // If content changes for approved topic, maybe set to pending again? 
+                // For now let's keep it simple, approved topics stay approved unless admin changes it
+                // Or maybe revert to pending? 
+                // Let's keep it approved for minor edits unless critical
             }
         }
 

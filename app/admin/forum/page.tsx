@@ -7,6 +7,7 @@ import {
   MessageCircle, Rocket, HelpCircle, Calendar, Briefcase, BookOpen,
   LucideIcon, Eye, Clock
 } from "lucide-react";
+import { Button } from '@/app/_components/ui';
 
 // Icon mapping
 const iconMap: Record<string, LucideIcon> = {
@@ -44,7 +45,7 @@ interface Topic {
   content: string;
   categoryId: { name: string; slug: string };
   authorId: { fullName: string; nickname?: string };
-  isApproved: boolean;
+  status: 'pending' | 'approved' | 'rejected' | 'revision_requested' | 'resubmitted';
   isPinned: boolean;
   isLocked: boolean;
   createdAt: string;
@@ -63,6 +64,12 @@ export default function ForumAdminPage() {
     name: "", nameEn: "", slug: "", description: "", descriptionEn: "",
     icon: "MessageCircle", color: "bg-neo-blue", order: 0
   });
+
+  // Revision Request Modal
+  const [showRevisionModal, setShowRevisionModal] = useState(false);
+  const [revisionTopicId, setRevisionTopicId] = useState<string | null>(null);
+  const [revisionMessage, setRevisionMessage] = useState("");
+  const [submittingRevision, setSubmittingRevision] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -92,7 +99,7 @@ export default function ForumAdminPage() {
       const res = await fetch(`/api/forum/topics/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isApproved: true }),
+        body: JSON.stringify({ status: 'approved' }),
       });
       if (res.ok) {
         setPendingTopics(prev => prev.filter(t => t._id !== id));
@@ -114,6 +121,49 @@ export default function ForumAdminPage() {
     } catch (error) {
       console.error("Reject error:", error);
     }
+  }
+
+  async function requestRevision() {
+    if (!revisionTopicId || !revisionMessage.trim()) return;
+    if (revisionMessage.length < 10) {
+      alert("Mesaj en az 10 karakter olmalı");
+      return;
+    }
+
+    setSubmittingRevision(true);
+    try {
+      const res = await fetch('/api/admin/revision-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contentType: 'forum_topic',
+          contentId: revisionTopicId,
+          message: revisionMessage
+        })
+      });
+
+      if (res.ok) {
+        setPendingTopics(prev => prev.filter(t => t._id !== revisionTopicId));
+        setShowRevisionModal(false);
+        setRevisionMessage("");
+        setRevisionTopicId(null);
+        alert("Düzenleme isteği gönderildi!");
+      } else {
+        const error = await res.json();
+        alert(error.error || "Hata oluştu");
+      }
+    } catch (error) {
+      console.error("Revision error:", error);
+      alert("Bir hata oluştu");
+    } finally {
+      setSubmittingRevision(false);
+    }
+  }
+
+  function openRevisionModal(id: string) {
+    setRevisionTopicId(id);
+    setRevisionMessage("");
+    setShowRevisionModal(true);
   }
 
   async function saveCategory() {
@@ -259,18 +309,26 @@ export default function ForumAdminPage() {
                     </Link>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <button
+                    <Button
                       onClick={() => approveTopic(topic._id)}
-                      className="px-4 py-2 bg-neo-green border-2 border-black font-bold flex items-center gap-2 hover:shadow-neo"
+                      variant="success"
+                      size="sm"
                     >
                       <Check size={18} /> Onayla
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      onClick={() => openRevisionModal(topic._id)}
+                      size="sm"
+                    >
+                      <Edit size={18} /> Düzenleme İste
+                    </Button>
+                    <Button
                       onClick={() => rejectTopic(topic._id)}
-                      className="px-4 py-2 bg-neo-pink border-2 border-black font-bold flex items-center gap-2 hover:shadow-neo"
+                      variant="danger"
+                      size="sm"
                     >
                       <Trash2 size={18} /> Reddet
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -390,6 +448,40 @@ export default function ForumAdminPage() {
                     className="px-6 py-2 bg-gray-100 border-2 border-black font-bold"
                   >
                     İptal
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Revision Request Modal */}
+          {showRevisionModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white border-4 border-black shadow-neo p-6 max-w-lg w-full">
+                <h2 className="text-xl font-black mb-4">Düzenleme İsteği</h2>
+                <div className="mb-4">
+                  <label className="block font-bold mb-2">Düzeltilmesi Gerekenler</label>
+                  <textarea
+                    value={revisionMessage}
+                    onChange={(e) => setRevisionMessage(e.target.value)}
+                    className="w-full p-3 border-2 border-black min-h-[120px]"
+                    placeholder="Kullanıcıya neyi düzeltmesi gerektiğini detaylıca açıklayın..."
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Bu mesaj kullanıcıya bildirim olarak gönderilecek.</p>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => setShowRevisionModal(false)}
+                    className="px-4 py-2 bg-gray-100 border-2 border-black font-bold hover:bg-gray-200"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    onClick={requestRevision}
+                    disabled={submittingRevision}
+                    className="px-4 py-2 bg-neo-yellow border-2 border-black font-bold hover:shadow-neo disabled:opacity-50"
+                  >
+                    {submittingRevision ? 'Gönderiliyor...' : 'İsteği Gönder'}
                   </button>
                 </div>
               </div>

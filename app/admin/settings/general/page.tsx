@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
 import Link from 'next/link';
+import { Button } from '@/app/_components/ui';
 
 export default function GeneralSettingsPage() {
     const [whatsappLink, setWhatsappLink] = useState('');
@@ -95,13 +96,13 @@ export default function GeneralSettingsPage() {
                     </div>
 
                     <div>
-                        <button
+                        <Button
                             type="submit"
                             disabled={saving}
-                            className="bg-neo-blue text-black border-4 border-black px-6 py-3 font-black uppercase hover:bg-blue-300 hover:shadow-neo transition-all disabled:opacity-50"
+                            isLoading={saving}
                         >
-                            {saving ? 'Kaydediliyor...' : 'Kaydet'}
-                        </button>
+                            Kaydet
+                        </Button>
                     </div>
 
                     {message && (

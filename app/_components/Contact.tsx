@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import { useState, useRef } from "react";
 import emailjs from "@emailjs/browser";
 import gsap from "gsap";
@@ -16,7 +17,7 @@ export default function Contact() {
     const sectionRef = useRef<HTMLElement>(null);
     const titleRef = useRef(null);
     const formContainerRef = useRef(null);
-    const { language, t } = useLanguage();
+    const { t } = useLanguage();
 
     useGSAP(() => {
         if (!titleRef.current || !sectionRef.current || !formContainerRef.current) return;
@@ -61,99 +62,50 @@ export default function Contact() {
         }
     };
 
-    const labels = {
-        tr: {
-            title: 'İletişim',
-            subtitle: 'Sorularınız, önerileriniz veya işbirliği için bize ulaşın.',
-            name: 'Ad Soyad',
-            namePlaceholder: 'Adınız Soyadınız',
-            email: 'E-posta',
-            emailPlaceholder: 'ornek@email.com',
-            subject: 'Konu',
-            subjectSelect: 'Seçiniz',
-            subjectGeneral: 'Genel Soru',
-            subjectMembership: 'Üyelik',
-            subjectCollaboration: 'İşbirliği',
-            subjectOther: 'Diğer',
-            message: 'Mesaj',
-            messagePlaceholder: 'Mesajınız...',
-            sending: 'Gönderiliyor...',
-            sent: 'Gönderildi!',
-            error: 'Hata Oluştu',
-            send: 'Gönder',
-            successMsg: 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.',
-            errorMsg: 'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
-        },
-        en: {
-            title: 'Contact',
-            subtitle: 'Reach out to us for questions, suggestions or collaboration.',
-            name: 'Full Name',
-            namePlaceholder: 'Your Full Name',
-            email: 'Email',
-            emailPlaceholder: 'example@email.com',
-            subject: 'Subject',
-            subjectSelect: 'Select',
-            subjectGeneral: 'General Question',
-            subjectMembership: 'Membership',
-            subjectCollaboration: 'Collaboration',
-            subjectOther: 'Other',
-            message: 'Message',
-            messagePlaceholder: 'Your message...',
-            sending: 'Sending...',
-            sent: 'Sent!',
-            error: 'Error Occurred',
-            send: 'Send',
-            successMsg: 'Your message has been sent successfully. We will get back to you soon.',
-            errorMsg: 'An error occurred. Please try again later.',
-        }
-    };
-
-    const l = labels[language];
-
     return (
         <section ref={sectionRef} id="contact" className="relative py-20 bg-neo-purple border-b-4 border-black">
             <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                     <h2 ref={titleRef} className="inline-block text-4xl sm:text-5xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo px-6 py-2 transform rotate-1">
-                        {l.title}
+                        {t('contact.title')}
                     </h2>
-                    <p className="text-xl font-bold text-black mt-4">{l.subtitle}</p>
+                    <p className="text-xl font-bold text-black mt-4">{t('contact.subtitle')}</p>
                 </div>
 
                 <div ref={formContainerRef} className="bg-white border-4 border-black shadow-neo-lg p-8 transform -rotate-1">
                     <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label htmlFor="name" className="block text-sm font-black text-black mb-2 uppercase">{l.name}</label>
+                                <label htmlFor="name" className="block text-sm font-black text-black mb-2 uppercase">{t('contact.form.name')}</label>
                                 <input type="text" id="name" name="user_name" required
                                     className="w-full px-4 py-3 bg-gray-100 border-4 border-black text-black font-bold focus:outline-none focus:shadow-neo focus:bg-white transition-all"
-                                    placeholder={l.namePlaceholder} />
+                                    placeholder={t('contact.form.namePlaceholder')} />
                             </div>
                             <div>
-                                <label htmlFor="email" className="block text-sm font-black text-black mb-2 uppercase">{l.email}</label>
+                                <label htmlFor="email" className="block text-sm font-black text-black mb-2 uppercase">{t('contact.form.email')}</label>
                                 <input type="email" id="email" name="user_email" required
                                     className="w-full px-4 py-3 bg-gray-100 border-4 border-black text-black font-bold focus:outline-none focus:shadow-neo focus:bg-white transition-all"
-                                    placeholder={l.emailPlaceholder} />
+                                    placeholder={t('contact.form.emailPlaceholder')} />
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="subject" className="block text-sm font-black text-black mb-2 uppercase">{l.subject}</label>
+                            <label htmlFor="subject" className="block text-sm font-black text-black mb-2 uppercase">{t('contact.form.subject.label')}</label>
                             <select id="subject" name="subject" required
                                 className="w-full px-4 py-3 bg-gray-100 border-4 border-black text-black font-bold focus:outline-none focus:shadow-neo focus:bg-white transition-all appearance-none">
-                                <option value="">{l.subjectSelect}</option>
-                                <option value="general">{l.subjectGeneral}</option>
-                                <option value="membership">{l.subjectMembership}</option>
-                                <option value="collaboration">{l.subjectCollaboration}</option>
-                                <option value="other">{l.subjectOther}</option>
+                                <option value="">{t('contact.form.subject.options.select')}</option>
+                                <option value="general">{t('contact.form.subject.options.general')}</option>
+                                <option value="membership">{t('contact.form.subject.options.membership')}</option>
+                                <option value="collaboration">{t('contact.form.subject.options.collaboration')}</option>
+                                <option value="other">{t('contact.form.subject.options.other')}</option>
                             </select>
                         </div>
 
                         <div>
-                            <label htmlFor="message" className="block text-sm font-black text-black mb-2 uppercase">{l.message}</label>
+                            <label htmlFor="message" className="block text-sm font-black text-black mb-2 uppercase">{t('contact.form.message')}</label>
                             <textarea id="message" name="message" rows={4} required
                                 className="w-full px-4 py-3 bg-gray-100 border-4 border-black text-black font-bold focus:outline-none focus:shadow-neo focus:bg-white transition-all resize-none"
-                                placeholder={l.messagePlaceholder} />
+                                placeholder={t('contact.form.messagePlaceholder')} />
                         </div>
 
                         <button type="submit" disabled={status === "sending"}
@@ -162,15 +114,15 @@ export default function Contact() {
                                     : status === "success" ? "bg-neo-green text-black"
                                         : status === "error" ? "bg-red-500 text-white"
                                             : "bg-neo-yellow text-black hover:bg-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none"}`}>
-                            {status === "sending" ? l.sending : status === "success" ? l.sent : status === "error" ? l.error : l.send}
+                            {status === "sending" ? t('contact.form.sending') : status === "success" ? t('contact.form.sent') : status === "error" ? t('contact.form.error') : t('contact.form.submit')}
                         </button>
 
                         {status === "success" && (
-                            <div className="text-neo-green font-bold mt-4 text-center border-2 border-black p-2 bg-black">{l.successMsg}</div>
+                            <div className="text-neo-green font-bold mt-4 text-center border-2 border-black p-2 bg-black">{t('contact.feedback.success')}</div>
                         )}
 
                         {status === "error" && (
-                            <div className="text-red-500 font-bold mt-4 text-center border-2 border-black p-2 bg-white">{l.errorMsg}</div>
+                            <div className="text-red-500 font-bold mt-4 text-center border-2 border-black p-2 bg-white">{t('contact.feedback.error')}</div>
                         )}
                     </form>
                 </div>

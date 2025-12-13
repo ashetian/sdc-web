@@ -32,14 +32,12 @@ export default function Footer() {
               <div>
                 <h3 className="text-2xl font-black text-neo-yellow">KTÜ SDC</h3>
                 <p className="text-sm font-bold opacity-80">
-                  {language === 'tr' ? 'Yazılım Geliştirme Kulübü' : 'Software Development Club'}
+                  {t('footer.clubName')}
                 </p>
               </div>
             </div>
             <p className="text-sm opacity-70 max-w-xs text-center md:text-left">
-              {language === 'tr'
-                ? "Karadeniz Teknik Üniversitesi'nde yazılım ve teknoloji tutkusuyla bir araya gelen öğrencilerin topluluğu."
-                : "A community of students united by their passion for software and technology at Karadeniz Technical University."}
+              {t('footer.description')}
             </p>
           </div>
 
@@ -51,26 +49,26 @@ export default function Footer() {
                 {t('nav.events')}
               </a>
               <a href="/projects" className="text-sm font-bold bg-neo-blue text-black px-3 py-1 border-2 border-white hover:bg-white transition-all">
-                {language === 'tr' ? 'Projeler' : 'Projects'}
+                {t('footer.projects')}
               </a>
               <a href="/apply" className="text-sm font-bold bg-neo-pink text-black px-3 py-1 border-2 border-white hover:bg-white transition-all">
                 {t('nav.apply')}
               </a>
             </div>
 
-            <h4 className="text-lg font-black text-neo-yellow mb-2">{language === 'tr' ? 'Yasal' : 'Legal'}</h4>
+            <h4 className="text-lg font-black text-neo-yellow mb-2">{t('footer.legal')}</h4>
             <div className="flex flex-wrap gap-3 justify-center md:justify-end">
               <Link href="/kvkk" className="text-xs font-bold text-white hover:text-neo-yellow hover:underline transition-all">
                 KVKK
               </Link>
               <Link href="/gizlilik" className="text-xs font-bold text-white hover:text-neo-yellow hover:underline transition-all">
-                {language === 'tr' ? 'Gizlilik' : 'Privacy'}
+                {t('footer.privacy')}
               </Link>
               <Link href="/uyelik-sozlesmesi" className="text-xs font-bold text-white hover:text-neo-yellow hover:underline transition-all">
-                {language === 'tr' ? 'Üyelik Sözleşmesi' : 'Membership Agreement'}
+                {t('footer.membershipAgreement')}
               </Link>
               <Link href="/acik-riza" className="text-xs font-bold text-white hover:text-neo-yellow hover:underline transition-all">
-                {language === 'tr' ? 'Açık Rıza' : 'Consent'}
+                {t('footer.consent')}
               </Link>
             </div>
           </div>
@@ -87,7 +85,7 @@ export default function Footer() {
 
           <div className="flex flex-row gap-2 items-center">
             <span className="text-sm font-bold bg-neo-pink text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-              {language === 'tr' ? 'Cooked by' : 'Cooked by'}
+              {t('footer.cookedBy')}
             </span>
             <span className="text-sm font-bold bg-neo-blue text-black px-2 py-1 border-2 border-white shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
               Caner

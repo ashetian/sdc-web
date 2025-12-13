@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           }
         ] : [
           {
-            url: `${baseUrl}/og-default.png`,
+            url: `${baseUrl}/sdclogo.jpg`,
             width: 1200,
             height: 630,
             alt: 'KTÜ Yazılım Geliştirme Kulübü',
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         card: 'summary_large_image',
         title: title,
         description: description,
-        images: image ? [image] : [`${baseUrl}/og-default.png`],
+        images: image ? [image] : [`${baseUrl}/sdclogo.jpg`],
       },
     };
   } catch (error) {

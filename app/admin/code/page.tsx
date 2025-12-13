@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Code2, Plus, Trash2, Edit, ExternalLink, Save, X, Loader2 } from "lucide-react";
 import { SkeletonList, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
+import { Button } from '@/app/_components/ui';
 
 interface TechStack {
     _id: string; // Changed from id to _id
@@ -163,13 +164,13 @@ export default function CodeAdminPage() {
             </div>
 
             {/* Add Button */}
-            <button
+            <Button
                 onClick={() => setShowForm(true)}
-                className="mb-6 px-6 py-3 bg-neo-green border-4 border-black shadow-neo font-bold flex items-center gap-2 hover:-translate-y-1 transition-transform"
+                variant="success"
             >
                 <Plus size={20} />
                 Yeni Tech Stack Ekle
-            </button>
+            </Button>
 
             {/* Form Modal */}
             {showForm && (
@@ -258,21 +259,22 @@ export default function CodeAdminPage() {
                         </div>
 
                         <div className="flex gap-2 mt-6">
-                            <button
+                            <Button
                                 onClick={handleSave}
                                 disabled={submitting}
-                                className="px-6 py-2 bg-neo-green border-2 border-black font-bold flex items-center gap-2 disabled:opacity-50"
+                                isLoading={submitting}
+                                variant="success"
                             >
-                                {submitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                                <Save size={18} />
                                 Kaydet
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={resetForm}
                                 disabled={submitting}
-                                className="px-6 py-2 bg-gray-100 border-2 border-black font-bold disabled:opacity-50"
+                                variant="secondary"
                             >
                                 İptal
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -294,18 +296,19 @@ export default function CodeAdminPage() {
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            <button
+                            <Button
                                 onClick={() => handleEdit(stack)}
-                                className="p-2 bg-white border-2 border-black hover:bg-gray-100"
+                                size="sm"
                             >
                                 <Edit size={18} />
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => handleDelete(stack._id)}
-                                className="p-2 bg-white border-2 border-black hover:bg-neo-pink"
+                                variant="danger"
+                                size="sm"
                             >
                                 <Trash2 size={18} />
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 ))}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { useLanguage } from '../_context/LanguageContext';
 
@@ -20,24 +21,8 @@ export default function BookmarkButton({
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { language } = useLanguage();
-
-    const labels = {
-        tr: {
-            save: 'Kaydet',
-            saved: 'Kaydedildi',
-            removeFromSaved: 'Kayıtlılardan kaldır',
-            loginRequired: 'Kaydetmek için giriş yapmalısınız'
-        },
-        en: {
-            save: 'Save',
-            saved: 'Saved',
-            removeFromSaved: 'Remove from saved',
-            loginRequired: 'You must log in to save'
-        }
-    };
-
-    const l = labels[language];
+    const { t } = useLanguage();
+    const router = useRouter();
 
     const iconSize = size === 'sm' ? 16 : size === 'md' ? 20 : 24;
     const buttonPadding = size === 'sm' ? 'p-1.5' : size === 'md' ? 'p-2' : 'p-3';
@@ -91,8 +76,8 @@ export default function BookmarkButton({
                 if (res.ok) {
                     setIsBookmarked(true);
                 } else if (res.status === 401) {
-                    // Not logged in - could redirect to login
-                    alert(l.loginRequired);
+                    // Not logged in - redirect to login with return URL
+                    router.push(`/auth/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
                 }
             }
         } catch (error) {
@@ -121,7 +106,7 @@ export default function BookmarkButton({
                 ? 'bg-neo-yellow hover:bg-yellow-300'
                 : 'bg-white hover:bg-gray-100'
                 } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-neo'}`}
-            title={isBookmarked ? l.removeFromSaved : l.save}
+            title={isBookmarked ? t('common.removeFromSaved') : t('common.save')}
         >
             <div className="flex items-center gap-2">
                 {isBookmarked ? (
@@ -131,7 +116,7 @@ export default function BookmarkButton({
                 )}
                 {showLabel && (
                     <span className="font-bold text-sm">
-                        {isBookmarked ? l.saved : l.save}
+                        {isBookmarked ? t('common.saved') : t('common.save')}
                     </span>
                 )}
             </div>

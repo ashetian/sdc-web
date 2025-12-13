@@ -1,51 +1,22 @@
-"use client";
-import { useEffect, useState, useRef } from "react";
+'use client';
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { useLanguage } from "../_context/LanguageContext";
 import { X } from "lucide-react";
-
-interface Sponsor {
-    _id: string;
-    name: string;
-    nameEn?: string;
-    description: string;
-    descriptionEn?: string;
-    logo: string;
-}
+import { useSponsors } from "../lib/swr";
+import type { Sponsor } from "../lib/types/api";
 
 export default function Sponsors() {
-    const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+    const { data: sponsors = [], isLoading } = useSponsors();
     const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
     const [isPaused, setIsPaused] = useState(false);
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const marqueeRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        async function loadSponsors() {
-            try {
-                const res = await fetch("/api/sponsors?active=true");
-                if (res.ok) {
-                    const data = await res.json();
-                    setSponsors(data);
-                }
-            } catch (error) {
-                console.error("Sponsors load error:", error);
-            }
-        }
-        loadSponsors();
-    }, []);
 
     const getText = (tr: string, en?: string) => {
         if (language === 'en' && en) return en;
         return tr;
     };
-
-    const labels = {
-        tr: { title: 'Sponsorlarımız & Partnerlerimiz', close: 'Kapat' },
-        en: { title: 'Our Sponsors & Partners', close: 'Close' }
-    };
-
-    const l = labels[language] || labels.tr;
 
     if (sponsors.length === 0) return null;
 
@@ -58,7 +29,7 @@ export default function Sponsors() {
         <section className="py-8 bg-black border-t-4 border-b-4 border-black overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 mb-4">
                 <h2 className="text-xl font-black text-white text-center uppercase tracking-wider">
-                    {l.title}
+                    {t('sponsors.title')}
                 </h2>
             </div>
 
@@ -168,7 +139,7 @@ export default function Sponsors() {
                             onClick={() => setSelectedSponsor(null)}
                             className="mt-4 w-full py-2 bg-black text-white font-bold border-2 border-black hover:bg-gray-800"
                         >
-                            {l.close}
+                            {t('common.close')}
                         </button>
                     </div>
                 </div>

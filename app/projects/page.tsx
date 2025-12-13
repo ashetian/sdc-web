@@ -1,74 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SkeletonCardGrid, SkeletonPageHeader, SkeletonFullPage } from '@/app/_components/Skeleton';
 import Image from 'next/image';
 import { useLanguage } from '../_context/LanguageContext';
-
-interface Project {
-    _id: string;
-    title: string;
-    titleEn?: string;
-    description: string;
-    descriptionEn?: string;
-    githubUrl: string;
-    demoUrl?: string;
-    technologies: string[];
-    viewCount: number;
-    createdAt: string;
-    author: {
-        nickname: string;
-        fullName?: string;
-        department?: string;
-    };
-}
+import { useProjects } from '../lib/swr';
+import type { Project } from '../lib/types/api';
 
 export default function ProjectsPage() {
-    const { language } = useLanguage();
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const labels = {
-        tr: {
-            title: 'Proje Galerisi',
-            subtitle: 'Üyelerimizin projeleri',
-            noProjects: 'Henüz proje bulunmuyor',
-            views: 'görüntülenme',
-            viewProject: 'İncele',
-            demo: 'Demo',
-            by: 'Geliştirici',
-        },
-        en: {
-            title: 'Project Gallery',
-            subtitle: 'Projects by our members',
-            noProjects: 'No projects available',
-            views: 'views',
-            viewProject: 'View',
-            demo: 'Demo',
-            by: 'Developer',
-        },
-    };
-
-    const l = labels[language];
-
-    useEffect(() => {
-        fetchProjects();
-    }, []);
-
-    const fetchProjects = async () => {
-        try {
-            const res = await fetch('/api/projects');
-            if (res.ok) {
-                const data = await res.json();
-                setProjects(data);
-            }
-        } catch (err) {
-            console.error('Projects fetch error:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { language, t } = useLanguage();
+    const { data: projects, isLoading: loading } = useProjects({ status: 'approved' });
 
     // GitHub OpenGraph preview URL
     const getGithubPreview = (githubUrl: string) => {
@@ -96,17 +37,17 @@ export default function ProjectsPage() {
                 {/* Header */}
                 <div className="text-center mb-16">
                     <h1 className="inline-block text-4xl sm:text-6xl font-black text-black mb-6 bg-white border-4 border-black shadow-neo-lg px-8 py-4 transform -rotate-2 uppercase" lang={language}>
-                        {l.title}
+                        {t('projects.title')}
                     </h1>
                     <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-6 bg-neo-blue border-4 border-black p-4 shadow-neo transform rotate-1">
-                        {l.subtitle}
+                        {t('projects.subtitle')}
                     </p>
                 </div>
 
-                {projects.length === 0 ? (
+                {!projects || projects.length === 0 ? (
                     <div className="text-center py-16">
                         <div className="bg-white border-4 border-black shadow-neo p-8 inline-block">
-                            <p className="text-xl font-bold text-gray-600">{l.noProjects}</p>
+                            <p className="text-xl font-bold text-gray-600">{t('projects.noProjects')}</p>
                         </div>
                     </div>
                 ) : (
@@ -119,7 +60,7 @@ export default function ProjectsPage() {
                                 {/* GitHub Preview Image */}
                                 <div className="relative h-48 border-b-4 border-black">
                                     <Image
-                                        src={getGithubPreview(project.githubUrl)}
+                                        src={getGithubPreview(project.githubUrl ?? '')}
                                         alt={project.title}
                                         fill
                                         className="object-cover"
@@ -137,14 +78,14 @@ export default function ProjectsPage() {
                                     </p>
 
                                     {/* Technologies */}
-                                    {project.technologies.length > 0 && (
+                                    {project.technologies && project.technologies.length > 0 && (
                                         <div className="flex flex-wrap gap-2 mb-4">
                                             {project.technologies.slice(0, 3).map((tech, i) => (
                                                 <span key={i} className="px-2 py-1 bg-neo-purple text-white text-xs font-bold border border-black">
                                                     {tech}
                                                 </span>
                                             ))}
-                                            {project.technologies.length > 3 && (
+                                            {project.technologies && project.technologies.length > 3 && (
                                                 <span className="px-2 py-1 bg-gray-200 text-black text-xs font-bold border border-black">
                                                     +{project.technologies.length - 3}
                                                 </span>
@@ -153,10 +94,12 @@ export default function ProjectsPage() {
                                     )}
 
                                     {/* Author */}
-                                    <div className="text-sm text-gray-600 mb-4">
-                                        <span className="font-bold">{l.by}:</span> {project.author.nickname}
-                                        {project.author.department && ` • ${project.author.department}`}
-                                    </div>
+                                    {project.author && (
+                                        <div className="text-sm text-gray-600 mb-4">
+                                            <span className="font-bold">{t('projects.by')}:</span> {project.author.nickname}
+                                            {project.author.department && ` • ${project.author.department}`}
+                                        </div>
+                                    )}
 
                                     {/* Actions */}
                                     <div className="flex gap-3">
@@ -164,16 +107,16 @@ export default function ProjectsPage() {
                                             href={`/projects/${project._id}`}
                                             className="flex-1 text-center bg-black text-white py-2 font-bold border-2 border-black hover:bg-white hover:text-black transition-all text-sm uppercase"
                                         >
-                                            {l.viewProject}
+                                            {t('projects.view')}
                                         </Link>
                                         {project.demoUrl && (
                                             <a
                                                 href={project.demoUrl}
-
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="px-4 py-2 bg-neo-green text-black font-bold border-2 border-black hover:shadow-neo transition-all text-sm uppercase"
                                             >
-                                                {l.demo}
+                                                {t('projects.demo')}
                                             </a>
                                         )}
                                     </div>

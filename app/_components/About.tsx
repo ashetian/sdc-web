@@ -1,34 +1,8 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useLanguage } from "../_context/LanguageContext";
-
-interface Department {
-  _id: string;
-  name: string;
-  nameEn?: string;
-  slug: string;
-  description: string;
-  descriptionEn?: string;
-  icon: string;
-  color: string;
-  order: number;
-}
-
-interface TeamMember {
-  _id: string;
-  name: string;
-  email?: string;
-  photo?: string;
-  role: string;
-  departmentId?: { _id: string; name: string };
-  title: string;
-  description?: string;
-  location?: string;
-  github?: string;
-  linkedin?: string;
-  instagram?: string;
-}
+import type { TeamMember, Department } from "../lib/types/api";
 
 const iconMap: Record<string, React.ReactNode> = {
   clipboard: (
@@ -71,6 +45,14 @@ export default function About() {
   const [loading, setLoading] = useState(false);
   const { language, t } = useLanguage();
 
+  // Fallback departments moved inside to use 't' and 'language'
+  const fallbackDepartments = useMemo(() => [
+    { _id: '1', name: "Proje Departmanı", nameEn: "Project Department", slug: 'proje', description: "Kulüp etkinlikleri ve yazılım projeleri için fikir üretip planlama, görev dağıtımı ve teknik gereksinimleri belirleme sürecini yürütür.", descriptionEn: "Handles ideation, planning, task distribution and technical requirements for club activities and software projects.", icon: "clipboard", color: "bg-neo-blue", order: 0 },
+    { _id: '2', name: "Teknik Departman", nameEn: "Technical Department", slug: 'teknik', description: "Yazılım geliştirme, proje geliştirme, altyapı, web sitesi, otomasyon ve teknik sorun çözme gibi tüm teknik uygulamaları gerçekleştirir.", descriptionEn: "Executes all technical implementations including software development, infrastructure, website, automation and troubleshooting.", icon: "code", color: "bg-neo-green", order: 1 },
+    { _id: '3', name: "Medya Departmanı", nameEn: "Media Department", slug: 'medya', description: "Etkinlik duyuruları, sosyal medya yönetimi, tasarım, afiş-video içerikleri ve kulübün dış iletişim görünürlüğünü sağlar.", descriptionEn: "Manages event announcements, social media, design, poster-video content and the club's external communication visibility.", icon: "camera", color: "bg-neo-purple", order: 2 },
+    { _id: '4', name: "Kurumsal İletişim Departmanı", nameEn: "Corporate Relations", slug: 'kurumsal', description: "Şirketlerle iletişim kurarak iş birlikleri, maddi-manevi destekler ve sponsorluk anlaşmalarını organize eder.", descriptionEn: "Establishes connections with companies, organizing collaborations, support and sponsorship agreements.", icon: "briefcase", color: "bg-neo-pink", order: 3 },
+  ], []);
+
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
@@ -86,7 +68,7 @@ export default function About() {
       }
     };
     fetchDepartments();
-  }, []);
+  }, [fallbackDepartments]);
 
   const handleDeptClick = async (dept: Department) => {
     setSelectedDept(dept);
@@ -95,7 +77,6 @@ export default function About() {
       const res = await fetch(`/api/team?departmentId=${dept._id}`);
       if (res.ok) {
         const data = await res.json();
-        // Sort: head first, then by order
         const sorted = data.sort((a: TeamMember, b: TeamMember) => {
           if (a.role === 'head' && b.role !== 'head') return -1;
           if (a.role !== 'head' && b.role === 'head') return 1;
@@ -131,9 +112,7 @@ export default function About() {
             {t('about.title')}
           </h2>
           <p className="text-xl font-bold text-black max-w-3xl mx-auto mt-4 border-2 border-black p-4 bg-gray-100 shadow-neo-sm">
-            {language === 'tr'
-              ? 'Karadeniz Teknik Üniversitesi Yazılım Geliştirme Kulübü, yazılım dünyasında kendini geliştirmek isteyen öğrenciler için yalnızca bir öğrenme alanı değil; gerçek hayat iş süreçlerini, ekip çalışmasını ve proje geliştirme kültürünü deneyimleyebilecekleri bir profesyonel simülasyon ortamıdır.'
-              : 'Karadeniz Technical University Software Development Club is not just a learning space for students who want to improve themselves in the software world; it is a professional simulation environment where they can experience real-life business processes, teamwork and project development culture.'}
+            {t('about.longDescription')}
           </p>
         </div>
 
@@ -155,7 +134,7 @@ export default function About() {
                 {language === 'en' && dept.descriptionEn ? dept.descriptionEn : dept.description}
               </p>
               <div className="mt-4 text-sm font-black text-black/60 group-hover:text-black transition-colors">
-                {language === 'tr' ? 'Tıkla → Ekibi Gör' : 'Click → See Team'}
+                {t('about.clickToSee')}
               </div>
             </div>
           ))}
@@ -168,7 +147,7 @@ export default function About() {
                      text-lg font-bold hover:bg-white hover:text-black hover:border-black hover:shadow-neo 
                      transition-all duration-200"
           >
-            {language === 'tr' ? 'Ekibimize Katılın' : 'Join Our Team'}
+            {t('about.joinTeam')}
             <svg
               className="ml-2 -mr-1 w-5 h-5"
               fill="currentColor"
@@ -222,8 +201,8 @@ export default function About() {
                 </div>
               ) : deptMembers.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-xl font-bold text-gray-500">{language === 'tr' ? 'Bu departmanda henüz üye bulunmuyor.' : 'No members in this department yet.'}</p>
-                  <p className="text-gray-400 mt-2">{language === 'tr' ? 'Departman yöneticileri yakında eklenecek.' : 'Department managers will be added soon.'}</p>
+                  <p className="text-xl font-bold text-gray-500">{t('about.noMembers')}</p>
+                  <p className="text-gray-400 mt-2">{t('about.managersSoon')}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -249,7 +228,7 @@ export default function About() {
                         <p className="text-sm font-bold text-gray-600">{member.title}</p>
                         {member.role === 'head' && (
                           <span className="inline-block mt-2 px-3 py-1 bg-black text-white text-xs font-black" lang={language}>
-                            {language === 'tr' ? 'DEPARTMAN BAŞKANI' : 'DEPARTMENT HEAD'}
+                            {t('about.departmentHead')}
                           </span>
                         )}
 

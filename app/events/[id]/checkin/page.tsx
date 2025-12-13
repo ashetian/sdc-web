@@ -1,39 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage, SkeletonList } from '@/app/_components/Skeleton';
-
-interface Event {
-    _id: string;
-    title: string;
-    attendanceCode?: string;
-    isEnded?: boolean;
-}
-
-interface User {
-    studentNo: string;
-    nickname: string;
-    fullName: string;
-}
+import { useLanguage } from '@/app/_context/LanguageContext';
+import { useToast } from '@/app/_context/ToastContext';
+import { Button } from '@/app/_components/ui';
+import type { Event, User } from '@/app/lib/types/api';
 
 export default function CheckinPage() {
     const params = useParams();
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const code = searchParams.get('code');
-
     const [event, setEvent] = useState<Event | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [checkingAuth, setCheckingAuth] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [success, setSuccess] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
+    const [checkedIn, setCheckedIn] = useState(false);
     const [rating, setRating] = useState(0);
-    const [feedback, setFeedback] = useState('');
+    const [comment, setComment] = useState('');
+    const { t } = useLanguage();
+    const { showToast } = useToast();
 
     // Check authentication
     useEffect(() => {
@@ -44,8 +31,8 @@ export default function CheckinPage() {
                     const data = await res.json();
                     setUser(data.user);
                 }
-            } catch (e) {
-                console.error(e);
+            } catch (error) {
+                console.error('Auth check error:', error);
             } finally {
                 setCheckingAuth(false);
             }
@@ -55,184 +42,159 @@ export default function CheckinPage() {
 
     // Fetch event
     useEffect(() => {
-        const fetchEvent = async () => {
-            if (!params.id) return;
+        const fetchEvent = async (id: string) => {
             try {
-                const res = await fetch(`/api/events/${params.id}`);
+                const res = await fetch(`/api/events/${id}`);
                 if (res.ok) {
                     const data = await res.json();
                     setEvent(data);
-
-                    // Validate code
-                    if (data.attendanceCode && data.attendanceCode !== code) {
-                        setError('Geçersiz yoklama kodu.');
-                    }
                 } else {
-                    setError('Etkinlik bulunamadı.');
+                    router.push('/events');
                 }
-            } catch (e) {
-                console.error(e);
-                setError('Bir hata oluştu.');
+            } catch (error) {
+                console.error('Etkinlik yüklenirken hata:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchEvent();
-    }, [params.id, code]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+        if (params.id) {
+            fetchEvent(params.id as string);
+        }
+    }, [params.id, router]);
+
+    const handleCheckin = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user || !event) return;
 
         if (rating === 0) {
-            alert('Lütfen bir puan verin.');
+            showToast(t('events.checkinPage.rateError'), 'error');
             return;
         }
 
         setSubmitting(true);
         try {
-            const res = await fetch(`/api/events/${params.id}/attendance`, {
+            const res = await fetch(`/api/events/${params.id}/checkin`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'checkin',
                     rating,
-                    feedback: feedback.trim() || undefined,
+                    comment
                 }),
             });
 
-            const data = await res.json();
-
             if (res.ok) {
-                setSuccess(true);
+                setCheckedIn(true);
+                showToast(t('events.checkinPage.successMessage'), 'success');
             } else {
-                setError(data.error || 'Yoklama yapılamadı.');
+                const data = await res.json();
+                showToast(data.error || t('events.checkinPage.error'), 'error');
             }
-        } catch (e) {
-            console.error(e);
-            setError('Bir hata oluştu.');
+        } catch (error) {
+            console.error('Checkin error:', error);
+            showToast(t('events.checkinPage.error'), 'error');
         } finally {
             setSubmitting(false);
         }
     };
 
     if (loading || checkingAuth) {
-        return <SkeletonList items={5} />;
+        return <SkeletonForm />;
     }
 
-    if (error) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-red-500 p-4">
-                <div className="text-2xl font-black text-white bg-black p-4 border-4 border-white mb-4">
-                    ❌ {error}
-                </div>
-                <Link href="/events" className="text-white font-bold underline">
-                    Etkinliklere Dön
-                </Link>
-            </div>
-        );
-    }
-
-    // Not logged in
     if (!user) {
         return (
-            <div className="min-h-screen bg-neo-purple pt-32 pb-12 px-4 flex items-center justify-center">
+            <div className="min-h-screen bg-neo-blue pt-32 pb-12 px-4 flex items-center justify-center">
                 <div className="max-w-md w-full bg-white border-4 border-black shadow-neo-lg p-8">
-                    <div className="text-center mb-6">
-                        <h2 className="text-2xl font-black text-black uppercase mb-4">
-                            {event?.title || 'Etkinlik'} - Yoklama
-                        </h2>
-                        <p className="text-black font-bold">Yoklama yapmak için giriş yapmalısınız.</p>
-                    </div>
-
-                    <Link
-                        href={`/auth/login?returnUrl=/events/${params.id}/checkin?code=${code}`}
-                        className="w-full flex justify-center py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-neo-green hover:text-black transition-all uppercase"
+                    <p className="text-black font-bold text-center mb-6">{t('events.checkinPage.loginRequired')}</p>
+                    <button
+                        onClick={() => router.push(`/auth/login?returnUrl=${encodeURIComponent(`/events/${params.id}/checkin`)}`)}
+                        className="w-full py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-black hover:bg-neo-green hover:text-black hover:shadow-none transition-all uppercase"
                     >
-                        Giriş Yap
-                    </Link>
+                        {t('events.registerPage.login')}
+                    </button>
                 </div>
             </div>
         );
     }
 
-    // Success state
-    if (success) {
+    if (!event) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-neo-yellow">
+                <div className="text-2xl font-black text-black">{t('events.checkinPage.notFound')}</div>
+            </div>
+        );
+    }
+
+    if (checkedIn) {
         return (
             <div className="min-h-screen bg-neo-green py-12 px-4 flex items-center justify-center">
                 <div className="max-w-md w-full bg-white border-4 border-black shadow-neo-lg p-8 text-center">
-                    <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-neo-green border-4 border-black mb-6">
-                        <span className="text-4xl">✓</span>
+                    <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-neo-green border-4 border-black mb-4">
+                        <svg className="h-8 w-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                        </svg>
                     </div>
-                    <h2 className="text-3xl font-black text-black uppercase mb-4">Yoklama Tamam!</h2>
-                    <p className="text-black font-bold mb-6">Katılımınız için teşekkürler!</p>
-                    <Link
-                        href="/events"
-                        className="inline-block py-3 px-6 border-4 border-black shadow-neo text-lg font-black bg-white hover:bg-black hover:text-white transition-all"
-                    >
-                        Etkinliklere Dön
-                    </Link>
+                    <h2 className="text-3xl font-black text-black uppercase mb-2">
+                        {t('events.checkinPage.successTitle')}
+                    </h2>
+                    <p className="text-black font-bold">{t('events.checkinPage.successMessage')}</p>
                 </div>
             </div>
         );
     }
 
-    // Survey form
     return (
-        <div className="min-h-screen bg-neo-purple pt-32 pb-12 px-4 flex items-center justify-center">
+        <div className="min-h-screen bg-neo-blue pt-32 pb-12 px-4 flex items-center justify-center">
             <div className="max-w-md w-full bg-white border-4 border-black shadow-neo-lg p-8">
                 <div className="text-center mb-6">
-                    <h2 className="text-2xl font-black text-black uppercase bg-neo-yellow inline-block px-4 py-1 border-2 border-black">
-                        {event?.title}
+                    <h2 className="text-2xl font-black text-black uppercase bg-neo-yellow inline-block px-4 py-1 border-2 border-black shadow-neo-sm">
+                        {event.title}
                     </h2>
-                    <p className="mt-4 font-bold text-black">Etkinlik Anketi</p>
+                    <h3 className="text-xl font-black text-gray-500 mt-2 uppercase">{t('events.checkinPage.title')}</h3>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Star Rating */}
-                    <div>
-                        <label className="block text-sm font-black text-black uppercase mb-3">
-                            Etkinliği nasıl buldunuz?
-                        </label>
+                <form onSubmit={handleCheckin} className="space-y-6">
+                    {/* Rating */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-black uppercase">{t('events.checkinPage.ratePrompt')}</label>
                         <div className="flex justify-center gap-2">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button
                                     key={star}
                                     type="button"
                                     onClick={() => setRating(star)}
-                                    className={`text-4xl transition-transform hover:scale-125 ${rating >= star ? 'text-yellow-400' : 'text-gray-300'
+                                    className={`text-4xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
                                         }`}
                                 >
                                     ★
                                 </button>
                             ))}
                         </div>
-                        <p className="text-center text-sm text-gray-500 mt-2">
-                            {rating === 0 ? 'Puan vermek için yıldızlara tıklayın' : `${rating} / 5`}
-                        </p>
+                        {rating === 0 && (
+                            <p className="text-center text-xs text-gray-500 font-bold">{t('events.checkinPage.ratePlaceholder')}</p>
+                        )}
                     </div>
 
-                    {/* Feedback */}
-                    <div>
-                        <label className="block text-sm font-black text-black uppercase mb-2">
-                            Yorumunuz (İsteğe Bağlı)
-                        </label>
+                    {/* Comment */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-black uppercase">{t('events.checkinPage.commentPrompt')}</label>
                         <textarea
-                            value={feedback}
-                            onChange={(e) => setFeedback(e.target.value)}
-                            rows={3}
-                            maxLength={500}
-                            placeholder="Etkinlik hakkında düşünceleriniz..."
-                            className="w-full px-4 py-3 bg-gray-100 border-4 border-black text-black font-medium focus:outline-none focus:shadow-neo focus:bg-white transition-all resize-none"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            className="w-full p-3 border-2 border-black shadow-neo-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[100px] resize-none"
+                            placeholder={t('events.checkinPage.commentPlaceholder')}
                         />
                     </div>
 
-                    <button
+                    <Button
                         type="submit"
-                        disabled={submitting || rating === 0}
-                        className="w-full py-4 px-4 border-4 border-black shadow-neo text-lg font-black text-white bg-neo-green hover:bg-white hover:text-black hover:shadow-none transition-all uppercase disabled:opacity-50"
+                        isLoading={submitting}
+                        fullWidth
+                        size="lg"
                     >
-                        {submitting ? 'Gönderiliyor...' : 'Yoklamayı Tamamla'}
-                    </button>
+                        {t('events.checkinPage.submit')}
+                    </Button>
                 </form>
             </div>
         </div>

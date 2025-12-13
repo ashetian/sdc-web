@@ -129,8 +129,8 @@ export async function PUT() {
         await connectDB();
 
         const result = await ForumTopic.updateMany(
-            { isApproved: { $ne: true } },
-            { $set: { isApproved: true } }
+            { status: { $ne: 'approved' } },
+            { $set: { status: 'approved' } }
         );
 
         return NextResponse.json({

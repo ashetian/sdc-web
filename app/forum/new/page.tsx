@@ -7,6 +7,8 @@ import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage } from "@/app/_compo
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useLanguage } from "../../_context/LanguageContext";
+import { useToast } from "../../_context/ToastContext";
+import { Button, Alert } from "../../_components/ui";
 
 interface Category {
   _id: string;
@@ -28,48 +30,8 @@ function NewTopicForm() {
   const [preview, setPreview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { language } = useLanguage();
-
-  const labels = {
-    tr: {
-      title: "Yeni Konu",
-      backToForum: "← Forum",
-      category: "Kategori",
-      selectCategory: "Kategori seçin",
-      topicTitle: "Başlık",
-      titlePlaceholder: "Konunuzun başlığını yazın",
-      content: "İçerik",
-      contentPlaceholder: "Markdown desteklenir. Kodu ``` ile sarmalayın.",
-      tags: "Etiketler",
-      tagsPlaceholder: "virgül ile ayırın: react, nextjs, yardım",
-      preview: "Önizleme",
-      write: "Yaz",
-      submit: "Konuyu Gönder",
-      submitting: "Gönderiliyor...",
-      loginRequired: "Konu açmak için giriş yapmalısınız",
-      errorRequired: "Kategori, başlık ve içerik gerekli",
-    },
-    en: {
-      title: "New Topic",
-      backToForum: "← Forum",
-      category: "Category",
-      selectCategory: "Select category",
-      topicTitle: "Title",
-      titlePlaceholder: "Enter your topic title",
-      content: "Content",
-      contentPlaceholder: "Markdown supported. Wrap code with ```",
-      tags: "Tags",
-      tagsPlaceholder: "comma separated: react, nextjs, help",
-      preview: "Preview",
-      write: "Write",
-      submit: "Submit Topic",
-      submitting: "Submitting...",
-      loginRequired: "Login required to create a topic",
-      errorRequired: "Category, title and content are required",
-    },
-  };
-
-  const l = labels[language] || labels.tr;
+  const { t, language } = useLanguage();
+  const { showToast } = useToast();
 
   useEffect(() => {
     async function loadCategories() {
@@ -103,7 +65,7 @@ function NewTopicForm() {
     setError("");
 
     if (!selectedCategory || !title.trim() || !content.trim()) {
-      setError(l.errorRequired);
+      setError(t('forum.new.errorRequired'));
       return;
     }
 
@@ -125,12 +87,10 @@ function NewTopicForm() {
 
       if (res.ok) {
         const data = await res.json();
+        const successMsg = t('forum.new.successMessage');
         // If there's a pending message, show it; otherwise redirect
         if (data.message) {
-          alert(language === "tr"
-            ? "Konunuz admin onayına gönderildi. Onaylandıktan sonra yayınlanacak."
-            : "Your topic has been submitted for admin approval."
-          );
+          showToast(successMsg, 'success');
           router.push("/forum");
         } else {
           router.push(`/forum/topic/${data._id}`);
@@ -138,14 +98,14 @@ function NewTopicForm() {
       } else {
         const data = await res.json();
         if (res.status === 401) {
-          setError(l.loginRequired);
+          setError(t('forum.new.loginRequired'));
         } else {
-          setError(data.error || "Bir hata oluştu");
+          setError(data.error || t('forum.topic.voteError')); // generic error
         }
       }
     } catch (error) {
       console.error("Submit error:", error);
-      setError("Bir hata oluştu");
+      setError(t('forum.topic.voteError')); // generic error
     } finally {
       setSubmitting(false);
     }
@@ -160,13 +120,13 @@ function NewTopicForm() {
           className="inline-flex items-center gap-1 font-bold text-black hover:underline mb-6"
         >
           <ChevronLeft size={18} />
-          {l.backToForum}
+          {t('forum.category.backToForum')}
         </Link>
 
         {/* Header */}
         <div className="mb-8">
           <h1 className="inline-block text-3xl sm:text-4xl font-black text-black bg-white border-4 border-black shadow-neo px-6 py-3 transform -rotate-1">
-            {l.title}
+            {t('forum.new.title')}
           </h1>
         </div>
 
@@ -182,14 +142,14 @@ function NewTopicForm() {
           {/* Category */}
           <div>
             <label className="block text-lg font-black text-black mb-2">
-              {l.category}
+              {t('forum.new.category')}
             </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full p-4 border-4 border-black font-bold bg-white focus:outline-none focus:shadow-neo"
             >
-              <option value="">{l.selectCategory}</option>
+              <option value="">{t('forum.new.selectCategory')}</option>
               {categories.map((cat) => (
                 <option key={cat._id} value={cat.slug}>
                   {getTitle(cat)}
@@ -201,13 +161,13 @@ function NewTopicForm() {
           {/* Title */}
           <div>
             <label className="block text-lg font-black text-black mb-2">
-              {l.topicTitle}
+              {t('forum.new.topicTitle')}
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={l.titlePlaceholder}
+              placeholder={t('forum.new.titlePlaceholder')}
               maxLength={200}
               className="w-full p-4 border-4 border-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo"
             />
@@ -219,7 +179,7 @@ function NewTopicForm() {
           {/* Content */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-lg font-black text-black">{l.content}</label>
+              <label className="text-lg font-black text-black">{t('forum.new.content')}</label>
               <div className="flex border-2 border-black">
                 <button
                   type="button"
@@ -227,7 +187,7 @@ function NewTopicForm() {
                   className={`px-4 py-1 font-bold ${!preview ? "bg-black text-white" : "bg-white text-black"
                     }`}
                 >
-                  {l.write}
+                  {t('forum.new.write')}
                 </button>
                 <button
                   type="button"
@@ -236,7 +196,7 @@ function NewTopicForm() {
                     }`}
                 >
                   <Eye size={16} />
-                  {l.preview}
+                  {t('forum.new.preview')}
                 </button>
               </div>
             </div>
@@ -246,14 +206,14 @@ function NewTopicForm() {
                 {content ? (
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
                 ) : (
-                  <p className="text-gray-400 italic">{l.contentPlaceholder}</p>
+                  <p className="text-gray-400 italic">{t('forum.new.contentPlaceholder')}</p>
                 )}
               </div>
             ) : (
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder={l.contentPlaceholder}
+                placeholder={t('forum.new.contentPlaceholder')}
                 rows={10}
                 maxLength={10000}
                 className="w-full p-4 border-4 border-black font-mono text-sm placeholder:text-gray-400 resize-none focus:outline-none focus:shadow-neo"
@@ -267,30 +227,28 @@ function NewTopicForm() {
           {/* Tags */}
           <div>
             <label className="block text-lg font-black text-black mb-2">
-              {l.tags}
+              {t('forum.new.tags')}
             </label>
             <input
               type="text"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              placeholder={l.tagsPlaceholder}
+              placeholder={t('forum.new.tagsPlaceholder')}
               className="w-full p-4 border-4 border-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo"
             />
           </div>
 
           {/* Submit */}
           <div className="pt-4">
-            <button
+            <Button
               type="submit"
-              disabled={submitting}
-              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 border-4 border-black font-black text-xl uppercase transition-all ${submitting
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-neo-green shadow-neo hover:-translate-y-1 hover:shadow-neo-lg"
-                }`}
+              isLoading={submitting}
+              variant="success"
+              size="lg"
             >
               <Send size={22} />
-              {submitting ? l.submitting : l.submit}
-            </button>
+              {t('forum.new.submit')}
+            </Button>
           </div>
         </form>
       </div>

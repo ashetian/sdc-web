@@ -4,12 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '../../../_context/LanguageContext';
+import { CheckCircle } from 'lucide-react';
+import { Button, Alert } from '../../../_components/ui';
 
 export default function NewProjectPage() {
     const router = useRouter();
-    const { language } = useLanguage();
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -20,41 +23,6 @@ export default function NewProjectPage() {
         demoUrl: '',
         technologies: '',
     });
-
-    const labels = {
-        tr: {
-            title: 'Yeni Proje Ekle',
-            projectTitle: 'Proje Başlığı',
-            projectTitleEn: 'Proje Başlığı (İngilizce)',
-            description: 'Açıklama',
-            descriptionEn: 'Açıklama (İngilizce)',
-            githubUrl: 'GitHub Repository URL',
-            demoUrl: 'Demo URL (Opsiyonel)',
-            technologies: 'Teknolojiler',
-            technologiesHint: 'Virgülle ayırın: React, Node.js, MongoDB',
-            submit: 'Proje Ekle',
-            submitting: 'Ekleniyor...',
-            back: 'Geri',
-            success: 'Proje başarıyla eklendi. Admin onayı bekleniyor.',
-        },
-        en: {
-            title: 'Add New Project',
-            projectTitle: 'Project Title',
-            projectTitleEn: 'Project Title (English)',
-            description: 'Description',
-            descriptionEn: 'Description (English)',
-            githubUrl: 'GitHub Repository URL',
-            demoUrl: 'Demo URL (Optional)',
-            technologies: 'Technologies',
-            technologiesHint: 'Separate with commas: React, Node.js, MongoDB',
-            submit: 'Add Project',
-            submitting: 'Adding...',
-            back: 'Back',
-            success: 'Project added successfully. Awaiting admin approval.',
-        },
-    };
-
-    const l = labels[language];
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -79,13 +47,12 @@ export default function NewProjectPage() {
             const data = await res.json();
 
             if (res.ok) {
-                alert(l.success);
-                router.push('/profile/projects');
+                setShowSuccessModal(true);
             } else {
-                setError(data.error || 'Bir hata oluştu');
+                setError(data.error || t('profile.projects.new.error'));
             }
         } catch {
-            setError('Bir hata oluştu');
+            setError(t('profile.projects.new.error'));
         } finally {
             setLoading(false);
         }
@@ -96,7 +63,7 @@ export default function NewProjectPage() {
             <div className="max-w-2xl mx-auto">
                 <div className="bg-white border-4 border-black shadow-neo p-8">
                     <h1 className="text-2xl font-black text-black uppercase mb-6 border-b-4 border-black pb-4">
-                        {l.title}
+                        {t('profile.projects.new.title')}
                     </h1>
 
                     {error && (
@@ -106,7 +73,7 @@ export default function NewProjectPage() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                {l.projectTitle} *
+                                {t('profile.projects.form.projectTitle')} *
                             </label>
                             <input
                                 type="text"
@@ -120,7 +87,7 @@ export default function NewProjectPage() {
 
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                {l.projectTitleEn}
+                                {t('profile.projects.form.projectTitleEn')}
                             </label>
                             <input
                                 type="text"
@@ -133,7 +100,7 @@ export default function NewProjectPage() {
 
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                {l.description} *
+                                {t('profile.projects.form.description')} *
                             </label>
                             <textarea
                                 value={formData.description}
@@ -147,7 +114,7 @@ export default function NewProjectPage() {
 
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                {l.descriptionEn}
+                                {t('profile.projects.form.descriptionEn')}
                             </label>
                             <textarea
                                 value={formData.descriptionEn}
@@ -160,7 +127,7 @@ export default function NewProjectPage() {
 
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                {l.githubUrl} *
+                                {t('profile.projects.form.githubUrl')} *
                             </label>
                             <input
                                 type="url"
@@ -174,7 +141,7 @@ export default function NewProjectPage() {
 
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                {l.demoUrl}
+                                {t('profile.projects.form.demoUrl')}
                             </label>
                             <input
                                 type="url"
@@ -187,35 +154,59 @@ export default function NewProjectPage() {
 
                         <div>
                             <label className="block text-sm font-black text-black mb-2">
-                                {l.technologies}
+                                {t('profile.projects.form.technologies')}
                             </label>
                             <input
                                 type="text"
                                 value={formData.technologies}
                                 onChange={(e) => setFormData({ ...formData, technologies: e.target.value })}
-                                placeholder={l.technologiesHint}
+                                placeholder={t('profile.projects.form.technologiesHint')}
                                 className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-neo-yellow"
                             />
                         </div>
 
                         <div className="flex gap-4 pt-4">
-                            <button
+                            <Button
                                 type="submit"
-                                disabled={loading}
-                                className="flex-1 bg-black text-white py-3 font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all uppercase disabled:opacity-50"
+                                isLoading={loading}
+                                fullWidth
                             >
-                                {loading ? l.submitting : l.submit}
-                            </button>
+                                {t('profile.projects.new.submit')}
+                            </Button>
                         </div>
                     </form>
 
                     <div className="mt-6 pt-6 border-t-2 border-gray-200">
                         <Link href="/profile/projects" className="text-black font-bold hover:underline">
-                            ← {l.back}
+                            ← {t('profile.projects.form.back')}
                         </Link>
                     </div>
                 </div>
             </div>
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white border-4 border-black shadow-neo max-w-md w-full p-8 text-center">
+                        <div className="w-16 h-16 bg-neo-green border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle size={32} className="text-black" />
+                        </div>
+                        <h2 className="text-2xl font-black text-black uppercase mb-4">
+                            {t('profile.projects.new.successTitle')}
+                        </h2>
+                        <p className="text-gray-700 font-medium mb-8">
+                            {t('profile.projects.new.successMessage')}
+                        </p>
+                        <button
+                            onClick={() => router.push('/profile/projects')}
+                            className="w-full bg-black text-white py-3 font-bold border-2 border-black hover:bg-neo-green hover:text-black transition-all uppercase"
+                        >
+                            {t('profile.projects.new.goToProjects')}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
+

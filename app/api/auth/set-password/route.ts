@@ -3,6 +3,7 @@ import connectDB from '@/app/lib/db';
 import Member from '@/app/lib/models/Member';
 import PasswordToken from '@/app/lib/models/PasswordToken';
 import bcrypt from 'bcryptjs';
+import { validatePassword } from '@/app/lib/utils/passwordValidation';
 
 // POST - Set password from email token
 export async function POST(request: NextRequest) {
@@ -15,8 +16,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Token ve şifre gerekli' }, { status: 400 });
         }
 
-        if (password.length < 6) {
-            return NextResponse.json({ error: 'Şifre en az 6 karakter olmalı' }, { status: 400 });
+        // Strong password validation
+        const passwordValidation = validatePassword(password, 'tr');
+        if (!passwordValidation.isValid) {
+            return NextResponse.json({
+                error: passwordValidation.errors[0] || 'Şifre gereksinimleri karşılanmıyor',
+                errors: passwordValidation.errors
+            }, { status: 400 });
         }
 
         // Find valid token

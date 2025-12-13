@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { SkeletonForm, SkeletonPageHeader, SkeletonGallery, SkeletonList } from '@/app/_components/Skeleton';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { Button } from '@/app/_components/ui';
 
 interface EventData {
     _id: string;
@@ -353,13 +354,14 @@ export default function EditEventPage() {
                     >
                         İptal
                     </Link>
-                    <button
+                    <Button
                         type="submit"
                         disabled={saving}
-                        className="px-6 py-3 border-2 border-black bg-neo-green text-black font-black uppercase hover:bg-green-400 transition-all disabled:opacity-50"
+                        isLoading={saving}
+                        variant="success"
                     >
-                        {saving ? 'Kaydediliyor...' : 'Kaydet'}
-                    </button>
+                        Kaydet
+                    </Button>
                 </div>
             </form>
         </div>
