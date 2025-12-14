@@ -109,6 +109,7 @@ const ProjectSchema = new Schema<IProject>(
 
 // Index for soft-deleted projects
 ProjectSchema.index({ isDeleted: 1, deletedAt: 1 });
+ProjectSchema.index({ status: 1, createdAt: -1 }); // For filtering active projects (e.g. approved)
 
 // GitHub URL'den owner/repo bilgisini çıkar
 ProjectSchema.methods.getGithubInfo = function () {

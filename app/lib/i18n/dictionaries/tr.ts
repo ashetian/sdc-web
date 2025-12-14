@@ -233,6 +233,21 @@ export const tr = {
             galleryImage: 'Galeri görseli'
         }
     },
+    faq: {
+        title: 'Sıkça Sorulan Sorular',
+        subtitle: 'Aklınızdaki soruları cevapladık.',
+    },
+    roles: {
+        president: 'Kulüp Başkanı',
+        vice_president: 'Başkan Yardımcısı',
+        secretary: 'Yazman',
+        treasurer: 'Sayman',
+        board_member: 'Yönetim Kurulu Üyesi',
+        audit_head: 'Denetleme Kurulu Başkanı',
+        audit_member: 'Denetleme Kurulu Üyesi',
+        head: 'Departman Başkanı',
+        member: 'Üye',
+    },
     apply: {
         title: 'Başvuru',
         subtitle: 'SDC Ailesine Katıl',
@@ -250,9 +265,14 @@ export const tr = {
         },
         success: 'Başvurunuz alındı!',
         error: 'Bir hata oluştu',
+
         // Extended Apply Form
         personalInfo: '1. Kişisel Bilgiler',
         fullName: 'Ad Soyad',
+        phone: 'Telefon',
+        email: 'E-posta',
+        github: 'GitHub',
+        linkedin: 'LinkedIn',
         departmentLabel: 'Bölüm',
         classYear: 'Sınıf',
         classYearPlaceholder: 'Örn: 2. Sınıf, 3. Sınıf',

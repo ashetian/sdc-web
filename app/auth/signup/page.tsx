@@ -5,15 +5,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { KVKK_CONTENT } from '@/app/lib/constants/kvkk';
 import { useLanguage } from '@/app/_context/LanguageContext';
-import { Button, Alert, Modal } from '@/app/_components/ui';
+import { Button, Modal } from '@/app/_components/ui';
+import { useToast } from '@/app/_context/ToastContext';
 
 export default function SignupPage() {
     const { t } = useLanguage();
+    const { showToast } = useToast();
     const [studentNo, setStudentNo] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [maskedEmail, setMaskedEmail] = useState('');
-    const [error, setError] = useState('');
     const [kvkkAccepted, setKvkkAccepted] = useState(false);
     const [emailConsent, setEmailConsent] = useState(false);
     const [nativeLanguage, setNativeLanguage] = useState('tr');
@@ -27,7 +28,6 @@ export default function SignupPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
         setMessage('');
 
         try {
@@ -46,13 +46,34 @@ export default function SignupPage() {
                 if (res.ok && data.step === 'verify') {
                     setMaskedEmail(data.maskedEmail);
                     setVerificationStep('verify');
+                    showToast(t('auth.checkEmail'), 'info');
                 } else {
                     if (data.isRegistered) {
-                        setError(t('auth.alreadyRegistered'));
+                        showToast(
+                            <div>
+                                {t('auth.alreadyRegistered')}
+                                <Link href="/auth/login" className="block mt-2 text-black underline font-bold">
+                                    {t('auth.login')}
+                                </Link>
+                            </div>,
+                            'error'
+                        );
                     } else if (data.isNotFound) {
-                        setError('not_found');
+                        showToast(
+                            <div className="flex flex-col gap-2">
+                                <p className="font-bold">{t('auth.notFound')}</p>
+                                <button
+                                    type="button"
+                                    onClick={() => window.location.href = "/join"}
+                                    className="bg-black text-white px-3 py-1 text-sm font-bold border-2 border-black hover:bg-white hover:text-black transition-all uppercase"
+                                >
+                                    {t('auth.joinClub')}
+                                </button>
+                            </div>,
+                            'error'
+                        );
                     } else {
-                        setError(data.error || t('auth.genericError'));
+                        showToast(data.error || t('auth.genericError'), 'error');
                     }
                 }
             } else {
@@ -75,16 +96,17 @@ export default function SignupPage() {
                 if (res.ok && data.success) {
                     setMessage(data.message);
                     setMaskedEmail(data.email);
+                    showToast(data.message, 'success');
                 } else {
                     if (data.emailMismatch) {
-                        setError(t('auth.emailMismatch'));
+                        showToast(t('auth.emailMismatch'), 'error');
                     } else {
-                        setError(data.error || t('auth.genericError'));
+                        showToast(data.error || t('auth.genericError'), 'error');
                     }
                 }
             }
         } catch {
-            setError(t('auth.genericError'));
+            showToast(t('auth.genericError'), 'error');
         } finally {
             setLoading(false);
         }
@@ -112,12 +134,12 @@ export default function SignupPage() {
                 {message ? (
                     <div className="text-center">
                         <div className="mb-4">
-                            <Alert variant="success">
+                            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 text-left" role="alert">
                                 <p className="font-bold">{message}</p>
                                 <p className="mt-2">
                                     {t('auth.sentTo')} <strong>{maskedEmail}</strong>
                                 </p>
-                            </Alert>
+                            </div>
                             <p className="text-gray-600 text-sm">
                                 {t('auth.checkEmail')}
                             </p>
@@ -184,31 +206,7 @@ export default function SignupPage() {
                             </div>
                         )}
 
-                        {error && (
-                            <div className={`bg-red-100 border-2 border-red-500 p-3 text-red-700 text-sm ${error === 'not_found' ? 'border-neo-yellow bg-yellow-50 text-black' : ''}`}>
-                                {error === 'not_found' ? (
-                                    <div className="text-center">
-                                        <p className="font-bold mb-3">{t('auth.notFound')}</p>
-                                        <button
-                                            type="button"
-                                            onClick={handleJoinClick}
-                                            className="w-full bg-black text-white px-4 py-2 font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all uppercase"
-                                        >
-                                            {t('auth.joinClub')}
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <>
-                                        {error}
-                                        {error === t('auth.alreadyRegistered') && (
-                                            <Link href="/auth/login" className="block mt-2 text-blue-600 hover:underline">
-                                                {t('auth.login')}
-                                            </Link>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-                        )}
+
 
                         <div className="flex items-start gap-2">
                             <input

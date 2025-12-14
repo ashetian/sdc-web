@@ -6,8 +6,8 @@ import { X } from "lucide-react";
 import { useSponsors } from "../lib/swr";
 import type { Sponsor } from "../lib/types/api";
 
-export default function Sponsors() {
-    const { data: sponsors = [], isLoading } = useSponsors();
+export default function Sponsors({ initialData }: { initialData?: Sponsor[] }) {
+    const { data: sponsors = [], isLoading } = useSponsors({ fallbackData: initialData });
     const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
     const [isPaused, setIsPaused] = useState(false);
     const { language, t } = useLanguage();

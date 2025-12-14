@@ -7,12 +7,15 @@ import { useRouter } from 'next/navigation';
 import { SkeletonForm, SkeletonFullPage } from "@/app/_components/Skeleton";
 import { useLanguage } from '@/app/_context/LanguageContext';
 import { getPasswordStrength } from '@/app/lib/utils/passwordValidation';
-import { Button, Alert } from '@/app/_components/ui';
+import { Button } from '@/app/_components/ui';
+import { Eye, EyeOff } from 'lucide-react';
+import { useToast } from '@/app/_context/ToastContext';
 
 export default function SetPasswordPage({ params }: { params: Promise<{ token: string }> }) {
     const { token } = use(params);
     const router = useRouter();
     const { t } = useLanguage();
+    const { showToast } = useToast();
     const [tokenInfo, setTokenInfo] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [validating, setValidating] = useState(true);
@@ -20,6 +23,8 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
         validateToken();
@@ -33,9 +38,11 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
             if (res.ok && data.valid) {
                 setTokenInfo(data);
             } else {
+                showToast(data.error || t('auth.invalidLink'), 'error');
                 setError(data.error || t('auth.invalidLink'));
             }
         } catch {
+            showToast(t('auth.genericError'), 'error');
             setError(t('auth.genericError'));
         } finally {
             setValidating(false);
@@ -46,23 +53,22 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
         e.preventDefault();
 
         if (password !== confirmPassword) {
-            setError(t('auth.passwordMismatch'));
+            showToast(t('auth.passwordMismatch'), 'warning');
             return;
         }
 
         const strength = getPasswordStrength(password);
         if (strength.score < 1) {
-            setError(t('auth.passwordWeak'));
+            showToast(t('auth.passwordWeak'), 'warning');
             return;
         }
 
         if (tokenInfo?.requiresNickname && nickname.trim().length < 2) {
-            setError(t('auth.nicknameShort'));
+            showToast(t('auth.nicknameShort'), 'warning');
             return;
         }
 
         setLoading(true);
-        setError('');
 
         try {
             const res = await fetch('/api/auth/set-password', {
@@ -80,10 +86,10 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
             if (res.ok) {
                 router.push('/auth/login?success=' + (data.isSignup ? 'signup' : 'reset'));
             } else {
-                setError(data.error || t('auth.genericError'));
+                showToast(data.error || t('auth.genericError'), 'error');
             }
         } catch {
-            setError(t('auth.genericError'));
+            showToast(t('auth.genericError'), 'error');
         } finally {
             setLoading(false);
         }
@@ -159,16 +165,25 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
                         <label htmlFor="password" className="block text-sm font-black text-black mb-2">
                             {t('auth.passwordLabel')}
                         </label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder={t('auth.passwordPlaceholder')}
-                            required
-                            minLength={8}
-                            className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder={t('auth.passwordPlaceholder')}
+                                required
+                                minLength={8}
+                                className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 pr-12"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none bg-transparent border-none shadow-none transition-none active:translate-x-0 active:-translate-y-1/2"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                         {/* Password Strength Indicator */}
                         {password && (
                             <div className="mt-2">
@@ -202,22 +217,27 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
                         <label htmlFor="confirmPassword" className="block text-sm font-black text-black mb-2">
                             {t('auth.confirmLabel')}
                         </label>
-                        <input
-                            type="password"
-                            id="confirmPassword"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder={t('auth.confirmPlaceholder')}
-                            required
-                            className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                id="confirmPassword"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder={t('auth.confirmPlaceholder')}
+                                required
+                                className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 pr-12"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none bg-transparent border-none shadow-none transition-none active:translate-x-0 active:-translate-y-1/2"
+                            >
+                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                     </div>
 
-                    {error && (
-                        <Alert variant="danger">
-                            {error}
-                        </Alert>
-                    )}
+
 
                     <Button
                         type="submit"

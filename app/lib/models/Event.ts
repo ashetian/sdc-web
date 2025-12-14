@@ -134,5 +134,9 @@ const eventSchema = new mongoose.Schema<IEvent>(
   }
 );
 
+// Indexes
+eventSchema.index({ eventDate: 1 });
+eventSchema.index({ isOpen: 1, createdAt: -1 });
+
 export const Event = mongoose.models.Event || mongoose.model<IEvent>('Event', eventSchema);
 

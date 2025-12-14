@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 // Helper to check if user is admin
 async function isAdmin(request: NextRequest): Promise<{ isAdmin: boolean; userId?: string; name?: string }> {

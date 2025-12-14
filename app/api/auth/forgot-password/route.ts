@@ -4,10 +4,23 @@ import Member from '@/app/lib/models/Member';
 import PasswordToken from '@/app/lib/models/PasswordToken';
 import { sendEmail, maskEmail, generatePasswordSetupEmail } from '@/app/lib/email';
 import crypto from 'crypto';
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
 
 // POST - Request password reset
 export async function POST(request: NextRequest) {
     try {
+        // Rate limiting check (stricter for password reset)
+        const clientIP = getClientIP(request);
+        const rateLimit = checkRateLimit(clientIP, 'forgot-password', { maxRequests: 3, windowMs: 5 * 60 * 1000 }); // 3 per 5 min
+
+        if (rateLimit.limited) {
+            const resetSeconds = Math.ceil(rateLimit.resetIn / 1000);
+            return NextResponse.json(
+                { error: `Çok fazla deneme. ${resetSeconds} saniye sonra tekrar deneyin.` },
+                { status: 429 }
+            );
+        }
+
         await connectDB();
 
         const { studentNo } = await request.json();

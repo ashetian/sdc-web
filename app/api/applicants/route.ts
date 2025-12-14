@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 // Validation schema
 const applicantSchema = z.object({

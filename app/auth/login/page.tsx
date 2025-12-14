@@ -1,28 +1,41 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LoadingSpinner from '@/app/_components/LoadingSpinner';
 import { useLanguage } from '@/app/_context/LanguageContext';
-import { Button, Card, Input, Alert } from '@/app/_components/ui';
+import { Button, Card, Input } from '@/app/_components/ui';
+import { useToast } from '@/app/_context/ToastContext';
 
 function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const returnUrl = searchParams.get('returnUrl') || searchParams.get('redirect');
     const { t } = useLanguage();
+    const { showToast } = useToast();
 
     const [studentNo, setStudentNo] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const success = searchParams.get('success');
+        if (success === 'signup') {
+            showToast(t('auth.accountCreated'), 'success');
+            // Clear param to avoid showing again on refresh? Hard with next router replace without reload.
+            // Just leaving it is fine or use window.history.replaceState
+            window.history.replaceState({}, '', '/auth/login');
+        } else if (success === 'reset') {
+            showToast(t('auth.passwordResetSuccess'), 'success');
+            window.history.replaceState({}, '', '/auth/login');
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
 
         try {
             const res = await fetch('/api/auth/login', {
@@ -41,7 +54,7 @@ function LoginForm() {
                         if (authCheck.ok) {
                             window.location.href = returnUrl;
                         } else {
-                            setError(t('auth.noPermission'));
+                            showToast(t('auth.noPermission'), 'error');
                             // Optional: Redirect to profile after short delay or let user choose
                             setTimeout(() => router.push('/profile'), 2000);
                         }
@@ -55,13 +68,21 @@ function LoginForm() {
                 }
             } else {
                 if (data.notRegistered) {
-                    setError(t('auth.notRegistered'));
+                    showToast(
+                        <div>
+                            {t('auth.notRegistered')}
+                            <Link href="/auth/signup" className="block mt-1 text-black underline font-bold">
+                                {t('auth.registerLink')}
+                            </Link>
+                        </div>,
+                        'error'
+                    );
                 } else {
-                    setError(data.error || t('auth.loginFailed'));
+                    showToast(data.error || t('auth.loginFailed'), 'error');
                 }
             }
         } catch {
-            setError(t('auth.genericError'));
+            showToast(t('auth.genericError'), 'error');
         } finally {
             setLoading(false);
         }
@@ -101,16 +122,7 @@ function LoginForm() {
                     required
                 />
 
-                {error && (
-                    <Alert variant="danger">
-                        {error}
-                        {error === t('auth.notRegistered') && (
-                            <Link href="/auth/signup" className="block mt-2 text-blue-600 hover:underline">
-                                {t('auth.registerLink')}
-                            </Link>
-                        )}
-                    </Alert>
-                )}
+
 
                 <Button
                     type="submit"

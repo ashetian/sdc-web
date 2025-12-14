@@ -12,8 +12,8 @@ import { Autoplay, Navigation, Keyboard } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 
-export default function Announcements() {
-  const { data, isLoading } = useAnnouncements();
+export default function Announcements({ initialData }: { initialData?: Announcement[] }) {
+  const { data, isLoading } = useAnnouncements({ fallbackData: initialData });
   const [activeTab, setActiveTab] = useState<'announcements' | 'opportunities'>('announcements');
   const [activeIndex, setActiveIndex] = useState(0);
   const { language, t } = useLanguage();

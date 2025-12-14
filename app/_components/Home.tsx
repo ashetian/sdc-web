@@ -180,10 +180,10 @@ export default function Home() {
                     {t('home.projects')}
                   </button>
                   <button
-                    onClick={() => router.push("/events")}
+                    onClick={() => router.push("/forum")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-neo-green text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
-                    {t('home.events')}
+                    Forum
                   </button>
                   <button
                     onClick={() => router.push("/team")}

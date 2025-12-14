@@ -6,7 +6,7 @@ import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 // POST - Login with student number and password
 export async function POST(request: NextRequest) {

@@ -82,6 +82,52 @@ export async function PUT(
             return NextResponse.json({ error: 'Departman bulunamadı' }, { status: 404 });
         }
 
+        // Sync "Head" role in TeamMember collection if leadId changed (and is valid)
+        if (data.leadId && data.leadId !== '') {
+            try {
+                const TeamMember = (await import('@/app/lib/models/TeamMember')).default;
+                const Member = (await import('@/app/lib/models/Member')).default;
+
+                // 1. Demote any existing "head" in this department to "member"
+                await TeamMember.updateMany(
+                    { departmentId: id, role: 'head' },
+                    { $set: { role: 'member' } }
+                );
+
+                // 2. Find if the new lead is already a team member in this department
+                const existingTeamMember = await TeamMember.findOne({
+                    departmentId: id,
+                    memberId: data.leadId
+                });
+
+                if (existingTeamMember) {
+                    // Update role to head
+                    existingTeamMember.role = 'head';
+                    await existingTeamMember.save();
+                } else {
+                    // Create new team member as head
+                    // Fetch member details first
+                    const memberInfo = await Member.findById(data.leadId);
+                    if (memberInfo) {
+                        await TeamMember.create({
+                            name: memberInfo.fullName,
+                            email: memberInfo.email,
+                            photo: memberInfo.avatar,
+                            role: 'head',
+                            memberId: memberInfo._id,
+                            departmentId: id,
+                            title: 'Departman Başkanı',
+                            showInTeam: true,
+                            order: -1 // Top of the list
+                        });
+                    }
+                }
+            } catch (syncError) {
+                console.error('Error syncing department head:', syncError);
+                // Non-blocking error, continue
+            }
+        }
+
         // Audit log
         await logAdminAction({
             adminId: user.userId,

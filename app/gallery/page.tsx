@@ -121,7 +121,14 @@ export default function GalleryPage() {
                 >
                   {a.galleryCover && (
                     <div className="mb-4 overflow-hidden border-b-4 border-black">
-                      <Image src={a.galleryCover} alt={getTitle(a)} width={400} height={250} className="w-full h-56 object-cover" />
+                      <Image
+                        src={a.galleryCover}
+                        alt={getTitle(a)}
+                        width={400}
+                        height={250}
+                        className="w-full h-56 object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
                     </div>
                   )}
                   <div className="p-6 pt-2 flex-1 flex flex-col">

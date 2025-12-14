@@ -4,7 +4,8 @@ import { useRef, useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
-import { Crown, ChevronDown, ChevronUp, Users, ExternalLink } from "lucide-react";
+import { Crown, ChevronDown, ChevronUp, Users, ExternalLink, Cog } from "lucide-react";
+import { motion } from "framer-motion";
 import UserProfileModal from "./UserProfileModal";
 import { useDepartments, useTeam } from "../lib/swr";
 import type { TeamMember, Department } from "../lib/types/api";
@@ -45,13 +46,18 @@ const borderColorMap: Record<string, string> = {
 // Standard Neo-Brutalist CSS class
 const standardCardClass = "border-4 border-black shadow-neo bg-white transition-all";
 
-export default function Team() {
+interface TeamProps {
+    initialDepartments?: Department[];
+    initialMembers?: TeamMember[];
+}
+
+export default function Team({ initialDepartments, initialMembers }: TeamProps) {
     const { language, t } = useLanguage();
     const sectionRef = useRef<HTMLElement>(null);
 
     // SWR hooks
-    const { data: departmentsData, isLoading: deptLoading } = useDepartments();
-    const { data: membersData, isLoading: teamLoading } = useTeam();
+    const { data: departmentsData, isLoading: deptLoading } = useDepartments({ fallbackData: initialDepartments });
+    const { data: membersData, isLoading: teamLoading } = useTeam({ showInTeam: true, fallbackData: initialMembers });
 
     const departments = departmentsData || [];
     const members = membersData || [];
@@ -59,6 +65,9 @@ export default function Team() {
 
     const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
     const [expandedDepts, setExpandedDepts] = useState<Set<string>>(new Set());
+
+    // Path Highlighting State
+    const [hoveredDeptId, setHoveredDeptId] = useState<string | null>(null);
 
     const management = useMemo(() => {
         return members.filter(m => m.role === 'president' || m.role === 'vice_president')
@@ -93,6 +102,39 @@ export default function Team() {
         const linkedId = (member as any).memberId?._id || (member as any).memberId;
         if (linkedId) setSelectedMemberId(linkedId);
     };
+
+    // Helper for highlighting logic
+    const hoveredIndex = useMemo(() => {
+        if (!hoveredDeptId) return -1;
+        return departments.findIndex(d => d._id === hoveredDeptId);
+    }, [hoveredDeptId, departments]);
+
+    const hoveredDeptColor = useMemo(() => {
+        if (hoveredIndex === -1) return '';
+        return departments[hoveredIndex].color || '';
+    }, [hoveredIndex, departments]);
+
+    const isSegmentActive = (index1: number, index2: number) => {
+        if (hoveredIndex === -1) return false;
+
+        const centerIndex = (departments.length - 1) / 2;
+        const minFn = Math.min(index1, index2);
+        const maxFn = Math.max(index1, index2);
+
+        // If hovered is right of center
+        if (hoveredIndex > centerIndex) {
+            // Path: [center ... hovered]
+            // Active if segment is within this range
+            // We use >= floor(center) to catch the middle connection
+            return minFn >= Math.floor(centerIndex) && maxFn <= hoveredIndex;
+        }
+        // If hovered is left of center
+        else {
+            // Path: [hovered ... center]
+            return minFn >= hoveredIndex && maxFn <= Math.ceil(centerIndex);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -146,22 +188,13 @@ export default function Team() {
                         {t('team.subtitle')}
                     </p>
                 </div>
+
+
             </div>
 
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative">
 
-                {/* Join Us (Desktop) */}
-                <div className="absolute top-0 right-4 lg:right-8 z-50 hidden md:block">
-                    <Link
-                        href="/apply"
-                        className="bg-neo-yellow border-4 border-black px-4 py-2 md:px-6 md:py-3 font-black text-sm md:text-lg shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center gap-2"
-                    >
-                        <span>{t('team.joinUs')}</span>
-                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </Link>
-                </div>
+
 
                 {/* ==================== MOBILE VIEW (Accordion) ==================== */}
                 <div className="lg:hidden">
@@ -170,9 +203,9 @@ export default function Team() {
                         <div className="bg-black text-white px-4 py-2 font-black uppercase text-sm inline-block mb-4 shadow-neo border-2 border-white">
                             {t('team.management')}
                         </div>
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             {management.map(m => (
-                                <MemberCard key={m._id} member={m} size="large" showCrown bgColor="bg-neo-yellow" className="py-4" />
+                                <MemberCard key={m._id} member={m} size="normal" showCrown bgColor="bg-neo-yellow" className="py-2" />
                             ))}
                         </div>
                     </div>
@@ -192,7 +225,7 @@ export default function Team() {
                                         className={`w-full px-4 py-4 font-black uppercase text-sm flex items-center justify-between ${dept.color || 'bg-white'} border-b-4 border-black transition-colors`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-white border-2 border-black p-1.5 shadow-sm rounded-md">
+                                            <div className="bg-white/30 backdrop-blur-sm border-2 border-black p-1.5 rounded-md">
                                                 {iconMap[dept.icon]}
                                             </div>
                                             <span className="text-left leading-tight py-1">{language === 'en' && dept.nameEn ? dept.nameEn : dept.name}</span>
@@ -226,9 +259,12 @@ export default function Team() {
                                                 </div>
 
                                                 {deptMembers.length === 0 && (
-                                                    <p className="text-center text-gray-400 italic text-sm py-4">
-                                                        {t('team.membersSoon')}
-                                                    </p>
+                                                    <div className={`p-4 border-2 border-dashed border-black/20 rounded-lg ${dept.color} bg-opacity-10 flex flex-col items-center justify-center text-center`}>
+                                                        <div className="bg-white p-2 rounded-full border-2 border-black mb-2 opacity-50">
+                                                            <Users size={20} className="text-black" />
+                                                        </div>
+                                                        <p className="text-xs font-bold opacity-60 uppercase">{t('team.membersSoon')}</p>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
@@ -244,8 +280,8 @@ export default function Team() {
                     <div className="min-w-fit flex flex-col items-center">
 
                         {/* 1. Root: Management */}
-                        <div className="relative z-20 mb-12">
-                            <div className={`${standardCardClass} p-6 flex gap-6 items-center bg-white relative`}>
+                        <div className="relative z-20 mb-32">
+                            <div className={`${standardCardClass} p-6 flex gap-6 items-center bg-white relative transition-colors duration-300`}>
                                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-1 font-black uppercase text-sm shadow-neo transform -rotate-1">
                                     {t('team.management')}
                                 </div>
@@ -257,19 +293,28 @@ export default function Team() {
                                                 alt={m.name}
                                                 fill
                                                 className="rounded-full border-4 border-black object-cover bg-gray-100"
+                                                sizes="100px"
                                             />
                                             {m.role === 'president' && <Crown size={24} className="absolute -top-3 -right-2 text-neo-yellow drop-shadow-md rotate-12 fill-current" />}
                                         </div>
                                         <div>
                                             <h3 className="font-black text-lg leading-none mb-1 group-hover:text-neo-blue transition-colors">{m.name}</h3>
-                                            <p className="text-xs font-bold text-gray-500 uppercase bg-gray-100 px-2 py-0.5 inline-block border-2 border-black/10 rounded-sm">{m.title}</p>
+                                            <p className="text-xs font-bold text-gray-500 uppercase bg-gray-100 px-2 py-0.5 inline-block border-2 border-black/10 rounded-sm">
+                                                {m.title || (m.role === 'president' ? t('roles.president') : m.role === 'vice_president' ? t('roles.vice_president') : m.role)}
+                                            </p>
                                         </div>
                                         {i < management.length - 1 && <div className="w-px h-12 bg-gray-300 mx-2"></div>}
                                     </div>
                                 ))}
                             </div>
-                            {/* Vertical Line from Management */}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-1 h-12 bg-black"></div>
+                            {/* Vertical Line from Management - Colors if ANY dept is hovered */}
+                            {/* Vertical Line from Management - Colors if ANY dept is hovered */}
+                            <motion.div
+                                initial={{ height: 0 }}
+                                animate={{ height: 64 }}  // h-16 is 64px
+                                transition={{ duration: 0.5, ease: "easeOut" }}
+                                className={`absolute top-full left-1/2 -translate-x-1/2 w-1 transition-colors duration-300 ${hoveredIndex !== -1 ? hoveredDeptColor : 'bg-black'}`}
+                            ></motion.div>
                         </div>
 
 
@@ -284,27 +329,53 @@ export default function Team() {
                                 const isFirst = index === 0;
                                 const isLast = index === departments.length - 1;
 
+                                const isHovered = hoveredDeptId === dept._id;
+                                const isActiveLeft = isSegmentActive(index - 1, index);
+                                const isActiveRight = isSegmentActive(index, index + 1);
+
                                 return (
-                                    <div key={dept._id} className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px] relative">
+                                    <div
+                                        key={dept._id}
+                                        className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px] relative"
+                                        onMouseEnter={() => setHoveredDeptId(dept._id)}
+                                        onMouseLeave={() => setHoveredDeptId(null)}
+                                    >
+                                        {/* Horizontal Connectors */}
                                         {/* Horizontal Connectors */}
                                         {!isFirst && (
-                                            <div className="absolute -top-12 right-1/2 w-[calc(50%+12px)] h-1 bg-black"></div>
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: "calc(50% + 12px)" }}
+                                                transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+                                                className={`absolute -top-16 right-1/2 h-1 transition-colors origin-right duration-300 ${isActiveLeft ? hoveredDeptColor : 'bg-black'}`}
+                                            ></motion.div>
                                         )}
                                         {!isLast && (
-                                            <div className="absolute -top-12 left-1/2 w-[calc(50%+12px)] h-1 bg-black"></div>
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: "calc(50% + 12px)" }}
+                                                transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+                                                className={`absolute -top-16 left-1/2 h-1 transition-colors origin-left duration-300 ${isActiveRight ? hoveredDeptColor : 'bg-black'}`}
+                                            ></motion.div>
                                         )}
 
                                         {/* Connector from horizontal bar to department */}
-                                        <div className={`w-1 h-12 bg-black absolute -top-12 left-1/2 -translate-x-1/2`}></div>
+                                        {/* Connector from horizontal bar to department */}
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: 64 }}
+                                            transition={{ duration: 0.4, delay: 0.8 + (index * 0.1), ease: "easeOut" }}
+                                            className={`w-1 absolute -top-16 left-1/2 -translate-x-1/2 transition-colors duration-300 ${isHovered ? dept.color : 'bg-black'}`}
+                                        ></motion.div>
 
                                         {/* Department Node */}
-                                        <div className={`w-full flex flex-col items-center`}>
+                                        <div className={`w-full flex flex-col items-center group/node`}>
 
                                             {/* Header / Head */}
-                                            <div className={`${standardCardClass} w-full p-0 overflow-hidden flex flex-col mb-4 relative z-10 hover:-translate-y-1 transition-transform duration-300 group`}>
+                                            <div className={`${standardCardClass} w-full p-0 overflow-hidden flex flex-col relative z-10 transition-transform duration-300 ${isHovered ? '-translate-y-2 shadow-neo-lg' : 'hover:-translate-y-1'}`}>
                                                 {/* Color Header */}
                                                 <div className={`${dept.color} p-3 border-b-4 border-black flex items-center justify-center gap-2 h-16`}>
-                                                    <div className="bg-white/90 p-1.5 rounded-full border-2 border-black/20 text-black">
+                                                    <div className="bg-white/30 backdrop-blur-sm p-1.5 rounded-full border-2 border-black/40 text-black">
                                                         {iconMap[dept.icon]}
                                                     </div>
                                                     <h3 className="font-black text-xs uppercase text-center leading-tight">
@@ -318,9 +389,9 @@ export default function Team() {
                                                     {deptLead ? (
                                                         <div className="flex flex-col items-center cursor-pointer" onClick={() => handleMemberClick(deptLead)}>
                                                             <div className="relative w-16 h-16 mb-2">
-                                                                <div className={`absolute inset-0 rounded-full border-4 ${borderColor} animate-pulse-slow opacity-20`}></div>
+                                                                <div className={`absolute inset-0 rounded-full border-4 ${borderColor} ${isHovered ? 'animate-pulse' : 'opacity-20'}`}></div>
                                                                 {deptLead.photo ? (
-                                                                    <Image src={deptLead.photo} alt={deptLead.name} fill className="rounded-full border-2 border-black object-cover relative z-10" />
+                                                                    <Image src={deptLead.photo} alt={deptLead.name} fill className="rounded-full border-2 border-black object-cover relative z-10" sizes="80px" />
                                                                 ) : (
                                                                     <div className="w-full h-full rounded-full border-2 border-black bg-gray-100 flex items-center justify-center font-black relative z-10">{deptLead.name[0]}</div>
                                                                 )}
@@ -330,9 +401,11 @@ export default function Team() {
                                                             <div className="text-[10px] font-bold text-gray-500 uppercase bg-gray-100 px-2 rounded-full">{t('about.departmentHead')}</div>
                                                         </div>
                                                     ) : (
-                                                        <div className="text-gray-400 italic text-xs py-4 flex flex-col items-center">
-                                                            <Users size={24} className="mb-2 opacity-20" />
-                                                            <span>{t('team.managersSoon')}</span>
+                                                        <div className="text-gray-400 text-xs py-4 flex flex-col items-center opacity-60">
+                                                            <div className="bg-gray-100 p-2 rounded-full border border-black mb-1">
+                                                                <Users size={20} className="opacity-50" />
+                                                            </div>
+                                                            <span className="font-bold uppercase tracking-wider">{t('team.managersSoon')}</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -340,11 +413,11 @@ export default function Team() {
 
                                             {/* Connector to Members */}
                                             {deptOthers.length > 0 && (
-                                                <div className={`w-1 h-6 bg-black mb-0`}></div>
+                                                <div className={`w-1 h-6 bg-black mb-0 transition-colors duration-300 ${isHovered ? dept.color : 'bg-black'}`}></div>
                                             )}
 
                                             {/* Members Grid */}
-                                            {deptOthers.length > 0 && (
+                                            {deptOthers.length > 0 ? (
                                                 <div className={`grid grid-cols-1 gap-2 w-full pt-2 border-t-4 ${borderColor} relative`}>
                                                     {/* Decorative styling for the member list container */}
                                                     <div className={`absolute top-0 left-0 w-full h-full ${dept.color} opacity-5 -z-10`}></div>
@@ -357,7 +430,7 @@ export default function Team() {
                                                         >
                                                             <div className="relative w-8 h-8 shrink-0">
                                                                 {m.photo ? (
-                                                                    <Image src={m.photo} alt={m.name} fill className="rounded-full border border-black object-cover" />
+                                                                    <Image src={m.photo} alt={m.name} fill className="rounded-full border border-black object-cover" sizes="40px" />
                                                                 ) : (
                                                                     <div className="w-full h-full rounded-full border border-black bg-gray-100 flex items-center justify-center font-bold text-xs">{m.name[0]}</div>
                                                                 )}
@@ -368,6 +441,15 @@ export default function Team() {
                                                         </div>
                                                     ))}
                                                 </div>
+                                            ) : (
+                                                // Empty Members State
+                                                <div className={`mt-4 w-full p-3 border-2 border-dashed border-black/20 rounded-lg ${dept.color} bg-opacity-10 flex flex-col items-center text-center opacity-70 group-hover/node:opacity-100 transition-opacity`}>
+                                                    <Users size={16} className="mb-1 opacity-50" />
+                                                    <span className="text-[10px] font-bold uppercase">{t('team.membersSoon')}</span>
+                                                    <div className="mt-1 w-full bg-black/10 h-1 rounded overflow-hidden">
+                                                        <div className="h-full bg-black/20 w-1/2 animate-shimmer"></div>
+                                                    </div>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
@@ -376,6 +458,19 @@ export default function Team() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Join Us Button (Bottom) */}
+            <div className="mt-12 lg:mt-20 flex justify-center pb-8 lg:pb-0">
+                <Link
+                    href="/apply"
+                    className="bg-neo-yellow border-4 border-black px-8 py-4 font-black text-xl shadow-neo hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center gap-3 transform -rotate-1 hover:rotate-0"
+                >
+                    <span>{t('team.joinUs')}</span>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </Link>
             </div>
 
             {selectedMemberId && (

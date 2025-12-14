@@ -37,7 +37,7 @@ export function useEvent(id: string) {
 
 // ========== Announcements ==========
 
-export function useAnnouncements(options?: { type?: string; limit?: number }) {
+export function useAnnouncements(options?: { type?: string; limit?: number; fallbackData?: Announcement[] }) {
     const params = new URLSearchParams();
     if (options?.type) params.set('type', options.type);
     if (options?.limit) params.set('limit', String(options.limit));
@@ -45,7 +45,9 @@ export function useAnnouncements(options?: { type?: string; limit?: number }) {
     const queryString = params.toString();
     const url = `/api/announcements${queryString ? `?${queryString}` : ''}`;
 
-    return useSWR<Announcement[]>(url, fetcher);
+    return useSWR<Announcement[]>(url, fetcher, {
+        fallbackData: options?.fallbackData
+    });
 }
 
 export function useAnnouncement(slug: string) {
@@ -98,14 +100,18 @@ export function useUnreadNotificationCount() {
 // Types imported from api.ts
 import type { TeamMember, Department } from '../types/api';
 
-export function useDepartments() {
-    return useSWR<Department[]>('/api/departments', fetcher);
+export function useDepartments(options?: { fallbackData?: Department[] }) {
+    return useSWR<Department[]>('/api/departments', fetcher, {
+        fallbackData: options?.fallbackData
+    });
 }
 
-export function useTeam(showInTeam: boolean = true) {
+export function useTeam(options?: { showInTeam?: boolean; fallbackData?: TeamMember[] }) {
+    const showInTeam = options?.showInTeam !== false; // default true
     return useSWR<TeamMember[]>(
         `/api/team${showInTeam ? '?showInTeam=true' : ''}`,
-        fetcher
+        fetcher,
+        { fallbackData: options?.fallbackData }
     );
 }
 
@@ -180,8 +186,10 @@ interface Sponsor {
     logo: string;
 }
 
-export function useSponsors() {
-    return useSWR<Sponsor[]>('/api/sponsors?active=true', fetcher);
+export function useSponsors(options?: { fallbackData?: Sponsor[] }) {
+    return useSWR<Sponsor[]>('/api/sponsors?active=true', fetcher, {
+        fallbackData: options?.fallbackData
+    });
 }
 
 // ========== Stats (Home Page) ==========

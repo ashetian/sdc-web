@@ -171,14 +171,16 @@ export default function EventsPage() {
         const weekStart = week.find(d => d !== null) || new Date(); // Fallback safe
         const weekEnd = [...week].reverse().find(d => d !== null) || new Date();
 
-        // Adjust to full week range boundaries
+        // Find the index of first non-null day in week
+        const firstDayIndex = week.findIndex(d => d !== null);
+        const lastDayIndex = week.length - 1 - [...week].reverse().findIndex(d => d !== null);
+
+        // Calculate actual week boundaries (Monday to Sunday)
         const rangeStart = new Date(weekStart);
-        if (week[0] === null) rangeStart.setDate(1); // Start of month
-        else rangeStart.setDate(rangeStart.getDate() - week.indexOf(weekStart)); // Back to Monday
+        rangeStart.setDate(rangeStart.getDate() - firstDayIndex); // Go back to Monday
 
         const rangeEnd = new Date(weekEnd);
-        if (week[6] === null) rangeEnd.setDate(getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth())); // End of month
-        else rangeEnd.setDate(rangeEnd.getDate() + (6 - week.indexOf(weekEnd))); // Forward to Sunday
+        rangeEnd.setDate(rangeEnd.getDate() + (6 - lastDayIndex)); // Go forward to Sunday
 
         // Normalize time
         rangeStart.setHours(0, 0, 0, 0);

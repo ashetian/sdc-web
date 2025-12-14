@@ -71,6 +71,21 @@ export const en = {
         descriptionPlaceholder: 'Describe the bug in detail...',
         pageLabel: 'Page:',
     },
+    faq: {
+        title: 'Frequently Asked Questions',
+        subtitle: 'We answered your questions.',
+    },
+    roles: {
+        president: 'Club President',
+        vice_president: 'Vice President',
+        secretary: 'Secretary',
+        treasurer: 'Treasurer',
+        board_member: 'Board Member',
+        audit_head: 'Audit Board Head',
+        audit_member: 'Audit Board Member',
+        head: 'Department Head',
+        member: 'Member',
+    },
     team: {
         title: 'Our Team',
         subtitle: 'Meet the SDC Family',
@@ -253,6 +268,10 @@ export const en = {
         // Extended Apply Form
         personalInfo: '1. Personal Information',
         fullName: 'Full Name',
+        phone: 'Phone',
+        email: 'Email',
+        github: 'GitHub',
+        linkedin: 'LinkedIn',
         departmentLabel: 'Department',
         classYear: 'Class Year',
         classYearPlaceholder: 'Ex: 2nd Year, 3rd Year',

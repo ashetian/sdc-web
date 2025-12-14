@@ -11,6 +11,7 @@ interface ImageLightboxProps {
     className?: string;
     containerClassName?: string;
     fill?: boolean;
+    sizes?: string;
 }
 
 export default function ImageLightbox({
@@ -21,6 +22,7 @@ export default function ImageLightbox({
     className = "",
     containerClassName = "",
     fill = false,
+    sizes,
 }: ImageLightboxProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -122,9 +124,9 @@ export default function ImageLightbox({
                 style={{ zIndex: 1 }}
             >
                 {fill ? (
-                    <Image src={src} alt={alt} fill className={className} />
+                    <Image src={src} alt={alt} fill className={className} sizes={sizes} />
                 ) : (
-                    <Image src={src} alt={alt} width={width} height={height} className={className} />
+                    <Image src={src} alt={alt} width={width} height={height} className={className} sizes={sizes} />
                 )}
             </div>
 

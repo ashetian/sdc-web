@@ -5,54 +5,28 @@ import { verifyAuth } from '@/app/lib/auth';
 import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
 // GET - List team members
+import { getTeamMembers } from '@/app/lib/services/teamService';
+
+// GET - List team members
 export async function GET(request: NextRequest) {
     try {
-        await connectDB();
         const { searchParams } = new URL(request.url);
         const showInTeam = searchParams.get('showInTeam');
         const departmentId = searchParams.get('departmentId');
         const role = searchParams.get('role');
 
-        // Build filter
-        const filter: Record<string, unknown> = { isActive: true };
+        const filter: any = { activeOnly: true };
+        if (showInTeam === 'true') filter.showInTeam = true;
+        if (departmentId) filter.departmentId = departmentId;
+        if (role) filter.role = role;
 
-        if (showInTeam === 'true') {
-            filter.showInTeam = true;
-        }
+        const members = await getTeamMembers(filter);
 
-        if (departmentId) {
-            filter.departmentId = departmentId;
-        }
-
-        if (role) {
-            // Support comma-separated roles
-            if (role.includes(',')) {
-                filter.role = { $in: role.split(',') };
-            } else {
-                filter.role = role;
+        return NextResponse.json(members, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
             }
-        }
-
-        let members = await TeamMember.find(filter)
-            .populate('departmentId', 'name slug color');
-
-        // Custom sort by role hierarchy + order
-        const roleOrder: Record<string, number> = {
-            president: 1,
-            vice_president: 2,
-            head: 3,
-            member: 4,
-            featured: 5
-        };
-
-        members.sort((a, b) => {
-            const roleA = roleOrder[a.role as string] || 99;
-            const roleB = roleOrder[b.role as string] || 99;
-            if (roleA !== roleB) return roleA - roleB;
-            return (a.order || 0) - (b.order || 0);
         });
-
-        return NextResponse.json(members);
     } catch (error) {
         console.error('Error fetching team members:', error);
         return NextResponse.json({ error: 'Ekip üyeleri alınamadı' }, { status: 500 });

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SkeletonList } from '@/app/_components/Skeleton';
-import { Check, X, XCircle, AlertTriangle, FileText, Users } from 'lucide-react';
+import { Check, X, XCircle, AlertTriangle, FileText, Users, Crown } from 'lucide-react';
 import { Button } from '@/app/_components/ui';
 import { useToast } from '@/app/_context/ToastContext';
 
@@ -481,7 +481,7 @@ export default function DepartmentsPage() {
                                                     onClick={() => handleSelectMember(m)}
                                                     className="w-full text-left px-3 py-2 hover:bg-neo-yellow border-b border-gray-200 last:border-0 flex items-center gap-3"
                                                 >
-                                                    <div className="w-8 h-8 bg-gray-200 border border-black flex items-center justify-center font-bold shrink-0 overflow-hidden">
+                                                    <div className="relative w-8 h-8 bg-gray-200 border border-black flex items-center justify-center font-bold shrink-0 overflow-hidden">
                                                         {m.avatar ? (
                                                             <img src={m.avatar} alt={m.fullName} className="w-full h-full object-cover" />
                                                         ) : (
@@ -572,6 +572,29 @@ export default function DepartmentsPage() {
                     </form>
                 </div>
             )}
+
+            {/* Management Board Section */}
+            <div className="bg-white border-4 border-black shadow-neo mb-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-black opacity-5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+                <div className="p-6 flex items-center justify-between flex-wrap gap-4 relative z-10">
+                    <div className="flex items-center gap-6">
+                        <div className="w-20 h-20 bg-black text-white flex items-center justify-center border-4 border-gray-800 shadow-sm">
+                            <Crown size={32} />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black text-black uppercase">Yönetim Kurulu</h2>
+                            <p className="text-gray-600 font-medium">Başkan, yardımcılar ve kurul üyelerini yönetin.</p>
+                        </div>
+                    </div>
+                    <Link
+                        href="/admin/departments/management/members"
+                        className="px-6 py-3 bg-black text-white font-black hover:bg-gray-800 transition-all shadow-neo border-2 border-transparent hover:border-black flex items-center gap-2"
+                    >
+                        <Users size={18} />
+                        Kurul Üyelerini Yönet
+                    </Link>
+                </div>
+            </div>
 
             {/* Department List */}
             <div className="bg-white border-4 border-black shadow-neo">

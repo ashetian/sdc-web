@@ -4,7 +4,7 @@ import Member from '@/app/lib/models/Member';
 import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 // GET - Get current user info
 export async function GET() {

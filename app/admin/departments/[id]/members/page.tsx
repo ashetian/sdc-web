@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Crown, UserPlus, X, Check, Crown as CrownIcon, Star, Target, User, Sparkles, Eye, EyeOff, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Crown, UserPlus, X, Check, Crown as CrownIcon, Star, Target, User, Sparkles, Eye, EyeOff, ChevronUp, ChevronDown, BookOpen, Wallet, Gavel, Users } from 'lucide-react';
 import { SkeletonList } from '@/app/_components/Skeleton';
 import { useParams } from 'next/navigation';
 import { Button, ConfirmModal } from '@/app/_components/ui';
@@ -57,6 +57,11 @@ interface SiteMember {
 const roleOptions = [
     { value: 'president', label: 'Kulüp Başkanı', icon: CrownIcon, color: 'bg-neo-yellow', description: 'Kulübün genel yönetimi' },
     { value: 'vice_president', label: 'Başkan Yardımcısı', icon: Star, color: 'bg-neo-orange', description: 'Başkana destek ve vekalet' },
+    { value: 'secretary', label: 'Yazman', icon: BookOpen, color: 'bg-blue-200', description: 'Yazışma ve kayıtlar' },
+    { value: 'treasurer', label: 'Sayman', icon: Wallet, color: 'bg-green-200', description: 'Mali işler' },
+    { value: 'board_member', label: 'Yönetim Kurulu Üyesi', icon: Users, color: 'bg-purple-200', description: 'Yönetim kurulu üyesi' },
+    { value: 'audit_head', label: 'Denetleme Kurulu Başkanı', icon: Gavel, color: 'bg-red-200', description: 'Denetim liderliği' },
+    { value: 'audit_member', label: 'Denetleme Kurulu Üyesi', icon: Gavel, color: 'bg-red-100', description: 'Denetim üyesi' },
     { value: 'head', label: 'Departman Başkanı', icon: Target, color: 'bg-neo-purple text-white', description: 'Departman liderliği' },
     { value: 'member', label: 'Üye', icon: User, color: 'bg-gray-200', description: 'Departman üyesi' },
     { value: 'featured', label: 'Öne Çıkan', icon: Sparkles, color: 'bg-neo-pink', description: 'Özel katkı sağlayan' },
@@ -121,7 +126,28 @@ export default function DepartmentMembersPage() {
             }
         };
 
-        if (id) fetchData();
+        if (id) {
+            if (id === 'management') {
+                // Mock Management Department
+                setDepartment({
+                    _id: 'management',
+                    name: 'YÖNETİM KURULU',
+                    description: 'Kulüp yönetimi ve denetim kurulu üyeleri.',
+                    color: 'bg-black text-white',
+                });
+
+                // Fetch management members
+                // We fetch by role filter
+                const roles = 'president,vice_president,secretary,treasurer,board_member,audit_head,audit_member';
+                fetch(`/api/team?role=${roles}`)
+                    .then(res => res.json())
+                    .then(data => setMembers(data))
+                    .catch(err => console.error(err))
+                    .finally(() => setLoading(false));
+            } else {
+                fetchData();
+            }
+        }
     }, [id]);
 
     // Search site members
@@ -182,12 +208,24 @@ export default function DepartmentMembersPage() {
         }
 
         try {
+            // Check for duplicates in the current list
+            const targetMemberId = selectedSiteMember?._id || editingMember?.memberId;
+            const isDuplicate = members.some(m =>
+                m.memberId === targetMemberId &&
+                (!editingMember || m._id !== editingMember._id)
+            );
+
+            if (isDuplicate) {
+                showToast('Bu üye zaten bu listede ekli!', 'error');
+                return;
+            }
+
             const url = editingMember ? `/api/team/${editingMember._id}` : '/api/team';
             const method = editingMember ? 'PUT' : 'POST';
 
             const payload = {
                 ...formData,
-                departmentId: id,
+                departmentId: id === 'management' ? undefined : id,
                 name: selectedSiteMember?.fullName || editingMember?.name,
                 email: selectedSiteMember?.email || '',
                 photo: selectedSiteMember?.avatar || editingMember?.photo || '',
@@ -202,9 +240,13 @@ export default function DepartmentMembersPage() {
 
             if (res.ok) {
                 // Refresh members
-                const teamRes = await fetch(`/api/team?departmentId=${id}`);
-                if (teamRes.ok) {
-                    setMembers(await teamRes.json());
+                if (id === 'management') {
+                    const roles = 'president,vice_president,secretary,treasurer,board_member,audit_head,audit_member';
+                    const teamRes = await fetch(`/api/team?role=${roles}`);
+                    if (teamRes.ok) setMembers(await teamRes.json());
+                } else {
+                    const teamRes = await fetch(`/api/team?departmentId=${id}`);
+                    if (teamRes.ok) setMembers(await teamRes.json());
                 }
                 setShowMemberModal(false);
                 showToast(editingMember ? 'Üye güncellendi!' : 'Üye eklendi!', 'success');
@@ -503,7 +545,7 @@ export default function DepartmentMembersPage() {
                                                             onClick={() => handleSelectSiteMember(m)}
                                                             className="w-full text-left p-3 hover:bg-neo-yellow border-b border-gray-100 last:border-0 flex items-center gap-3"
                                                         >
-                                                            <div className="w-10 h-10 border border-black shrink-0 bg-gray-100 flex items-center justify-center font-bold">
+                                                            <div className="relative w-10 h-10 border border-black shrink-0 bg-gray-100 flex items-center justify-center font-bold">
                                                                 {m.avatar ? (
                                                                     <Image src={m.avatar} alt={m.fullName} fill className="object-cover" />
                                                                 ) : (

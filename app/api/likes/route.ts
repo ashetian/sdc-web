@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import Like from '@/app/lib/models/Like';
 import { verifyAuth } from '@/app/lib/auth';
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
 
 // GET: Get like count and user's like status
 export async function GET(request: NextRequest) {
@@ -41,6 +42,18 @@ export async function GET(request: NextRequest) {
 // POST: Toggle like (add if not exists, remove if exists)
 export async function POST(request: NextRequest) {
     try {
+        // Rate limiting check
+        const clientIP = getClientIP(request);
+        const rateLimit = checkRateLimit(clientIP, 'likes', RATE_LIMITS.SENSITIVE);
+
+        if (rateLimit.limited) {
+            const resetSeconds = Math.ceil(rateLimit.resetIn / 1000);
+            return NextResponse.json(
+                { error: `Çok fazla istek. ${resetSeconds} saniye sonra tekrar deneyin.` },
+                { status: 429 }
+            );
+        }
+
         const auth = await verifyAuth(request);
         if (!auth) {
             return NextResponse.json({ error: 'Giriş yapmanız gerekiyor' }, { status: 401 });

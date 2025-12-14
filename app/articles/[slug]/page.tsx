@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
 import ImageLightbox from "../../_components/ImageLightbox";
-import CommentSection from "../../_components/CommentSection";
+import dynamic from "next/dynamic";
+const CommentSection = dynamic(() => import("../../_components/CommentSection"), { ssr: false });
 import { SkeletonList, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 import type { Announcement } from "../../lib/types/api";
 

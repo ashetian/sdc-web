@@ -20,106 +20,28 @@ const schema = z.object({
   isDraft: z.boolean().optional(),
 });
 
-// Tarih ayrıştırma yardımcı fonksiyonu
-function parseDate(dateStr: string): number {
-  try {
-    // Türkçe ay isimleri haritası
-    const turkishMonths: { [key: string]: number } = {
-      'ocak': 0, 'şubat': 1, 'mart': 2, 'nisan': 3, 'mayıs': 4, 'haziran': 5,
-      'temmuz': 6, 'ağustos': 7, 'eylül': 8, 'ekim': 9, 'kasım': 10, 'aralık': 11,
-      'january': 0, 'february': 1, 'march': 2, 'april': 3, 'may': 4, 'june': 5,
-      'july': 6, 'august': 7, 'september': 8, 'october': 9, 'november': 10, 'december': 11
-    };
-
-    // Normalize string: lowercase and trim
-    const normalized = dateStr.toLowerCase().trim();
-
-    // 1. Format: "1 Nisan 2024" veya "1 April 2024"
-    const parts = normalized.split(/\s+/);
-    if (parts.length >= 3) {
-      const day = parseInt(parts[0]);
-      const monthStr = parts[1];
-      const year = parseInt(parts[2]);
-
-      if (!isNaN(day) && !isNaN(year) && turkishMonths[monthStr] !== undefined) {
-        return new Date(year, turkishMonths[monthStr], day).getTime();
-      }
-    }
-
-    // 2. Format: Standart tarih formatları (YYYY-MM-DD, vb.)
-    const date = new Date(dateStr);
-    if (!isNaN(date.getTime())) {
-      return date.getTime();
-    }
-
-    return 0; // Ayrıştırılamayan tarihler en sona
-  } catch (e) {
-    return 0;
-  }
-}
+import { getAnnouncements, parseDate } from '@/app/lib/services/announcementService';
 
 export async function GET(request: Request) {
   try {
-    await connectDB();
-
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get('active') === 'true';
-    const typeFilter = searchParams.get('type');
+    const type = searchParams.get('type') || undefined;
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '0'); // 0 = no limit (backward compatible)
+    const limit = parseInt(searchParams.get('limit') || '0');
 
-    // Build query based on parameters
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const query: any = {};
-    if (activeOnly) {
-      query.isDraft = { $ne: true };
-      query.isArchived = { $ne: true };
-    }
-    if (typeFilter) {
-      query.type = typeFilter;
-    }
-
-    // Get total count for pagination
-    const total = await Announcement.countDocuments(query);
-
-    // Önce hepsini çekiyoruz, çünkü string tarih alanına göre veritabanı seviyesinde sıralama yapamayız
-    const announcements = await Announcement.find(query);
-
-    // JavaScript tarafında sıralama yapıyoruz
-    const sortedAnnouncements = announcements.sort((a, b) => {
-      let dateA = parseDate(a.date);
-      let dateB = parseDate(b.date);
-
-      // If date is invalid (0), fallback to createdAt
-      if (dateA === 0) dateA = new Date(a.createdAt).getTime();
-      if (dateB === 0) dateB = new Date(b.createdAt).getTime();
-
-      // Tarihler eşitse oluşturulma tarihine göre (yeni olan önce)
-      if (dateA === dateB) {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      }
-
-      // Tarihe göre azalan sıralama (yeni tarih önce)
-      return dateB - dateA;
+    const result = await getAnnouncements({
+      activeOnly,
+      type,
+      page,
+      limit
     });
 
-    // Apply pagination if limit > 0
-    if (limit > 0) {
-      const skip = (page - 1) * limit;
-      const paginatedAnnouncements = sortedAnnouncements.slice(skip, skip + limit);
-      const totalPages = Math.ceil(total / limit);
-
-      return NextResponse.json({
-        items: paginatedAnnouncements,
-        total,
-        page,
-        totalPages,
-        hasMore: page < totalPages,
-      });
-    }
-
-    // Backward compatible - return array directly if no pagination
-    return NextResponse.json(sortedAnnouncements);
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+      }
+    });
   } catch (error) {
     console.error('Duyurular alınırken hata oluştu:', error);
     return NextResponse.json(
@@ -178,6 +100,14 @@ export async function POST(request: NextRequest) {
     const { translateDate } = await import('@/app/lib/translate');
     const dateEn = translateDate(data.date);
     announcementData.dateEn = dateEn;
+
+    // Populate dateObj for sorting
+    const timestamp = parseDate(data.date);
+    if (timestamp !== 0) {
+      announcementData.dateObj = new Date(timestamp);
+    } else {
+      announcementData.dateObj = new Date();
+    }
 
     if (process.env.DEEPL_API_KEY) {
       try {

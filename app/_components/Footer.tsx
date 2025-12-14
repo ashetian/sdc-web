@@ -39,6 +39,9 @@ export default function Footer() {
             <p className="text-sm opacity-70 max-w-xs text-center md:text-left">
               {t('footer.description')}
             </p>
+            <a href="mailto:contact@ktusdc.com" className="text-sm opacity-70 hover:opacity-100 hover:text-neo-yellow transition-all mt-2 inline-block">
+              contact@ktusdc.com
+            </a>
           </div>
 
           {/* Quick Links */}

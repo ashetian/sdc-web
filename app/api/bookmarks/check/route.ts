@@ -4,7 +4,7 @@ import { jwtVerify } from 'jose';
 import connectDB from '@/app/lib/db';
 import Bookmark from '@/app/lib/models/Bookmark';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 async function getAuthUser() {
     const cookieStore = await cookies();

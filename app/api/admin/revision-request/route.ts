@@ -7,7 +7,7 @@ import ForumTopic from '@/app/lib/models/ForumTopic';
 import Notification from '@/app/lib/models/Notification';
 import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 async function verifyAdmin(request: NextRequest): Promise<{ isAdmin: boolean; userId?: string; name?: string }> {
     const cookieStore = await cookies();

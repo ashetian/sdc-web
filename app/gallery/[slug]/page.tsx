@@ -4,9 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "../../_context/LanguageContext";
 import ShareButtons from "../../_components/ShareButtons";
-import CommentSection from "../../_components/CommentSection";
+import dynamic from "next/dynamic";
+const CommentSection = dynamic(() => import("../../_components/CommentSection"), { ssr: false });
 import BookmarkButton from "../../_components/BookmarkButton";
 import LikeButton from "../../_components/LikeButton";
+import ImageLightbox from "../../_components/ImageLightbox";
 import { SkeletonGallery, SkeletonPageHeader, SkeletonFullPage } from "@/app/_components/Skeleton";
 import type { Announcement } from "../../lib/types/api";
 
@@ -96,17 +98,18 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
 
           {announcement.galleryCover && (
             <div className="mb-8 border-4 border-black shadow-neo">
-              <Image
+              <ImageLightbox
                 src={announcement.galleryCover}
                 alt={getTitle(announcement)}
                 width={800}
                 height={400}
                 className="w-full object-cover"
+                sizes="(max-width: 896px) 100vw, 896px"
               />
             </div>
           )}
 
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <span
               className={`px-4 py-1 text-sm font-black uppercase border-2 border-black shadow-neo-sm
                 ${announcement.type === "event" ? "bg-neo-purple text-white" :
@@ -136,12 +139,13 @@ export default function GalleryDetailPage({ params }: { params: Promise<{ slug: 
               {announcement.galleryLinks.map((link, i) => (
                 <div key={i} className="w-full border-4 border-black shadow-neo bg-black p-2">
                   {isImage(link) ? (
-                    <Image
+                    <ImageLightbox
                       src={link}
                       alt={`${t('gallery.detail.galleryImage')} ${i + 1}`}
                       width={800}
                       height={500}
                       className="w-full object-contain bg-black"
+                      sizes="(max-width: 896px) 100vw, 896px"
                     />
                   ) : isVideo(link) ? (
                     <video

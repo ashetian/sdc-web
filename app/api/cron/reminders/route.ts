@@ -3,7 +3,7 @@ import connectDB from '@/app/lib/db';
 import { Event } from '@/app/lib/models/Event';
 import { Registration } from '@/app/lib/models/Registration';
 import { sendEmail, wrapEmailHtml } from '@/app/lib/email';
-import moment from 'moment';
+
 
 // CRON JOB Endpoint
 // Vercel Cron can call this daily
@@ -18,19 +18,22 @@ export async function GET(request: Request) {
         await connectDB();
 
         // 1. Find events starting tomorrow (between 24h and 48h from now, or exactly “tomorrow”)
-        // Logic: Find events where startDate is > now and < now + 24h + buffer?
-        // Better: Find events where startDate is tomorrow.
+        // Logic: Find events where startDate is tomorrow.
         // Let's simplfy: Find events starting in the next 24-48 hours that haven't sent reminders yet.
 
-        const now = moment();
-        const tomorrowStart = moment().add(1, 'days').startOf('day');
-        const tomorrowEnd = moment().add(1, 'days').endOf('day');
+        const now = new Date();
+        const tomorrowStart = new Date(now);
+        tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+        tomorrowStart.setHours(0, 0, 0, 0);
+
+        const tomorrowEnd = new Date(tomorrowStart);
+        tomorrowEnd.setHours(23, 59, 59, 999);
 
         // Events happening tomorrow, not yet reminded
         const events = await Event.find({
             startDate: {
-                $gte: tomorrowStart.toDate(),
-                $lte: tomorrowEnd.toDate()
+                $gte: tomorrowStart,
+                $lte: tomorrowEnd
             },
             remindersSent: { $ne: true },
             isPublished: true

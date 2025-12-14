@@ -8,7 +8,7 @@ import Project from '@/app/lib/models/Project';
 import { Announcement, IAnnouncement } from '@/app/lib/models/Announcement';
 import Comment from '@/app/lib/models/Comment';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 async function getAuthUser() {
     const cookieStore = await cookies();

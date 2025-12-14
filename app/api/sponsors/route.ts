@@ -5,17 +5,18 @@ import { verifyAuth } from '@/app/lib/auth';
 import AdminAccess from '@/app/lib/models/AdminAccess';
 import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
+import { getSponsors } from '@/app/lib/services/sponsorService';
+
 // GET: Fetch all sponsors
 export async function GET(request: NextRequest) {
     try {
-        await connectDB();
-
         const activeOnly = request.nextUrl.searchParams.get('active') === 'true';
-
-        const query = activeOnly ? { isActive: true } : {};
-        const sponsors = await Sponsor.find(query).sort({ order: 1 }).lean();
-
-        return NextResponse.json(sponsors);
+        const sponsors = await getSponsors({ activeOnly });
+        return NextResponse.json(sponsors, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+            }
+        });
     } catch (error) {
         console.error('Sponsors fetch error:', error);
         return NextResponse.json({ error: 'Sponsorlar alınamadı' }, { status: 500 });

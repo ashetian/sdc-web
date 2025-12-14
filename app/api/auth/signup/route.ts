@@ -4,10 +4,23 @@ import Member from '@/app/lib/models/Member';
 import PasswordToken from '@/app/lib/models/PasswordToken';
 import { sendEmail, maskEmail, generatePasswordSetupEmail } from '@/app/lib/email';
 import crypto from 'crypto';
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
 
 // POST - Request signup with student number (2-step verification)
 export async function POST(request: NextRequest) {
     try {
+        // Rate limiting check
+        const clientIP = getClientIP(request);
+        const rateLimit = checkRateLimit(clientIP, 'signup', RATE_LIMITS.LOGIN);
+
+        if (rateLimit.limited) {
+            const resetSeconds = Math.ceil(rateLimit.resetIn / 1000);
+            return NextResponse.json(
+                { error: `Çok fazla deneme. ${resetSeconds} saniye sonra tekrar deneyin.` },
+                { status: 429 }
+            );
+        }
+
         await connectDB();
 
         const { studentNo, kvkkAccepted, emailConsent, nativeLanguage, emailVerification, step } = await request.json();

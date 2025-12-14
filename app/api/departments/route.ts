@@ -4,12 +4,17 @@ import Department from '@/app/lib/models/Department';
 import { verifyAuth } from '@/app/lib/auth';
 import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
 
+import { getDepartments } from '@/app/lib/services/teamService';
+
 // GET - List all departments
 export async function GET() {
     try {
-        await connectDB();
-        const departments = await Department.find({ isActive: true }).sort({ order: 1 });
-        return NextResponse.json(departments);
+        const departments = await getDepartments();
+        return NextResponse.json(departments, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+            }
+        });
     } catch (error) {
         console.error('Error fetching departments:', error);
         return NextResponse.json({ error: 'Departmanlar alınamadı' }, { status: 500 });

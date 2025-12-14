@@ -115,6 +115,7 @@ export interface Announcement {
     imageOrientation?: 'horizontal' | 'vertical';
     date: string;
     dateEn?: string;
+    dateObj?: string | Date; // Added for sorting
     slug: string;
     isDraft: boolean;
     isArchived?: boolean;

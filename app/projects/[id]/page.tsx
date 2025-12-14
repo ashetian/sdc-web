@@ -7,7 +7,8 @@ import Image from 'next/image';
 import { useLanguage } from '../../_context/LanguageContext';
 import BookmarkButton from '@/app/_components/BookmarkButton';
 import LikeButton from '@/app/_components/LikeButton';
-import CommentSection from '@/app/_components/CommentSection';
+import dynamic from "next/dynamic";
+const CommentSection = dynamic(() => import('@/app/_components/CommentSection'), { ssr: false });
 import type { Project } from '../../lib/types/api';
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {

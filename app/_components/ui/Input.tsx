@@ -1,6 +1,7 @@
 'use client';
 
-import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 // ========== Input ==========
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -10,7 +11,11 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ label, error, hint, className = '', ...props }, ref) => {
+    ({ label, error, hint, className = '', type, ...props }, ref) => {
+        const [showPassword, setShowPassword] = useState(false);
+        const isPassword = type === 'password';
+        const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
+
         const baseStyles = `
             w-full px-4 py-3 
             border-2 border-black 
@@ -28,15 +33,29 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                         {props.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                 )}
-                <input
-                    ref={ref}
-                    className={`
-                        ${baseStyles}
-                        ${error ? 'border-red-500' : ''}
-                        ${className}
-                    `.trim()}
-                    {...props}
-                />
+                <div className="relative">
+                    <input
+                        ref={ref}
+                        type={inputType}
+                        className={`
+                            ${baseStyles}
+                            ${error ? 'border-red-500' : ''}
+                            ${className}
+                            ${isPassword ? 'pr-12' : ''}
+                        `.trim()}
+                        {...props}
+                    />
+                    {isPassword && (
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none bg-transparent border-none shadow-none transition-none active:translate-x-0 active:-translate-y-1/2"
+                            tabIndex={-1}
+                        >
+                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                    )}
+                </div>
                 {hint && !error && (
                     <p className="mt-1 text-xs text-gray-500">{hint}</p>
                 )}

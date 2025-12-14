@@ -157,5 +157,8 @@ const announcementSchema = new mongoose.Schema<IAnnouncement>(
   }
 );
 
+// Indexes
+announcementSchema.index({ eventId: 1 });
+
 // Model zaten tanımlıysa onu kullan, değilse yeni model oluştur
 export const Announcement = mongoose.models.Announcement || mongoose.model<IAnnouncement>('Announcement', announcementSchema); 

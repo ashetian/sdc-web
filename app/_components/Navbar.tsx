@@ -125,7 +125,7 @@ export default function Navbar() {
               {/* Desktop Menu Links */}
               <div className="hidden md:flex items-center space-x-6">
                 <NavLink onClick={() => scrollToSection("home")} text={t('nav.home')} />
-                <NavLink onClick={() => router.push("/forum")} text="Forum" />
+                <NavLink onClick={() => router.push("/events")} text={t('nav.events')} />
                 <NavLink onClick={() => scrollToSection("contact")} text={t('nav.contact')} />
 
                 {/* Club Room Status Indicator */}

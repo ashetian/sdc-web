@@ -4,7 +4,7 @@ import Notification from '@/app/lib/models/Notification';
 import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 // GET: Get unread notification count
 export async function GET() {

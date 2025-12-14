@@ -37,7 +37,11 @@ export async function GET(request: Request) {
             announcementSlug: announcementMap.get(event._id.toString())
         }));
 
-        return NextResponse.json(eventsWithSlugs);
+        return NextResponse.json(eventsWithSlugs, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+            }
+        });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: 'Etkinlikler getirilemedi.' }, { status: 500 });

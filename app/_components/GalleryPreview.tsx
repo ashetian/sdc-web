@@ -7,8 +7,8 @@ import { useLanguage } from "../_context/LanguageContext";
 import { useAnnouncements } from "../lib/swr";
 import type { Announcement } from "../lib/types/api";
 
-export default function GalleryPreview() {
-  const { data, isLoading } = useAnnouncements();
+export default function GalleryPreview({ initialData }: { initialData?: Announcement[] }) {
+  const { data, isLoading } = useAnnouncements({ fallbackData: initialData });
   const { language, t } = useLanguage();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 

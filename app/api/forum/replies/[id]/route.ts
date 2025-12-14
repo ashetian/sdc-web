@@ -5,7 +5,7 @@ import ForumTopic from '@/app/lib/models/ForumTopic';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'sdc-secret-key-change-in-production');
+import { JWT_SECRET } from '@/app/lib/auth';
 
 interface RouteParams {
     params: Promise<{ id: string }>;

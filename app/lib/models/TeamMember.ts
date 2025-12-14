@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 
-export type TeamRole = 'president' | 'vice_president' | 'head' | 'member' | 'featured';
+export type TeamRole = 'president' | 'vice_president' | 'head' | 'member' | 'featured' | 'secretary' | 'treasurer' | 'board_member' | 'audit_head' | 'audit_member';
 
 export interface ITeamMember extends Document {
     name: string;
@@ -44,7 +44,7 @@ const TeamMemberSchema = new Schema<ITeamMember>(
         },
         role: {
             type: String,
-            enum: ['president', 'vice_president', 'head', 'member', 'featured'],
+            enum: ['president', 'vice_president', 'head', 'member', 'featured', 'secretary', 'treasurer', 'board_member', 'audit_head', 'audit_member'],
             default: 'member',
         },
         memberId: {
