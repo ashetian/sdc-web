@@ -38,13 +38,13 @@ export const NavButton = forwardRef<HTMLButtonElement, NavButtonProps>(
             <button
                 ref={ref}
                 className={`
-                    hidden md:flex items-center justify-center
+                    flex items-center justify-center
                     ${sizeStyles[size]}
                     bg-white border-4 border-black
                     shadow-neo hover:shadow-neo-sm active:shadow-none
                     hover:translate-y-[2px] active:translate-y-[4px]
                     transition-all duration-150
-                    font-black z-20
+                    font-black
                     ${className}
                 `.trim().replace(/\s+/g, ' ')}
                 {...props}

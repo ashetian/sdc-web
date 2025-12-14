@@ -86,20 +86,22 @@ export default function GalleryPreview({ initialData }: { initialData?: Announce
       id="gallery-preview"
     >
       {/* Left navigation button - screen edge, hidden on mobile */}
-      <NavButton
-        direction="left"
-        onClick={() => scroll('left')}
-        aria-label={t('gallery.previous')}
-        className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2"
-      />
+      <div className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 hidden md:block z-20">
+        <NavButton
+          direction="left"
+          onClick={() => scroll('left')}
+          aria-label={t('gallery.previous')}
+        />
+      </div>
 
       {/* Right navigation button - screen edge, hidden on mobile */}
-      <NavButton
-        direction="right"
-        onClick={() => scroll('right')}
-        aria-label={t('gallery.next')}
-        className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2"
-      />
+      <div className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 hidden md:block z-20">
+        <NavButton
+          direction="right"
+          onClick={() => scroll('right')}
+          aria-label={t('gallery.next')}
+        />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">

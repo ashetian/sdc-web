@@ -237,18 +237,20 @@ export default function Announcements({ initialData }: { initialData?: Announcem
           {/* Navigation Buttons - Only for Announcements Swiper */}
           {activeTab === 'announcements' && filteredAnnouncements.length > 1 && (
             <>
-              <NavButton
-                direction="left"
-                onClick={goToPrev}
-                aria-label="Previous announcement"
-                className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2"
-              />
-              <NavButton
-                direction="right"
-                onClick={goToNext}
-                aria-label="Next announcement"
-                className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2"
-              />
+              <div className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 hidden md:block z-20">
+                <NavButton
+                  direction="left"
+                  onClick={goToPrev}
+                  aria-label="Previous announcement"
+                />
+              </div>
+              <div className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 hidden md:block z-20">
+                <NavButton
+                  direction="right"
+                  onClick={goToNext}
+                  aria-label="Next announcement"
+                />
+              </div>
             </>
           )}
         </div>
