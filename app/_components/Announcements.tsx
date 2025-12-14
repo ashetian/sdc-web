@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLanguage } from "../_context/LanguageContext";
 import ImageLightbox from "./ImageLightbox";
 import { useAnnouncements } from "../lib/swr";
+import { NavButton } from "./ui";
 import type { Announcement } from "../lib/types/api";
 
 // Swiper imports
@@ -236,26 +237,18 @@ export default function Announcements({ initialData }: { initialData?: Announcem
           {/* Navigation Buttons - Only for Announcements Swiper */}
           {activeTab === 'announcements' && filteredAnnouncements.length > 1 && (
             <>
-              <button
+              <NavButton
+                direction="left"
                 onClick={goToPrev}
-                className="hidden md:flex md:absolute left-1 sm:left-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
-                style={{ transform: 'translateY(-50%)' }}
                 aria-label="Previous announcement"
-              >
-                <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
+                className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2"
+              />
+              <NavButton
+                direction="right"
                 onClick={goToNext}
-                className="hidden md:flex md:absolute right-1 sm:right-4 top-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white border-2 sm:border-4 border-black shadow-neo items-center justify-center hover:bg-black hover:text-white transition-colors z-10"
-                style={{ transform: 'translateY(-50%)' }}
                 aria-label="Next announcement"
-              >
-                <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+                className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2"
+              />
             </>
           )}
         </div>

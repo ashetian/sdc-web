@@ -2,9 +2,9 @@
 import { useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "../_context/LanguageContext";
 import { useAnnouncements } from "../lib/swr";
+import { NavButton } from "./ui";
 import type { Announcement } from "../lib/types/api";
 
 export default function GalleryPreview({ initialData }: { initialData?: Announcement[] }) {
@@ -86,22 +86,20 @@ export default function GalleryPreview({ initialData }: { initialData?: Announce
       id="gallery-preview"
     >
       {/* Left navigation button - screen edge, hidden on mobile */}
-      <button
+      <NavButton
+        direction="left"
         onClick={() => scroll('left')}
-        className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 items-center justify-center bg-white border-4 border-black shadow-neo hover:shadow-neo-sm hover:translate-y-[calc(-50%+2px)] active:shadow-none active:translate-y-[calc(-50%+4px)] transition-all font-black"
         aria-label={t('gallery.previous')}
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
+        className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2"
+      />
 
       {/* Right navigation button - screen edge, hidden on mobile */}
-      <button
+      <NavButton
+        direction="right"
         onClick={() => scroll('right')}
-        className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 items-center justify-center bg-white border-4 border-black shadow-neo hover:shadow-neo-sm hover:translate-y-[calc(-50%+2px)] active:shadow-none active:translate-y-[calc(-50%+4px)] transition-all font-black"
         aria-label={t('gallery.next')}
-      >
-        <ChevronRight className="w-6 h-6" />
-      </button>
+        className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">

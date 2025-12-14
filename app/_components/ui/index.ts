@@ -7,6 +7,10 @@
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
 
+// Navigation Button
+export { NavButton } from './NavButton';
+export type { NavButtonProps } from './NavButton';
+
 // Card
 export { Card, CardHeader, CardDescription } from './Card';
 export type { CardProps } from './Card';
