@@ -2,13 +2,26 @@ import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
-// Centralized JWT_SECRET - warns if missing but allows build
+// Centralized JWT_SECRET - REQUIRED in production
 const jwtSecretString = process.env.JWT_SECRET;
+
 if (!jwtSecretString && typeof window === 'undefined') {
-    console.warn('⚠️ JWT_SECRET environment variable is not set. Using dev fallback.');
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+            '🔴 CRITICAL: JWT_SECRET environment variable is required in production! ' +
+            'Set it in your environment variables before deploying.'
+        );
+    }
+    console.warn(
+        '⚠️ JWT_SECRET not set. Using INSECURE dev fallback. ' +
+        'DO NOT deploy to production without setting JWT_SECRET!'
+    );
 }
 
-export const JWT_SECRET = new TextEncoder().encode(jwtSecretString || 'dev-only-secret-do-not-use-in-production');
+// In production, this will never use the fallback due to the throw above
+export const JWT_SECRET = new TextEncoder().encode(
+    jwtSecretString || 'dev-only-fallback-NEVER-USE-IN-PRODUCTION'
+);
 
 export async function verifyAuth(req?: NextRequest) {
     try {
