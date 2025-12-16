@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Check, CheckCheck, Trash2, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { Bell, Check, CheckCheck, Trash2, ArrowLeft, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useLanguage } from "../_context/LanguageContext";
 import { SkeletonNotifications, SkeletonPageHeader } from "../_components/Skeleton";
 
@@ -40,6 +40,7 @@ export default function NotificationsPage() {
     });
     const router = useRouter();
     const { language } = useLanguage();
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const labels = {
         tr: {
@@ -109,12 +110,19 @@ export default function NotificationsPage() {
     // Delete notification
     const handleDelete = async (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
-        await fetch("/api/notifications", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id }),
-        });
-        setNotifications((prev) => prev.filter((n) => n._id !== id));
+        setDeletingId(id);
+        try {
+            const res = await fetch("/api/notifications", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id }),
+            });
+            if (res.ok) {
+                setNotifications((prev) => prev.filter((n) => n._id !== id));
+            }
+        } finally {
+            setDeletingId(null);
+        }
     };
 
     // Format time
@@ -256,9 +264,14 @@ export default function NotificationsPage() {
                                     {/* Delete Button */}
                                     <button
                                         onClick={(e) => handleDelete(e, notification._id)}
-                                        className="flex-shrink-0 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                        disabled={deletingId === notification._id}
+                                        className="flex-shrink-0 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
                                     >
-                                        <Trash2 size={18} />
+                                        {deletingId === notification._id ? (
+                                            <Loader2 size={18} className="animate-spin" />
+                                        ) : (
+                                            <Trash2 size={18} />
+                                        )}
                                     </button>
                                 </div>
                             ))}
