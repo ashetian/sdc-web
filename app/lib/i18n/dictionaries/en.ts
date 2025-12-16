@@ -414,6 +414,12 @@ export const en = {
         consent: 'Consent',
         cookedBy: 'Cooked by',
     },
+    cookie: {
+        title: '🍪 Cookie Notice',
+        message: 'This website uses essential cookies for session management.',
+        noThirdParty: '✓ This site does not use third-party cookies.',
+        accept: 'Got it',
+    },
     common: {
         loading: 'Loading...',
         error: 'An error occurred',

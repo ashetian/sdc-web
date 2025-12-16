@@ -411,6 +411,12 @@ export const tr = {
         consent: 'Açık Rıza',
         cookedBy: 'Cooked by',
     },
+    cookie: {
+        title: '🍪 Çerez Bildirimi',
+        message: 'Bu web sitesi, oturum yönetimi için zorunlu çerezler kullanmaktadır.',
+        noThirdParty: '✓ Bu site üçüncü taraf çerez kullanmamaktadır.',
+        accept: 'Anladım',
+    },
     common: {
         loading: 'Yükleniyor...',
         error: 'Bir hata oluştu',

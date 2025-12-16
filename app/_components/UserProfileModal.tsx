@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { X, Github, Linkedin, Twitter, Globe, Instagram, MapPin, Mail, School } from 'lucide-react';
+import { X, Github, Linkedin, Twitter, Globe, Instagram, MapPin, Mail, School, Phone } from 'lucide-react';
 import { SkeletonList, SkeletonAvatar } from '@/app/_components/Skeleton';
 import type { User } from '../lib/types/api';
 
@@ -51,7 +51,7 @@ export default function UserProfileModal({ userId, onClose }: UserProfileModalPr
                     </button>
                 </div>
 
-                <div className="p-6">
+                <div className="p-6 relative">
                     {loading ? (
                         <div className="flex justify-center py-8">
                             <SkeletonList items={5} />
@@ -60,6 +60,13 @@ export default function UserProfileModal({ userId, onClose }: UserProfileModalPr
                         <div className="text-center py-8 text-red-600 font-bold">{error}</div>
                     ) : profile ? (
                         <div className="flex flex-col items-center text-center space-y-4">
+                            {/* Nickname Badge (only if real name is shown) */}
+                            {profile.fullName && (
+                                <div className="absolute top-2 right-2 bg-black text-white text-xs font-black px-2 py-1 border-2 border-white shadow-neo-sm transform rotate-2">
+                                    @{profile.nickname}
+                                </div>
+                            )}
+
                             {/* Avatar */}
                             <div className="relative w-32 h-32 border-4 border-black shadow-neo mb-2">
                                 {profile.avatar ? (
@@ -79,9 +86,6 @@ export default function UserProfileModal({ userId, onClose }: UserProfileModalPr
                             {/* Name & Role */}
                             <div>
                                 <h3 className="text-2xl font-black">{profile.fullName || profile.nickname}</h3>
-                                {profile.fullName && profile.nickname && (
-                                    <p className="text-gray-500 font-bold">@{profile.nickname}</p>
-                                )}
                                 {profile.department && (
                                     <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-gray-100 border-2 border-black text-xs font-bold">
                                         <School size={14} />
@@ -104,6 +108,12 @@ export default function UserProfileModal({ userId, onClose }: UserProfileModalPr
                                         <div className="flex items-center justify-center gap-2 text-gray-600">
                                             <Mail size={16} />
                                             <span>{profile.email}</span>
+                                        </div>
+                                    )}
+                                    {profile.phone && (
+                                        <div className="flex items-center justify-center gap-2 text-gray-600">
+                                            <Phone size={16} />
+                                            <span>{profile.phone}</span>
                                         </div>
                                     )}
                                 </div>

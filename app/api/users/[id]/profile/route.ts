@@ -16,7 +16,7 @@ export async function GET(
         // but requirements say "public profile modal".
         // Let's stick to safe public data based on visibility settings.
 
-        const member = await Member.findById(id).select('firstName lastName nickname avatar bio socialLinks profileVisibility department studentNo email phone');
+        const member = await Member.findById(id).select('fullName nickname avatar bio socialLinks profileVisibility department studentNo email phone');
 
         if (!member) {
             return NextResponse.json({ error: 'Kullanıcı bulunamadı' }, { status: 404 });
