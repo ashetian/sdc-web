@@ -85,6 +85,7 @@ export interface Event {
     registrationCount?: number;
     isActive?: boolean;
     isOpen?: boolean;
+    allowGuestRegistration?: boolean;
     isEnded?: boolean;
     checkinCode?: string;
     slug?: string;

@@ -383,6 +383,7 @@ export default function ApplyPage() {
                                         value={formData.phone}
                                         onChange={handleInputChange}
                                         className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-black"
+                                        placeholder="5XX-XXX-XX-XX"
                                         required
                                     />
                                 </div>

@@ -17,6 +17,7 @@ interface EventData {
     eventEndDate?: string;
     location?: string;
     isOpen: boolean;
+    allowGuestRegistration: boolean;
     isPaid: boolean;
     price?: number;
     iban?: string;
@@ -35,6 +36,7 @@ export default function EditEventPage() {
         eventEndDate: '',
         location: '',
         isOpen: false,
+        allowGuestRegistration: false,
         isPaid: false,
         price: '',
         iban: '',
@@ -60,6 +62,7 @@ export default function EditEventPage() {
                     eventEndDate: event.eventEndDate ? formatDateTimeForInput(event.eventEndDate) : '',
                     location: event.location || '',
                     isOpen: event.isOpen || false,
+                    allowGuestRegistration: event.allowGuestRegistration || false,
                     isPaid: event.isPaid || false,
                     price: event.price?.toString() || '',
                     iban: event.iban || '',
@@ -307,6 +310,15 @@ export default function EditEventPage() {
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="checkbox"
+                            className="w-5 h-5 border-2 border-purple-600"
+                            checked={formData.allowGuestRegistration}
+                            onChange={(e) => setFormData({ ...formData, allowGuestRegistration: e.target.checked })}
+                        />
+                        <span className="font-bold text-black">Misafir Kayıtlara Açık</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
                             className="w-5 h-5 border-2 border-black"
                             checked={formData.isPaid}
                             onChange={(e) => setFormData({ ...formData, isPaid: e.target.checked })}
@@ -363,7 +375,7 @@ export default function EditEventPage() {
                         Kaydet
                     </Button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }

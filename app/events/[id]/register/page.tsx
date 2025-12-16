@@ -244,6 +244,21 @@ export default function RegisterPage() {
                         >
                             {t('events.registerPage.login')}
                         </Link>
+
+                        {event.allowGuestRegistration && (
+                            <div className="text-center space-y-2">
+                                <p className="text-sm font-bold text-gray-600">
+                                    {t('events.registerPage.notStudent') || 'Öğrenci değil misiniz?'}
+                                </p>
+                                <Link
+                                    href={`/events/${params.id}/guest-register`}
+                                    className="w-full flex justify-center py-3 px-4 border-2 border-black bg-neo-yellow text-black font-bold hover:bg-neo-green hover:shadow-neo transition-all"
+                                >
+                                    {t('events.registerPage.guestRegister') || 'Misafir olarak kayıt olun'}
+                                </Link>
+                            </div>
+                        )}
+
                         <Link
                             href="/events"
                             className="w-full flex justify-center py-3 px-4 border-2 border-black text-black font-bold hover:bg-gray-100 transition-all"

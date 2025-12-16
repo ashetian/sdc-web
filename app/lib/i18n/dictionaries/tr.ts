@@ -129,7 +129,9 @@ export const tr = {
             register: '✓ Kaydol',
             kvkkNote: 'Kaydolarak KVKK Aydınlatma Metni\'ni kabul etmiş olursunuz.',
             error: 'Bir hata oluştu.',
-            registrationError: 'Kayıt sırasında hata oluştu.'
+            registrationError: 'Kayıt sırasında hata oluştu.',
+            guestRegister: 'Misafir olarak kayıt olun',
+            notStudent: 'Öğrenci değil misiniz?'
         },
         checkinPage: {
             title: 'Etkinlik Anketi',

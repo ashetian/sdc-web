@@ -29,6 +29,7 @@ export interface IEvent {
   location?: string;
   isOpen: boolean;
   isPaid: boolean;
+  allowGuestRegistration: boolean;
   price?: number;
   iban?: string;
   createdAt: Date;
@@ -75,6 +76,10 @@ const eventSchema = new mongoose.Schema<IEvent>(
       default: false,
     },
     isPaid: {
+      type: Boolean,
+      default: false,
+    },
+    allowGuestRegistration: {
       type: Boolean,
       default: false,
     },

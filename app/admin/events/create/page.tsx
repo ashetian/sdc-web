@@ -18,6 +18,7 @@ export default function CreateEventPage() {
         eventEndDate: '',
         location: '',
         isOpen: false,
+        allowGuestRegistration: false,
         isPaid: false,
         price: '',
         iban: '',
@@ -229,6 +230,19 @@ export default function CreateEventPage() {
                     />
                     <label htmlFor="isOpen" className="ml-2 block text-sm text-gray-700">
                         Başvuruları hemen aç
+                    </label>
+                </div>
+
+                <div className="flex items-center">
+                    <input
+                        id="allowGuestRegistration"
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        checked={formData.allowGuestRegistration}
+                        onChange={(e) => setFormData({ ...formData, allowGuestRegistration: e.target.checked })}
+                    />
+                    <label htmlFor="allowGuestRegistration" className="ml-2 block text-sm text-gray-700">
+                        Misafir Kayıtlara Açık <span className="text-gray-400">(Üniversite dışı katılımcılar)</span>
                     </label>
                 </div>
 

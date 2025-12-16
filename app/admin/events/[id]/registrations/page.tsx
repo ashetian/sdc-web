@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
-import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import Link from 'next/link';
-import { ChevronLeft, Check, Download } from 'lucide-react';
+import { ChevronLeft, Check, Download, Mail, UserX, UserCheck } from 'lucide-react';
+import { useToast } from '@/app/_context/ToastContext';
+import { Button } from '@/app/_components/ui';
 
 interface Member {
     _id: string;
@@ -26,7 +28,6 @@ interface Registration {
     paymentProofUrl?: string;
     paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
     createdAt: string;
-    // Legacy fields (for old registrations)
     studentNumber?: string;
     name?: string;
     phone?: string;
@@ -34,10 +35,26 @@ interface Registration {
     email?: string;
 }
 
+interface GuestRegistration {
+    _id: string;
+    fullName: string;
+    email: string;
+    phone?: string;
+    status: 'pending' | 'approved' | 'rejected';
+    attendedAt?: string;
+    attendanceEmailSentAt?: string;
+    rating?: number;
+    feedback?: string;
+    paymentProofUrl?: string;
+    paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
+    createdAt: string;
+}
+
 interface Event {
     _id: string;
     title: string;
     isPaid: boolean;
+    allowGuestRegistration: boolean;
     price?: number;
     isEnded?: boolean;
     actualDuration?: number;
@@ -51,10 +68,14 @@ interface AttendanceStats {
 
 export default function EventRegistrationsPage() {
     const params = useParams();
+    const { showToast } = useToast();
     const [registrations, setRegistrations] = useState<Registration[]>([]);
+    const [guestRegistrations, setGuestRegistrations] = useState<GuestRegistration[]>([]);
     const [event, setEvent] = useState<Event | null>(null);
     const [stats, setStats] = useState<AttendanceStats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'members' | 'guests'>('members');
+    const [processingGuest, setProcessingGuest] = useState<string | null>(null);
 
     useEffect(() => {
         if (params.id) {
@@ -64,9 +85,10 @@ export default function EventRegistrationsPage() {
 
     const fetchData = async (eventId: string) => {
         try {
-            const [eventRes, attendanceRes] = await Promise.all([
+            const [eventRes, attendanceRes, guestRes] = await Promise.all([
                 fetch(`/api/events/${eventId}`),
-                fetch(`/api/events/${eventId}/attendance`)
+                fetch(`/api/events/${eventId}/attendance`),
+                fetch(`/api/events/${eventId}/guest-registrations`)
             ]);
 
             if (eventRes.ok) {
@@ -78,6 +100,10 @@ export default function EventRegistrationsPage() {
                 setRegistrations(data.registrations || []);
                 setStats(data.stats || null);
             }
+
+            if (guestRes.ok) {
+                setGuestRegistrations(await guestRes.json());
+            }
         } catch (error) {
             console.error('Veriler yüklenirken hata:', error);
         } finally {
@@ -85,34 +111,82 @@ export default function EventRegistrationsPage() {
         }
     };
 
+    const handleGuestApproval = async (guestId: string, action: 'approve' | 'reject') => {
+        setProcessingGuest(guestId);
+        try {
+            const res = await fetch(`/api/events/${params.id}/guest-registrations/${guestId}/approve`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action }),
+            });
+
+            if (res.ok) {
+                showToast(action === 'approve' ? 'Kayıt onaylandı' : 'Kayıt reddedildi', 'success');
+                fetchData(params.id as string);
+            } else {
+                const data = await res.json();
+                showToast(data.error || 'İşlem başarısız', 'error');
+            }
+        } catch (error) {
+            showToast('Bir hata oluştu', 'error');
+        } finally {
+            setProcessingGuest(null);
+        }
+    };
+
+    const handleSendAttendanceEmail = async (guestId: string) => {
+        setProcessingGuest(guestId);
+        try {
+            const res = await fetch(`/api/events/${params.id}/guest-registrations/${guestId}/send-attendance`, {
+                method: 'POST',
+            });
+
+            if (res.ok) {
+                showToast('Yoklama maili gönderildi', 'success');
+                fetchData(params.id as string);
+            } else {
+                const data = await res.json();
+                showToast(data.error || 'Mail gönderilemedi', 'error');
+            }
+        } catch (error) {
+            showToast('Bir hata oluştu', 'error');
+        } finally {
+            setProcessingGuest(null);
+        }
+    };
+
     const exportToExcel = () => {
-        if (registrations.length === 0) {
+        if (registrations.length === 0 && guestRegistrations.length === 0) {
             alert('Dışa aktarılacak kayıt bulunmamaktadır.');
             return;
         }
 
-        const excelData = registrations.map((reg) => {
+        const memberData = registrations.map((reg) => {
             const member = reg.memberId;
             return {
+                'Tip': 'Öğrenci',
                 'Öğrenci No': member?.studentNo || reg.studentNumber || '-',
                 'Ad Soyad': member?.fullName || reg.name || '-',
-                'Takma Ad': member?.nickname || '-',
-                'Bölüm': member?.department || reg.department || '-',
                 'E-posta': member?.email || reg.email || '-',
                 'Telefon': member?.phone || reg.phone || '-',
                 'Kayıt Tarihi': new Date(reg.createdAt).toLocaleString('tr-TR'),
-                'Kaydoldu': 'Evet',
                 'Yoklamada': reg.attendedAt ? 'Evet' : 'Hayır',
-                'Yoklama Tarihi': reg.attendedAt ? new Date(reg.attendedAt).toLocaleString('tr-TR') : '-',
                 'Puan': reg.rating || '-',
-                'Yorum': reg.feedback || '-',
-                ...(event?.isPaid ? {
-                    'Ödeme Durumu': reg.paymentStatus === 'verified' ? 'Onaylandı' :
-                        reg.paymentStatus === 'rejected' ? 'Reddedildi' :
-                            reg.paymentStatus === 'refunded' ? 'İade' : 'Bekliyor',
-                } : {}),
             };
         });
+
+        const guestData = guestRegistrations.filter(g => g.status === 'approved').map((reg) => ({
+            'Tip': 'Misafir',
+            'Öğrenci No': '-',
+            'Ad Soyad': reg.fullName,
+            'E-posta': reg.email,
+            'Telefon': reg.phone || '-',
+            'Kayıt Tarihi': new Date(reg.createdAt).toLocaleString('tr-TR'),
+            'Yoklamada': reg.attendedAt ? 'Evet' : 'Hayır',
+            'Puan': reg.rating || '-',
+        }));
+
+        const excelData = [...memberData, ...guestData];
 
         const worksheet = XLSX.utils.json_to_sheet(excelData);
         const workbook = XLSX.utils.book_new();
@@ -132,6 +206,9 @@ export default function EventRegistrationsPage() {
         );
     }
 
+    const pendingGuests = guestRegistrations.filter(g => g.status === 'pending');
+    const approvedGuests = guestRegistrations.filter(g => g.status === 'approved');
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -148,7 +225,7 @@ export default function EventRegistrationsPage() {
                     <button
                         onClick={exportToExcel}
                         className="px-6 py-3 bg-neo-green text-black border-4 border-black shadow-neo font-black uppercase hover:shadow-none transition-all"
-                        disabled={registrations.length === 0}
+                        disabled={registrations.length === 0 && guestRegistrations.length === 0}
                     >
                         <Download size={16} className="inline" /> Excel İndir
                     </button>
@@ -158,11 +235,13 @@ export default function EventRegistrationsPage() {
                 {stats && (
                     <div className="grid grid-cols-3 gap-4 mt-4">
                         <div className="bg-neo-blue border-2 border-black p-4 text-center">
-                            <div className="text-3xl font-black">{stats.totalRegistered}</div>
+                            <div className="text-3xl font-black">{stats.totalRegistered + approvedGuests.length}</div>
                             <div className="text-sm font-bold uppercase">Kayıtlı</div>
                         </div>
                         <div className="bg-neo-green border-2 border-black p-4 text-center">
-                            <div className="text-3xl font-black">{stats.totalAttended}</div>
+                            <div className="text-3xl font-black">
+                                {stats.totalAttended + approvedGuests.filter(g => g.attendedAt).length}
+                            </div>
                             <div className="text-sm font-bold uppercase">Yoklamada</div>
                         </div>
                         <div className="bg-neo-yellow border-2 border-black p-4 text-center">
@@ -173,59 +252,141 @@ export default function EventRegistrationsPage() {
                         </div>
                     </div>
                 )}
-
-                {event?.isEnded && event.actualDuration && (
-                    <div className="mt-4 bg-gray-100 border-2 border-black p-3 text-center">
-                        <span className="font-bold">Etkinlik Süresi: </span>
-                        <span className="font-black">{event.actualDuration} dakika</span>
-                    </div>
-                )}
             </div>
 
-            {/* Table */}
-            <div className="bg-white border-4 border-black shadow-neo overflow-x-auto">
-                <table className="min-w-full">
-                    <thead className="bg-black text-white">
-                        <tr>
-                            <th className="px-4 py-3 text-left text-xs font-black uppercase">Öğrenci No</th>
-                            <th className="px-4 py-3 text-left text-xs font-black uppercase">Ad Soyad</th>
-                            <th className="px-4 py-3 text-left text-xs font-black uppercase">Bölüm</th>
-                            <th className="px-4 py-3 text-left text-xs font-black uppercase">E-posta</th>
-                            <th className="px-4 py-3 text-center text-xs font-black uppercase">Kaydoldu</th>
-                            <th className="px-4 py-3 text-center text-xs font-black uppercase">Yoklamada</th>
-                            <th className="px-4 py-3 text-center text-xs font-black uppercase">Puan</th>
-                            {event?.isPaid && (
-                                <th className="px-4 py-3 text-center text-xs font-black uppercase">Ödeme</th>
+            {/* Tabs */}
+            {event?.allowGuestRegistration && (
+                <div className="flex border-4 border-black bg-white">
+                    <button
+                        onClick={() => setActiveTab('members')}
+                        className={`flex-1 px-6 py-3 font-black uppercase transition-all ${activeTab === 'members'
+                                ? 'bg-black text-white'
+                                : 'bg-white text-black hover:bg-gray-100'
+                            }`}
+                    >
+                        Öğrenciler ({registrations.length})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('guests')}
+                        className={`flex-1 px-6 py-3 font-black uppercase transition-all border-l-4 border-black ${activeTab === 'guests'
+                                ? 'bg-black text-white'
+                                : 'bg-white text-black hover:bg-gray-100'
+                            }`}
+                    >
+                        Misafirler ({guestRegistrations.length})
+                        {pendingGuests.length > 0 && (
+                            <span className="ml-2 px-2 py-1 bg-neo-yellow text-black text-xs border border-black">
+                                {pendingGuests.length} bekliyor
+                            </span>
+                        )}
+                    </button>
+                </div>
+            )}
+
+            {/* Members Table */}
+            {activeTab === 'members' && (
+                <div className="bg-white border-4 border-black shadow-neo overflow-x-auto">
+                    <table className="min-w-full">
+                        <thead className="bg-black text-white">
+                            <tr>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase">Öğrenci No</th>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase">Ad Soyad</th>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase">Bölüm</th>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase">E-posta</th>
+                                <th className="px-4 py-3 text-center text-xs font-black uppercase">Kaydoldu</th>
+                                <th className="px-4 py-3 text-center text-xs font-black uppercase">Yoklamada</th>
+                                <th className="px-4 py-3 text-center text-xs font-black uppercase">Puan</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y-2 divide-black">
+                            {registrations.map((reg) => {
+                                const member = reg.memberId;
+                                return (
+                                    <tr key={reg._id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-3 text-sm font-bold">
+                                            {member?.studentNo || reg.studentNumber || '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm font-bold">
+                                            {member?.fullName || reg.name || '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-600">
+                                            {member?.department || reg.department || '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-600">
+                                            {member?.email || reg.email || '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <span className="px-2 py-1 text-xs font-black bg-neo-green border border-black inline-flex items-center justify-center">
+                                                <Check size={12} />
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            {reg.attendedAt ? (
+                                                <span className="px-2 py-1 text-xs font-black bg-neo-blue border border-black inline-flex items-center justify-center">
+                                                    <Check size={12} />
+                                                </span>
+                                            ) : (
+                                                <span className="px-2 py-1 text-xs font-black bg-gray-200 border border-black text-gray-500 inline-flex items-center justify-center">
+                                                    -
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            {reg.rating ? (
+                                                <span className="font-bold text-yellow-600">{reg.rating} ★</span>
+                                            ) : '-'}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            {registrations.length === 0 && (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500 font-bold">
+                                        Henüz öğrenci kaydı bulunmamaktadır.
+                                    </td>
+                                </tr>
                             )}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y-2 divide-black">
-                        {registrations.map((reg) => {
-                            const member = reg.memberId;
-                            return (
-                                <tr key={reg._id} className="hover:bg-gray-50">
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {/* Guests Table */}
+            {activeTab === 'guests' && (
+                <div className="bg-white border-4 border-black shadow-neo overflow-x-auto">
+                    <table className="min-w-full">
+                        <thead className="bg-black text-white">
+                            <tr>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase">Ad Soyad</th>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase">E-posta</th>
+                                <th className="px-4 py-3 text-left text-xs font-black uppercase">Telefon</th>
+                                <th className="px-4 py-3 text-center text-xs font-black uppercase">Durum</th>
+                                <th className="px-4 py-3 text-center text-xs font-black uppercase">Yoklamada</th>
+                                <th className="px-4 py-3 text-center text-xs font-black uppercase">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y-2 divide-black">
+                            {guestRegistrations.map((guest) => (
+                                <tr key={guest._id} className="hover:bg-gray-50">
                                     <td className="px-4 py-3 text-sm font-bold">
-                                        {member?.studentNo || reg.studentNumber || '-'}
+                                        {guest.fullName}
+                                        <span className="ml-2 px-2 py-0.5 text-xs font-black bg-purple-200 text-purple-800 border border-purple-400">
+                                            Öğrenci Değil
+                                        </span>
                                     </td>
-                                    <td className="px-4 py-3 text-sm font-bold">
-                                        {member?.fullName || reg.name || '-'}
-                                        {member?.nickname && (
-                                            <span className="text-gray-500 text-xs ml-1">({member.nickname})</span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-gray-600">
-                                        {member?.department || reg.department || '-'}
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-gray-600">
-                                        {member?.email || reg.email || '-'}
-                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-600">{guest.email}</td>
+                                    <td className="px-4 py-3 text-sm text-gray-600">{guest.phone || '-'}</td>
                                     <td className="px-4 py-3 text-center">
-                                        <span className="px-2 py-1 text-xs font-black bg-neo-green border border-black inline-flex items-center justify-center">
-                                            <Check size={12} />
+                                        <span className={`px-2 py-1 text-xs font-black border border-black ${guest.status === 'approved' ? 'bg-green-200 text-green-800' :
+                                                guest.status === 'rejected' ? 'bg-red-200 text-red-800' :
+                                                    'bg-yellow-200 text-yellow-800'
+                                            }`}>
+                                            {guest.status === 'approved' ? 'Onaylı' :
+                                                guest.status === 'rejected' ? 'Reddedildi' : 'Bekliyor'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3 text-center">
-                                        {reg.attendedAt ? (
+                                        {guest.attendedAt ? (
                                             <span className="px-2 py-1 text-xs font-black bg-neo-blue border border-black inline-flex items-center justify-center">
                                                 <Check size={12} />
                                             </span>
@@ -236,35 +397,53 @@ export default function EventRegistrationsPage() {
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-center">
-                                        {reg.rating ? (
-                                            <span className="font-bold text-yellow-600">{reg.rating} ★</span>
-                                        ) : '-'}
+                                        <div className="flex items-center justify-center gap-2">
+                                            {guest.status === 'pending' && (
+                                                <>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="success"
+                                                        onClick={() => handleGuestApproval(guest._id, 'approve')}
+                                                        isLoading={processingGuest === guest._id}
+                                                    >
+                                                        <UserCheck size={14} />
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="danger"
+                                                        onClick={() => handleGuestApproval(guest._id, 'reject')}
+                                                        isLoading={processingGuest === guest._id}
+                                                    >
+                                                        <UserX size={14} />
+                                                    </Button>
+                                                </>
+                                            )}
+                                            {guest.status === 'approved' && !guest.attendedAt && (
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => handleSendAttendanceEmail(guest._id)}
+                                                    isLoading={processingGuest === guest._id}
+                                                    title={guest.attendanceEmailSentAt ? 'Tekrar gönder' : 'Yoklama maili gönder'}
+                                                >
+                                                    <Mail size={14} />
+                                                    {guest.attendanceEmailSentAt && <span className="ml-1 text-xs">✓</span>}
+                                                </Button>
+                                            )}
+                                        </div>
                                     </td>
-                                    {event?.isPaid && (
-                                        <td className="px-4 py-3 text-center">
-                                            <span className={`px-2 py-1 text-xs font-black border border-black inline-flex items-center justify-center
-                                                ${reg.paymentStatus === 'verified' ? 'bg-green-200 text-green-800' :
-                                                    reg.paymentStatus === 'rejected' ? 'bg-red-200 text-red-800' :
-                                                        'bg-yellow-200 text-yellow-800'}`}>
-                                                {reg.paymentStatus === 'verified' ? 'Onaylı' :
-                                                    reg.paymentStatus === 'rejected' ? 'Red' : 'Bekliyor'}
-                                            </span>
-                                        </td>
-                                    )}
                                 </tr>
-                            );
-                        })}
-
-                        {registrations.length === 0 && (
-                            <tr>
-                                <td colSpan={event?.isPaid ? 8 : 7} className="px-6 py-8 text-center text-gray-500 font-bold">
-                                    Henüz katılımcı bulunmamaktadır.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            ))}
+                            {guestRegistrations.length === 0 && (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500 font-bold">
+                                        Henüz misafir kaydı bulunmamaktadır.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Feedback Section */}
             {registrations.some(r => r.feedback) && (

@@ -144,7 +144,9 @@ export const en = {
             register: '✓ Register',
             kvkkNote: 'By registering, you accept the KVKK Clarification Text.',
             error: 'An error occurred.',
-            registrationError: 'Error during registration.'
+            registrationError: 'Error during registration.',
+            guestRegister: 'Register as a guest',
+            notStudent: 'Not a student?',
         },
         checkinPage: {
             title: 'Event Survey',
