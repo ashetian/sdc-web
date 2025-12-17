@@ -21,7 +21,8 @@ export default function RegisterPage() {
     const [submitting, setSubmitting] = useState(false);
     const [registered, setRegistered] = useState(false);
     const [alreadyRegistered, setAlreadyRegistered] = useState(false);
-    const { t } = useLanguage();
+    const [showStudentPrompt, setShowStudentPrompt] = useState(true);
+    const { t, language } = useLanguage();
     const { showToast } = useToast();
 
     // Check authentication
@@ -229,6 +230,48 @@ export default function RegisterPage() {
 
     // Not logged in - show login prompt
     if (!user) {
+        // If we haven't determined if they are a student yet, show the prompt
+        if (showStudentPrompt) {
+            return (
+                <div className="min-h-screen bg-neo-blue pt-32 pb-12 px-4 flex items-center justify-center">
+                    <div className="max-w-md w-full bg-white border-4 border-black shadow-neo-lg p-8">
+                        <div className="text-center mb-8">
+                            <h2 className="text-2xl font-black text-black uppercase mb-4">{event.title}</h2>
+                            <p className="text-black font-bold text-lg mb-6">
+                                {language === 'tr' ? 'KTÜ\'de mi okuyorsunuz?' : 'Are you studying at KTU?'}
+                            </p>
+                            <div className="space-y-4">
+                                <Button
+                                    onClick={() => setShowStudentPrompt(false)}
+                                    variant="primary"
+                                    fullWidth
+                                    size="lg"
+                                >
+                                    {language === 'tr' ? 'Evet, Öğrenciyim' : 'Yes, I am a student'}
+                                </Button>
+                                {event.allowGuestRegistration && (
+                                    <Button
+                                        onClick={() => router.push(`/events/${params.id}/guest-register`)}
+                                        variant="secondary"
+                                        fullWidth
+                                        size="lg"
+                                    >
+                                        {language === 'tr' ? 'Hayır, Misafirim' : 'No, I am a guest'}
+                                    </Button>
+                                )}
+                                <Link
+                                    href="/events"
+                                    className="block w-full text-center py-3 px-4 border-2 border-transparent text-black font-bold hover:underline transition-all"
+                                >
+                                    {t('events.registerPage.backToEvents')}
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="min-h-screen bg-neo-blue pt-32 pb-12 px-4 flex items-center justify-center">
                 <div className="max-w-md w-full bg-white border-4 border-black shadow-neo-lg p-8">
@@ -244,20 +287,6 @@ export default function RegisterPage() {
                         >
                             {t('events.registerPage.login')}
                         </Link>
-
-                        {event.allowGuestRegistration && (
-                            <div className="text-center space-y-2">
-                                <p className="text-sm font-bold text-gray-600">
-                                    {t('events.registerPage.notStudent') || 'Öğrenci değil misiniz?'}
-                                </p>
-                                <Link
-                                    href={`/events/${params.id}/guest-register`}
-                                    className="w-full flex justify-center py-3 px-4 border-2 border-black bg-neo-yellow text-black font-bold hover:bg-neo-green hover:shadow-neo transition-all"
-                                >
-                                    {t('events.registerPage.guestRegister') || 'Misafir olarak kayıt olun'}
-                                </Link>
-                            </div>
-                        )}
 
                         <Link
                             href="/events"
