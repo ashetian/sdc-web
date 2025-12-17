@@ -184,11 +184,10 @@ export default function CodePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <button
               onClick={() => setRepoType("new")}
-              className={`p-6 border-4 border-black text-left transition-all ${
-                repoType === "new"
+              className={`p-6 border-4 border-black text-left transition-all ${repoType === "new"
                   ? "bg-neo-green shadow-neo-lg -translate-y-1"
                   : "bg-white shadow-neo hover:-translate-y-1"
-              }`}
+                }`}
             >
               <div className="text-3xl mb-2">✨</div>
               <div className="text-xl font-black text-black">{l.newRepo}</div>
@@ -196,11 +195,10 @@ export default function CodePage() {
             </button>
             <button
               onClick={() => setRepoType("existing")}
-              className={`p-6 border-4 border-black text-left transition-all ${
-                repoType === "existing"
+              className={`p-6 border-4 border-black text-left transition-all ${repoType === "existing"
                   ? "bg-neo-blue shadow-neo-lg -translate-y-1"
                   : "bg-white shadow-neo hover:-translate-y-1"
-              }`}
+                }`}
             >
               <div className="text-3xl mb-2">📂</div>
               <div className="text-xl font-black text-black">{l.existingRepo}</div>
@@ -233,11 +231,10 @@ export default function CodePage() {
                 <button
                   key={stack.id}
                   onClick={() => setSelectedStack(stack.id)}
-                  className={`p-5 border-4 border-black text-left transition-all ${
-                    selectedStack === stack.id
+                  className={`p-5 border-4 border-black text-left transition-all ${selectedStack === stack.id
                       ? `${stack.color} shadow-neo-lg -translate-y-1`
                       : "bg-white shadow-neo hover:-translate-y-1"
-                  }`}
+                    }`}
                 >
                   <div className="text-3xl mb-2">{stack.icon}</div>
                   <div className="text-lg font-black text-black">
@@ -263,17 +260,15 @@ export default function CodePage() {
               <button
                 key={pack.id}
                 onClick={() => toggleExtension(pack.id)}
-                className={`p-4 border-4 border-black text-left transition-all ${
-                  selectedExtensions.includes(pack.id)
+                className={`p-4 border-4 border-black text-left transition-all ${selectedExtensions.includes(pack.id)
                     ? "bg-neo-pink shadow-neo"
                     : "bg-white shadow-neo-sm hover:shadow-neo"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-6 h-6 border-2 aspect-square border-black flex items-center justify-center ${
-                      selectedExtensions.includes(pack.id) ? "bg-black" : "bg-white"
-                    }`}
+                    className={`w-6 h-6 border-2 aspect-square border-black flex items-center justify-center ${selectedExtensions.includes(pack.id) ? "bg-black" : "bg-white"
+                      }`}
                   >
                     {selectedExtensions.includes(pack.id) && (
                       <span className="text-white text-sm">✓</span>
@@ -298,11 +293,10 @@ export default function CodePage() {
           <button
             onClick={handleLaunch}
             disabled={repoType === "existing" && !existingRepo.trim()}
-            className={`px-10 py-5 p-2 text-2xl font-black uppercase border-4 border-black transition-all ${
-              repoType === "existing" && !existingRepo.trim()
+            className={`px-10 py-5 p-2 text-2xl font-black uppercase border-4 border-black transition-all ${repoType === "existing" && !existingRepo.trim()
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-neo-green text-black shadow-neo hover:-translate-y-1 hover:shadow-neo-lg active:translate-y-0 active:shadow-none"
-            }`}
+              }`}
           >
             {l.launch}
           </button>

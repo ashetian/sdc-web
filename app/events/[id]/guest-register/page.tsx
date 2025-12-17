@@ -7,6 +7,7 @@ import { SkeletonForm } from '@/app/_components/Skeleton';
 import { useLanguage } from '@/app/_context/LanguageContext';
 import { useToast } from '@/app/_context/ToastContext';
 import { Button } from '@/app/_components/ui';
+import Turnstile from '@/app/_components/Turnstile';
 
 interface Event {
     _id: string;
@@ -42,6 +43,7 @@ export default function GuestRegisterPage() {
         kvkkAccepted: false,
     });
     const [uploading, setUploading] = useState(false);
+    const [turnstileToken, setTurnstileToken] = useState('');
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -98,6 +100,11 @@ export default function GuestRegisterPage() {
             return;
         }
 
+        if (!turnstileToken) {
+            showToast(language === 'tr' ? 'Lütfen CAPTCHA doğrulamasını tamamlayın' : 'Please complete the CAPTCHA', 'error');
+            return;
+        }
+
         setSubmitting(true);
         try {
             const res = await fetch(`/api/events/${params.id}/guest-registrations`, {
@@ -108,6 +115,7 @@ export default function GuestRegisterPage() {
                     email: formData.email,
                     phone: formData.phone || undefined,
                     paymentProofUrl: formData.paymentProofUrl || undefined,
+                    turnstileToken,
                 }),
             });
 
@@ -313,12 +321,18 @@ export default function GuestRegisterPage() {
                         </label>
                     </div>
 
+                    <Turnstile
+                        onVerify={setTurnstileToken}
+                        onExpire={() => setTurnstileToken('')}
+                        className="flex justify-center"
+                    />
+
                     <Button
                         type="submit"
                         fullWidth
                         size="lg"
                         isLoading={submitting}
-                        disabled={!formData.kvkkAccepted}
+                        disabled={!formData.kvkkAccepted || !turnstileToken}
                     >
                         {language === 'tr' ? 'Başvuru Gönder' : 'Submit Application'}
                     </Button>

@@ -32,3 +32,20 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/sdc-web?re
 4. Whitelist your IP (or use 0.0.0.0/0 for all IPs)
 5. Get your connection string from "Connect" > "Connect your application"
 6. Replace `<password>` with your database user password
+
+## Cloudflare Turnstile (CAPTCHA)
+
+Spam koruması için Cloudflare Turnstile kullanılmaktadır.
+
+### Kurulum:
+1. [Cloudflare Dashboard](https://dash.cloudflare.com/) → Turnstile
+2. "Add Site" → Domain'inizi seçin → Widget type: **Managed**
+3. Aşağıdaki değişkenleri `.env` dosyanıza ekleyin:
+
+```bash
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_site_key_here
+TURNSTILE_SECRET_KEY=your_secret_key_here
+```
+
+> **Not:** `NEXT_PUBLIC_` prefix'i olan key client-side'da görünür (bu normaldir).
+> `TURNSTILE_SECRET_KEY` sadece server-side'da kullanılır ve gizli tutulmalıdır.

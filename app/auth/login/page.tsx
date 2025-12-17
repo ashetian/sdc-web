@@ -8,6 +8,7 @@ import LoadingSpinner from '@/app/_components/LoadingSpinner';
 import { useLanguage } from '@/app/_context/LanguageContext';
 import { Button, Card, Input } from '@/app/_components/ui';
 import { useToast } from '@/app/_context/ToastContext';
+import Turnstile from '@/app/_components/Turnstile';
 
 function LoginForm() {
     const router = useRouter();
@@ -19,6 +20,7 @@ function LoginForm() {
     const [studentNo, setStudentNo] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [turnstileToken, setTurnstileToken] = useState('');
 
     useEffect(() => {
         const success = searchParams.get('success');
@@ -35,13 +37,23 @@ function LoginForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!turnstileToken) {
+            showToast(t('auth.captchaRequired') || 'Lütfen CAPTCHA doğrulamasını tamamlayın', 'error');
+            return;
+        }
+
         setLoading(true);
 
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ studentNo: studentNo.trim(), password }),
+                body: JSON.stringify({
+                    studentNo: studentNo.trim(),
+                    password,
+                    turnstileToken
+                }),
             });
 
             const data = await res.json();
@@ -122,11 +134,16 @@ function LoginForm() {
                     required
                 />
 
-
+                <Turnstile
+                    onVerify={setTurnstileToken}
+                    onExpire={() => setTurnstileToken('')}
+                    className="flex justify-center"
+                />
 
                 <Button
                     type="submit"
                     isLoading={loading}
+                    disabled={!turnstileToken}
                     fullWidth
                 >
                     {t('auth.login')}

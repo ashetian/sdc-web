@@ -7,6 +7,7 @@ import { KVKK_CONTENT } from '@/app/lib/constants/kvkk';
 import { useLanguage } from '@/app/_context/LanguageContext';
 import { Button, Modal } from '@/app/_components/ui';
 import { useToast } from '@/app/_context/ToastContext';
+import Turnstile from '@/app/_components/Turnstile';
 
 export default function SignupPage() {
     const { t } = useLanguage();
@@ -19,6 +20,7 @@ export default function SignupPage() {
     const [emailConsent, setEmailConsent] = useState(false);
     const [nativeLanguage, setNativeLanguage] = useState('tr');
     const [showKvkkModal, setShowKvkkModal] = useState(false);
+    const [turnstileToken, setTurnstileToken] = useState('');
 
     // Email verification states
     const [verificationStep, setVerificationStep] = useState<'initial' | 'verify'>('initial');
@@ -27,6 +29,13 @@ export default function SignupPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Check CAPTCHA only on initial step
+        if (verificationStep === 'initial' && !turnstileToken) {
+            showToast(t('auth.captchaRequired') || 'Lütfen CAPTCHA doğrulamasını tamamlayın', 'error');
+            return;
+        }
+
         setLoading(true);
         setMessage('');
 
@@ -37,7 +46,8 @@ export default function SignupPage() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        studentNo: studentNo.trim()
+                        studentNo: studentNo.trim(),
+                        turnstileToken
                     }),
                 });
 
@@ -249,9 +259,17 @@ export default function SignupPage() {
                             </label>
                         </div>
 
+                        {verificationStep === 'initial' && (
+                            <Turnstile
+                                onVerify={setTurnstileToken}
+                                onExpire={() => setTurnstileToken('')}
+                                className="flex justify-center"
+                            />
+                        )}
+
                         <button
                             type="submit"
-                            disabled={loading || !studentNo.trim() || !kvkkAccepted}
+                            disabled={loading || !studentNo.trim() || !kvkkAccepted || (verificationStep === 'initial' && !turnstileToken)}
                             className="w-full bg-yellow-400 text-black font-black py-3 border-2 border-black hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             {loading ? t('auth.submitting') : t('auth.submitRegister')}

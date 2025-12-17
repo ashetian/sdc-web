@@ -5,6 +5,7 @@ import PasswordToken from '@/app/lib/models/PasswordToken';
 import { sendEmail, maskEmail, generatePasswordSetupEmail } from '@/app/lib/email';
 import crypto from 'crypto';
 import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
+import { verifyTurnstileToken } from '@/app/lib/turnstile';
 
 // POST - Request signup with student number (2-step verification)
 export async function POST(request: NextRequest) {
@@ -23,7 +24,18 @@ export async function POST(request: NextRequest) {
 
         await connectDB();
 
-        const { studentNo, kvkkAccepted, emailConsent, nativeLanguage, emailVerification, step } = await request.json();
+        const { studentNo, kvkkAccepted, emailConsent, nativeLanguage, emailVerification, step, turnstileToken } = await request.json();
+
+        // Verify Turnstile CAPTCHA (only on initial step)
+        if (step !== 'confirm') {
+            const isValidCaptcha = await verifyTurnstileToken(turnstileToken, clientIP);
+            if (!isValidCaptcha) {
+                return NextResponse.json(
+                    { error: 'CAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin.' },
+                    { status: 400 }
+                );
+            }
+        }
 
         if (!studentNo) {
             return NextResponse.json({ error: 'Öğrenci numarası gerekli' }, { status: 400 });

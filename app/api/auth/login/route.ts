@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
+import { verifyTurnstileToken } from '@/app/lib/turnstile';
 
 import { JWT_SECRET } from '@/app/lib/auth';
 
@@ -25,7 +26,16 @@ export async function POST(request: NextRequest) {
 
         await connectDB();
 
-        const { studentNo, password } = await request.json();
+        const { studentNo, password, turnstileToken } = await request.json();
+
+        // Verify Turnstile CAPTCHA
+        const isValidCaptcha = await verifyTurnstileToken(turnstileToken, clientIP);
+        if (!isValidCaptcha) {
+            return NextResponse.json(
+                { error: 'CAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin.' },
+                { status: 400 }
+            );
+        }
 
         if (!studentNo || !password) {
             return NextResponse.json({ error: 'Öğrenci numarası ve şifre gerekli' }, { status: 400 });

@@ -3,6 +3,8 @@ import connectDB from '@/app/lib/db';
 import { GuestRegistration } from '@/app/lib/models/GuestRegistration';
 import { Event } from '@/app/lib/models/Event';
 import { verifyAuth } from '@/app/lib/auth';
+import { verifyTurnstileToken } from '@/app/lib/turnstile';
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
 
 // GET - List guest registrations (admin only)
 export async function GET(
@@ -34,10 +36,31 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Rate limiting check
+        const clientIP = getClientIP(request);
+        const rateLimit = checkRateLimit(clientIP, 'guest-registration', RATE_LIMITS.SENSITIVE);
+
+        if (rateLimit.limited) {
+            const resetSeconds = Math.ceil(rateLimit.resetIn / 1000);
+            return NextResponse.json(
+                { error: `Çok fazla istek. ${resetSeconds} saniye sonra tekrar deneyin.` },
+                { status: 429 }
+            );
+        }
+
         await connectDB();
         const { id } = await params;
         const body = await request.json();
-        const { fullName, email, phone, paymentProofUrl } = body;
+        const { fullName, email, phone, paymentProofUrl, turnstileToken } = body;
+
+        // Verify Turnstile CAPTCHA
+        const isValidCaptcha = await verifyTurnstileToken(turnstileToken, clientIP);
+        if (!isValidCaptcha) {
+            return NextResponse.json(
+                { error: 'CAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin.' },
+                { status: 400 }
+            );
+        }
 
         // Validate required fields
         if (!fullName || !email) {

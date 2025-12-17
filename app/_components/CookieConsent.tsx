@@ -11,7 +11,12 @@ export default function CookieConsent() {
     useEffect(() => {
         // Check if user has already accepted cookies
         const hasAccepted = localStorage.getItem('cookie-consent');
-        if (!hasAccepted) {
+
+        // Check if user is logged in (has auth token cookie)
+        const isLoggedIn = document.cookie.includes('auth-token');
+
+        // Don't show if already accepted OR if user is logged in
+        if (!hasAccepted && !isLoggedIn) {
             // Small delay for better UX
             const timer = setTimeout(() => {
                 setIsVisible(true);
