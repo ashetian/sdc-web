@@ -171,7 +171,6 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
                                 id="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder={t('auth.passwordPlaceholder')}
                                 required
                                 minLength={8}
                                 className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 pr-12"
@@ -223,7 +222,6 @@ export default function SetPasswordPage({ params }: { params: Promise<{ token: s
                                 id="confirmPassword"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                placeholder={t('auth.confirmPlaceholder')}
                                 required
                                 className="w-full p-3 border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 pr-12"
                             />

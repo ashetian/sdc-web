@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ScrollToTop from "./ScrollToTop";
@@ -14,19 +15,23 @@ export default function ClientLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const pathname = usePathname();
+
+    // Pages that should have standalone layout (no navbar/footer)
+    const isStandalonePage = pathname?.startsWith('/media-kit');
+
     return (
         <LanguageProvider>
             <ToastProvider>
-                <Navbar />
+                {!isStandalonePage && <Navbar />}
                 <CustomCursor />
                 <ErrorBoundary>
                     {children}
                 </ErrorBoundary>
-                <Footer />
-                <ScrollToTop />
-                <CookieConsent />
+                {!isStandalonePage && <Footer />}
+                {!isStandalonePage && <ScrollToTop />}
+                {!isStandalonePage && <CookieConsent />}
             </ToastProvider>
         </LanguageProvider>
     );
 }
-

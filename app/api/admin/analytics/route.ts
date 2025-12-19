@@ -36,7 +36,12 @@ export async function GET(request: NextRequest) {
         const newMembersThisMonth = await Member.countDocuments({ createdAt: { $gte: startOfMonth } });
 
         // ========== EVENT METRICS ==========
-        const totalEvents = await Event.countDocuments();
+        const totalEventsFromModel = await Event.countDocuments();
+        const eventTypeAnnouncements = await Announcement.countDocuments({
+            type: 'event',
+            $or: [{ eventId: { $exists: false } }, { eventId: null }, { eventId: '' }]
+        });
+        const totalEvents = totalEventsFromModel + eventTypeAnnouncements;
         const completedEvents = await Event.countDocuments({ isEnded: true });
         const openEvents = await Event.countDocuments({ isOpen: true, isEnded: false });
 

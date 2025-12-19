@@ -130,7 +130,6 @@ function LoginForm() {
                     label={t('auth.password')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
                     required
                 />
 

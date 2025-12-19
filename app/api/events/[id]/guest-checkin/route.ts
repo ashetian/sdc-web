@@ -11,7 +11,7 @@ export async function POST(
     try {
         await connectDB();
         const { id } = await params;
-        const { token, rating, feedback } = await request.json();
+        const { token, rating, feedback, surveyAnswers } = await request.json();
 
         if (!token) {
             return NextResponse.json({ error: 'Token gerekli' }, { status: 400 });
@@ -23,7 +23,7 @@ export async function POST(
         }
 
         if (event.isEnded) {
-            return NextResponse.json({ error: 'Bu etkinlik sona ermiş' }, { status: 400 });
+            return NextResponse.json({ error: 'Bu etkinlik sona ermis' }, { status: 400 });
         }
 
         const guestRegistration = await GuestRegistration.findOne({
@@ -32,11 +32,11 @@ export async function POST(
         });
 
         if (!guestRegistration) {
-            return NextResponse.json({ error: 'Geçersiz yoklama linki' }, { status: 404 });
+            return NextResponse.json({ error: 'Gecersiz yoklama linki' }, { status: 404 });
         }
 
         if (guestRegistration.status !== 'approved') {
-            return NextResponse.json({ error: 'Kaydınız henüz onaylanmamış' }, { status: 400 });
+            return NextResponse.json({ error: 'Kaydınız henuz onaylanmamıs' }, { status: 400 });
         }
 
         if (guestRegistration.attendedAt) {
@@ -47,6 +47,7 @@ export async function POST(
         guestRegistration.attendedAt = new Date();
         if (rating) guestRegistration.rating = rating;
         if (feedback) guestRegistration.feedback = feedback;
+        if (surveyAnswers) guestRegistration.surveyAnswers = surveyAnswers;
         await guestRegistration.save();
 
         return NextResponse.json({

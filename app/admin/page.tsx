@@ -25,7 +25,8 @@ import {
   Bug,
   MapPin,
   Package,
-  LineChart
+  LineChart,
+  FileBarChart
 } from "lucide-react";
 import AdminNotificationBadge from "@/app/_components/AdminNotificationBadge";
 
@@ -48,6 +49,7 @@ const DASHBOARD_BUTTONS: DashboardButton[] = [
   { key: 'emails', label: 'E-postalar', href: '/admin/emails', color: 'bg-neo-yellow', description: 'Toplu veya özel e-posta gönderimi', icon: Mail },
   { key: 'departments', label: 'Departman Yönetimi', href: '/admin/departments', color: 'bg-neo-pink', description: 'Departman yönetimi', icon: Building2, notificationType: 'applicant' },
   { key: 'sponsors', label: 'Sponsorlar', href: '/admin/sponsors', color: 'bg-white', description: 'Sponsor ve partner yönetimi', icon: Heart },
+  { key: 'media-kit', label: 'Media Kit', href: '/admin/media-kit', color: 'bg-blue-500 text-white', description: 'Sponsorlar için özel media kit linkleri', icon: FileBarChart },
   { key: 'projects', label: 'Projeler', href: '/admin/projects', color: 'bg-neo-blue', description: 'Proje portfolyosu', icon: Rocket, notificationType: 'project' },
   { key: 'comments', label: 'Yorumlar', href: '/admin/comments', color: 'bg-neo-purple text-white', description: 'Kullanıcı yorumları', icon: MessageSquare, notificationType: 'comment' },
   { key: 'forum', label: 'Forum', href: '/admin/forum', color: 'bg-neo-green', description: 'Forum konuları ve mesajlar', icon: MessagesSquare, notificationType: 'forum_topic' },

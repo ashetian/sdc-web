@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 
+// Survey answer interface
+export interface IGuestSurveyAnswer {
+    questionId: string;
+    selectedOption: number; // 0-based index
+}
+
 export interface IGuestRegistration {
     eventId: mongoose.Types.ObjectId;
     fullName: string;
@@ -13,8 +19,9 @@ export interface IGuestRegistration {
     attendanceToken?: string;
     attendanceEmailSentAt?: Date;
     attendedAt?: Date;
-    rating?: number;
+    rating?: number; // 1-10 stars
     feedback?: string;
+    surveyAnswers?: IGuestSurveyAnswer[];
     // Payment (for paid events)
     paymentProofUrl?: string;
     paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
@@ -72,12 +79,16 @@ const guestRegistrationSchema = new mongoose.Schema<IGuestRegistration>(
         rating: {
             type: Number,
             min: 1,
-            max: 5,
+            max: 10,
         },
         feedback: {
             type: String,
             trim: true,
         },
+        surveyAnswers: [{
+            questionId: { type: String, required: true },
+            selectedOption: { type: Number, required: true },
+        }],
         // Payment
         paymentProofUrl: {
             type: String,

@@ -20,6 +20,16 @@ export interface ICompletionReport {
   reportedAt?: Date;
 }
 
+// Survey question interface
+export interface ISurveyQuestion {
+  id: string;
+  question: string;
+  questionEn?: string;
+  options: string[];
+  optionsEn?: string[];
+  required: boolean;
+}
+
 export interface IEvent {
   title: string;
   description: string;
@@ -41,6 +51,8 @@ export interface IEvent {
   isEnded: boolean;
   remindersSent?: boolean;
   actualDuration?: number; // in minutes, admin-entered
+  // Survey questions
+  surveyQuestions?: ISurveyQuestion[];
   // Completion report
   completionReport?: ICompletionReport;
 }
@@ -114,6 +126,15 @@ const eventSchema = new mongoose.Schema<IEvent>(
       type: Number,
       required: false,
     },
+    // Survey questions
+    surveyQuestions: [{
+      id: { type: String, required: true },
+      question: { type: String, required: true },
+      questionEn: { type: String },
+      options: [{ type: String }],
+      optionsEn: [{ type: String }],
+      required: { type: Boolean, default: false },
+    }],
     // Completion report
     completionReport: {
       type: {

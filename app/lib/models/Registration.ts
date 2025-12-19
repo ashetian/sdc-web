@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 
+// Survey answer interface
+export interface ISurveyAnswer {
+    questionId: string;
+    selectedOption: number; // 0-based index
+}
+
 export interface IRegistration {
     eventId: mongoose.Types.ObjectId;
     memberId: mongoose.Types.ObjectId; // Required - only members can register now
@@ -14,8 +20,9 @@ export interface IRegistration {
     paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
     // Attendance tracking
     attendedAt?: Date; // QR check-in time
-    rating?: number; // 1-5 stars
+    rating?: number; // 1-10 stars
     feedback?: string; // Optional comment
+    surveyAnswers?: ISurveyAnswer[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -70,13 +77,17 @@ const registrationSchema = new mongoose.Schema<IRegistration>(
         rating: {
             type: Number,
             min: 1,
-            max: 5,
+            max: 10,
             required: false,
         },
         feedback: {
             type: String,
             required: false,
         },
+        surveyAnswers: [{
+            questionId: { type: String, required: true },
+            selectedOption: { type: Number, required: true },
+        }],
     },
     {
         timestamps: true,

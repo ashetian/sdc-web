@@ -17,9 +17,18 @@ import {
     ClipboardCopy,
     Download,
     Save,
-    FileText
+    FileText,
+    Plus,
+    ChevronRight
 } from 'lucide-react';
 import { Button } from '@/app/_components/ui';
+
+interface SurveyQuestion {
+    id: string;
+    question: string;
+    options: string[];
+    required: boolean;
+}
 
 interface Event {
     _id: string;
@@ -32,6 +41,7 @@ interface Event {
     isEnded?: boolean;
     attendanceCode?: string;
     actualDuration?: number;
+    surveyQuestions?: SurveyQuestion[];
 }
 
 export default function AdminEventsPage() {
@@ -45,6 +55,11 @@ export default function AdminEventsPage() {
     // QR Modal
     const [qrModal, setQrModal] = useState<{ eventId: string; eventTitle: string; qrUrl: string } | null>(null);
     const [generatingQR, setGeneratingQR] = useState(false);
+
+    // Survey Modal
+    const [surveyModal, setSurveyModal] = useState<{ eventId: string; eventTitle: string } | null>(null);
+    const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
+    const [savingSurvey, setSavingSurvey] = useState(false);
 
     // End Event Modal
     const [endModal, setEndModal] = useState<{ eventId: string; eventTitle: string } | null>(null);
@@ -119,14 +134,101 @@ export default function AdminEventsPage() {
                 const fullUrl = `${window.location.origin}${data.qrUrl}`;
                 setQrModal({ eventId, eventTitle, qrUrl: fullUrl });
             } else {
-                showToast('QR oluşturulamadı.', 'error');
+                showToast('QR olusturulamadı.', 'error');
             }
         } catch (error) {
             console.error('QR generation error:', error);
-            showToast('Hata oluştu.', 'error');
+            showToast('Hata olustu.', 'error');
         } finally {
             setGeneratingQR(false);
         }
+    };
+
+    // Survey Functions
+    const openSurveyModal = async (eventId: string, eventTitle: string) => {
+        setSurveyModal({ eventId, eventTitle });
+        try {
+            const res = await fetch(`/api/events/${eventId}/survey`);
+            if (res.ok) {
+                const data = await res.json();
+                setSurveyQuestions(data.surveyQuestions || []);
+            }
+        } catch (error) {
+            console.error('Load survey error:', error);
+        }
+    };
+
+    const saveSurveyAndGenerateQR = async () => {
+        if (!surveyModal) return;
+        setSavingSurvey(true);
+        try {
+            // Save survey questions
+            const saveRes = await fetch(`/api/events/${surveyModal.eventId}/survey`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ surveyQuestions }),
+            });
+
+            if (!saveRes.ok) {
+                showToast('Anket kaydedilemedi.', 'error');
+                return;
+            }
+
+            // Close survey modal and generate QR
+            setSurveyModal(null);
+            generateQR(surveyModal.eventId, surveyModal.eventTitle);
+        } catch (error) {
+            console.error('Save survey error:', error);
+            showToast('Hata olustu.', 'error');
+        } finally {
+            setSavingSurvey(false);
+        }
+    };
+
+    const skipSurveyAndGenerateQR = () => {
+        if (!surveyModal) return;
+        setSurveyModal(null);
+        generateQR(surveyModal.eventId, surveyModal.eventTitle);
+    };
+
+    const addQuestion = () => {
+        setSurveyQuestions([...surveyQuestions, {
+            id: crypto.randomUUID(),
+            question: '',
+            options: ['', ''],
+            required: false,
+        }]);
+    };
+
+    const removeQuestion = (id: string) => {
+        setSurveyQuestions(surveyQuestions.filter(q => q.id !== id));
+    };
+
+    const updateQuestion = (id: string, field: keyof SurveyQuestion, value: string | boolean | string[]) => {
+        setSurveyQuestions(surveyQuestions.map(q =>
+            q.id === id ? { ...q, [field]: value } : q
+        ));
+    };
+
+    const addOption = (questionId: string) => {
+        setSurveyQuestions(surveyQuestions.map(q =>
+            q.id === questionId ? { ...q, options: [...q.options, ''] } : q
+        ));
+    };
+
+    const removeOption = (questionId: string, index: number) => {
+        setSurveyQuestions(surveyQuestions.map(q =>
+            q.id === questionId ? { ...q, options: q.options.filter((_, i) => i !== index) } : q
+        ));
+    };
+
+    const updateOption = (questionId: string, index: number, value: string) => {
+        setSurveyQuestions(surveyQuestions.map(q =>
+            q.id === questionId ? {
+                ...q,
+                options: q.options.map((opt, i) => i === index ? value : opt)
+            } : q
+        ));
     };
 
     const handleEndEvent = async () => {
@@ -297,12 +399,12 @@ export default function AdminEventsPage() {
                                     <button
                                         onClick={() => {
                                             setManageModal(null);
-                                            generateQR(manageModal._id, manageModal.title);
+                                            openSurveyModal(manageModal._id, manageModal.title);
                                         }}
                                         disabled={generatingQR}
                                         className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-black bg-neo-purple text-white border-4 border-black hover:translate-x-1 hover:translate-y-1 hover:shadow-none shadow-neo transition-all uppercase"
                                     >
-                                        <QrCode size={16} /> QR Oluştur
+                                        <QrCode size={16} /> QR Olustur
                                     </button>
 
                                     <button
@@ -438,6 +540,127 @@ export default function AdminEventsPage() {
                                 className="flex-1 py-3 bg-gray-200 border-2 border-black font-black uppercase hover:bg-gray-300 transition-all shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                             >
                                 İptal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Survey Modal */}
+            {surveyModal && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4" onClick={() => setSurveyModal(null)}>
+                    <div className="bg-white border-4 border-black shadow-neo-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 className="text-xl font-black uppercase">{surveyModal.eventTitle}</h3>
+                                <p className="text-sm text-gray-600 font-bold">Yoklama Anketi</p>
+                            </div>
+                            <button onClick={() => setSurveyModal(null)} className="text-2xl font-black hover:scale-110 transition-transform">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="bg-gray-100 border-2 border-black p-3 mb-4">
+                            <p className="text-sm font-bold">
+                                Katılımcılara check-in sırasında sorulacak anket sorularını olusturun.
+                                Anket eklemek istemiyorsanız "Atla" butonuna tıklayın.
+                            </p>
+                        </div>
+
+                        {/* Questions List */}
+                        <div className="space-y-4 mb-4">
+                            {surveyQuestions.map((question, qIndex) => (
+                                <div key={question.id} className="border-2 border-black p-4 bg-gray-50">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <span className="font-black text-sm bg-black text-white px-2 py-1">
+                                            Soru {qIndex + 1}
+                                        </span>
+                                        <button
+                                            onClick={() => removeQuestion(question.id)}
+                                            className="text-red-500 hover:text-red-700"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+
+                                    <input
+                                        type="text"
+                                        value={question.question}
+                                        onChange={(e) => updateQuestion(question.id, 'question', e.target.value)}
+                                        placeholder="Soru metnini girin..."
+                                        className="w-full p-2 border-2 border-black mb-3 font-bold"
+                                    />
+
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <input
+                                            type="checkbox"
+                                            id={`required-${question.id}`}
+                                            checked={question.required}
+                                            onChange={(e) => updateQuestion(question.id, 'required', e.target.checked)}
+                                            className="w-4 h-4"
+                                        />
+                                        <label htmlFor={`required-${question.id}`} className="text-sm font-bold">
+                                            Zorunlu
+                                        </label>
+                                    </div>
+
+                                    <p className="text-xs font-bold text-gray-600 mb-2">Secenekler:</p>
+                                    <div className="space-y-2">
+                                        {question.options.map((option, oIndex) => (
+                                            <div key={oIndex} className="flex gap-2">
+                                                <span className="w-6 h-8 flex items-center justify-center font-black text-sm">
+                                                    {String.fromCharCode(65 + oIndex)}.
+                                                </span>
+                                                <input
+                                                    type="text"
+                                                    value={option}
+                                                    onChange={(e) => updateOption(question.id, oIndex, e.target.value)}
+                                                    placeholder={`Secenek ${String.fromCharCode(65 + oIndex)}`}
+                                                    className="flex-1 p-2 border-2 border-black text-sm"
+                                                />
+                                                {question.options.length > 2 && (
+                                                    <button
+                                                        onClick={() => removeOption(question.id, oIndex)}
+                                                        className="px-2 text-red-500 hover:text-red-700"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => addOption(question.id)}
+                                        className="mt-2 text-sm font-bold text-neo-purple hover:underline flex items-center gap-1"
+                                    >
+                                        <Plus size={14} /> Secenek Ekle
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Add Question Button */}
+                        <button
+                            onClick={addQuestion}
+                            className="w-full py-3 border-2 border-dashed border-black font-black text-sm hover:bg-gray-100 transition-all flex items-center justify-center gap-2 mb-4"
+                        >
+                            <Plus size={18} /> Yeni Soru Ekle
+                        </button>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={skipSurveyAndGenerateQR}
+                                className="flex-1 py-3 bg-gray-200 border-2 border-black font-black uppercase hover:bg-gray-300 transition-all flex items-center justify-center gap-2 shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                            >
+                                <ChevronRight size={16} /> Atla
+                            </button>
+                            <button
+                                onClick={saveSurveyAndGenerateQR}
+                                disabled={savingSurvey}
+                                className="flex-1 py-3 bg-neo-green border-2 border-black font-black uppercase hover:bg-green-400 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                            >
+                                {savingSurvey ? 'Kaydediliyor...' : <><Save size={16} /> Kaydet ve QR Olustur</>}
                             </button>
                         </div>
                     </div>

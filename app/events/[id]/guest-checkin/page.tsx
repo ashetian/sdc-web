@@ -15,6 +15,20 @@ interface Event {
     isEnded: boolean;
 }
 
+interface SurveyQuestion {
+    id: string;
+    question: string;
+    questionEn?: string;
+    options: string[];
+    optionsEn?: string[];
+    required: boolean;
+}
+
+interface SurveyAnswer {
+    questionId: string;
+    selectedOption: number;
+}
+
 export default function GuestCheckinPage() {
     const params = useParams();
     const searchParams = useSearchParams();
@@ -28,36 +42,67 @@ export default function GuestCheckinPage() {
     const [rating, setRating] = useState(0);
     const [feedback, setFeedback] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
+    const [surveyAnswers, setSurveyAnswers] = useState<SurveyAnswer[]>([]);
 
     const token = searchParams.get('token');
 
     useEffect(() => {
-        const fetchEvent = async () => {
+        const fetchEventAndSurvey = async () => {
             try {
-                const res = await fetch(`/api/events/${params.id}`);
-                if (res.ok) {
-                    setEvent(await res.json());
+                const [eventRes, surveyRes] = await Promise.all([
+                    fetch(`/api/events/${params.id}`),
+                    fetch(`/api/events/${params.id}/survey`)
+                ]);
+
+                if (eventRes.ok) {
+                    setEvent(await eventRes.json());
                 } else {
                     setError(language === 'tr' ? 'Etkinlik bulunamadı' : 'Event not found');
                 }
+
+                if (surveyRes.ok) {
+                    const surveyData = await surveyRes.json();
+                    setSurveyQuestions(surveyData.surveyQuestions || []);
+                }
             } catch (err) {
-                setError(language === 'tr' ? 'Bir hata oluştu' : 'An error occurred');
+                setError(language === 'tr' ? 'Bir hata olustu' : 'An error occurred');
             } finally {
                 setLoading(false);
             }
         };
 
         if (params.id) {
-            fetchEvent();
+            fetchEventAndSurvey();
         }
     }, [params.id, language]);
+
+    const handleSurveyAnswer = (questionId: string, optionIndex: number) => {
+        setSurveyAnswers(prev => {
+            const existing = prev.find(a => a.questionId === questionId);
+            if (existing) {
+                return prev.map(a => a.questionId === questionId ? { ...a, selectedOption: optionIndex } : a);
+            }
+            return [...prev, { questionId, selectedOption: optionIndex }];
+        });
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (rating === 0) {
-            showToast(language === 'tr' ? 'Lütfen puan verin' : 'Please rate the event', 'error');
+            showToast(language === 'tr' ? 'Lutfen puan verin' : 'Please rate the event', 'error');
             return;
+        }
+
+        // Validate required survey questions
+        const requiredQuestions = surveyQuestions.filter(q => q.required);
+        for (const question of requiredQuestions) {
+            const answer = surveyAnswers.find(a => a.questionId === question.id);
+            if (!answer) {
+                showToast(language === 'tr' ? 'Lutfen tum zorunlu anket sorularını cevaplayın.' : 'Please answer all required survey questions.', 'error');
+                return;
+            }
         }
 
         setSubmitting(true);
@@ -65,7 +110,7 @@ export default function GuestCheckinPage() {
             const res = await fetch(`/api/events/${params.id}/guest-checkin`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, rating, feedback }),
+                body: JSON.stringify({ token, rating, feedback, surveyAnswers }),
             });
 
             const data = await res.json();
@@ -76,7 +121,7 @@ export default function GuestCheckinPage() {
                 showToast(data.error || 'Yoklama yapılamadı', 'error');
             }
         } catch (err) {
-            showToast('Bir hata oluştu', 'error');
+            showToast('Bir hata olustu', 'error');
         } finally {
             setSubmitting(false);
         }
@@ -166,33 +211,76 @@ export default function GuestCheckinPage() {
                     {/* Rating */}
                     <div className="space-y-2">
                         <label className="block text-sm font-black uppercase">
-                            {language === 'tr' ? 'Etkinliği puanlayın' : 'Rate the event'}
+                            {language === 'tr' ? 'Etkinligi puanlayın' : 'Rate the event'}
                         </label>
-                        <div className="flex justify-center gap-2">
-                            {[1, 2, 3, 4, 5].map((star) => (
+                        <div className="flex justify-center gap-1 flex-wrap">
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                                 <button
                                     key={star}
                                     type="button"
                                     onClick={() => setRating(star)}
-                                    className={`text-4xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
+                                    className={`text-2xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
                                         }`}
                                 >
-                                    ★
+                                    &#9733;
                                 </button>
                             ))}
                         </div>
                     </div>
 
+                    {/* Survey Questions */}
+                    {surveyQuestions.length > 0 && (
+                        <div className="space-y-4 border-t-2 border-black pt-4">
+                            <p className="text-sm font-black uppercase text-center bg-neo-purple text-white py-1 px-2 border-2 border-black">
+                                {language === 'tr' ? 'Anket Soruları' : 'Survey Questions'}
+                            </p>
+                            {surveyQuestions.map((question, qIndex) => {
+                                const questionText = language === 'en' && question.questionEn ? question.questionEn : question.question;
+                                const options = language === 'en' && question.optionsEn?.length ? question.optionsEn : question.options;
+                                const currentAnswer = surveyAnswers.find(a => a.questionId === question.id);
+
+                                return (
+                                    <div key={question.id} className="space-y-2">
+                                        <label className="block text-sm font-black">
+                                            {qIndex + 1}. {questionText}
+                                            {question.required && <span className="text-red-500 ml-1">*</span>}
+                                        </label>
+                                        <div className="space-y-1">
+                                            {options.map((option, oIndex) => (
+                                                <label
+                                                    key={oIndex}
+                                                    className={`flex items-center gap-2 p-2 border-2 border-black cursor-pointer transition-all ${currentAnswer?.selectedOption === oIndex
+                                                        ? 'bg-neo-green'
+                                                        : 'bg-white hover:bg-gray-100'
+                                                        }`}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name={`survey-${question.id}`}
+                                                        checked={currentAnswer?.selectedOption === oIndex}
+                                                        onChange={() => handleSurveyAnswer(question.id, oIndex)}
+                                                        className="w-4 h-4"
+                                                    />
+                                                    <span className="font-bold text-sm">{option}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
                     {/* Feedback */}
                     <div className="space-y-2">
                         <label className="block text-sm font-black uppercase">
-                            {language === 'tr' ? 'Yorum (isteğe bağlı)' : 'Feedback (optional)'}
+                            {language === 'tr' ? 'Yorum (istege baglı)' : 'Feedback (optional)'}
                         </label>
                         <textarea
                             value={feedback}
                             onChange={(e) => setFeedback(e.target.value)}
                             className="w-full p-3 border-2 border-black shadow-neo-sm focus:outline-none min-h-[100px] resize-none"
-                            placeholder={language === 'tr' ? 'Düşüncelerinizi paylaşın...' : 'Share your thoughts...'}
+                            placeholder={language === 'tr' ? 'Dusuncelerinizi paylasın...' : 'Share your thoughts...'}
                         />
                     </div>
 
