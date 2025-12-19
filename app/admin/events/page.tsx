@@ -22,6 +22,7 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { Button } from '@/app/_components/ui';
+import QRCode from 'react-qr-code';
 
 interface SurveyQuestion {
     id: string;
@@ -471,13 +472,9 @@ export default function AdminEventsPage() {
                         <h3 className="text-xl font-black uppercase mb-4 text-center">{qrModal.eventTitle}</h3>
                         <p className="text-center font-bold mb-4">Yoklama QR Kodu</p>
 
-                        {/* QR Code Display - using external API */}
-                        <div className="flex justify-center mb-4">
-                            <img
-                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrModal.qrUrl)}`}
-                                alt="QR Code"
-                                className="border-4 border-black"
-                            />
+                        {/* QR Code Display - using react-qr-code */}
+                        <div className="flex justify-center mb-4 p-4 bg-white border-4 border-black">
+                            <QRCode value={qrModal.qrUrl} size={200} />
                         </div>
 
                         <div className="bg-gray-100 p-3 border-2 border-black mb-4">
@@ -497,7 +494,7 @@ export default function AdminEventsPage() {
                                 download={`yoklama-${qrModal.eventTitle}.png`}
                                 className="flex-1 py-2 bg-neo-green border-2 border-black font-black text-sm hover:bg-green-300 transition-all text-center shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                             >
-                                <Download size={14} className="inline" /> İndir
+                                <Download size={14} className="inline" /> Indir
                             </a>
                         </div>
 
