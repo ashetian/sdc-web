@@ -205,13 +205,13 @@ export default function CheckinPage() {
                     {/* Rating */}
                     <div className="space-y-2">
                         <label className="block text-sm font-black uppercase">{t('events.checkinPage.ratePrompt')}</label>
-                        <div className="flex justify-center gap-1 flex-wrap">
+                        <div className="flex justify-center gap-0.5 sm:gap-1">
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                                 <button
                                     key={star}
                                     type="button"
                                     onClick={() => setRating(star)}
-                                    className={`text-2xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
+                                    className={`text-xl sm:text-2xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
                                         }`}
                                 >
                                     &#9733;

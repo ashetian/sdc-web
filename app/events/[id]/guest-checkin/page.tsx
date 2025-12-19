@@ -213,13 +213,13 @@ export default function GuestCheckinPage() {
                         <label className="block text-sm font-black uppercase">
                             {language === 'tr' ? 'Etkinligi puanlayın' : 'Rate the event'}
                         </label>
-                        <div className="flex justify-center gap-1 flex-wrap">
+                        <div className="flex justify-center gap-0.5 sm:gap-1">
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                                 <button
                                     key={star}
                                     type="button"
                                     onClick={() => setRating(star)}
-                                    className={`text-2xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
+                                    className={`text-xl sm:text-2xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
                                         }`}
                                 >
                                     &#9733;
