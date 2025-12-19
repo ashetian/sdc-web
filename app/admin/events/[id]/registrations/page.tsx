@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
 import { SkeletonList } from '@/app/_components/Skeleton';
 import Link from 'next/link';
-import { ChevronLeft, Check, Download, Mail, UserX, UserCheck } from 'lucide-react';
+import { ChevronLeft, Check, Download, Mail, UserX, UserCheck, ClipboardList, X } from 'lucide-react';
 import { useToast } from '@/app/_context/ToastContext';
 import { Button } from '@/app/_components/ui';
 
@@ -25,6 +25,7 @@ interface Registration {
     attendedAt?: string;
     rating?: number;
     feedback?: string;
+    surveyAnswers?: SurveyAnswer[];
     paymentProofUrl?: string;
     paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
     createdAt: string;
@@ -45,9 +46,22 @@ interface GuestRegistration {
     attendanceEmailSentAt?: string;
     rating?: number;
     feedback?: string;
+    surveyAnswers?: SurveyAnswer[];
     paymentProofUrl?: string;
     paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
     createdAt: string;
+}
+
+interface SurveyQuestion {
+    id: string;
+    question: string;
+    options: string[];
+    required: boolean;
+}
+
+interface SurveyAnswer {
+    questionId: string;
+    selectedOption: number;
 }
 
 interface Event {
@@ -58,6 +72,7 @@ interface Event {
     price?: number;
     isEnded?: boolean;
     actualDuration?: number;
+    surveyQuestions?: SurveyQuestion[];
 }
 
 interface AttendanceStats {
@@ -76,6 +91,8 @@ export default function EventRegistrationsPage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'members' | 'guests'>('members');
     const [processingGuest, setProcessingGuest] = useState<string | null>(null);
+    const [surveyModal, setSurveyModal] = useState(false);
+    const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
 
     useEffect(() => {
         if (params.id) {
@@ -85,10 +102,11 @@ export default function EventRegistrationsPage() {
 
     const fetchData = async (eventId: string) => {
         try {
-            const [eventRes, attendanceRes, guestRes] = await Promise.all([
+            const [eventRes, attendanceRes, guestRes, surveyRes] = await Promise.all([
                 fetch(`/api/events/${eventId}`),
                 fetch(`/api/events/${eventId}/attendance`),
-                fetch(`/api/events/${eventId}/guest-registrations`)
+                fetch(`/api/events/${eventId}/guest-registrations`),
+                fetch(`/api/events/${eventId}/survey`)
             ]);
 
             if (eventRes.ok) {
@@ -104,8 +122,13 @@ export default function EventRegistrationsPage() {
             if (guestRes.ok) {
                 setGuestRegistrations(await guestRes.json());
             }
+
+            if (surveyRes.ok) {
+                const surveyData = await surveyRes.json();
+                setSurveyQuestions(surveyData.surveyQuestions || []);
+            }
         } catch (error) {
-            console.error('Veriler yüklenirken hata:', error);
+            console.error('Veriler yuklenirken hata:', error);
         } finally {
             setLoading(false);
         }
@@ -216,19 +239,29 @@ export default function EventRegistrationsPage() {
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <Link href="/admin/events" className="text-sm font-bold text-gray-500 hover:text-black mb-2 inline-block">
-                            <ChevronLeft size={14} className="inline" /> Etkinliklere Dön
+                            <ChevronLeft size={14} className="inline" /> Etkinliklere Don
                         </Link>
                         <h1 className="text-2xl font-black text-black uppercase">
                             {event?.title || 'Etkinlik'} - Katılımcılar
                         </h1>
                     </div>
-                    <button
-                        onClick={exportToExcel}
-                        className="px-6 py-3 bg-neo-green text-black border-4 border-black shadow-neo font-black uppercase hover:shadow-none transition-all"
-                        disabled={registrations.length === 0 && guestRegistrations.length === 0}
-                    >
-                        <Download size={16} className="inline" /> Excel İndir
-                    </button>
+                    <div className="flex gap-2">
+                        {surveyQuestions.length > 0 && (
+                            <button
+                                onClick={() => setSurveyModal(true)}
+                                className="px-6 py-3 bg-neo-purple text-white border-4 border-black shadow-neo font-black uppercase hover:shadow-none transition-all"
+                            >
+                                <ClipboardList size={16} className="inline" /> Anket Cevapları
+                            </button>
+                        )}
+                        <button
+                            onClick={exportToExcel}
+                            className="px-6 py-3 bg-neo-green text-black border-4 border-black shadow-neo font-black uppercase hover:shadow-none transition-all"
+                            disabled={registrations.length === 0 && guestRegistrations.length === 0}
+                        >
+                            <Download size={16} className="inline" /> Excel Indir
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats */}
@@ -260,8 +293,8 @@ export default function EventRegistrationsPage() {
                     <button
                         onClick={() => setActiveTab('members')}
                         className={`flex-1 px-6 py-3 font-black uppercase transition-all ${activeTab === 'members'
-                                ? 'bg-black text-white'
-                                : 'bg-white text-black hover:bg-gray-100'
+                            ? 'bg-black text-white'
+                            : 'bg-white text-black hover:bg-gray-100'
                             }`}
                     >
                         Öğrenciler ({registrations.length})
@@ -269,8 +302,8 @@ export default function EventRegistrationsPage() {
                     <button
                         onClick={() => setActiveTab('guests')}
                         className={`flex-1 px-6 py-3 font-black uppercase transition-all border-l-4 border-black ${activeTab === 'guests'
-                                ? 'bg-black text-white'
-                                : 'bg-white text-black hover:bg-gray-100'
+                            ? 'bg-black text-white'
+                            : 'bg-white text-black hover:bg-gray-100'
                             }`}
                     >
                         Misafirler ({guestRegistrations.length})
@@ -378,8 +411,8 @@ export default function EventRegistrationsPage() {
                                     <td className="px-4 py-3 text-sm text-gray-600">{guest.phone || '-'}</td>
                                     <td className="px-4 py-3 text-center">
                                         <span className={`px-2 py-1 text-xs font-black border border-black ${guest.status === 'approved' ? 'bg-green-200 text-green-800' :
-                                                guest.status === 'rejected' ? 'bg-red-200 text-red-800' :
-                                                    'bg-yellow-200 text-yellow-800'
+                                            guest.status === 'rejected' ? 'bg-red-200 text-red-800' :
+                                                'bg-yellow-200 text-yellow-800'
                                             }`}>
                                             {guest.status === 'approved' ? 'Onaylı' :
                                                 guest.status === 'rejected' ? 'Reddedildi' : 'Bekliyor'}
@@ -461,6 +494,123 @@ export default function EventRegistrationsPage() {
                                 <p className="text-gray-700">{reg.feedback}</p>
                             </div>
                         ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Survey Modal */}
+            {surveyModal && surveyQuestions.length > 0 && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4" onClick={() => setSurveyModal(false)}>
+                    <div className="bg-white border-4 border-black shadow-neo-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 className="text-xl font-black uppercase">{event?.title}</h3>
+                                <p className="text-sm text-gray-600 font-bold">Anket Cevapları</p>
+                            </div>
+                            <button onClick={() => setSurveyModal(false)} className="text-2xl font-black hover:scale-110 transition-transform">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        {/* Survey Results by Question */}
+                        <div className="space-y-6">
+                            {surveyQuestions.map((question, qIndex) => {
+                                // Collect all answers for this question
+                                const allAnswers: { name: string; answer: number }[] = [];
+
+                                registrations.forEach(reg => {
+                                    const answer = reg.surveyAnswers?.find(a => a.questionId === question.id);
+                                    if (answer !== undefined) {
+                                        allAnswers.push({
+                                            name: reg.memberId?.fullName || reg.name || 'Bilinmiyor',
+                                            answer: answer.selectedOption
+                                        });
+                                    }
+                                });
+
+                                guestRegistrations.forEach(guest => {
+                                    const answer = guest.surveyAnswers?.find(a => a.questionId === question.id);
+                                    if (answer !== undefined) {
+                                        allAnswers.push({
+                                            name: `${guest.fullName} (Misafir)`,
+                                            answer: answer.selectedOption
+                                        });
+                                    }
+                                });
+
+                                // Count options
+                                const optionCounts = question.options.map((_, idx) =>
+                                    allAnswers.filter(a => a.answer === idx).length
+                                );
+
+                                return (
+                                    <div key={question.id} className="border-2 border-black p-4 bg-gray-50">
+                                        <div className="flex items-start gap-2 mb-3">
+                                            <span className="font-black text-sm bg-black text-white px-2 py-1">
+                                                Soru {qIndex + 1}
+                                            </span>
+                                            <span className="font-black">{question.question}</span>
+                                        </div>
+
+                                        {/* Option Statistics */}
+                                        <div className="space-y-2 mb-4">
+                                            {question.options.map((option, oIndex) => {
+                                                const count = optionCounts[oIndex];
+                                                const percentage = allAnswers.length > 0
+                                                    ? Math.round((count / allAnswers.length) * 100)
+                                                    : 0;
+
+                                                return (
+                                                    <div key={oIndex} className="flex items-center gap-2">
+                                                        <span className="w-6 font-bold text-sm">{String.fromCharCode(65 + oIndex)}.</span>
+                                                        <div className="flex-1 h-8 bg-gray-200 border border-black relative">
+                                                            <div
+                                                                className="h-full bg-neo-green transition-all"
+                                                                style={{ width: `${percentage}%` }}
+                                                            />
+                                                            <span className="absolute inset-0 flex items-center px-2 text-sm font-bold">
+                                                                {option}
+                                                            </span>
+                                                        </div>
+                                                        <span className="w-16 text-right font-bold text-sm">
+                                                            {count} (%{percentage})
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Individual Responses */}
+                                        {allAnswers.length > 0 && (
+                                            <details className="text-sm">
+                                                <summary className="font-bold cursor-pointer hover:underline">
+                                                    Bireysel Cevaplar ({allAnswers.length})
+                                                </summary>
+                                                <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-1 text-xs">
+                                                    {allAnswers.map((a, i) => (
+                                                        <div key={i} className="bg-white border border-black px-2 py-1">
+                                                            <span className="font-bold">{a.name}:</span>{' '}
+                                                            {String.fromCharCode(65 + a.answer)}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </details>
+                                        )}
+
+                                        {allAnswers.length === 0 && (
+                                            <p className="text-sm text-gray-500 italic">Henuz cevap yok</p>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <button
+                            onClick={() => setSurveyModal(false)}
+                            className="w-full mt-6 py-3 bg-gray-200 border-2 border-black font-black text-sm hover:bg-gray-300 transition-all shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                        >
+                            Kapat
+                        </button>
                     </div>
                 </div>
             )}
