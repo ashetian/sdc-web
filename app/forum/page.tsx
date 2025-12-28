@@ -5,7 +5,7 @@ import {
   HelpCircle, Calendar, Briefcase, BookOpen, Pin, LucideIcon
 } from "lucide-react";
 import { useLanguage } from "../_context/LanguageContext";
-import { SkeletonCardGrid, SkeletonPageHeader, SkeletonList } from "../_components/Skeleton";
+import { SkeletonCardGrid } from "../_components/Skeleton";
 
 // Icon mapping for dynamic rendering
 const iconMap: Record<string, LucideIcon> = {
@@ -74,15 +74,7 @@ export default function ForumPage() {
     return (
       <main className="min-h-screen bg-neo-cyan pt-24 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <SkeletonPageHeader />
-          <div className="lg:grid lg:grid-cols-3 gap-8 mt-8">
-            <div className="lg:col-span-2">
-              <SkeletonCardGrid items={4} cols={2} />
-            </div>
-            <div>
-              <SkeletonList items={5} />
-            </div>
-          </div>
+          <SkeletonCardGrid items={6} cols={2} />
         </div>
       </main>
     );

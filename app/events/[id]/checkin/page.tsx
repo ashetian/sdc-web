@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage, SkeletonList } from '@/app/_components/Skeleton';
+import { SkeletonForm } from '@/app/_components/Skeleton';
 import { useLanguage } from '@/app/_context/LanguageContext';
 import { useToast } from '@/app/_context/ToastContext';
 import { Button } from '@/app/_components/ui';

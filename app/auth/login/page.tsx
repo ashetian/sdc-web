@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { mutate } from 'swr';
 import LoadingSpinner from '@/app/_components/LoadingSpinner';
 import { useLanguage } from '@/app/_context/LanguageContext';
 import { Button, Card, Input } from '@/app/_components/ui';
 import { useToast } from '@/app/_context/ToastContext';
-import Turnstile from '@/app/_components/Turnstile';
+import Turnstile, { TurnstileRef } from '@/app/_components/Turnstile';
 
 function LoginForm() {
     const router = useRouter();
@@ -21,6 +22,7 @@ function LoginForm() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [turnstileToken, setTurnstileToken] = useState('');
+    const turnstileRef = useRef<TurnstileRef>(null);
 
     useEffect(() => {
         const success = searchParams.get('success');
@@ -35,11 +37,16 @@ function LoginForm() {
         }
     }, []);
 
+    const resetCaptcha = () => {
+        setTurnstileToken('');
+        turnstileRef.current?.reset();
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!turnstileToken) {
-            showToast(t('auth.captchaRequired') || 'Lütfen CAPTCHA doğrulamasını tamamlayın', 'error');
+            showToast(t('auth.captchaRequired') || 'Lutfen CAPTCHA dogrulamasini tamamlayin', 'error');
             return;
         }
 
@@ -59,26 +66,31 @@ function LoginForm() {
             const data = await res.json();
 
             if (res.ok) {
+                // Refresh SWR auth cache so Navbar updates immediately
+                await mutate('/api/auth/me');
+
                 // If attempting to access admin panel, check permissions before redirecting
                 if (returnUrl && returnUrl.startsWith('/admin')) {
                     try {
                         const authCheck = await fetch('/api/admin/check-auth');
                         if (authCheck.ok) {
-                            window.location.href = returnUrl;
+                            router.push(returnUrl);
                         } else {
                             showToast(t('auth.noPermission'), 'error');
-                            // Optional: Redirect to profile after short delay or let user choose
-                            setTimeout(() => router.push('/profile'), 2000);
+                            setTimeout(() => router.push('/'), 2000);
                         }
                     } catch (e) {
-                        window.location.href = returnUrl; // Fallback to guard
+                        router.push(returnUrl); // Fallback to guard
                     }
                 } else if (returnUrl && returnUrl.startsWith('/')) {
-                    window.location.href = returnUrl;
+                    router.push(returnUrl);
                 } else {
-                    router.push('/profile');
+                    router.push('/');
                 }
             } else {
+                // Reset captcha on failed login attempt
+                resetCaptcha();
+
                 if (data.notRegistered) {
                     showToast(
                         <div>
@@ -94,6 +106,7 @@ function LoginForm() {
                 }
             }
         } catch {
+            resetCaptcha();
             showToast(t('auth.genericError'), 'error');
         } finally {
             setLoading(false);
@@ -134,6 +147,7 @@ function LoginForm() {
                 />
 
                 <Turnstile
+                    ref={turnstileRef}
                     onVerify={setTurnstileToken}
                     onExpire={() => setTurnstileToken('')}
                     className="flex justify-center"

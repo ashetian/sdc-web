@@ -116,7 +116,10 @@ export default function EventRegistrationsPage() {
             if (attendanceRes.ok) {
                 const data = await attendanceRes.json();
                 setRegistrations(data.registrations || []);
-                setStats(data.stats || null);
+                setStats(data.stats || { totalRegistered: 0, totalAttended: 0, averageRating: 0 });
+            } else {
+                console.error('Attendance API error:', attendanceRes.status);
+                setStats({ totalRegistered: 0, totalAttended: 0, averageRating: 0 });
             }
 
             if (guestRes.ok) {
@@ -129,6 +132,7 @@ export default function EventRegistrationsPage() {
             }
         } catch (error) {
             console.error('Veriler yuklenirken hata:', error);
+            setStats({ totalRegistered: 0, totalAttended: 0, averageRating: 0 });
         } finally {
             setLoading(false);
         }

@@ -8,9 +8,24 @@ export default function CookieConsent() {
     const { t } = useLanguage();
     const [isVisible, setIsVisible] = useState(false);
 
+    // Helper to get cookie value
+    const getCookie = (name: string): string | null => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+        return null;
+    };
+
+    // Helper to set cookie with expiration
+    const setCookie = (name: string, value: string, days: number) => {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+    };
+
     useEffect(() => {
-        // Check if user has already accepted cookies
-        const hasAccepted = localStorage.getItem('cookie-consent');
+        // Check if user has already accepted cookies (using actual cookie now)
+        const hasAccepted = getCookie('cookie-consent');
 
         // Check if user is logged in (has auth token cookie)
         const isLoggedIn = document.cookie.includes('auth-token');
@@ -26,7 +41,8 @@ export default function CookieConsent() {
     }, []);
 
     const handleAccept = () => {
-        localStorage.setItem('cookie-consent', 'accepted');
+        // Store consent in a cookie that lasts 1 year
+        setCookie('cookie-consent', 'accepted', 365);
         setIsVisible(false);
     };
 
@@ -49,8 +65,8 @@ export default function CookieConsent() {
                         <p className="text-white/80 text-sm">
                             {t('cookie.message')}
                         </p>
-                        <p className="text-neo-green text-xs mt-1 font-medium">
-                            {t('cookie.noThirdParty')}
+                        <p className="text-neo-yellow text-xs mt-1 font-medium">
+                            {t('cookie.analytics')}
                         </p>
                     </div>
 

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import ClientLayout from "./_components/ClientLayout";
 import { Toaster } from "sonner";
+import GoogleAnalytics from "./_components/GoogleAnalytics";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -162,7 +163,8 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} font-sans overflow-x-hidden`}>
-        <Toaster position="top-right" richColors theme="light" />
+        <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''} />
+        <Toaster position="bottom-right" richColors theme="light" />
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

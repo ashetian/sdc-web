@@ -25,8 +25,8 @@ cloudinary.config({
 });
 
 try {
-    const config = cloudinary.config();
-    console.log('Cloudinary Config Loaded:', config.cloud_name ? 'Yes' : 'No');
+  const config = cloudinary.config();
+  console.log('Cloudinary Config Loaded:', config.cloud_name ? 'Yes' : 'No');
 } catch (e) {
-    console.error('Error loading config:', e);
+  console.error('Error loading config:', e);
 }

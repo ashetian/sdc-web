@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         })
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
-            .setExpirationTime('24h')
+            .setExpirationTime('30d') // 1 month for session persistence
             .sign(JWT_SECRET);
 
         // Set HTTP-only cookie
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 24 * 60 * 60, // 24 hours
+            maxAge: 30 * 24 * 60 * 60, // 30 days (matching JWT expiration)
             path: '/',
         });
 

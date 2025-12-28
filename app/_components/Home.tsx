@@ -152,7 +152,7 @@ export default function Home() {
                     {t('home.signUp')}
                   </button>
                   <button
-                    onClick={() => router.push("/auth/login")}
+                    onClick={() => router.push("/auth/login?returnUrl=/")}
                     className="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-4 bg-white text-black border-4 border-black shadow-neo font-black text-sm sm:text-xl hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                   >
                     {t('home.login')}

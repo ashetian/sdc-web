@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import { Button } from '@/app/_components/ui';
 
 interface AccessRule {
@@ -135,7 +135,6 @@ export default function AccessControlPage() {
 
     if (loading) return (
         <div className="space-y-8">
-            <SkeletonPageHeader />
             <SkeletonList items={5} />
         </div>
     );

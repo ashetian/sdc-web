@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import { Button } from '@/app/_components/ui';
 
 interface Stat {

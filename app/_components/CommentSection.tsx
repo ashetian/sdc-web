@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '../_context/LanguageContext';
 import LikeButton from './LikeButton';
 import { Reply, CornerDownRight } from 'lucide-react';
@@ -188,6 +189,7 @@ const CommentItem = ({
 };
 
 export default function CommentSection({ contentType, contentId }: CommentSectionProps) {
+    const pathname = usePathname();
     const { language, t } = useLanguage();
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState('');
@@ -398,7 +400,7 @@ export default function CommentSection({ contentType, contentId }: CommentSectio
                     </form>
                 ) : (
                     <div className="mb-6 p-4 bg-gray-100 border-2 border-black text-center">
-                        <Link href="/auth/login" className="text-blue-600 hover:underline font-bold">
+                        <Link href={`/auth/login?returnUrl=${encodeURIComponent(pathname || '/')}`} className="text-blue-600 hover:underline font-bold">
                             {t('comments.loginToComment')}
                         </Link>
                     </div>

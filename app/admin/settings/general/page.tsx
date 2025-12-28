@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import Link from 'next/link';
 import { Button } from '@/app/_components/ui';
 
@@ -61,7 +61,6 @@ export default function GeneralSettingsPage() {
 
     if (loading) return (
         <div className="space-y-6">
-            <SkeletonPageHeader />
             <SkeletonList items={3} />
         </div>
     );

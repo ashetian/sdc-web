@@ -1,168 +1,111 @@
-'use client';
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import connectDB from "../../lib/db";
+import Project, { IProject } from "../../lib/models/Project";
+import Member from "../../lib/models/Member";
+import ProjectDetailClient from "./ProjectDetailClient";
 
-import { useState, useEffect, use } from 'react';
-import Link from 'next/link';
-import { SkeletonList } from '@/app/_components/Skeleton';
-import Image from 'next/image';
-import { useLanguage } from '../../_context/LanguageContext';
-import BookmarkButton from '@/app/_components/BookmarkButton';
-import LikeButton from '@/app/_components/LikeButton';
-import dynamic from "next/dynamic";
-const CommentSection = dynamic(() => import('@/app/_components/CommentSection'), { ssr: false });
-import type { Project } from '../../lib/types/api';
+interface Props {
+    params: Promise<{ id: string }>;
+}
 
-export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
-    const { language, t } = useLanguage();
-    const [project, setProject] = useState<Project | null>(null);
-    const [loading, setLoading] = useState(true);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { id } = await params;
 
-    useEffect(() => {
-        fetchProject();
-    }, [id]);
+    await connectDB();
 
-    const fetchProject = async () => {
-        try {
-            const res = await fetch(`/api/projects/${id}`);
-            if (res.ok) {
-                const data = await res.json();
-                setProject(data);
-            }
-        } catch (err) {
-            console.error('Project fetch error:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getGithubPreview = (githubUrl: string) => {
-        const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
-        if (match) {
-            return `https://opengraph.githubassets.com/1/${match[1]}/${match[2]}`;
-        }
-        return '/sdclogo.png';
-    };
-
-    const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center pt-24">
-                <SkeletonList items={5} />
-            </div>
-        );
+    // Validate ObjectId
+    const mongoose = await import('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return { title: 'Proje Bulunamadi' };
     }
+
+    const project = await Project.findOne({
+        _id: id,
+        status: 'approved',
+        isDeleted: { $ne: true },
+    }).lean();
 
     if (!project) {
-        return (
-            <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center pt-24">
-                <div className="text-xl font-bold mb-4">{t('projects.detail.notFound')}</div>
-                <Link href="/projects" className="text-blue-600 hover:underline">{t('projects.detail.back')}</Link>
-            </div>
-        );
+        return { title: 'Proje Bulunamadi' };
     }
 
-    return (
-        <div className="min-h-screen bg-gray-100 py-24 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Back Link */}
-                <Link href="/projects" className="inline-flex items-center text-black font-bold mb-6 hover:underline">
-                    ← {t('projects.detail.back')}
-                </Link>
+    const title = project.title;
+    const description = project.description?.substring(0, 160) || '';
 
-                {/* Project Card */}
-                <div className="bg-white border-4 border-black shadow-neo overflow-hidden mb-8">
-                    {/* Preview Image */}
-                    <div className="relative h-64 border-b-4 border-black">
-                        <Image
-                            src={getGithubPreview(project.githubUrl ?? '')}
-                            alt={project.title}
-                            fill
-                            className="object-cover"
-                            unoptimized
-                        />
-                    </div>
+    // Get GitHub preview image
+    const match = project.githubUrl?.match(/github\.com\/([^/]+)\/([^/]+)/);
+    const previewImage = match
+        ? `https://opengraph.githubassets.com/1/${match[1]}/${match[2]}`
+        : 'https://ktusdc.com/sdclogo.png';
 
-                    <div className="p-8">
-                        <div className="flex items-start justify-between gap-4 mb-4">
-                            <h1 className="text-3xl font-black text-black">
-                                {language === 'en' && project.titleEn ? project.titleEn : project.title}
-                            </h1>
-                            <div className="flex items-center gap-3">
-                                <LikeButton contentType="project" contentId={project._id} />
-                                <BookmarkButton contentType="project" contentId={project._id} />
-                            </div>
-                        </div>
+    return {
+        title: `${title} | KTU SDC Projeler`,
+        description: description,
+        alternates: {
+            canonical: `https://ktusdc.com/projects/${id}`,
+        },
+        openGraph: {
+            title: title,
+            description: description,
+            url: `https://ktusdc.com/projects/${id}`,
+            type: 'article',
+            images: [previewImage],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: title,
+            description: description,
+            images: [previewImage],
+        },
+    };
+}
 
-                        {/* Meta */}
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
-                            <span>{project.viewCount} {t('projects.detail.views')}</span>
-                            <span>•</span>
-                            <span>{formatDate(project.createdAt ?? '')}</span>
-                        </div>
+async function getProject(id: string) {
+    await connectDB();
 
-                        {/* Description */}
-                        <p className="text-gray-800 text-lg mb-6 whitespace-pre-wrap">
-                            {language === 'en' && project.descriptionEn ? project.descriptionEn : project.description}
-                        </p>
+    // Validate ObjectId
+    const mongoose = await import('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return null;
+    }
 
-                        {/* Technologies */}
-                        {project.technologies && project.technologies.length > 0 && (
-                            <div className="mb-6">
-                                <h3 className="font-black text-black mb-2">{t('projects.detail.technologies')}</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {project.technologies.map((tech, i) => (
-                                        <span key={i} className="px-3 py-1 bg-neo-purple text-white font-bold border-2 border-black">
-                                            {tech}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+    const project = await Project.findOneAndUpdate(
+        { _id: id, status: 'approved', isDeleted: { $ne: true } },
+        { $inc: { viewCount: 1 } },
+        { new: true }
+    )
+        .populate('memberId', 'nickname department fullName')
+        .lean();
 
-                        {/* Author */}
-                        {project.author && (
-                            <div className="mb-6 p-4 bg-gray-50 border-2 border-black">
-                                <h3 className="font-black text-black mb-2">{t('projects.detail.developer')}</h3>
-                                <p className="font-bold">{project.author.nickname}</p>
-                                {project.author.fullName && <p className="text-gray-600">{project.author.fullName}</p>}
-                                {project.author.department && <p className="text-gray-500 text-sm">{project.author.department}</p>}
-                            </div>
-                        )}
+    if (!project) return null;
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-wrap gap-4">
-                            <a
-                                href={project.githubUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-6 py-3 bg-black text-white font-bold border-2 border-black hover:bg-white hover:text-black hover:shadow-neo transition-all uppercase"
-                            >
-                                {t('projects.detail.github')}
-                            </a>
-                            {project.demoUrl && (
-                                <a
-                                    href={project.demoUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="px-6 py-3 bg-neo-green text-black font-bold border-2 border-black hover:shadow-neo transition-all uppercase"
-                                >
-                                    {t('projects.detail.demo')}
-                                </a>
-                            )}
-                        </div>
-                    </div>
-                </div>
+    return {
+        _id: (project as any)._id.toString(),
+        title: project.title,
+        titleEn: project.titleEn,
+        description: project.description,
+        descriptionEn: project.descriptionEn,
+        githubUrl: project.githubUrl,
+        demoUrl: project.demoUrl,
+        technologies: project.technologies,
+        viewCount: project.viewCount,
+        createdAt: project.createdAt.toISOString(),
+        author: (project as any).memberId ? {
+            nickname: (project as any).memberId.nickname,
+            fullName: (project as any).memberId.fullName,
+            department: (project as any).memberId.department,
+        } : undefined,
+    };
+}
 
-                {/* Comments Section */}
-                <CommentSection contentType="project" contentId={project._id} />
-            </div>
-        </div>
-    );
+export default async function ProjectDetailPage({ params }: Props) {
+    const { id } = await params;
+    const project = await getProject(id);
+
+    if (!project) {
+        notFound();
+    }
+
+    return <ProjectDetailClient project={project} />;
 }

@@ -120,13 +120,18 @@ export default function EditEventPage() {
         setSaving(true);
 
         try {
+            // Convert datetime strings to proper Date objects to preserve local timezone
+            const submitData = {
+                ...formData,
+                price: formData.price ? parseFloat(formData.price) : undefined,
+                eventDate: formData.eventDate ? new Date(formData.eventDate).toISOString() : undefined,
+                eventEndDate: formData.eventEndDate ? new Date(formData.eventEndDate).toISOString() : undefined,
+            };
+
             const res = await fetch(`/api/events/${params.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...formData,
-                    price: formData.price ? parseFloat(formData.price) : undefined,
-                }),
+                body: JSON.stringify(submitData),
             });
 
             if (res.ok) {

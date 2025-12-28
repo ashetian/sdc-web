@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { SkeletonTable, SkeletonPageHeader, SkeletonList } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import { Button, ConfirmModal } from '@/app/_components/ui';
 

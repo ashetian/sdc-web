@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Pencil, Images, Trash2 } from "lucide-react";
@@ -80,7 +80,6 @@ export default function AnnouncementsIndexPage() {
 
     if (loading) return (
         <div className="space-y-6">
-            <SkeletonPageHeader />
             <SkeletonList items={5} />
         </div>
     );

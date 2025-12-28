@@ -414,10 +414,10 @@ export const tr = {
         cookedBy: 'Cooked by',
     },
     cookie: {
-        title: '🍪 Çerez Bildirimi',
-        message: 'Bu web sitesi, oturum yönetimi için zorunlu çerezler kullanmaktadır.',
-        noThirdParty: '✓ Bu site üçüncü taraf çerez kullanmamaktadır.',
-        accept: 'Anladım',
+        title: 'Cerez Bildirimi',
+        message: 'Bu web sitesi, oturum yonetimi ve site kullanim istatistikleri icin cerezler kullanmaktadir.',
+        analytics: 'Anonim site istatistikleri icin Google Analytics kullanilmaktadir.',
+        accept: 'Anladim',
     },
     common: {
         loading: 'Yükleniyor...',

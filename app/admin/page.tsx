@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { SkeletonAdminMenu, SkeletonPageHeader } from "@/app/_components/Skeleton";
+import { SkeletonAdminMenu } from "@/app/_components/Skeleton";
 import {
   Megaphone,
   CalendarDays,
@@ -88,7 +88,6 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="space-y-8">
-        <SkeletonPageHeader />
         <SkeletonAdminMenu items={8} />
       </div>
     );

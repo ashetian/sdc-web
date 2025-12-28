@@ -12,6 +12,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'api.dicebear.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'opengraph.githubassets.com',
+      },
     ],
     // Image optimization settings
     formats: ['image/avif', 'image/webp'],
@@ -61,7 +65,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://res.cloudinary.com https://api.dicebear.com blob:; connect-src 'self' https://res.cloudinary.com https://api.cloudinary.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'self';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://res.cloudinary.com https://api.dicebear.com https://opengraph.githubassets.com https://www.google-analytics.com blob:; connect-src 'self' https://res.cloudinary.com https://api.cloudinary.com https://challenges.cloudflare.com https://www.google-analytics.com https://analytics.google.com; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'self';",
           },
         ],
       },

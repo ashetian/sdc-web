@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from "next/link";
-import { SkeletonList, SkeletonAvatar } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import Image from 'next/image';
 import { FolderOpen, User, Hash, Github, ExternalLink, AlertTriangle } from 'lucide-react';
 import { Button, ConfirmModal } from '@/app/_components/ui';

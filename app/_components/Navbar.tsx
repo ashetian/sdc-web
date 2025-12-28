@@ -193,10 +193,10 @@ export default function Navbar() {
               ) : (
                 <div className="flex items-center gap-2">
                   <Link
-                    href="/auth/login"
+                    href={`/auth/login?returnUrl=${encodeURIComponent(pathname || '/')}`}
                     className="px-4 py-2 font-bold bg-white text-black border-2 border-black hover:shadow-neo transition-all"
                   >
-                    {t('auth.login') || 'Giriş'}
+                    {t('auth.login') || 'Giris'}
                   </Link>
                   <Link
                     href="/auth/signup"
@@ -322,7 +322,7 @@ export default function Navbar() {
                   ) : (
                     <>
                       <Link
-                        href="/auth/login"
+                        href={`/auth/login?returnUrl=${encodeURIComponent(pathname || '/')}`}
                         onClick={() => setIsMenuOpen(false)}
                         className="px-8 py-4 bg-white text-black font-black text-xl border-4 border-black text-center"
                       >

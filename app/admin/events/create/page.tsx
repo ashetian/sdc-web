@@ -56,12 +56,19 @@ export default function CreateEventPage() {
         setLoading(true);
 
         try {
+            // Convert datetime strings to proper Date objects to preserve local timezone
+            const submitData = {
+                ...formData,
+                eventDate: formData.eventDate ? new Date(formData.eventDate).toISOString() : undefined,
+                eventEndDate: formData.eventEndDate ? new Date(formData.eventEndDate).toISOString() : undefined,
+            };
+
             const res = await fetch('/api/events', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(submitData),
             });
 
             if (res.ok) {

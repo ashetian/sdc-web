@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectDB from '@/app/lib/db';
 import { Event } from '@/app/lib/models/Event';
 import { Registration } from '@/app/lib/models/Registration';
@@ -13,6 +14,11 @@ export async function POST(
     try {
         await connectDB();
         const { id } = await params;
+
+        // Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return NextResponse.json({ error: 'Gecersiz etkinlik ID' }, { status: 400 });
+        }
         const { action, rating, feedback } = await request.json();
 
         if (action === 'generate') {
@@ -102,6 +108,11 @@ export async function GET(
     try {
         await connectDB();
         const { id } = await params;
+
+        // Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return NextResponse.json({ error: 'Gecersiz etkinlik ID' }, { status: 400 });
+        }
 
         // Admin only
         const user = await verifyAuth(request);

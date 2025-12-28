@@ -6,6 +6,10 @@ import { AdminToastProvider } from "./_components/AdminToastProvider";
 export const metadata: Metadata = {
   title: "SDC Admin Paneli",
   description: "Software Development Club Admin Paneli",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function AdminLayout({

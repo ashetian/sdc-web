@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { downloadICalendar, generateGoogleCalendarUrl, generateOutlookCalendarUrl } from '@/app/lib/utils/calendar';
 import Link from 'next/link';
-import { SkeletonForm, SkeletonPageHeader, SkeletonFullPage, SkeletonList } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import BookmarkButton from '@/app/_components/BookmarkButton';
 import { useLanguage } from '@/app/_context/LanguageContext';
 import { useToast } from '@/app/_context/ToastContext';

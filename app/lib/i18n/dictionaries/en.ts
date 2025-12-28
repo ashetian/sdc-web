@@ -417,9 +417,9 @@ export const en = {
         cookedBy: 'Cooked by',
     },
     cookie: {
-        title: '🍪 Cookie Notice',
-        message: 'This website uses essential cookies for session management.',
-        noThirdParty: '✓ This site does not use third-party cookies.',
+        title: 'Cookie Notice',
+        message: 'This website uses cookies for session management and site usage statistics.',
+        analytics: 'Google Analytics is used for anonymous site statistics.',
         accept: 'Got it',
     },
     common: {

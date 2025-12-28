@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SkeletonList, SkeletonPageHeader } from '@/app/_components/Skeleton';
+import { SkeletonList } from '@/app/_components/Skeleton';
 import Link from 'next/link';
 import { Mail, AlertCircle, CheckCircle, Send, Info } from 'lucide-react';
 import { Button } from '@/app/_components/ui';
@@ -105,10 +105,7 @@ export default function EmailSettingsPage() {
 
     if (loading) return (
         <div className="space-y-6">
-            <SkeletonPageHeader />
-            <div className="bg-white border-4 border-gray-200 p-6 space-y-4">
-                <SkeletonList items={2} />
-            </div>
+            <SkeletonList items={3} />
         </div>
     );
 

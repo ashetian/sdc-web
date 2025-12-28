@@ -12,7 +12,7 @@ declare global {
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sdc-web';
 
 if (!MONGODB_URI) {
-  throw new Error('MongoDB URI bulunamadı.');
+  throw new Error('MongoDB URI bulunamadi.');
 }
 
 type GlobalMongoose = {
@@ -27,13 +27,23 @@ if (!global.mongoose) {
 const cached = global.mongoose as GlobalMongoose;
 
 async function connectDB() {
-  if (cached.conn) {
+  // If we have a valid connection, return it
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
+  }
+
+  // If connection is disconnected or in error state, reset the cache
+  if (mongoose.connection.readyState === 0 || mongoose.connection.readyState === 3) {
+    cached.conn = null;
+    cached.promise = null;
   }
 
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,
+      bufferCommands: true, // Enable buffering to queue commands while connecting
+      maxPoolSize: 10, // Connection pool size
+      serverSelectionTimeoutMS: 5000, // Timeout for server selection
+      socketTimeoutMS: 45000, // Socket timeout
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
@@ -46,6 +56,7 @@ async function connectDB() {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
+    cached.conn = null;
     throw e;
   }
 
