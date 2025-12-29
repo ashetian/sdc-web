@@ -19,7 +19,8 @@ export interface IRegistration {
     paymentProofUrl?: string;
     paymentStatus?: 'pending' | 'verified' | 'rejected' | 'refunded';
     // Attendance tracking
-    attendedAt?: Date; // QR check-in time
+    attendedAt?: Date; // QR check-in time (1. yoklama)
+    attendedAt2?: Date; // 2. yoklama zamanı
     rating?: number; // 1-10 stars
     feedback?: string; // Optional comment
     surveyAnswers?: ISurveyAnswer[];
@@ -71,6 +72,10 @@ const registrationSchema = new mongoose.Schema<IRegistration>(
         },
         // Attendance fields
         attendedAt: {
+            type: Date,
+            required: false,
+        },
+        attendedAt2: {
             type: Date,
             required: false,
         },

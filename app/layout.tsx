@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     description: 'Karadeniz Teknik Üniversitesi\'nin resmi yazılım ve programlama topluluğu. Etkinlikler, workshoplar ve projeler.',
     images: [
       {
-        url: '/og-image.png',
+        url: 'https://ktusdc.com/og-image.png',
         width: 1200,
         height: 630,
         alt: 'KTÜ Yazılım Geliştirme Kulübü',
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'KTÜ Yazılım Geliştirme Kulübü',
     description: 'Karadeniz Teknik Üniversitesi\'nin resmi yazılım ve programlama topluluğu.',
-    images: ['/og-image.png'],
+    images: ['https://ktusdc.com/og-image.png'],
     creator: '@ktusdc',
   },
   verification: {

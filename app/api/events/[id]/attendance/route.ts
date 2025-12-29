@@ -45,6 +45,30 @@ export async function POST(
             });
         }
 
+        // 2. yoklama kodu oluştur
+        if (action === 'generate2') {
+            const user = await verifyAuth(request);
+            if (!user) {
+                return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+            }
+
+            const event = await Event.findById(id);
+            if (!event) {
+                return NextResponse.json({ error: 'Etkinlik bulunamadı' }, { status: 404 });
+            }
+
+            // Generate unique 2nd attendance code if not exists
+            if (!event.attendanceCode2) {
+                event.attendanceCode2 = crypto.randomBytes(16).toString('hex');
+                await event.save();
+            }
+
+            return NextResponse.json({
+                attendanceCode2: event.attendanceCode2,
+                qrUrl: `/events/${id}/checkin?code=${event.attendanceCode2}&session=2`,
+            });
+        }
+
         if (action === 'checkin') {
             // Check in with QR - member only
             const user = await verifyAuth(request);
@@ -120,6 +144,9 @@ export async function GET(
             return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
         }
 
+        // Get event for attendance codes
+        const event = await Event.findById(id);
+
         const registrations = await Registration.find({ eventId: id })
             .populate('memberId', 'fullName studentNo email phone department nickname')
             .sort({ createdAt: -1 });
@@ -127,6 +154,7 @@ export async function GET(
         // Calculate stats
         const totalRegistered = registrations.length;
         const totalAttended = registrations.filter(r => r.attendedAt).length;
+        const totalAttended2 = registrations.filter(r => r.attendedAt2).length;
         const ratings = registrations.filter(r => r.rating).map(r => r.rating as number);
         const averageRating = ratings.length > 0
             ? ratings.reduce((a, b) => a + b, 0) / ratings.length
@@ -134,9 +162,11 @@ export async function GET(
 
         return NextResponse.json({
             registrations,
+            attendanceCode2: event?.attendanceCode2 || null,
             stats: {
                 totalRegistered,
                 totalAttended,
+                totalAttended2,
                 averageRating: Math.round(averageRating * 10) / 10,
             },
         });
@@ -145,3 +175,4 @@ export async function GET(
         return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 });
     }
 }
+

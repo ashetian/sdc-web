@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { SkeletonForm } from '@/app/_components/Skeleton';
 import { useLanguage } from '@/app/_context/LanguageContext';
 import { useToast } from '@/app/_context/ToastContext';
@@ -25,6 +25,10 @@ interface SurveyAnswer {
 export default function CheckinPage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const session = searchParams.get('session'); // '2' for second attendance
+    const isSession2 = session === '2';
+
     const [event, setEvent] = useState<Event | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -103,18 +107,21 @@ export default function CheckinPage() {
         e.preventDefault();
         if (!user || !event) return;
 
-        if (rating === 0) {
-            showToast(t('events.checkinPage.rateError'), 'error');
-            return;
-        }
-
-        // Validate required survey questions
-        const requiredQuestions = surveyQuestions.filter(q => q.required);
-        for (const question of requiredQuestions) {
-            const answer = surveyAnswers.find(a => a.questionId === question.id);
-            if (!answer) {
-                showToast(language === 'tr' ? 'Lutfen tum zorunlu anket sorularını cevaplayın.' : 'Please answer all required survey questions.', 'error');
+        // 2. yoklamada rating ve anket zorunlu değil
+        if (!isSession2) {
+            if (rating === 0) {
+                showToast(t('events.checkinPage.rateError'), 'error');
                 return;
+            }
+
+            // Validate required survey questions
+            const requiredQuestions = surveyQuestions.filter(q => q.required);
+            for (const question of requiredQuestions) {
+                const answer = surveyAnswers.find(a => a.questionId === question.id);
+                if (!answer) {
+                    showToast(language === 'tr' ? 'Lutfen tum zorunlu anket sorularını cevaplayın.' : 'Please answer all required survey questions.', 'error');
+                    return;
+                }
             }
         }
 
@@ -124,15 +131,18 @@ export default function CheckinPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    rating,
-                    comment,
-                    surveyAnswers
+                    rating: isSession2 ? undefined : rating,
+                    comment: isSession2 ? undefined : comment,
+                    surveyAnswers: isSession2 ? undefined : surveyAnswers,
+                    session: isSession2 ? 2 : 1
                 }),
             });
 
             if (res.ok) {
                 setCheckedIn(true);
-                showToast(t('events.checkinPage.successMessage'), 'success');
+                showToast(isSession2
+                    ? (language === 'tr' ? '2. Yoklama başarılı!' : '2nd check-in successful!')
+                    : t('events.checkinPage.successMessage'), 'success');
             } else {
                 const data = await res.json();
                 showToast(data.error || t('events.checkinPage.error'), 'error');
@@ -192,99 +202,124 @@ export default function CheckinPage() {
     }
 
     return (
-        <div className="min-h-screen bg-neo-blue pt-32 pb-12 px-4 flex items-center justify-center">
+        <div className={`min-h-screen ${isSession2 ? 'bg-neo-purple' : 'bg-neo-blue'} pt-32 pb-12 px-4 flex items-center justify-center`}>
             <div className="max-w-md w-full bg-white border-4 border-black shadow-neo-lg p-8">
                 <div className="text-center mb-6">
                     <h2 className="text-2xl font-black text-black uppercase bg-neo-yellow inline-block px-4 py-1 border-2 border-black shadow-neo-sm">
                         {event.title}
                     </h2>
-                    <h3 className="text-xl font-black text-gray-500 mt-2 uppercase">{t('events.checkinPage.title')}</h3>
+                    <h3 className="text-xl font-black text-gray-500 mt-2 uppercase">
+                        {isSession2
+                            ? (language === 'tr' ? '2. Yoklama' : '2nd Check-in')
+                            : t('events.checkinPage.title')}
+                    </h3>
                 </div>
 
                 <form onSubmit={handleCheckin} className="space-y-6">
-                    {/* Rating */}
-                    <div className="space-y-2">
-                        <label className="block text-sm font-black uppercase">{t('events.checkinPage.ratePrompt')}</label>
-                        <div className="flex justify-center gap-0.5 sm:gap-1">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
-                                <button
-                                    key={star}
-                                    type="button"
-                                    onClick={() => setRating(star)}
-                                    className={`text-xl sm:text-2xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
-                                        }`}
-                                >
-                                    &#9733;
-                                </button>
-                            ))}
-                        </div>
-                        {rating === 0 && (
-                            <p className="text-center text-xs text-gray-500 font-bold">{t('events.checkinPage.ratePlaceholder')}</p>
-                        )}
-                    </div>
-
-                    {/* Survey Questions */}
-                    {surveyQuestions.length > 0 && (
-                        <div className="space-y-4 border-t-2 border-black pt-4">
-                            <p className="text-sm font-black uppercase text-center bg-neo-purple text-white py-1 px-2 border-2 border-black">
-                                {language === 'tr' ? 'Anket Soruları' : 'Survey Questions'}
+                    {/* 2. yoklamada sadece buton göster */}
+                    {isSession2 ? (
+                        <div className="text-center py-4">
+                            <p className="text-gray-600 font-bold mb-4">
+                                {language === 'tr'
+                                    ? '2. oturum yoklamanızı tamamlamak için butona tıklayın.'
+                                    : 'Click the button to complete your 2nd session check-in.'}
                             </p>
-                            {surveyQuestions.map((question, qIndex) => {
-                                const questionText = language === 'en' && question.questionEn ? question.questionEn : question.question;
-                                const options = language === 'en' && question.optionsEn?.length ? question.optionsEn : question.options;
-                                const currentAnswer = surveyAnswers.find(a => a.questionId === question.id);
-
-                                return (
-                                    <div key={question.id} className="space-y-2">
-                                        <label className="block text-sm font-black">
-                                            {qIndex + 1}. {questionText}
-                                            {question.required && <span className="text-red-500 ml-1">*</span>}
-                                        </label>
-                                        <div className="space-y-1">
-                                            {options.map((option, oIndex) => (
-                                                <label
-                                                    key={oIndex}
-                                                    className={`flex items-center gap-2 p-2 border-2 border-black cursor-pointer transition-all ${currentAnswer?.selectedOption === oIndex
-                                                        ? 'bg-neo-green'
-                                                        : 'bg-white hover:bg-gray-100'
-                                                        }`}
-                                                >
-                                                    <input
-                                                        type="radio"
-                                                        name={`survey-${question.id}`}
-                                                        checked={currentAnswer?.selectedOption === oIndex}
-                                                        onChange={() => handleSurveyAnswer(question.id, oIndex)}
-                                                        className="w-4 h-4"
-                                                    />
-                                                    <span className="font-bold text-sm">{option}</span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                            <Button
+                                type="submit"
+                                isLoading={submitting}
+                                fullWidth
+                                size="lg"
+                            >
+                                {language === 'tr' ? '2. Yoklama Yap' : 'Complete 2nd Check-in'}
+                            </Button>
                         </div>
+                    ) : (
+                        <>
+                            {/* Rating */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-black uppercase">{t('events.checkinPage.ratePrompt')}</label>
+                                <div className="flex justify-center gap-0.5 sm:gap-1">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setRating(star)}
+                                            className={`text-xl sm:text-2xl transition-all transform hover:scale-110 ${rating >= star ? 'text-neo-yellow' : 'text-gray-300'
+                                                }`}
+                                        >
+                                            &#9733;
+                                        </button>
+                                    ))}
+                                </div>
+                                {rating === 0 && (
+                                    <p className="text-center text-xs text-gray-500 font-bold">{t('events.checkinPage.ratePlaceholder')}</p>
+                                )}
+                            </div>
+
+                            {/* Survey Questions */}
+                            {surveyQuestions.length > 0 && (
+                                <div className="space-y-4 border-t-2 border-black pt-4">
+                                    <p className="text-sm font-black uppercase text-center bg-neo-purple text-white py-1 px-2 border-2 border-black">
+                                        {language === 'tr' ? 'Anket Soruları' : 'Survey Questions'}
+                                    </p>
+                                    {surveyQuestions.map((question, qIndex) => {
+                                        const questionText = language === 'en' && question.questionEn ? question.questionEn : question.question;
+                                        const options = language === 'en' && question.optionsEn?.length ? question.optionsEn : question.options;
+                                        const currentAnswer = surveyAnswers.find(a => a.questionId === question.id);
+
+                                        return (
+                                            <div key={question.id} className="space-y-2">
+                                                <label className="block text-sm font-black">
+                                                    {qIndex + 1}. {questionText}
+                                                    {question.required && <span className="text-red-500 ml-1">*</span>}
+                                                </label>
+                                                <div className="space-y-1">
+                                                    {options.map((option, oIndex) => (
+                                                        <label
+                                                            key={oIndex}
+                                                            className={`flex items-center gap-2 p-2 border-2 border-black cursor-pointer transition-all ${currentAnswer?.selectedOption === oIndex
+                                                                ? 'bg-neo-green'
+                                                                : 'bg-white hover:bg-gray-100'
+                                                                }`}
+                                                        >
+                                                            <input
+                                                                type="radio"
+                                                                name={`survey-${question.id}`}
+                                                                checked={currentAnswer?.selectedOption === oIndex}
+                                                                onChange={() => handleSurveyAnswer(question.id, oIndex)}
+                                                                className="w-4 h-4"
+                                                            />
+                                                            <span className="font-bold text-sm">{option}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {/* Comment */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-black uppercase">{t('events.checkinPage.commentPrompt')}</label>
+                                <textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    className="w-full p-3 border-2 border-black shadow-neo-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[100px] resize-none"
+                                    placeholder={t('events.checkinPage.commentPlaceholder')}
+                                />
+                            </div>
+
+                            <Button
+                                type="submit"
+                                isLoading={submitting}
+                                fullWidth
+                                size="lg"
+                            >
+                                {t('events.checkinPage.submit')}
+                            </Button>
+                        </>
                     )}
-
-                    {/* Comment */}
-                    <div className="space-y-2">
-                        <label className="block text-sm font-black uppercase">{t('events.checkinPage.commentPrompt')}</label>
-                        <textarea
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            className="w-full p-3 border-2 border-black shadow-neo-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[100px] resize-none"
-                            placeholder={t('events.checkinPage.commentPlaceholder')}
-                        />
-                    </div>
-
-                    <Button
-                        type="submit"
-                        isLoading={submitting}
-                        fullWidth
-                        size="lg"
-                    >
-                        {t('events.checkinPage.submit')}
-                    </Button>
                 </form>
             </div>
         </div>

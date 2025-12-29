@@ -48,6 +48,7 @@ export interface IEvent {
   descriptionEn?: string;
   // Attendance fields
   attendanceCode?: string;
+  attendanceCode2?: string; // 2. yoklama için
   isEnded: boolean;
   remindersSent?: boolean;
   actualDuration?: number; // in minutes, admin-entered
@@ -113,6 +114,12 @@ const eventSchema = new mongoose.Schema<IEvent>(
     },
     // Attendance fields
     attendanceCode: {
+      type: String,
+      required: false,
+      unique: true,
+      sparse: true,
+    },
+    attendanceCode2: {
       type: String,
       required: false,
       unique: true,

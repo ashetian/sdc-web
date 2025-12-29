@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronLeft, Check, Download, Mail, UserX, UserCheck, ClipboardList, X } from 'lucide-react';
 import { useToast } from '@/app/_context/ToastContext';
 import { Button } from '@/app/_components/ui';
+import QRCode from 'react-qr-code';
 
 interface Member {
     _id: string;
@@ -23,6 +24,7 @@ interface Registration {
     _id: string;
     memberId: Member;
     attendedAt?: string;
+    attendedAt2?: string;
     rating?: number;
     feedback?: string;
     surveyAnswers?: SurveyAnswer[];
@@ -78,6 +80,7 @@ interface Event {
 interface AttendanceStats {
     totalRegistered: number;
     totalAttended: number;
+    totalAttended2: number;
     averageRating: number;
 }
 
@@ -93,6 +96,9 @@ export default function EventRegistrationsPage() {
     const [processingGuest, setProcessingGuest] = useState<string | null>(null);
     const [surveyModal, setSurveyModal] = useState(false);
     const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([]);
+    const [secondAttendanceModal, setSecondAttendanceModal] = useState(false);
+    const [attendanceCode2, setAttendanceCode2] = useState<string | null>(null);
+    const [generating2, setGenerating2] = useState(false);
 
     useEffect(() => {
         if (params.id) {
@@ -116,10 +122,11 @@ export default function EventRegistrationsPage() {
             if (attendanceRes.ok) {
                 const data = await attendanceRes.json();
                 setRegistrations(data.registrations || []);
-                setStats(data.stats || { totalRegistered: 0, totalAttended: 0, averageRating: 0 });
+                setStats(data.stats || { totalRegistered: 0, totalAttended: 0, totalAttended2: 0, averageRating: 0 });
+                setAttendanceCode2(data.attendanceCode2 || null);
             } else {
                 console.error('Attendance API error:', attendanceRes.status);
-                setStats({ totalRegistered: 0, totalAttended: 0, averageRating: 0 });
+                setStats({ totalRegistered: 0, totalAttended: 0, totalAttended2: 0, averageRating: 0 });
             }
 
             if (guestRes.ok) {
@@ -132,7 +139,7 @@ export default function EventRegistrationsPage() {
             }
         } catch (error) {
             console.error('Veriler yuklenirken hata:', error);
-            setStats({ totalRegistered: 0, totalAttended: 0, averageRating: 0 });
+            setStats({ totalRegistered: 0, totalAttended: 0, totalAttended2: 0, averageRating: 0 });
         } finally {
             setLoading(false);
         }
@@ -190,28 +197,40 @@ export default function EventRegistrationsPage() {
 
         const memberData = registrations.map((reg) => {
             const member = reg.memberId;
-            return {
+            const baseData: any = {
                 'Tip': 'Öğrenci',
                 'Öğrenci No': member?.studentNo || reg.studentNumber || '-',
                 'Ad Soyad': member?.fullName || reg.name || '-',
                 'E-posta': member?.email || reg.email || '-',
                 'Telefon': member?.phone || reg.phone || '-',
                 'Kayıt Tarihi': new Date(reg.createdAt).toLocaleString('tr-TR'),
-                'Yoklamada': reg.attendedAt ? 'Evet' : 'Hayır',
-                'Puan': reg.rating || '-',
+                '1. Yoklama': reg.attendedAt ? 'Evet' : 'Hayır',
             };
+            // 2. yoklama sadece açıksa ekle
+            if (attendanceCode2) {
+                baseData['2. Yoklama'] = reg.attendedAt2 ? 'Evet' : 'Hayır';
+            }
+            baseData['Puan'] = reg.rating || '-';
+            return baseData;
         });
 
-        const guestData = guestRegistrations.filter(g => g.status === 'approved').map((reg) => ({
-            'Tip': 'Misafir',
-            'Öğrenci No': '-',
-            'Ad Soyad': reg.fullName,
-            'E-posta': reg.email,
-            'Telefon': reg.phone || '-',
-            'Kayıt Tarihi': new Date(reg.createdAt).toLocaleString('tr-TR'),
-            'Yoklamada': reg.attendedAt ? 'Evet' : 'Hayır',
-            'Puan': reg.rating || '-',
-        }));
+        const guestData = guestRegistrations.filter(g => g.status === 'approved').map((reg) => {
+            const baseData: any = {
+                'Tip': 'Misafir',
+                'Öğrenci No': '-',
+                'Ad Soyad': reg.fullName,
+                'E-posta': reg.email,
+                'Telefon': reg.phone || '-',
+                'Kayıt Tarihi': new Date(reg.createdAt).toLocaleString('tr-TR'),
+                '1. Yoklama': reg.attendedAt ? 'Evet' : 'Hayır',
+            };
+            // 2. yoklama sadece açıksa ekle
+            if (attendanceCode2) {
+                baseData['2. Yoklama'] = '-';
+            }
+            baseData['Puan'] = reg.rating || '-';
+            return baseData;
+        });
 
         const excelData = [...memberData, ...guestData];
 
@@ -223,6 +242,31 @@ export default function EventRegistrationsPage() {
         const filename = `${event?.title || 'etkinlik'}-katilimcilar-${timestamp}.xlsx`;
 
         XLSX.writeFile(workbook, filename);
+    };
+
+    const generate2ndAttendance = async () => {
+        setGenerating2(true);
+        try {
+            const res = await fetch(`/api/events/${params.id}/attendance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'generate2' }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setAttendanceCode2(data.attendanceCode2);
+                setSecondAttendanceModal(true);
+                showToast('2. Yoklama QR kodu oluşturuldu', 'success');
+            } else {
+                const data = await res.json();
+                showToast(data.error || 'QR oluşturulamadı', 'error');
+            }
+        } catch (error) {
+            showToast('Bir hata oluştu', 'error');
+        } finally {
+            setGenerating2(false);
+        }
     };
 
     if (loading) {
@@ -250,6 +294,13 @@ export default function EventRegistrationsPage() {
                         </h1>
                     </div>
                     <div className="flex gap-2">
+                        <button
+                            onClick={attendanceCode2 ? () => setSecondAttendanceModal(true) : generate2ndAttendance}
+                            disabled={generating2}
+                            className="px-6 py-3 bg-neo-blue text-black border-4 border-black shadow-neo font-black uppercase hover:shadow-none transition-all disabled:opacity-50"
+                        >
+                            {generating2 ? 'Oluşturuluyor...' : attendanceCode2 ? '2. Yoklama QR' : '2. Yoklamayı Aç'}
+                        </button>
                         {surveyQuestions.length > 0 && (
                             <button
                                 onClick={() => setSurveyModal(true)}
@@ -270,7 +321,7 @@ export default function EventRegistrationsPage() {
 
                 {/* Stats */}
                 {stats && (
-                    <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className={`grid ${attendanceCode2 ? 'grid-cols-4' : 'grid-cols-3'} gap-4 mt-4`}>
                         <div className="bg-neo-blue border-2 border-black p-4 text-center">
                             <div className="text-3xl font-black">{stats.totalRegistered + approvedGuests.length}</div>
                             <div className="text-sm font-bold uppercase">Kayıtlı</div>
@@ -279,8 +330,16 @@ export default function EventRegistrationsPage() {
                             <div className="text-3xl font-black">
                                 {stats.totalAttended + approvedGuests.filter(g => g.attendedAt).length}
                             </div>
-                            <div className="text-sm font-bold uppercase">Yoklamada</div>
+                            <div className="text-sm font-bold uppercase">{attendanceCode2 ? '1. Yoklama' : 'Yoklamada'}</div>
                         </div>
+                        {attendanceCode2 && (
+                            <div className="bg-neo-purple border-2 border-black p-4 text-center">
+                                <div className="text-3xl font-black text-white">
+                                    {stats.totalAttended2}
+                                </div>
+                                <div className="text-sm font-bold uppercase text-white">2. Yoklama</div>
+                            </div>
+                        )}
                         <div className="bg-neo-yellow border-2 border-black p-4 text-center">
                             <div className="text-3xl font-black">
                                 {stats.averageRating > 0 ? `${stats.averageRating} ★` : '-'}
@@ -331,7 +390,8 @@ export default function EventRegistrationsPage() {
                                 <th className="px-4 py-3 text-left text-xs font-black uppercase">Bölüm</th>
                                 <th className="px-4 py-3 text-left text-xs font-black uppercase">E-posta</th>
                                 <th className="px-4 py-3 text-center text-xs font-black uppercase">Kaydoldu</th>
-                                <th className="px-4 py-3 text-center text-xs font-black uppercase">Yoklamada</th>
+                                <th className="px-4 py-3 text-center text-xs font-black uppercase">{attendanceCode2 ? '1. Yoklama' : 'Yoklamada'}</th>
+                                {attendanceCode2 && <th className="px-4 py-3 text-center text-xs font-black uppercase">2. Yoklama</th>}
                                 <th className="px-4 py-3 text-center text-xs font-black uppercase">Puan</th>
                             </tr>
                         </thead>
@@ -368,6 +428,19 @@ export default function EventRegistrationsPage() {
                                                 </span>
                                             )}
                                         </td>
+                                        {attendanceCode2 && (
+                                            <td className="px-4 py-3 text-center">
+                                                {reg.attendedAt2 ? (
+                                                    <span className="px-2 py-1 text-xs font-black bg-neo-purple text-white border border-black inline-flex items-center justify-center">
+                                                        <Check size={12} />
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2 py-1 text-xs font-black bg-gray-200 border border-black text-gray-500 inline-flex items-center justify-center">
+                                                        -
+                                                    </span>
+                                                )}
+                                            </td>
+                                        )}
                                         <td className="px-4 py-3 text-center">
                                             {reg.rating ? (
                                                 <span className="font-bold text-yellow-600">{reg.rating} ★</span>
@@ -378,7 +451,7 @@ export default function EventRegistrationsPage() {
                             })}
                             {registrations.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500 font-bold">
+                                    <td colSpan={attendanceCode2 ? 8 : 7} className="px-6 py-8 text-center text-gray-500 font-bold">
                                         Henüz öğrenci kaydı bulunmamaktadır.
                                     </td>
                                 </tr>
@@ -612,6 +685,43 @@ export default function EventRegistrationsPage() {
                         <button
                             onClick={() => setSurveyModal(false)}
                             className="w-full mt-6 py-3 bg-gray-200 border-2 border-black font-black text-sm hover:bg-gray-300 transition-all shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                        >
+                            Kapat
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 2nd Attendance QR Modal */}
+            {secondAttendanceModal && attendanceCode2 && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4" onClick={() => setSecondAttendanceModal(false)}>
+                    <div className="bg-white border-4 border-black shadow-neo-lg max-w-md w-full p-6 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 className="text-xl font-black uppercase">2. Yoklama</h3>
+                                <p className="text-sm text-gray-600 font-bold">{event?.title}</p>
+                            </div>
+                            <button onClick={() => setSecondAttendanceModal(false)} className="text-2xl font-black hover:scale-110 transition-transform">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="bg-neo-purple/10 border-2 border-black p-4 mb-4">
+                            <p className="text-sm font-bold text-center mb-2">2. Oturum Yoklama QR Kodu</p>
+                            <div className="bg-white p-4 border-2 border-black flex items-center justify-center">
+                                <QRCode
+                                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/events/${params.id}/checkin?code=${attendanceCode2}&session=2`}
+                                    size={200}
+                                />
+                            </div>
+                            <p className="text-xs text-center mt-2 text-gray-500 font-medium">
+                                Katılımcılar bu QR kodu taratarak 2. yoklama yapabilir
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={() => setSecondAttendanceModal(false)}
+                            className="w-full py-3 bg-gray-200 border-2 border-black font-black text-sm hover:bg-gray-300 transition-all shadow-neo active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                         >
                             Kapat
                         </button>

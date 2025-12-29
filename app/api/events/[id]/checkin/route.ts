@@ -18,7 +18,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
         await connectDB();
         const { id } = await context.params;
-        const { rating, comment, surveyAnswers } = await request.json();
+        const { rating, comment, surveyAnswers, session } = await request.json();
 
         const event = await Event.findById(id);
         if (!event) {
@@ -35,30 +35,48 @@ export async function POST(request: NextRequest, context: RouteContext) {
             memberId: auth.userId,
         });
 
+        // 2. yoklama mı?
+        const isSession2 = session === 2 || session === '2';
+
         if (registration) {
-            // Update existing registration with attendance
-            if (registration.attendedAt) {
-                return NextResponse.json({ error: 'Zaten yoklama yaptınız' }, { status: 400 });
+            if (isSession2) {
+                // 2. yoklama
+                if (registration.attendedAt2) {
+                    return NextResponse.json({ error: 'Zaten 2. yoklama yaptınız' }, { status: 400 });
+                }
+                registration.attendedAt2 = new Date();
+            } else {
+                // 1. yoklama
+                if (registration.attendedAt) {
+                    return NextResponse.json({ error: 'Zaten yoklama yaptınız' }, { status: 400 });
+                }
+                registration.attendedAt = new Date();
+                registration.rating = rating;
+                registration.feedback = comment;
+                registration.surveyAnswers = surveyAnswers || [];
             }
-            registration.attendedAt = new Date();
-            registration.rating = rating;
-            registration.feedback = comment;
-            registration.surveyAnswers = surveyAnswers || [];
             await registration.save();
         } else {
             // Create new registration with attendance
-            registration = await Registration.create({
+            const regData: any = {
                 eventId: id,
                 memberId: auth.userId,
-                attendedAt: new Date(),
-                rating,
-                feedback: comment,
-                surveyAnswers: surveyAnswers || [],
-            });
+            };
+
+            if (isSession2) {
+                regData.attendedAt2 = new Date();
+            } else {
+                regData.attendedAt = new Date();
+                regData.rating = rating;
+                regData.feedback = comment;
+                regData.surveyAnswers = surveyAnswers || [];
+            }
+
+            registration = await Registration.create(regData);
         }
 
         return NextResponse.json({
-            message: 'Yoklama basarılı!',
+            message: isSession2 ? '2. Yoklama başarılı!' : 'Yoklama başarılı!',
             registration,
         });
     } catch (error) {
@@ -66,3 +84,4 @@ export async function POST(request: NextRequest, context: RouteContext) {
         return NextResponse.json({ error: 'Bir hata olustu' }, { status: 500 });
     }
 }
+

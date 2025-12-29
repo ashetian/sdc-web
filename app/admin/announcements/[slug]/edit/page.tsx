@@ -112,6 +112,9 @@ export default function EditAnnouncementPage({
         contentBlocks: contentBlocks,
       };
 
+      // Debug log
+      console.log('Gönderilen veri:', { image: updatedData.image, slug: updatedData.slug });
+
       const res = await fetch(`/api/announcements/${slug}`, {
         method: "PUT",
         headers: {
@@ -120,9 +123,11 @@ export default function EditAnnouncementPage({
         body: JSON.stringify(updatedData),
       });
 
+      const responseData = await res.json();
+      console.log('API yanıtı:', responseData);
+
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Duyuru güncellenirken bir hata oluştu");
+        throw new Error(responseData.error || "Duyuru güncellenirken bir hata oluştu");
       }
 
       router.push("/admin");
