@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Applicant } from '@/app/lib/models/Applicant';
 import { z } from 'zod';
 import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-import { JWT_SECRET } from '@/app/lib/auth';
+import { JWT_SECRET, verifyAdmin } from '@/app/lib/auth';
 
 // Validation schema
 const applicantSchema = z.object({
@@ -35,8 +35,13 @@ const applicantSchema = z.object({
     }),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
+        const admin = await verifyAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli (Admin)' }, { status: 401 });
+        }
+
         await connectDB();
         const applicants = await Applicant.find({}).sort({ createdAt: -1 });
         return NextResponse.json(applicants);

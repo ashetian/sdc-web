@@ -1,36 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Setting } from '@/app/lib/models/Setting';
-import { verifyAuth } from '@/app/lib/auth';
+import { verifyAuth, verifyAdmin } from '@/app/lib/auth';
 import { logAdminAction, AUDIT_ACTIONS } from '@/app/lib/utils/logAdminAction';
-import TeamMember from '@/app/lib/models/TeamMember';
-import AdminAccess from '@/app/lib/models/AdminAccess';
 
-// Shared verifyAdmin helper (same as calendar routes)
-async function verifyAdmin() {
-    const auth = await verifyAuth();
-    if (!auth?.userId) return null;
 
-    await connectDB();
-
-    // Check TeamMember role first (president/VP are auto-admins)
-    const teamMember = await TeamMember.findOne({ memberId: auth.userId, isActive: true });
-    if (teamMember && ['president', 'vice_president'].includes(teamMember.role)) {
-        return { userId: auth.userId, nickname: auth.nickname };
-    }
-
-    // Then check AdminAccess table
-    const access = await AdminAccess.findOne({ memberId: auth.userId });
-    return access ? { userId: auth.userId, nickname: auth.nickname } : null;
-}
-
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
         await connectDB();
         const settings = await Setting.find({});
+
+        // Check if requester is admin
+        const admin = await verifyAdmin(request);
+        const isAdmin = !!admin;
+
         // Convert array to object for easier consumption { key: value }
-        const settingsMap = settings.reduce((acc, curr) => {
-            acc[curr.key] = curr.value;
+        const SENSITIVE_KEYS = ['gmailUser', 'gmailAppPassword', 'smtpUser', 'smtpPassword', 'emailPassword'];
+        const settingsMap = settings.reduce((acc: Record<string, string>, curr: any) => {
+            // If admin, include sensitive keys, otherwise filter them
+            if (isAdmin || !SENSITIVE_KEYS.includes(curr.key)) {
+                acc[curr.key] = curr.value;
+            }
             return acc;
         }, {} as Record<string, string>);
 
@@ -46,7 +36,7 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         // Auth check - STRICT ADMIN ONLY
-        const admin = await verifyAdmin();
+        const admin = await verifyAdmin(request);
         if (!admin) {
             return NextResponse.json({ error: 'Yetkilendirme gerekli (Admin)' }, { status: 401 });
         }

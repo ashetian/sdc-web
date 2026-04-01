@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { GuestRegistration } from '@/app/lib/models/GuestRegistration';
 import { Event } from '@/app/lib/models/Event';
-import { verifyAuth } from '@/app/lib/auth';
+import { verifyAdmin } from '@/app/lib/auth';
 import { verifyTurnstileToken } from '@/app/lib/turnstile';
 import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/app/lib/rateLimit';
 
@@ -12,9 +12,9 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const user = await verifyAuth(request);
-        if (!user) {
-            return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
+        const admin = await verifyAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli (Admin)' }, { status: 401 });
         }
 
         await connectDB();

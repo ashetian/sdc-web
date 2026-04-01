@@ -41,3 +41,25 @@ export async function verifyAuth(req?: NextRequest) {
         return null;
     }
 }
+
+export async function verifyAdmin(req?: NextRequest) {
+    const auth = await verifyAuth(req);
+    if (!auth?.userId) return null;
+
+    // Dynamically import models to avoid circular dependencies if auth is used across many files
+    const connectDB = (await import('@/app/lib/db')).default;
+    const TeamMember = (await import('@/app/lib/models/TeamMember')).default;
+    const AdminAccess = (await import('@/app/lib/models/AdminAccess')).default;
+
+    await connectDB();
+
+    // Check TeamMember role first (president/VP are auto-admins)
+    const teamMember = await TeamMember.findOne({ memberId: auth.userId, isActive: true });
+    if (teamMember && ['president', 'vice_president'].includes(teamMember.role)) {
+        return { userId: auth.userId, nickname: auth.nickname };
+    }
+
+    // Then check AdminAccess table
+    const access = await AdminAccess.findOne({ memberId: auth.userId });
+    return access ? { userId: auth.userId, nickname: auth.nickname } : null;
+}

@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import Member from '@/app/lib/models/Member';
 import * as XLSX from 'xlsx';
+import { verifyAdmin } from '@/app/lib/auth';
 
 // GET - List all members with optional search
 export async function GET(request: NextRequest) {
     try {
+        const admin = await verifyAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli (Admin)' }, { status: 401 });
+        }
+
         await connectDB();
 
         const { searchParams } = new URL(request.url);

@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { Registration } from '@/app/lib/models/Registration';
 import { Event } from '@/app/lib/models/Event';
-import { verifyAuth } from '@/app/lib/auth';
+import { verifyAuth, verifyAdmin } from '@/app/lib/auth';
 
 // GET - List registrations with member info (admin)
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const admin = await verifyAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Yetkilendirme gerekli (Admin)' }, { status: 401 });
+        }
+
         await connectDB();
         const { id } = await params;
 
